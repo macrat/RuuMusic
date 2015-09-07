@@ -31,6 +31,7 @@ public class PlayerFragment extends Fragment {
 	private String repeatMode;
 	private boolean shuffleMode;
 	public Timer updateProgressTimer;
+	private boolean firstMessage = true;
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -200,7 +201,10 @@ public class PlayerFragment extends Fragment {
 
 				String path = intent.getStringExtra("path");
 				if(path == null) {
-					((MainActivity)getActivity()).moveToPlaylist();
+					if(firstMessage) {
+						((MainActivity) getActivity()).moveToPlaylist();
+						firstMessage = false;
+					}
 				}else{
 					File file = new File(path);
 

@@ -13,6 +13,8 @@ import android.media.MediaPlayer;
 import android.os.Handler;
 import android.widget.Toast;
 import android.media.MediaMetadataRetriever;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 
 import android.util.Log;
 
@@ -36,6 +38,10 @@ public class RuuService extends Service {
 	@Override
 	public void onCreate() {
 		player = new MediaPlayer();
+
+		SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(this);
+		repeatMode = preference.getString("repeat_mode", "off");
+		shuffleMode = preference.getBoolean("shuffle_mode", false);
 
 		player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
 			@Override
@@ -212,6 +218,11 @@ public class RuuService extends Service {
 		if(mode.equals("off") || mode.equals("loop") || mode.equals("one")) {
 			repeatMode = mode;
 			sendStatus();
+			
+			SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(this);
+			SharedPreferences.Editor editor = preference.edit();
+			editor.putString("repeat_mode", repeatMode);
+			editor.apply();
 		}
 	}
 	
@@ -228,6 +239,11 @@ public class RuuService extends Service {
 
 		shuffleMode = mode;
 		sendStatus();
+
+		SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(this);
+		SharedPreferences.Editor editor = preference.edit();
+		editor.putBoolean("shuffle_mode", shuffleMode);
+		editor.apply();
 	}
 	
 	private void next() {
