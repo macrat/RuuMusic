@@ -37,10 +37,6 @@ public class PlayerFragment extends Fragment {
 							 Bundle savedInstanceState) {
 
 		View view = inflater.inflate(R.layout.fragment_player, container, false);
-
-		Intent intent = new Intent(getActivity(), RuuService.class);
-		intent.setAction("RUU_PING");
-		getActivity().startService(intent);
 		
 		view.findViewById(R.id.playButton).setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -125,6 +121,10 @@ public class PlayerFragment extends Fragment {
 	@Override
 	public void onResume() {
 		super.onResume();
+
+		Intent intent = new Intent(getActivity(), RuuService.class);
+		intent.setAction("RUU_PING");
+		getActivity().startService(intent);
 		
 		IntentFilter intentFilter = new IntentFilter();
 		intentFilter.addAction("RUU_STATUS");
