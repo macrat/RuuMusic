@@ -3,7 +3,9 @@ package jp.blanktar.ruumusic;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Stack;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -18,7 +20,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.app.Activity;
-
 import android.view.Menu;
 
 import android.util.Log;
@@ -27,6 +28,8 @@ import android.util.Log;
 public class PlaylistFragment extends Fragment {
 	private ArrayAdapter<String> adapter;
 	public File current;
+	private Stack<DirectoryCache> directoryCache = new Stack<DirectoryCache>();
+	private DirectoryCache currentCache;
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -42,17 +45,11 @@ public class PlaylistFragment extends Fragment {
 		lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				String path_to = (String) lv.getItemAtPosition(position);
-				if (path_to != "/") {
-					File file = new File(current, path_to);
-					if (file.isDirectory()) {
-						changeDir(file);
-					} else {
-						changeMusic(file.getPath());
-					}
+				File file = new File(current, (String) lv.getItemAtPosition(position));
+				if (file.isDirectory()) {
+					changeDir(file);
 				} else {
-					SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(getActivity());
-					changeDir(new File(preference.getString("root_directory", "/")));
+					changeMusic(file.getPath());
 				}
 			}
 		});
@@ -118,14 +115,47 @@ public class PlaylistFragment extends Fragment {
 		if(!dir.equals(rootfile)
 		&& !dir.getPath().startsWith(rootfile.getPath())) {
 			Log.e("RuuMusic playlist", "access to out of root: " + dir.getPath());
+			return;
 		}else if(!dir.isDirectory()) {
 			Toast.makeText(getActivity(), dir.getPath() + " is not directory", Toast.LENGTH_LONG).show();
+			return;
+		}else if(!directoryCache.empty() && directoryCache.peek().path.equals(dir)) {
+			currentCache = directoryCache.pop();
+			
+			current = dir;
+			
+			if(((MainActivity)getActivity()).getCurrentPage() == 1) {
+				updateTitle();
+			}
+			
+			adapter.clear();
+			if(current.getParentFile() != null && !current.equals(rootfile)) {
+				adapter.add("../");
+			}
+			for(String file: currentCache.files) {
+				adapter.add(file);
+			}
+			
+			((ListView) getActivity().findViewById(R.id.playlist)).setSelection(currentCache.selection);
+			int i = ((ListView) getActivity().findViewById(R.id.playlist)).getFirstVisiblePosition();
+
+			updateMenu();
 		}else{
 			File[] files = dir.listFiles();
 			
 			if(files == null) {
 				Toast.makeText(getActivity(), "can't open " + dir.getPath(), Toast.LENGTH_LONG).show();
-			}else{
+			}else {
+				if(!directoryCache.empty() && !currentCache.path.equals(dir.getParentFile())){
+					while(!directoryCache.empty()) {
+						directoryCache.pop();
+					}
+				}else if(currentCache != null) {
+					currentCache.selection = ((ListView) getActivity().findViewById(R.id.playlist)).getFirstVisiblePosition();
+					directoryCache.push(currentCache);
+				}
+				currentCache = new DirectoryCache(dir);
+
 				current = dir;
 				if(current.getPath().equals("")) {
 					current = new File(rootDirectory);
@@ -134,27 +164,28 @@ public class PlaylistFragment extends Fragment {
 				if(((MainActivity)getActivity()).getCurrentPage() == 1) {
 					updateTitle();
 				}
-				
-				adapter.clear();
-				if(current.getParentFile() != null && !current.equals(rootfile)) {
-					adapter.add("/");
-					if (!current.getParentFile().equals(rootfile)) {
-						adapter.add("../");
-					}
-				}
 
 				Arrays.sort(files);
+				
+				adapter.clear();
+				
+				if(current.getParentFile() != null && !current.equals(rootfile)) {
+					adapter.add("../");
+				}
+				
 				String before = "";
 				for (File file : files) {
 					String name = file.getName();
 					if(name.length() > 0 && name.charAt(0) != '.') {
 						if (file.isDirectory()) {
 							adapter.add(name + "/");
+							currentCache.files.add(name + "/");
 						}else if(FileTypeUtil.isSupported(file.getName())) {
 							name = name.substring(0, name.lastIndexOf("."));
 
 							if(!name.equals(before)) {
 								adapter.add(name);
+								currentCache.files.add(name);
 								before = name;
 							}
 						}
@@ -201,3 +232,15 @@ public class PlaylistFragment extends Fragment {
 		}
 	}
 }
+
+
+class DirectoryCache {
+	public File path;
+	public ArrayList<String> files = new ArrayList<String>();
+	public int selection = 0;
+	
+	public DirectoryCache(File path) {
+		this.path = path;
+	}
+}
+
