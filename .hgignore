@@ -1,0 +1,10 @@
+syntax: glob
+.gradle
+local.properties
+.idea/workspace.xml
+.idea/libraries
+.DS_Store
+build
+captures
+.DS_Store
+Thumbs.db

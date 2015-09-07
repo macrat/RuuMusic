@@ -1,0 +1,8 @@
+<resources>
+	<string name="app_name">RuuMusic</string>
+
+	<string name="action_set_root">set here as root directory</string>
+	<string name="action_unset_root">unset root directory</string>
+
+	<string name="hello_world">Hello world!</string>
+</resources>

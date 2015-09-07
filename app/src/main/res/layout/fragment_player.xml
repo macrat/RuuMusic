@@ -1,0 +1,93 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+				xmlns:tools="http://schemas.android.com/tools"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:paddingLeft="@dimen/activity_horizontal_margin"
+				android:paddingRight="@dimen/activity_horizontal_margin"
+				android:paddingTop="@dimen/activity_vertical_margin"
+				android:paddingBottom="@dimen/activity_vertical_margin"
+				tools:context="jp.blanktar.ruumusic.PlayerFragment">
+
+	<ImageButton
+		android:layout_width="80dp"
+		android:layout_height="80dp"
+		android:id="@+id/playButton"
+		android:layout_alignParentBottom="true"
+		android:layout_centerHorizontal="true"
+		android:src="@drawable/ic_play_arrow"/>
+
+	<ImageButton
+		android:layout_width="70dp"
+		android:layout_height="70dp"
+		android:id="@+id/prevButton"
+		android:layout_alignBottom="@+id/playButton"
+		android:layout_toLeftOf="@+id/playButton"
+		android:src="@drawable/ic_skip_previous"/>
+
+	<ImageButton
+		android:layout_width="60dp"
+		android:layout_height="60dp"
+		android:id="@+id/shuffleButton"
+		android:layout_alignBottom="@+id/prevButton"
+		android:layout_toLeftOf="@+id/prevButton"
+		android:src="@drawable/ic_reorder"/>
+
+	<ImageButton
+		android:layout_width="70dp"
+		android:layout_height="70dp"
+		android:id="@+id/nextButton"
+		android:layout_alignBottom="@+id/playButton"
+		android:layout_toRightOf="@+id/playButton"
+		android:src="@drawable/ic_skip_next"/>
+	
+	<ImageButton
+		android:layout_width="60dp"
+		android:layout_height="60dp"
+		android:id="@+id/repeatButton"
+		android:layout_alignBottom="@+id/nextButton"
+		android:layout_toRightOf="@+id/nextButton"
+		android:src="@drawable/ic_trending_flat"/>
+
+	<SeekBar
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:id="@+id/seekBar"
+		android:layout_centerVertical="true"
+		android:layout_centerHorizontal="true"/>
+	
+	<TextView
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:textSize="20sp"
+		android:gravity="center"
+		android:id="@+id/musicPath"
+		android:layout_above="@+id/musicName"/>
+	
+	<TextView
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:textSize="60sp"
+		android:gravity="center"
+		android:id="@+id/musicName"
+		android:layout_above="@+id/seekBar"/>
+
+	<!-- Cause SIGABRT on extraMetadata at RuuService if can't decode medatata.
+	<TextView
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_above="@+id/seekBar"
+		android:textSize="30sp"
+		android:gravity="center"
+		android:id="@+id/artist"/>
+		-->
+	
+	<TextView
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_below="@+id/seekBar"
+		android:textSize="30sp"
+		android:text="- / -"
+		android:gravity="center"
+		android:id="@+id/progress"/>
+	
+</RelativeLayout>

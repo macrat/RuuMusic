@@ -1,0 +1,14 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+	  xmlns:app="http://schemas.android.com/apk/res-auto"
+	  xmlns:tools="http://schemas.android.com/tools"
+	  tools:context=".MainActivity">
+	
+	<item android:id="@+id/action_set_root"
+		  android:title="@string/action_set_root"
+		  app:showAsAction="never"/>
+
+	<item android:id="@+id/action_unset_root"
+		  android:title="@string/action_unset_root"
+		  app:showAsAction="never"/>
+	
+</menu>
