@@ -71,16 +71,6 @@
 		android:id="@+id/musicName"
 		android:layout_above="@+id/seekBar"/>
 
-	<!-- Cause SIGABRT on extraMetadata at RuuService if can't decode medatata.
-	<TextView
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:layout_above="@+id/seekBar"
-		android:textSize="30sp"
-		android:gravity="center"
-		android:id="@+id/artist"/>
-		-->
-	
 	<TextView
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"

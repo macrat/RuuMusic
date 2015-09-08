@@ -113,21 +113,6 @@ public class RuuService extends Service {
 		sendIntent.putExtra("shuffle", shuffleMode);
 		
 		if(ready) {
-			/***
-			 * Cause SIGABRT if can't decode medatata.
-
-			MediaMetadataRetriever metadata = new MediaMetadataRetriever();
-			metadata.setDataSource(FileTypeUtil.detectRealName(path));
-
-			String artist = metadata.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
-			if(artist == null) {
-				artist = "";
-			}
-			sendIntent.putExtra("artist", artist);
-
-			 *
-			 ***/
-			
 			sendIntent.putExtra("playing", player.isPlaying());
 			sendIntent.putExtra("duration", player.getDuration());
 			sendIntent.putExtra("current", player.getCurrentPosition());

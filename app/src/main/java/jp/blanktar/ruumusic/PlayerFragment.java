@@ -189,14 +189,6 @@ public class PlayerFragment extends Fragment {
 					shuffleButton.setImageResource(R.drawable.ic_reorder);
 				}
 
-				/** Cause SIGABRT on extraMetadata at RuuService if can't decode medatata.
-				 String artist = intent.getStringExtra("artist");
-				 if(artist == null) {
-				 artist = "";
-				 }
-				 ((TextView) getView().findViewById(R.id.artist)).setText(artist);
-				 */
-
 				((SeekBar)getView().findViewById(R.id.seekBar)).setMax(duration);
 
 				String path = intent.getStringExtra("path");
