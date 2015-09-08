@@ -266,9 +266,9 @@ public class RuuService extends Service {
 			sendStatus();
 			
 			SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(this);
-			SharedPreferences.Editor editor = preference.edit();
-			editor.putString("repeat_mode", repeatMode);
-			editor.apply();
+			preference.edit()
+					.putString("repeat_mode", repeatMode)
+					.apply();
 		}
 	}
 	
@@ -287,9 +287,9 @@ public class RuuService extends Service {
 		sendStatus();
 
 		SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(this);
-		SharedPreferences.Editor editor = preference.edit();
-		editor.putBoolean("shuffle_mode", shuffleMode);
-		editor.apply();
+		preference.edit()
+				.putBoolean("shuffle_mode", shuffleMode)
+				.apply();
 	}
 	
 	private void next() {
