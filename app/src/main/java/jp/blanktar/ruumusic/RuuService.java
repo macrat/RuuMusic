@@ -12,15 +12,11 @@ import android.os.IBinder;
 import android.media.MediaPlayer;
 import android.os.Handler;
 import android.widget.Toast;
-import android.media.MediaMetadataRetriever;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.app.Notification;
 import android.support.v4.app.NotificationCompat;
-import android.content.Context;
 import android.app.PendingIntent;
-
-import android.util.Log;
 
 
 public class RuuService extends Service {
@@ -85,32 +81,34 @@ public class RuuService extends Service {
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		if(intent != null) {
-			if (intent.getAction().equals("RUU_PLAY")) {
-				play(intent.getStringExtra("path"));
-			}
-			if (intent.getAction().equals("RUU_PAUSE")) {
-				pause();
-			}
-			if (intent.getAction().equals("RUU_SEEK")) {
-				seek(intent.getIntExtra("newtime", -1));
-			}
-			if(intent.getAction().equals("RUU_REPEAT")) {
-				setRepeatMode(intent.getStringExtra("mode"));
-			}
-			if(intent.getAction().equals("RUU_SHUFFLE")) {
-				setShuffleMode(intent.getBooleanExtra("mode", false));
-			}
-			if(intent.getAction().equals("RUU_PING")) {
-				sendStatus();
-			}
-			if(intent.getAction().equals("RUU_NEXT")) {
-				next();
-			}
-			if(intent.getAction().equals("RUU_PREV")) {
-				prev();
-			}
-			if(intent.getAction().equals("RUU_ROOT_CHANGE")) {
-				updatePlayingNotification();
+			switch (intent.getAction()) {
+				case "RUU_PLAY":
+					play(intent.getStringExtra("path"));
+					break;
+				case "RUU_PAUSE":
+					pause();
+					break;
+				case "RUU_SEEK":
+					seek(intent.getIntExtra("newtime", -1));
+					break;
+				case "RUU_REPEAT":
+					setRepeatMode(intent.getStringExtra("mode"));
+					break;
+				case "RUU_SHUFFLE":
+					setShuffleMode(intent.getBooleanExtra("mode", false));
+					break;
+				case "RUU_PING":
+					sendStatus();
+					break;
+				case "RUU_NEXT":
+					next();
+					break;
+				case "RUU_PREV":
+					prev();
+					break;
+				case "RUU_ROOT_CHANGE":
+					updatePlayingNotification();
+					break;
 			}
 		}
 		return START_NOT_STICKY;
@@ -181,7 +179,7 @@ public class RuuService extends Service {
 			play();
 			return;
 		}
-		if(this.path == path) {
+		if(this.path != null && this.path.equals(path)) {
 			player.pause();
 			player.seekTo(0);
 			play();

@@ -20,8 +20,6 @@ import android.widget.SeekBar;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
-import android.util.Log;
-
 
 public class PlayerFragment extends Fragment {
 	private File currentMusicPath;
@@ -31,7 +29,7 @@ public class PlayerFragment extends Fragment {
 	private int current = -1;
 	private String repeatMode;
 	private boolean shuffleMode;
-	public Timer updateProgressTimer;
+	private Timer updateProgressTimer;
 	private boolean firstMessage = true;
 	
 	@Override
@@ -156,7 +154,7 @@ public class PlayerFragment extends Fragment {
 		updateProgressTimer.cancel();
 	}
 	
-	BroadcastReceiver receiver = new BroadcastReceiver() {
+	final private BroadcastReceiver receiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			if(intent.getAction().equals("RUU_STATUS")) {
@@ -167,30 +165,37 @@ public class PlayerFragment extends Fragment {
 				repeatMode = intent.getStringExtra("repeat");
 				shuffleMode = intent.getBooleanExtra("shuffle", false);
 
-				ImageButton playButton = (ImageButton)getView().findViewById(R.id.playButton);
-				if (playing) {
-					playButton.setImageResource(R.drawable.ic_pause);
-				}else{
-					playButton.setImageResource(R.drawable.ic_play_arrow);
-				}
+				View view = getView();
+				if(view != null) {
+					ImageButton playButton = (ImageButton) view.findViewById(R.id.playButton);
+					if (playing) {
+						playButton.setImageResource(R.drawable.ic_pause);
+					} else {
+						playButton.setImageResource(R.drawable.ic_play_arrow);
+					}
 
-				ImageButton repeatButton = (ImageButton)getView().findViewById(R.id.repeatButton);
-				if(repeatMode.equals("loop")) {
-					repeatButton.setImageResource(R.drawable.ic_repeat);
-				}else if(repeatMode.equals("one")) {
-					repeatButton.setImageResource(R.drawable.ic_repeat_one);
-				}else {
-					repeatButton.setImageResource(R.drawable.ic_trending_flat);
-				}
+					ImageButton repeatButton = (ImageButton) view.findViewById(R.id.repeatButton);
+					switch (repeatMode) {
+						case "loop":
+							repeatButton.setImageResource(R.drawable.ic_repeat);
+							break;
+						case "one":
+							repeatButton.setImageResource(R.drawable.ic_repeat_one);
+							break;
+						default:
+							repeatButton.setImageResource(R.drawable.ic_trending_flat);
+							break;
+					}
 
-				ImageButton shuffleButton = (ImageButton)getView().findViewById(R.id.shuffleButton);
-				if (shuffleMode) {
-					shuffleButton.setImageResource(R.drawable.ic_shuffle);
-				}else{
-					shuffleButton.setImageResource(R.drawable.ic_reorder);
-				}
+					ImageButton shuffleButton = (ImageButton) view.findViewById(R.id.shuffleButton);
+					if (shuffleMode) {
+						shuffleButton.setImageResource(R.drawable.ic_shuffle);
+					} else {
+						shuffleButton.setImageResource(R.drawable.ic_reorder);
+					}
 
-				((SeekBar)getView().findViewById(R.id.seekBar)).setMax(duration);
+					((SeekBar) view.findViewById(R.id.seekBar)).setMax(duration);
+				}
 
 				String path = intent.getStringExtra("path");
 				if(path == null) {
@@ -213,9 +218,12 @@ public class PlayerFragment extends Fragment {
 			if (!path.startsWith("/")) {
 				path = "/" + path;
 			}
-			((TextView) getView().findViewById(R.id.musicPath)).setText(path);
-
-			((TextView) getView().findViewById(R.id.musicName)).setText(currentMusicPath.getName());
+			
+			View view = getView();
+			if(view != null) {
+				((TextView) view.findViewById(R.id.musicPath)).setText(path);
+				((TextView) view.findViewById(R.id.musicName)).setText(currentMusicPath.getName());
+			}
 		}
 	}
 	

@@ -2,7 +2,6 @@ package jp.blanktar.ruumusic;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Stack;
@@ -22,13 +21,11 @@ import android.preference.PreferenceManager;
 import android.app.Activity;
 import android.view.Menu;
 
-import android.util.Log;
-
 
 public class PlaylistFragment extends Fragment {
 	private ArrayAdapter<String> adapter;
 	public File current;
-	private Stack<DirectoryCache> directoryCache = new Stack<DirectoryCache>();
+	private final Stack<DirectoryCache> directoryCache = new Stack<>();
 	private DirectoryCache currentCache;
 	
 	@Override
@@ -37,7 +34,7 @@ public class PlaylistFragment extends Fragment {
 
 		View view = inflater.inflate(R.layout.fragment_playlist, container, false);
 	
-		adapter = new ArrayAdapter<String>(view.getContext(), R.layout.list_item);
+		adapter = new ArrayAdapter<>(view.getContext(), R.layout.list_item);
 		
 		final ListView lv = (ListView)view.findViewById(R.id.playlist);
 		lv.setAdapter(adapter);
@@ -59,7 +56,12 @@ public class PlaylistFragment extends Fragment {
 		if(savedInstanceState == null) {
 			changeDir(new File(preference.getString("root_directory", "/")));
 		}else{
-			changeDir(new File(savedInstanceState.getString("CURRENT_PATH")));
+			String currentPath = savedInstanceState.getString("CURRENT_PATH");
+			if(currentPath != null) {
+				changeDir(new File(currentPath));
+			}else {
+				changeDir(new File(preference.getString("root_directory", "/")));
+			}
 		}
 		
 		return view;
@@ -115,10 +117,8 @@ public class PlaylistFragment extends Fragment {
 		if(!dir.equals(rootfile)
 		&& !dir.getPath().startsWith(rootfile.getPath())) {
 			Toast.makeText(getActivity(), String.format(getString(R.string.out_of_root), dir.getPath()), Toast.LENGTH_LONG).show();
-			return;
 		}else if(!dir.isDirectory()) {
 			Toast.makeText(getActivity(), String.format(getString(R.string.is_not_directory), dir.getPath()), Toast.LENGTH_LONG).show();
-			return;
 		}else if(!directoryCache.empty() && directoryCache.peek().path.equals(dir)) {
 			currentCache = directoryCache.pop();
 			
@@ -180,9 +180,9 @@ public class PlaylistFragment extends Fragment {
 							adapter.add(name + "/");
 							currentCache.files.add(name + "/");
 						}else if(FileTypeUtil.isSupported(file.getName())) {
-							name = name.substring(0, name.lastIndexOf("."));
+							name = FileTypeUtil.stripExtension(name);
 
-							if(!name.equals(before)) {
+							if(name != null && !name.equals(before)) {
 								adapter.add(name);
 								currentCache.files.add(name);
 								before = name;
@@ -239,8 +239,8 @@ public class PlaylistFragment extends Fragment {
 
 
 class DirectoryCache {
-	public File path;
-	public ArrayList<String> files = new ArrayList<String>();
+	public final File path;
+	public final ArrayList<String> files = new ArrayList<>();
 	public int selection = 0;
 	
 	public DirectoryCache(File path) {

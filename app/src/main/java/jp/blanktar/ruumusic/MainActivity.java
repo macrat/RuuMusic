@@ -1,5 +1,6 @@
 package jp.blanktar.ruumusic;
 
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -8,19 +9,14 @@ import android.support.v4.view.ViewPager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.view.KeyEvent;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import android.app.Activity;
-
-import android.util.Log;
 
 
 public class MainActivity extends AppCompatActivity { 
 	private ViewPager viewPager;
-	private long lastBackClicked;
-	protected Menu menu;
+	Menu menu;
 	private PlayerFragment player;
 	private PlaylistFragment playlist;
 	
@@ -35,38 +31,32 @@ public class MainActivity extends AppCompatActivity {
 		viewPager = (ViewPager)findViewById(R.id.viewPager);
 		viewPager.setAdapter(adapter);
 
-		viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+		viewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
 			@Override
-			public void onPageSelected(int position){
-				if(position == 0) {
+			public void onPageSelected(int position) {
+				if (position == 0) {
 					MainActivity.this.setTitle(R.string.app_name);
 					menu.findItem(R.id.action_unset_root).setVisible(false);
 					menu.findItem(R.id.action_set_root).setVisible(false);
-				}else {
-					if(playlist != null) {
-						playlist.updateTitle((Activity) MainActivity.this);
+				} else {
+					if (playlist != null) {
+						playlist.updateTitle(MainActivity.this);
 						playlist.updateMenu(MainActivity.this);
 					}
 				}
 			}
-
-			@Override
-			public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) { }
-
-			@Override
-			public void onPageScrollStateChanged(int state) { }
 		});
 	}
 
 	@Override
 	public void onSaveInstanceState(Bundle state) {
 		super.onSaveInstanceState(state);
-		getSupportFragmentManager().putFragment(state, "player_fragment", (Fragment)player);
-		getSupportFragmentManager().putFragment(state, "playlist_fragment", (Fragment)playlist);
+		getSupportFragmentManager().putFragment(state, "player_fragment", player);
+		getSupportFragmentManager().putFragment(state, "playlist_fragment", playlist);
 	}
 
 	@Override
-	public void onRestoreInstanceState(Bundle state) {
+	public void onRestoreInstanceState(@NonNull Bundle state) {
 		super.onRestoreInstanceState(state);
 		player = (PlayerFragment)getSupportFragmentManager().getFragment(state, "player_fragment");
 		playlist = (PlaylistFragment)getSupportFragmentManager().getFragment(state, "playlist_fragment");
