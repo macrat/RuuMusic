@@ -114,6 +114,7 @@ public class MainActivity extends AppCompatActivity {
 			editor.apply();
 			
 			playlist.updateRoot();
+			player.updateRoot();
 			
 			Intent intent = new Intent(this, RuuService.class);
 			intent.setAction("RUU_ROOT_CHANGE");

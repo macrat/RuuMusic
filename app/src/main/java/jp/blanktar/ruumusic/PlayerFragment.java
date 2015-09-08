@@ -24,6 +24,7 @@ import android.util.Log;
 
 
 public class PlayerFragment extends Fragment {
+	private File currentMusicPath;
 	private boolean playing;
 	private int duration = -1;
 	private long basetime = -1;
@@ -75,11 +76,11 @@ public class PlayerFragment extends Fragment {
 			public void onClick(View view) {
 				Intent intent = new Intent(getActivity(), RuuService.class);
 				intent.setAction("RUU_REPEAT");
-				if(repeatMode != null && repeatMode.equals("loop")) {
+				if (repeatMode != null && repeatMode.equals("loop")) {
 					intent.putExtra("mode", "one");
-				}else if(repeatMode != null && repeatMode.equals("one")) {
+				} else if (repeatMode != null && repeatMode.equals("one")) {
 					intent.putExtra("mode", "off");
-				}else {
+				} else {
 					intent.putExtra("mode", "loop");
 				}
 				getActivity().startService(intent);
@@ -198,17 +199,23 @@ public class PlayerFragment extends Fragment {
 						firstMessage = false;
 					}
 				}else{
-					File file = new File(path);
-
-					SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(getActivity());
-					String fpath = file.getParent().substring(preference.getString("root_directory", "").length()) + "/";
-					((TextView) getView().findViewById(R.id.musicPath)).setText(fpath);
-
-					((TextView) getView().findViewById(R.id.musicName)).setText(file.getName());
+					currentMusicPath = new File(path);
+					updateRoot();
 				}
 			}
 		}
 	};
+	
+	public void updateRoot() {
+		SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(getActivity());
+		String path = currentMusicPath.getParent().substring(preference.getString("root_directory", "").length()) + "/";
+		if(!path.startsWith("/")) {
+			path = "/" + path;
+		}
+		((TextView) getView().findViewById(R.id.musicPath)).setText(path);
+
+		((TextView) getView().findViewById(R.id.musicName)).setText(currentMusicPath.getName());
+	}
 	
 	private String msec2str(long msec) {
 		return ((int)Math.floor(msec/1000/60)) + ":" + String.format("%02d", Math.round(msec/1000)%60);
