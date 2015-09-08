@@ -1,8 +1,13 @@
 <resources>
 	<string name="app_name">RuuMusic</string>
 
-	<string name="action_set_root">set here as root directory</string>
-	<string name="action_unset_root">unset root directory</string>
-
-	<string name="hello_world">Hello world!</string>
+	<string name="action_set_root">Set here as root directory</string>
+	<string name="action_unset_root">Unset root directory</string>
+	
+	<string name="is_not_directory">`%s` is not directory</string>
+	<string name="out_of_root">`%s` is out of root directory</string>
+	<string name="cant_open_dir">Can\'t open directory `%s`</string>
+	<string name="failed_open_music">Failed loading music</string>
+	<string name="first_of_directory">this is first</string>
+	<string name="last_of_directory">this is last</string>
 </resources>

@@ -62,6 +62,15 @@ public class RuuService extends Service {
 				}
 			}
 		});
+		
+		player.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+			@Override
+			public boolean onError(MediaPlayer mp, int what, int extra) {
+				player.reset();
+				showToast(String.format(getString(R.string.failed_open_music), FileTypeUtil.detectRealName(path)));
+				return true;
+			}
+		});
 	}
 
 	@Override
@@ -153,7 +162,7 @@ public class RuuService extends Service {
 		try {
 			player.setDataSource(realName);
 		}catch(IOException e) {
-			showToast("failed loading music: " + realName);
+			showToast(String.format(getString(R.string.failed_open_music), realName));
 			return;
 		}
 
@@ -257,7 +266,7 @@ public class RuuService extends Service {
 					play(playlist.get(0));
 				}
 			} else {
-				showToast("here is last of directory");
+				showToast(getString(R.string.last_of_directory));
 			}
 		}
 	}
@@ -273,7 +282,7 @@ public class RuuService extends Service {
 					play(playlist.get(playlist.size() - 1));
 				}
 			} else {
-				showToast("here is first of directory");
+				showToast(getString(R.string.first_of_directory));
 			}
 		}
 	}

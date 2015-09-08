@@ -114,10 +114,10 @@ public class PlaylistFragment extends Fragment {
 		
 		if(!dir.equals(rootfile)
 		&& !dir.getPath().startsWith(rootfile.getPath())) {
-			Log.e("RuuMusic playlist", "access to out of root: " + dir.getPath());
+			Toast.makeText(getActivity(), String.format(getString(R.string.out_of_root), dir.getPath()), Toast.LENGTH_LONG).show();
 			return;
 		}else if(!dir.isDirectory()) {
-			Toast.makeText(getActivity(), dir.getPath() + " is not directory", Toast.LENGTH_LONG).show();
+			Toast.makeText(getActivity(), String.format(getString(R.string.is_not_directory), dir.getPath()), Toast.LENGTH_LONG).show();
 			return;
 		}else if(!directoryCache.empty() && directoryCache.peek().path.equals(dir)) {
 			currentCache = directoryCache.pop();
@@ -144,7 +144,7 @@ public class PlaylistFragment extends Fragment {
 			File[] files = dir.listFiles();
 			
 			if(files == null) {
-				Toast.makeText(getActivity(), "can't open " + dir.getPath(), Toast.LENGTH_LONG).show();
+				Toast.makeText(getActivity(), String.format(getString(R.string.cant_open_dir), dir.getPath()), Toast.LENGTH_LONG).show();
 			}else {
 				if(!directoryCache.empty() && !currentCache.path.equals(dir.getParentFile())){
 					while(!directoryCache.empty()) {
