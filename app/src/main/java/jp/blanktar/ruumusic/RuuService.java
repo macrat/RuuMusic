@@ -154,12 +154,14 @@ public class RuuService extends Service {
 		Intent intent = new Intent(this, MainActivity.class);
 		PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, 0);
 		Notification notification = new NotificationCompat.Builder(getApplicationContext())
-				.setSmallIcon(R.mipmap.ic_launcher)
+				.setSmallIcon(R.drawable.ic_play_notification)
+				.setColor(0xff333333)
 				.setTicker(pathfile.getName())
 				.setContentTitle(pathfile.getName())
 				.setContentText(musicPath)
 				.setContentIntent(contentIntent)
 				.setOngoing(true)
+				.setPriority(Notification.PRIORITY_MIN)
 				.build();
 		startForeground(1, notification);
 	}
