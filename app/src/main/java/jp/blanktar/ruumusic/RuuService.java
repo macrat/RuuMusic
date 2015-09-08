@@ -72,7 +72,12 @@ public class RuuService extends Service {
 			@Override
 			public boolean onError(MediaPlayer mp, int what, int extra) {
 				player.reset();
-				showToast(String.format(getString(R.string.failed_open_music), FileTypeUtil.detectRealName(path)));
+				String realName = FileTypeUtil.detectRealName(path);
+				if(realName != null) {
+					showToast(String.format(getString(R.string.failed_open_music), realName));
+				}else {
+					showToast(String.format(getString(R.string.failed_open_music), path));
+				}
 				return true;
 			}
 		});
@@ -189,6 +194,10 @@ public class RuuService extends Service {
 		this.path = path;
 	
 		String realName = FileTypeUtil.detectRealName(path);
+		if(realName == null) {
+			showToast(String.format(getString(R.string.music_not_found), path));
+			return;
+		}
 		try {
 			player.setDataSource(realName);
 		}catch(IOException e) {

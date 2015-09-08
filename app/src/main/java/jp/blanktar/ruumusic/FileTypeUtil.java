@@ -65,6 +65,6 @@ public class FileTypeUtil {
 				return file.getPath();
 			}
 		}
-		return "";
+		return null;
 	}
 }

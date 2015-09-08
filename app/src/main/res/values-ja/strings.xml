@@ -10,4 +10,5 @@
 	<string name="failed_open_music">音楽の読み込みに失敗しました</string>
 	<string name="first_of_directory">これが最初の曲です</string>
 	<string name="last_of_directory">これが最後の曲です</string>
+	<string name="music_not_found">`%s`と一致する曲が見つかりません</string>
 </resources>
