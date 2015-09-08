@@ -154,7 +154,7 @@ public class RuuService extends Service {
 		Intent intent = new Intent(this, MainActivity.class);
 		PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, 0);
 		Notification notification = new NotificationCompat.Builder(getApplicationContext())
-				.setSmallIcon(R.drawable.ic_play_arrow)
+				.setSmallIcon(R.mipmap.ic_launcher)
 				.setTicker(pathfile.getName())
 				.setContentTitle(pathfile.getName())
 				.setContentText(musicPath)
