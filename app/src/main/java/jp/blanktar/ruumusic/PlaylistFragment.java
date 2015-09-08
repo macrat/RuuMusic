@@ -27,6 +27,16 @@ public class PlaylistFragment extends Fragment {
 	public File current;
 	private final Stack<DirectoryCache> directoryCache = new Stack<>();
 	private DirectoryCache currentCache;
+
+	private class DirectoryCache {
+		public final File path;
+		public final ArrayList<String> files = new ArrayList<>();
+		public int selection = 0;
+
+		public DirectoryCache(File path) {
+			this.path = path;
+		}
+	}
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -234,17 +244,6 @@ public class PlaylistFragment extends Fragment {
 			changeDir(current.getParentFile());
 			return true;
 		}
-	}
-}
-
-
-class DirectoryCache {
-	public final File path;
-	public final ArrayList<String> files = new ArrayList<>();
-	public int selection = 0;
-	
-	public DirectoryCache(File path) {
-		this.path = path;
 	}
 }
 
