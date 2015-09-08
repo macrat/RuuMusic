@@ -17,7 +17,6 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.app.Notification;
 import android.support.v4.app.NotificationCompat;
-import android.app.NotificationManager;
 import android.content.Context;
 import android.app.PendingIntent;
 
@@ -154,7 +153,6 @@ public class RuuService extends Service {
 		
 		Intent intent = new Intent(this, MainActivity.class);
 		PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, 0);
-		NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
 		Notification notification = new NotificationCompat.Builder(getApplicationContext())
 				.setSmallIcon(R.drawable.ic_play_arrow)
 				.setTicker(pathfile.getName())
@@ -163,12 +161,11 @@ public class RuuService extends Service {
 				.setContentIntent(contentIntent)
 				.setOngoing(true)
 				.build();
-		notificationManager.notify(1, notification);
+		startForeground(1, notification);
 	}
 
 	private void removePlayingNotification() {
-		NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-		notificationManager.cancel(1);
+		stopForeground(true);
 	}
 	
 	private void play() {
