@@ -112,6 +112,11 @@ public class RuuService extends Service {
 		return START_NOT_STICKY;
 	}
 	
+	@Override
+	public void onDestroy() {
+		removePlayingNotification();
+	}
+	
 	private void sendStatus() {
 		Intent sendIntent = new Intent();
 		
@@ -135,8 +140,9 @@ public class RuuService extends Service {
 			return;
 		}
 		
+		File pathfile = new File(path);
 		SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(this);
-		String musicPath = path.substring(preference.getString("root_directory", "/").length());
+		String musicPath = pathfile.getParent().substring(preference.getString("root_directory", "/").length()) + "/";
 		if (!musicPath.startsWith("/")) {
 			musicPath = "/" + musicPath;
 		}
@@ -146,19 +152,23 @@ public class RuuService extends Service {
 		NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
 		Notification notification = new NotificationCompat.Builder(getApplicationContext())
 				.setSmallIcon(R.drawable.ic_play_arrow)
-				.setTicker(musicPath)
-				.setContentTitle("RuuMusic playing")
+				.setTicker(pathfile.getName())
+				.setContentTitle(pathfile.getName())
 				.setContentText(musicPath)
 				.setContentIntent(contentIntent)
 				.setOngoing(true)
 				.build();
 		notificationManager.notify(1, notification);
 	}
+
+	private void removePlayingNotification() {
+		NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+		notificationManager.cancel(1);
+	}
 	
 	private void play() {
 		player.start();
 		sendStatus();
-		
 		updatePlayingNotification();
 	}
 	
@@ -234,9 +244,7 @@ public class RuuService extends Service {
 	private void pause() {
 		player.pause();
 		sendStatus();
-
-		NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
-		notificationManager.cancel(1);
+		removePlayingNotification();
 	}
 	
 	private void seek(int newtime) {
