@@ -1,5 +1,7 @@
 package jp.blanktar.ruumusic;
 
+import java.io.File;
+
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -24,6 +26,13 @@ public class MainActivity extends AppCompatActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+
+		SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(this);
+		if(!(new File(preference.getString("root_directory", "/"))).isDirectory()) {
+			preference.edit()
+					.putString("root_directory", "/")
+					.apply();
+		}
 		
 		FragmentManager manager = getSupportFragmentManager();
 		RuuPager adapter = new RuuPager(manager);
