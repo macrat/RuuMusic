@@ -137,7 +137,6 @@ public class PlaylistFragment extends Fragment {
 			}
 			
 			((ListView) getActivity().findViewById(R.id.playlist)).setSelection(currentCache.selection);
-			int i = ((ListView) getActivity().findViewById(R.id.playlist)).getFirstVisiblePosition();
 
 			updateMenu();
 		}else{
@@ -190,6 +189,11 @@ public class PlaylistFragment extends Fragment {
 							}
 						}
 					}
+				}
+
+				ListView lv = (ListView)getActivity().findViewById(R.id.playlist);
+				if(lv != null) {
+					lv.setSelection(0);
 				}
 				
 				updateMenu();
