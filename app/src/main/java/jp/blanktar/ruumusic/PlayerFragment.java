@@ -207,14 +207,16 @@ public class PlayerFragment extends Fragment {
 	};
 	
 	public void updateRoot() {
-		SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(getActivity());
-		String path = currentMusicPath.getParent().substring(preference.getString("root_directory", "").length()) + "/";
-		if(!path.startsWith("/")) {
-			path = "/" + path;
-		}
-		((TextView) getView().findViewById(R.id.musicPath)).setText(path);
+		if(currentMusicPath != null) {
+			SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(getActivity());
+			String path = currentMusicPath.getParent().substring(preference.getString("root_directory", "").length()) + "/";
+			if (!path.startsWith("/")) {
+				path = "/" + path;
+			}
+			((TextView) getView().findViewById(R.id.musicPath)).setText(path);
 
-		((TextView) getView().findViewById(R.id.musicName)).setText(currentMusicPath.getName());
+			((TextView) getView().findViewById(R.id.musicName)).setText(currentMusicPath.getName());
+		}
 	}
 	
 	private String msec2str(long msec) {
