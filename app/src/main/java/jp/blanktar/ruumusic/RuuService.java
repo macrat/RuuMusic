@@ -15,6 +15,11 @@ import android.widget.Toast;
 import android.media.MediaMetadataRetriever;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.app.Notification;
+import android.support.v4.app.NotificationCompat;
+import android.app.NotificationManager;
+import android.content.Context;
+import android.app.PendingIntent;
 
 import android.util.Log;
 
@@ -46,17 +51,17 @@ public class RuuService extends Service {
 		player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
 			@Override
 			public void onCompletion(MediaPlayer mp) {
-				if(repeatMode.equals("one")) {
+				if (repeatMode.equals("one")) {
 					player.pause();
 					play();
-				}else {
-					if(playlist == null || currentIndex + 1 >= playlist.size() && repeatMode.equals("off")) {
+				} else {
+					if (playlist == null || currentIndex + 1 >= playlist.size() && repeatMode.equals("off")) {
 						pause();
-					}else {
-						if(shuffleMode) {
+					} else {
+						if (shuffleMode) {
 							shufflePlay();
-						}else {
-							play(playlist.get((currentIndex + 1)%playlist.size()));
+						} else {
+							play(playlist.get((currentIndex + 1) % playlist.size()));
 						}
 					}
 				}
@@ -100,6 +105,9 @@ public class RuuService extends Service {
 			if(intent.getAction().equals("RUU_PREV")) {
 				prev();
 			}
+			if(intent.getAction().equals("RUU_ROOT_CHANGE")) {
+				updatePlayingNotification();
+			}
 		}
 		return START_NOT_STICKY;
 	}
@@ -121,10 +129,37 @@ public class RuuService extends Service {
 		
 		getBaseContext().sendBroadcast(sendIntent);
 	}
+
+	private void updatePlayingNotification(){
+		if(!player.isPlaying()) {
+			return;
+		}
+		
+		SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(this);
+		String musicPath = path.substring(preference.getString("root_directory", "/").length());
+		if (!musicPath.startsWith("/")) {
+			musicPath = "/" + musicPath;
+		}
+		
+		Intent intent = new Intent(this, MainActivity.class);
+		PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, 0);
+		NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+		Notification notification = new NotificationCompat.Builder(getApplicationContext())
+				.setSmallIcon(R.drawable.ic_play_arrow)
+				.setTicker(musicPath)
+				.setContentTitle("RuuMusic playing")
+				.setContentText(musicPath)
+				.setContentIntent(contentIntent)
+				.setOngoing(true)
+				.build();
+		notificationManager.notify(1, notification);
+	}
 	
 	private void play() {
 		player.start();
 		sendStatus();
+		
+		updatePlayingNotification();
 	}
 	
 	private void play(String path) {
@@ -199,6 +234,9 @@ public class RuuService extends Service {
 	private void pause() {
 		player.pause();
 		sendStatus();
+
+		NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+		notificationManager.cancel(1);
 	}
 	
 	private void seek(int newtime) {

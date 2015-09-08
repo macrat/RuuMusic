@@ -103,22 +103,22 @@ public class MainActivity extends AppCompatActivity {
 		SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(this);
 
 		//noinspection SimplifiableIfStatement
-		if (id == R.id.action_set_root) {
+		if(id == R.id.action_set_root || id == R.id.action_unset_root) {
 			SharedPreferences.Editor editor = preference.edit();
-			editor.putString("root_directory", playlist.current.getPath());
+			if (id == R.id.action_set_root) {
+				editor.putString("root_directory", playlist.current.getPath());
+			}
+			if (id == R.id.action_unset_root) {
+				editor.putString("root_directory", "/");
+			}
 			editor.apply();
 			
 			playlist.updateRoot();
 			
-			return true;
-		}
-		if(id == R.id.action_unset_root) {
-			SharedPreferences.Editor editor = preference.edit();
-			editor.putString("root_directory", "/");
-			editor.apply();
+			Intent intent = new Intent(this, RuuService.class);
+			intent.setAction("RUU_ROOT_CHANGE");
+			startService(intent);
 
-			playlist.updateRoot();
-			
 			return true;
 		}
 		
