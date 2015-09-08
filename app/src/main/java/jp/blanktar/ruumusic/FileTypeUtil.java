@@ -41,7 +41,9 @@ public class FileTypeUtil {
 		ArrayList<String> result = new ArrayList<String>();
 
 		String before = "";
-		for(File file: path.listFiles()) {
+		File[] files = path.listFiles();
+		Arrays.sort(files);
+		for(File file: files) {
 			String name = file.getPath();
 			if(name.length() > 0 && name.charAt(0) != '.' && file.isFile() && isSupported(name)) {
 				name = stripExtension(name);
