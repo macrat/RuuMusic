@@ -139,11 +139,9 @@ public class MainActivity extends AppCompatActivity {
 	}
 	
 	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		if(keyCode == KeyEvent.KEYCODE_BACK && viewPager.getCurrentItem() == 1 && playlist.onBackKey()){
-			return false;
-		}else {
-			return super.onKeyDown(keyCode, event);
+	public void onBackPressed() {
+		if(viewPager.getCurrentItem() == 0 || !playlist.onBackKey()){
+			super.onBackPressed();
 		}
 	}
 
