@@ -70,11 +70,12 @@ public class RuuService extends Service {
 			public boolean onError(MediaPlayer mp, int what, int extra) {
 				player.reset();
 				String realName = FileTypeUtil.detectRealName(path);
-				if(realName != null) {
-					showToast(String.format(getString(R.string.failed_open_music), realName));
-				}else {
-					showToast(String.format(getString(R.string.failed_open_music), path));
-				}
+
+				Intent sendIntent = new Intent();
+				sendIntent.setAction("RUU_FAILED_OPEN");
+				sendIntent.putExtra("path", realName==null ? path : realName);
+				getBaseContext().sendBroadcast(sendIntent);
+	
 				return true;
 			}
 		});
@@ -216,14 +217,28 @@ public class RuuService extends Service {
 	
 		String realName = FileTypeUtil.detectRealName(path);
 		if(realName == null) {
-			showToast(String.format(getString(R.string.music_not_found), path));
-			return;
-		}
-		try {
-			player.setDataSource(realName);
-		}catch(IOException e) {
-			showToast(String.format(getString(R.string.failed_open_music), realName));
-			return;
+			Intent sendIntent = new Intent();
+			sendIntent.setAction("RUU_NOT_FOUND");
+			sendIntent.putExtra("path", path);
+			getBaseContext().sendBroadcast(sendIntent);
+		}else {
+			try {
+				player.setDataSource(realName);
+
+				player.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+					@Override
+					public void onPrepared(MediaPlayer mp) {
+						ready = true;
+						play();
+					}
+				});
+				player.prepareAsync();
+			} catch (IOException e) {
+				Intent sendIntent = new Intent();
+				sendIntent.setAction("RUU_FAILED_OPEN");
+				sendIntent.putExtra("path", realName);
+				getBaseContext().sendBroadcast(sendIntent);
+			}
 		}
 
 		File newparent = (new File(path)).getParentFile();
@@ -241,15 +256,6 @@ public class RuuService extends Service {
 		}else {
 			currentIndex = playlist.indexOf(path);
 		}
-		
-		player.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-			@Override
-			public void onPrepared(MediaPlayer mp) {
-				ready = true;
-				play();
-			}
-		});
-		player.prepareAsync();
 	}
 	
 	private void shuffleList() {

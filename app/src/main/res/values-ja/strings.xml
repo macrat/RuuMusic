@@ -8,7 +8,9 @@
 	<string name="out_of_root">`%s`はルートディレクトリの外です</string>
 	<string name="cant_open_dir">ディレクトリ`%s`を開くことが出来ません</string>
 	<string name="failed_open_music">音楽の読み込みに失敗しました</string>
+	<string name="music_not_found">ファイルが見つかりません</string>
+	<string name="on_error_next_music">次の曲へ</string>
+	<string name="on_error_cancel">キャンセル</string>
 	<string name="first_of_directory">これが最初の曲です</string>
 	<string name="last_of_directory">これが最後の曲です</string>
-	<string name="music_not_found">`%s`と一致する曲が見つかりません</string>
 </resources>

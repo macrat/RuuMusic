@@ -8,7 +8,9 @@
 	<string name="out_of_root">`%s` is out of root directory</string>
 	<string name="cant_open_dir">Can\'t open directory `%s`</string>
 	<string name="failed_open_music">Failed loading music</string>
-	<string name="music_not_found">Not found file that mathing with `%s`</string>
+	<string name="music_not_found">Music file not found</string>
+	<string name="on_error_next_music">play next</string>
+	<string name="on_error_cancel">cancel</string>
 	<string name="first_of_directory">this is first</string>
 	<string name="last_of_directory">this is last</string>
 </resources>

@@ -19,6 +19,8 @@ import android.widget.TextView;
 import android.widget.SeekBar;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 
 
 public class PlayerFragment extends Fragment {
@@ -128,6 +130,8 @@ public class PlayerFragment extends Fragment {
 		
 		IntentFilter intentFilter = new IntentFilter();
 		intentFilter.addAction("RUU_STATUS");
+		intentFilter.addAction("RUU_FAILED_OPEN");
+		intentFilter.addAction("RUU_NOT_FOUND");
 		getActivity().registerReceiver(receiver, intentFilter);
 
 		final Handler handler = new Handler();
@@ -157,6 +161,12 @@ public class PlayerFragment extends Fragment {
 	final private BroadcastReceiver receiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
+			if(intent.getAction().equals("RUU_FAILED_OPEN")) {
+				onFailPlay(R.string.failed_open_music, intent.getStringExtra("path"));
+			}
+			if(intent.getAction().equals("RUU_NOT_FOUND")) {
+				onFailPlay(R.string.music_not_found, intent.getStringExtra("path"));
+			}
 			if(intent.getAction().equals("RUU_STATUS")) {
 				playing = intent.getBooleanExtra("playing", false);
 				duration = intent.getIntExtra("duration", -1);
@@ -256,5 +266,31 @@ public class PlayerFragment extends Fragment {
 		}
 		
 		text.setText(currentStr + " / " + durationStr);
+	}
+
+	private void onFailPlay(final int messageId, final String path) {
+		AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity());
+		alertDialog.setTitle(getString(messageId));
+		alertDialog.setMessage(path);
+		alertDialog.setPositiveButton(
+				getString(R.string.on_error_next_music),
+				new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int wich) {
+						Intent intent = new Intent(getActivity(), RuuService.class);
+						intent.setAction("RUU_NEXT");
+						getActivity().startService(intent);
+					}
+				}
+		);
+		alertDialog.setNegativeButton(
+				getString(R.string.on_error_cancel),
+				new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int wich) {
+					}
+				}
+		);
+		alertDialog.create().show();
 	}
 }
