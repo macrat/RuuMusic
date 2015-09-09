@@ -15,6 +15,8 @@ import android.widget.Toast;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.app.Notification;
+import android.app.NotificationManager;
+import android.content.Context;
 import android.support.v4.app.NotificationCompat;
 import android.app.PendingIntent;
 
@@ -136,21 +138,25 @@ public class RuuService extends Service {
 		
 		getBaseContext().sendBroadcast(sendIntent);
 	}
-
-	private void updatePlayingNotification(){
-		if(!player.isPlaying()) {
-			return;
-		}
-		
+	
+	private Notification makeNotification() {
 		File pathfile = new File(path);
 		SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(this);
 		String musicPath = pathfile.getParent().substring(preference.getString("root_directory", "/").length()) + "/";
 		if (!musicPath.startsWith("/")) {
 			musicPath = "/" + musicPath;
 		}
+
+		int playpause_icon = player.isPlaying() ? R.drawable.ic_pause : R.drawable.ic_play_arrow;
+		String playpause_text = player.isPlaying() ? "pause" : "play";
+		PendingIntent playpause_pi = PendingIntent.getService(this, 0, (new Intent(this, RuuService.class)).setAction(player.isPlaying() ? "RUU_PAUSE" : "RUU_PLAY"), 0);
 		
+		PendingIntent prev_pi = PendingIntent.getService(this, 0, (new Intent(this, RuuService.class)).setAction("RUU_PREV"), 0);
+		PendingIntent next_pi = PendingIntent.getService(this, 0, (new Intent(this, RuuService.class)).setAction("RUU_NEXT"), 0);
+
 		Intent intent = new Intent(this, MainActivity.class);
 		PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, 0);
+		
 		Notification notification = new NotificationCompat.Builder(getApplicationContext())
 				.setSmallIcon(R.drawable.ic_play_notification)
 				.setColor(0xff333333)
@@ -158,14 +164,32 @@ public class RuuService extends Service {
 				.setContentTitle(pathfile.getName())
 				.setContentText(musicPath)
 				.setContentIntent(contentIntent)
-				.setOngoing(true)
 				.setPriority(Notification.PRIORITY_MIN)
+				.setVisibility(Notification.VISIBILITY_PUBLIC)
+				.addAction(R.drawable.ic_skip_previous, "prev", prev_pi)
+				.addAction(playpause_icon, playpause_text, playpause_pi)
+				.addAction(R.drawable.ic_skip_next, "next", next_pi)
 				.build();
-		startForeground(1, notification);
+		
+		return notification;
+	}
+
+	private void updatePlayingNotification(){
+		if(!player.isPlaying()) {
+			return;
+		}
+		
+		startForeground(1, makeNotification());
 	}
 
 	private void removePlayingNotification() {
+		if(player.isPlaying()) {
+			return;
+		}
+
 		stopForeground(true);
+		
+		((NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE)).notify(1, makeNotification());
 	}
 	
 	private void play() {
