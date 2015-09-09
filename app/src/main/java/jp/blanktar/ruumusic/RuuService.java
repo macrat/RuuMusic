@@ -19,6 +19,7 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.support.v4.app.NotificationCompat;
 import android.app.PendingIntent;
+import android.os.Build;
 
 
 public class RuuService extends Service {
@@ -187,8 +188,10 @@ public class RuuService extends Service {
 		}
 
 		stopForeground(true);
-		
-		((NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE)).notify(1, makeNotification());
+
+		if(Build.VERSION.SDK_INT >= 16) {
+			((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).notify(1, makeNotification());
+		}
 	}
 	
 	private void play() {
