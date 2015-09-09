@@ -157,8 +157,8 @@ public class RuuService extends Service {
 
 		Intent intent = new Intent(this, MainActivity.class);
 		PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, 0);
-		
-		Notification notification = new NotificationCompat.Builder(getApplicationContext())
+
+		return new NotificationCompat.Builder(getApplicationContext())
 				.setSmallIcon(R.drawable.ic_play_notification)
 				.setColor(0xff333333)
 				.setTicker(pathfile.getName())
@@ -171,8 +171,6 @@ public class RuuService extends Service {
 				.addAction(playpause_icon, playpause_text, playpause_pi)
 				.addAction(R.drawable.ic_skip_next, "next", next_pi)
 				.build();
-		
-		return notification;
 	}
 
 	private void updatePlayingNotification(){
