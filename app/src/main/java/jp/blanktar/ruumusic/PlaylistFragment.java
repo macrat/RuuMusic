@@ -100,6 +100,9 @@ public class PlaylistFragment extends Fragment {
 				if (!newtitle.startsWith("/")) {
 					newtitle = "/" + newtitle;
 				}
+				if(!newtitle.endsWith("/")) {
+					newtitle += "/";
+				}
 			}
 			activity.setTitle(newtitle);
 		}
