@@ -133,6 +133,11 @@ public class MainActivity extends AppCompatActivity {
 		viewPager.setCurrentItem(1);
 	}
 	
+	public void moveToPlaylist(File path) {
+		playlist.changeDir(path);
+		moveToPlaylist();
+	}
+	
 	public int getCurrentPage() {
 		return viewPager.getCurrentItem();
 	}

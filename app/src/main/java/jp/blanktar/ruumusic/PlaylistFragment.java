@@ -114,7 +114,7 @@ public class PlaylistFragment extends Fragment {
 		changeDir(current);
 	}
 	
-	private void changeDir(File dir){
+	protected void changeDir(File dir){
 		try {
 			dir = dir.getCanonicalFile();
 		}catch(IOException e) {

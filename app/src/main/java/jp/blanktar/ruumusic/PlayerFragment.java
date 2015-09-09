@@ -97,6 +97,18 @@ public class PlayerFragment extends Fragment {
 			}
 		});
 		
+		view.findViewById(R.id.musicPath).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				if(currentMusicPath != null) {
+					MainActivity main = (MainActivity) getActivity();
+					if (main != null) {
+						main.moveToPlaylist(currentMusicPath.getParentFile());
+					}
+				}
+			}
+		});
+		
 		((SeekBar)view.findViewById(R.id.seekBar)).setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
 			@Override
 			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
