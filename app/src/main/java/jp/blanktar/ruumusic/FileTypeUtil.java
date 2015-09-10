@@ -31,16 +31,11 @@ class FileTypeUtil {
 		return path.substring(0, pos);
 	}
 	
-	public static ArrayList<File> getMusics(File path) {
-		if(path == null || !path.isDirectory()) {
-			return null;
-		}
+	public static ArrayList<File> getMusics(File[] files) {
+		Arrays.sort(files);
 
 		ArrayList<File> result = new ArrayList<>();
-
 		String before = "";
-		File[] files = path.listFiles();
-		Arrays.sort(files);
 		for(File file: files) {
 			String name = file.getPath();
 			if(file.isFile() && isSupported(name)) {
@@ -50,6 +45,27 @@ class FileTypeUtil {
 					result.add(new File(name));
 					before = name;
 				}
+			}
+		}
+
+		return result;
+	}
+	
+	public static ArrayList<File> getMusics(File path) {
+		if(path == null || !path.isDirectory()) {
+			return null;
+		}
+
+		return getMusics(path.listFiles());
+	}
+
+	public static ArrayList<File> getDirectories(File[] files) {
+		Arrays.sort(files);
+
+		ArrayList<File> result = new ArrayList<>();
+		for(File file: files) {
+			if(file.isDirectory()) {
+				result.add(file);
 			}
 		}
 

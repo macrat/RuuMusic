@@ -3,7 +3,6 @@ package jp.blanktar.ruumusic;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Stack;
 
 import android.support.annotation.NonNull;
@@ -179,8 +178,6 @@ public class PlaylistFragment extends Fragment {
 				if(((MainActivity)getActivity()).getCurrentPage() == 1) {
 					updateTitle();
 				}
-
-				Arrays.sort(files);
 				
 				adapter.clear();
 				
@@ -188,23 +185,14 @@ public class PlaylistFragment extends Fragment {
 					adapter.add("../");
 				}
 				
-				String before = "";
-				for (File file : files) {
-					String name = file.getName();
-					if(name.length() > 0 && name.charAt(0) != '.') {
-						if (file.isDirectory()) {
-							adapter.add(name + "/");
-							currentCache.files.add(name + "/");
-						}else if(FileTypeUtil.isSupported(file.getName())) {
-							name = FileTypeUtil.stripExtension(name);
-
-							if(name != null && !name.equals(before)) {
-								adapter.add(name);
-								currentCache.files.add(name);
-								before = name;
-							}
-						}
-					}
+				for(File directory: FileTypeUtil.getDirectories(files)) {
+					adapter.add(directory.getName() + "/");
+					currentCache.files.add(directory.getName() + "/");
+				}
+				
+				for(File music: FileTypeUtil.getMusics(files)) {
+					adapter.add(music.getName());
+					currentCache.files.add(music.getName());
 				}
 
 				ListView lv = (ListView)getActivity().findViewById(R.id.playlist);
