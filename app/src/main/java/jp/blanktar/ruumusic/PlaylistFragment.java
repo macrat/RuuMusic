@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Stack;
 
+import android.support.annotation.NonNull;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -33,7 +34,7 @@ public class PlaylistFragment extends Fragment {
 		public final ArrayList<String> files = new ArrayList<>();
 		public int selection = 0;
 
-		public DirectoryCache(File path) {
+		public DirectoryCache(@NonNull File path) {
 			this.path = path;
 		}
 	}
@@ -78,13 +79,13 @@ public class PlaylistFragment extends Fragment {
 	}
 	
 	@Override
-	public void onSaveInstanceState(Bundle state) {
+	public void onSaveInstanceState(@NonNull Bundle state) {
 		super.onSaveInstanceState(state);
 		
 		state.putString("CURRENT_PATH", current.getPath());
 	}
 	
-	public void updateTitle(Activity activity) {
+	public void updateTitle(@NonNull Activity activity) {
 		if(current == null) {
 			activity.setTitle("");
 		}else{
@@ -117,7 +118,7 @@ public class PlaylistFragment extends Fragment {
 		changeDir(current);
 	}
 	
-	protected void changeDir(File dir){
+	protected void changeDir(@NonNull File dir){
 		try {
 			dir = dir.getCanonicalFile();
 		}catch(IOException e) {
@@ -214,7 +215,7 @@ public class PlaylistFragment extends Fragment {
 		}
 	}
 	
-	public void updateMenu(MainActivity activity) {
+	public void updateMenu(@NonNull MainActivity activity) {
 		Menu menu = activity.menu;
 		if (menu != null) {
 			SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(activity);
@@ -229,7 +230,7 @@ public class PlaylistFragment extends Fragment {
 		updateMenu((MainActivity)getActivity());
 	}
 	
-	private void changeMusic(String file) {
+	private void changeMusic(@NonNull String file) {
 		Intent intent = new Intent(getActivity(), RuuService.class);
 		intent.setAction("RUU_PLAY");
 		intent.putExtra("path", file);

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.io.File;
 
+import android.support.annotation.NonNull;
 import android.os.Build;
 
 
@@ -17,12 +18,12 @@ class FileTypeUtil {
 		}
 	}
 	
-	public static boolean isSupported(String name) {
+	public static boolean isSupported(@NonNull String name) {
 		int dotPos = name.lastIndexOf(".");
 		return dotPos > 0 && getSupportedTypes().contains(name.substring(dotPos));
 	}
 	
-	public static String stripExtension(String path) {
+	public static String stripExtension(@NonNull String path) {
 		int pos = path.lastIndexOf(".");
 		if(pos <= 0) {
 			return null;
@@ -56,6 +57,9 @@ class FileTypeUtil {
 	}
 	
 	public static String detectRealName(String path) {
+		if(path == null) {
+			return null;
+		}
 		for(String ext: getSupportedTypes()) {
 			File file = new File(path + ext);
 			if (file.isFile()) {

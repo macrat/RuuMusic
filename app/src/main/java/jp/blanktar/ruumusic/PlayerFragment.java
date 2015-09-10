@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import android.support.annotation.NonNull;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -173,7 +174,7 @@ public class PlayerFragment extends Fragment {
 		}
 	};
 	
-	private void onReceiveStatus(Intent intent) {
+	private void onReceiveStatus(@NonNull Intent intent) {
 		playing = intent.getBooleanExtra("playing", false);
 		duration = intent.getIntExtra("duration", -1);
 		basetime = intent.getLongExtra("basetime", -1);
@@ -272,7 +273,7 @@ public class PlayerFragment extends Fragment {
 		text.setText(currentStr + " / " + durationStr);
 	}
 
-	private void onFailPlay(final int messageId, final String path) {
+	private void onFailPlay(final int messageId, @NonNull final String path) {
 		(new AlertDialog.Builder(getActivity()))
 				.setTitle(getString(messageId))
 				.setMessage(path)
@@ -295,7 +296,7 @@ public class PlayerFragment extends Fragment {
 				.create().show();
 	}
 	
-	private void startRuuService(String action) {
+	private void startRuuService(@NonNull String action) {
 		Intent intent = new Intent(getActivity(), RuuService.class);
 		intent.setAction(action);
 		getActivity().startService(intent);

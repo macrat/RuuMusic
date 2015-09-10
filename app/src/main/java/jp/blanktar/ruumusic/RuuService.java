@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Collections;
 
+import android.support.annotation.NonNull;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
@@ -291,7 +292,7 @@ public class RuuService extends Service {
 		}
 	}
 	
-	private void setRepeatMode(String mode) {
+	private void setRepeatMode(@NonNull String mode) {
 		if(mode.equals("off") || mode.equals("loop") || mode.equals("one")) {
 			repeatMode = mode;
 			sendStatus();
@@ -355,7 +356,7 @@ public class RuuService extends Service {
 		}
 	}
 	
-	private void showToast(final String message) {
+	private void showToast(@NonNull final String message) {
 		final Handler handler = new Handler();
 		(new Thread(new Runnable() {
 			@Override

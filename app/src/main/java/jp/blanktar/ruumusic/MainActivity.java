@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
 	}
 
 	@Override
-	public void onSaveInstanceState(Bundle state) {
+	public void onSaveInstanceState(@NonNull Bundle state) {
 		super.onSaveInstanceState(state);
 		getSupportFragmentManager().putFragment(state, "player_fragment", player);
 		getSupportFragmentManager().putFragment(state, "playlist_fragment", playlist);
@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
+	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 		int id = item.getItemId();
 		
 		SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(this);
@@ -120,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
 		viewPager.setCurrentItem(1);
 	}
 	
-	public void moveToPlaylist(File path) {
+	public void moveToPlaylist(@NonNull File path) {
 		playlist.changeDir(path);
 		moveToPlaylist();
 	}
