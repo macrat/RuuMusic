@@ -122,6 +122,8 @@ public class PlaylistFragment extends Fragment {
 		try {
 			dir = dir.getCanonicalFile();
 		}catch(IOException e) {
+			Toast.makeText(getActivity(), String.format(getString(R.string.failed_get_canonical_path), dir.getPath()), Toast.LENGTH_LONG).show();
+			return;
 		}
 
 		SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(getActivity());
