@@ -24,13 +24,13 @@ import android.os.Build;
 
 
 public class RuuService extends Service {
-	private String path;
+	private File path;
 	private MediaPlayer player;
 	private String repeatMode = "off";
 	private boolean shuffleMode = false;
 	private boolean ready = false;
 	
-	private List<String> playlist;
+	private List<File> playlist;
 	private int currentIndex;
 	private File currentDir;
 	
@@ -71,11 +71,11 @@ public class RuuService extends Service {
 			@Override
 			public boolean onError(MediaPlayer mp, int what, int extra) {
 				player.reset();
-				String realName = FileTypeUtil.detectRealName(path);
+				File realName = FileTypeUtil.detectRealName(path);
 
 				Intent sendIntent = new Intent();
 				sendIntent.setAction("RUU_FAILED_OPEN");
-				sendIntent.putExtra("path", realName==null ? path : realName);
+				sendIntent.putExtra("path", (realName==null ? path : realName).getPath());
 				getBaseContext().sendBroadcast(sendIntent);
 	
 				return true;
@@ -128,7 +128,9 @@ public class RuuService extends Service {
 		Intent sendIntent = new Intent();
 		
 		sendIntent.setAction("RUU_STATUS");
-		sendIntent.putExtra("path", path);
+		if(path != null) {
+			sendIntent.putExtra("path", path.getPath());
+		}
 		sendIntent.putExtra("repeat", repeatMode);
 		sendIntent.putExtra("shuffle", shuffleMode);
 		
@@ -143,9 +145,8 @@ public class RuuService extends Service {
 	}
 	
 	private Notification makeNotification() {
-		File pathfile = new File(path);
 		SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(this);
-		String musicPath = pathfile.getParent().substring(preference.getString("root_directory", "/").length()) + "/";
+		String musicPath = path.getParent().substring(preference.getString("root_directory", "/").length()) + "/";
 		if (!musicPath.startsWith("/")) {
 			musicPath = "/" + musicPath;
 		}
@@ -163,8 +164,8 @@ public class RuuService extends Service {
 		return new NotificationCompat.Builder(getApplicationContext())
 				.setSmallIcon(R.drawable.ic_play_notification)
 				.setColor(0xff333333)
-				.setTicker(pathfile.getName())
-				.setContentTitle(pathfile.getName())
+				.setTicker(path.getName())
+				.setContentTitle(path.getName())
 				.setContentText(musicPath)
 				.setContentIntent(contentIntent)
 				.setPriority(Notification.PRIORITY_MIN)
@@ -206,6 +207,10 @@ public class RuuService extends Service {
 			play();
 			return;
 		}
+		play(new File(path));
+	}
+	
+	private void play(@NonNull File path) {
 		if(this.path != null && this.path.equals(path)) {
 			player.pause();
 			player.seekTo(0);
@@ -217,15 +222,15 @@ public class RuuService extends Service {
 		player.reset();
 		this.path = path;
 	
-		String realName = FileTypeUtil.detectRealName(path);
+		File realName = FileTypeUtil.detectRealName(path);
 		if(realName == null) {
 			Intent sendIntent = new Intent();
 			sendIntent.setAction("RUU_NOT_FOUND");
-			sendIntent.putExtra("path", path);
+			sendIntent.putExtra("path", path.getPath());
 			getBaseContext().sendBroadcast(sendIntent);
 		}else {
 			try {
-				player.setDataSource(realName);
+				player.setDataSource(realName.getPath());
 
 				player.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
 					@Override
@@ -238,12 +243,12 @@ public class RuuService extends Service {
 			} catch (IOException e) {
 				Intent sendIntent = new Intent();
 				sendIntent.setAction("RUU_FAILED_OPEN");
-				sendIntent.putExtra("path", realName);
+				sendIntent.putExtra("path", realName.getPath());
 				getBaseContext().sendBroadcast(sendIntent);
 			}
 		}
 
-		File newparent = (new File(path)).getParentFile();
+		File newparent = path.getParentFile();
 		if(currentDir == null || !currentDir.equals(newparent)) {
 			currentDir = newparent;
 	

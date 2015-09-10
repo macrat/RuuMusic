@@ -31,12 +31,12 @@ class FileTypeUtil {
 		return path.substring(0, pos);
 	}
 	
-	public static ArrayList<String> getMusics(File path) {
+	public static ArrayList<File> getMusics(File path) {
 		if(path == null || !path.isDirectory()) {
 			return null;
 		}
 
-		ArrayList<String> result = new ArrayList<>();
+		ArrayList<File> result = new ArrayList<>();
 
 		String before = "";
 		File[] files = path.listFiles();
@@ -47,7 +47,7 @@ class FileTypeUtil {
 				name = stripExtension(name);
 
 				if(name != null && !name.equals(before)) {
-					result.add(name);
+					result.add(new File(name));
 					before = name;
 				}
 			}
@@ -56,14 +56,14 @@ class FileTypeUtil {
 		return result;
 	}
 	
-	public static String detectRealName(String path) {
+	public static File detectRealName(File path) {
 		if(path == null) {
 			return null;
 		}
 		for(String ext: getSupportedTypes()) {
-			File file = new File(path + ext);
+			File file = new File(path.getPath() + ext);
 			if (file.isFile()) {
-				return file.getPath();
+				return file;
 			}
 		}
 		return null;
