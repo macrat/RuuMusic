@@ -199,9 +199,11 @@ public class RuuService extends Service {
 	}
 	
 	private void play() {
-		player.start();
-		sendStatus();
-		updatePlayingNotification();
+		if(path != null) {
+			player.start();
+			sendStatus();
+			updatePlayingNotification();
+		}
 	}
 	
 	private void play(String path) {
