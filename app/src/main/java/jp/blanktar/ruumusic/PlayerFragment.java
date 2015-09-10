@@ -43,31 +43,21 @@ public class PlayerFragment extends Fragment {
 		view.findViewById(R.id.playButton).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				Intent intent = new Intent(getActivity(), RuuService.class);
-				if (playing) {
-					intent.setAction("RUU_PAUSE");
-				} else {
-					intent.setAction("RUU_PLAY");
-				}
-				getActivity().startService(intent);
+				startRuuService(playing ? "RUU_PAUSE" : "RUU_PLAY");
 			}
 		});
 
 		view.findViewById(R.id.nextButton).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				Intent intent = new Intent(getActivity(), RuuService.class);
-				intent.setAction("RUU_NEXT");
-				getActivity().startService(intent);
+				startRuuService("RUU_NEXT");
 			}
 		});
 
 		view.findViewById(R.id.prevButton).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				Intent intent = new Intent(getActivity(), RuuService.class);
-				intent.setAction("RUU_PREV");
-				getActivity().startService(intent);
+				startRuuService("RUU_PREV");
 			}
 		});
 
@@ -121,12 +111,10 @@ public class PlayerFragment extends Fragment {
 			}
 
 			@Override
-			public void onStartTrackingTouch(SeekBar seekBar) {
-			}
+			public void onStartTrackingTouch(SeekBar seekBar) { }
 
 			@Override
-			public void onStopTrackingTouch(SeekBar seekBar) {
-			}
+			public void onStopTrackingTouch(SeekBar seekBar) { }
 		});
 		
 		return view;
@@ -136,9 +124,7 @@ public class PlayerFragment extends Fragment {
 	public void onResume() {
 		super.onResume();
 
-		Intent intent = new Intent(getActivity(), RuuService.class);
-		intent.setAction("RUU_PING");
-		getActivity().startService(intent);
+		startRuuService("RUU_PING");
 		
 		IntentFilter intentFilter = new IntentFilter();
 		intentFilter.addAction("RUU_STATUS");
@@ -173,65 +159,71 @@ public class PlayerFragment extends Fragment {
 	final private BroadcastReceiver receiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			if(intent.getAction().equals("RUU_FAILED_OPEN")) {
-				onFailPlay(R.string.failed_open_music, intent.getStringExtra("path"));
-			}
-			if(intent.getAction().equals("RUU_NOT_FOUND")) {
-				onFailPlay(R.string.music_not_found, intent.getStringExtra("path"));
-			}
-			if(intent.getAction().equals("RUU_STATUS")) {
-				playing = intent.getBooleanExtra("playing", false);
-				duration = intent.getIntExtra("duration", -1);
-				basetime = intent.getLongExtra("basetime", -1);
-				current = intent.getIntExtra("current", -1);
-				repeatMode = intent.getStringExtra("repeat");
-				shuffleMode = intent.getBooleanExtra("shuffle", false);
-
-				View view = getView();
-				if(view != null) {
-					ImageButton playButton = (ImageButton) view.findViewById(R.id.playButton);
-					if (playing) {
-						playButton.setImageResource(R.drawable.ic_pause);
-					} else {
-						playButton.setImageResource(R.drawable.ic_play_arrow);
-					}
-
-					ImageButton repeatButton = (ImageButton) view.findViewById(R.id.repeatButton);
-					switch (repeatMode) {
-						case "loop":
-							repeatButton.setImageResource(R.drawable.ic_repeat);
-							break;
-						case "one":
-							repeatButton.setImageResource(R.drawable.ic_repeat_one);
-							break;
-						default:
-							repeatButton.setImageResource(R.drawable.ic_trending_flat);
-							break;
-					}
-
-					ImageButton shuffleButton = (ImageButton) view.findViewById(R.id.shuffleButton);
-					if (shuffleMode) {
-						shuffleButton.setImageResource(R.drawable.ic_shuffle);
-					} else {
-						shuffleButton.setImageResource(R.drawable.ic_reorder);
-					}
-
-					((SeekBar) view.findViewById(R.id.seekBar)).setMax(duration);
-				}
-
-				String path = intent.getStringExtra("path");
-				if(path == null) {
-					if(firstMessage) {
-						((MainActivity) getActivity()).moveToPlaylist();
-						firstMessage = false;
-					}
-				}else{
-					currentMusicPath = new File(path);
-					updateRoot();
-				}
+			switch(intent.getAction()) {
+				case "RUU_FAILED_OPEN":
+					onFailPlay(R.string.failed_open_music, intent.getStringExtra("path"));
+					break;
+				case "RUU_NOT_FOUND":
+					onFailPlay(R.string.music_not_found, intent.getStringExtra("path"));
+					break;
+				case "RUU_STATUS":
+					onReceiveStatus(intent);
+					break;
 			}
 		}
 	};
+	
+	private void onReceiveStatus(Intent intent) {
+		playing = intent.getBooleanExtra("playing", false);
+		duration = intent.getIntExtra("duration", -1);
+		basetime = intent.getLongExtra("basetime", -1);
+		current = intent.getIntExtra("current", -1);
+		repeatMode = intent.getStringExtra("repeat");
+		shuffleMode = intent.getBooleanExtra("shuffle", false);
+
+		View view = getView();
+		if(view != null) {
+			ImageButton playButton = (ImageButton) view.findViewById(R.id.playButton);
+			if (playing) {
+				playButton.setImageResource(R.drawable.ic_pause);
+			} else {
+				playButton.setImageResource(R.drawable.ic_play_arrow);
+			}
+
+			ImageButton repeatButton = (ImageButton) view.findViewById(R.id.repeatButton);
+			switch (repeatMode) {
+				case "loop":
+					repeatButton.setImageResource(R.drawable.ic_repeat);
+					break;
+				case "one":
+					repeatButton.setImageResource(R.drawable.ic_repeat_one);
+					break;
+				default:
+					repeatButton.setImageResource(R.drawable.ic_trending_flat);
+					break;
+			}
+
+			ImageButton shuffleButton = (ImageButton) view.findViewById(R.id.shuffleButton);
+			if (shuffleMode) {
+				shuffleButton.setImageResource(R.drawable.ic_shuffle);
+			} else {
+				shuffleButton.setImageResource(R.drawable.ic_reorder);
+			}
+
+			((SeekBar) view.findViewById(R.id.seekBar)).setMax(duration);
+		}
+
+		String path = intent.getStringExtra("path");
+		if(path == null) {
+			if(firstMessage) {
+				((MainActivity) getActivity()).moveToPlaylist();
+				firstMessage = false;
+			}
+		}else{
+			currentMusicPath = new File(path);
+			updateRoot();
+		}
+	}
 	
 	public void updateRoot() {
 		if(currentMusicPath != null) {
@@ -281,28 +273,31 @@ public class PlayerFragment extends Fragment {
 	}
 
 	private void onFailPlay(final int messageId, final String path) {
-		AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity());
-		alertDialog.setTitle(getString(messageId));
-		alertDialog.setMessage(path);
-		alertDialog.setPositiveButton(
-				getString(R.string.on_error_next_music),
-				new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int wich) {
-						Intent intent = new Intent(getActivity(), RuuService.class);
-						intent.setAction("RUU_NEXT");
-						getActivity().startService(intent);
-					}
-				}
-		);
-		alertDialog.setNegativeButton(
-				getString(R.string.on_error_cancel),
-				new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int wich) {
-					}
-				}
-		);
-		alertDialog.create().show();
+		(new AlertDialog.Builder(getActivity()))
+				.setTitle(getString(messageId))
+				.setMessage(path)
+				.setPositiveButton(
+						getString(R.string.on_error_next_music),
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								startRuuService("RUU_NEXT");
+							}
+						}
+				)
+				.setNegativeButton(
+						getString(R.string.on_error_cancel),
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) { }
+						}
+				)
+				.create().show();
+	}
+	
+	private void startRuuService(String action) {
+		Intent intent = new Intent(getActivity(), RuuService.class);
+		intent.setAction(action);
+		getActivity().startService(intent);
 	}
 }
