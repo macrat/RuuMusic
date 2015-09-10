@@ -112,7 +112,7 @@ public class RuuService extends Service {
 					prev();
 					break;
 				case "RUU_ROOT_CHANGE":
-					updatePlayingNotification();
+					updateRoot();
 					break;
 			}
 		}
@@ -187,6 +187,14 @@ public class RuuService extends Service {
 
 		if(Build.VERSION.SDK_INT >= 16) {
 			((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).notify(1, makeNotification());
+		}
+	}
+	
+	private void updateRoot() {
+		if(player.isPlaying()) {
+			updatePlayingNotification();
+		}else {
+			((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).cancel(1);
 		}
 	}
 	
