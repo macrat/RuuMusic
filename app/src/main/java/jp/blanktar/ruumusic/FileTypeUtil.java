@@ -7,6 +7,9 @@ import java.io.File;
 
 import android.support.annotation.NonNull;
 import android.os.Build;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 
 
 class FileTypeUtil {
@@ -83,5 +86,26 @@ class FileTypeUtil {
 			}
 		}
 		return null;
+	}
+	
+	public static File getRootDirectory(@NonNull Context context) {
+		SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(context);
+		return new File(preference.getString("root_directory", "/"));
+	}
+	
+	public static String getPathFromRoot(@NonNull Context context, @NonNull File path) {
+		String root = getRootDirectory(context).getPath();
+		String look = path.getPath();
+		
+		if(root.length() >= look.length()) {
+			return "/";
+		}else {
+			String result = path.getPath().substring(getRootDirectory(context).getPath().length()) + "/";
+			if (result.startsWith("/")) {
+				return result;
+			} else {
+				return "/" + result;
+			}
+		}
 	}
 }

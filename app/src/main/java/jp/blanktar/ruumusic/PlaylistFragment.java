@@ -16,8 +16,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Toast;
 import android.widget.AdapterView;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.app.Activity;
 import android.view.Menu;
 
@@ -61,16 +59,14 @@ public class PlaylistFragment extends Fragment {
 			}
 		});
 
-		SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(getActivity());
-
 		if(savedInstanceState == null) {
-			changeDir(new File(preference.getString("root_directory", "/")));
+			changeDir(FileTypeUtil.getRootDirectory(getActivity()));
 		}else{
 			String currentPath = savedInstanceState.getString("CURRENT_PATH");
 			if(currentPath != null) {
 				changeDir(new File(currentPath));
 			}else {
-				changeDir(new File(preference.getString("root_directory", "/")));
+				changeDir(FileTypeUtil.getRootDirectory(getActivity()));
 			}
 		}
 		
@@ -88,23 +84,7 @@ public class PlaylistFragment extends Fragment {
 		if(current == null) {
 			activity.setTitle("");
 		}else{
-			String newtitle = current.getPath();
-
-			SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(activity);
-			String rootDirectory = preference.getString("root_directory", "/");
-
-			if (newtitle.equals(rootDirectory)) {
-				newtitle = "/";
-			} else {
-				newtitle = newtitle.substring(rootDirectory.length());
-				if (!newtitle.startsWith("/")) {
-					newtitle = "/" + newtitle;
-				}
-				if(!newtitle.endsWith("/")) {
-					newtitle += "/";
-				}
-			}
-			activity.setTitle(newtitle);
+			activity.setTitle(FileTypeUtil.getPathFromRoot(getActivity(), current));
 		}
 	}
 	private void updateTitle() {
@@ -125,12 +105,10 @@ public class PlaylistFragment extends Fragment {
 			return;
 		}
 
-		SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(getActivity());
-		String rootDirectory = preference.getString("root_directory", "/");
-		File rootfile = new File(rootDirectory);
+		File rootDirectory = FileTypeUtil.getRootDirectory(getActivity());
 		
-		if(!dir.equals(rootfile)
-		&& !dir.getPath().startsWith(rootfile.getPath())) {
+		if(!dir.equals(rootDirectory)
+		&& !dir.getPath().startsWith(rootDirectory.getPath())) {
 			Toast.makeText(getActivity(), String.format(getString(R.string.out_of_root), dir.getPath()), Toast.LENGTH_LONG).show();
 		}else if(!dir.isDirectory()) {
 			Toast.makeText(getActivity(), String.format(getString(R.string.is_not_directory), dir.getPath()), Toast.LENGTH_LONG).show();
@@ -144,7 +122,7 @@ public class PlaylistFragment extends Fragment {
 			}
 			
 			adapter.clear();
-			if(current.getParentFile() != null && !current.equals(rootfile)) {
+			if(current.getParentFile() != null && !current.equals(rootDirectory)) {
 				adapter.add("../");
 			}
 			for(String file: currentCache.files) {
@@ -172,7 +150,7 @@ public class PlaylistFragment extends Fragment {
 
 				current = dir;
 				if(current.getPath().equals("")) {
-					current = new File(rootDirectory);
+					current = rootDirectory;
 				}
 				
 				if(((MainActivity)getActivity()).getCurrentPage() == 1) {
@@ -181,7 +159,7 @@ public class PlaylistFragment extends Fragment {
 				
 				adapter.clear();
 				
-				if(current.getParentFile() != null && !current.equals(rootfile)) {
+				if(current.getParentFile() != null && !current.equals(rootDirectory)) {
 					adapter.add("../");
 				}
 				
@@ -208,8 +186,7 @@ public class PlaylistFragment extends Fragment {
 	public void updateMenu(@NonNull MainActivity activity) {
 		Menu menu = activity.menu;
 		if (menu != null) {
-			SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(activity);
-			File rootDirectory = new File(preference.getString("root_directory", "/"));
+			File rootDirectory = FileTypeUtil.getRootDirectory(getActivity());
 
 			menu.findItem(R.id.action_set_root).setVisible(!rootDirectory.equals(current));
 			menu.findItem(R.id.action_unset_root).setVisible(!rootDirectory.equals(new File("/")));
@@ -230,9 +207,7 @@ public class PlaylistFragment extends Fragment {
 	}
 	
 	public boolean onBackKey() {
-		SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(getActivity());
-		
-		if(current.equals(new File(preference.getString("root_directory", "/")))) {
+		if(current.equals(FileTypeUtil.getRootDirectory(getActivity()))) {
 			return false;
 		}else{
 			changeDir(current.getParentFile());

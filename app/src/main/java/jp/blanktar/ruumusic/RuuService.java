@@ -145,12 +145,6 @@ public class RuuService extends Service {
 	}
 	
 	private Notification makeNotification() {
-		SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(this);
-		String musicPath = path.getParent().substring(preference.getString("root_directory", "/").length()) + "/";
-		if (!musicPath.startsWith("/")) {
-			musicPath = "/" + musicPath;
-		}
-
 		int playpause_icon = player.isPlaying() ? R.drawable.ic_pause : R.drawable.ic_play_arrow;
 		String playpause_text = player.isPlaying() ? "pause" : "play";
 		PendingIntent playpause_pi = PendingIntent.getService(this, 0, (new Intent(this, RuuService.class)).setAction(player.isPlaying() ? "RUU_PAUSE" : "RUU_PLAY"), 0);
@@ -166,7 +160,7 @@ public class RuuService extends Service {
 				.setColor(0xff333333)
 				.setTicker(path.getName())
 				.setContentTitle(path.getName())
-				.setContentText(musicPath)
+				.setContentText(FileTypeUtil.getPathFromRoot(this, path.getParentFile()))
 				.setContentIntent(contentIntent)
 				.setPriority(Notification.PRIORITY_MIN)
 				.setVisibility(Notification.VISIBILITY_PUBLIC)
@@ -302,8 +296,8 @@ public class RuuService extends Service {
 			repeatMode = mode;
 			sendStatus();
 			
-			SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(this);
-			preference.edit()
+			PreferenceManager.getDefaultSharedPreferences(this)
+					.edit()
 					.putString("repeat_mode", repeatMode)
 					.apply();
 		}
@@ -323,8 +317,8 @@ public class RuuService extends Service {
 		shuffleMode = mode;
 		sendStatus();
 
-		SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(this);
-		preference.edit()
+		PreferenceManager.getDefaultSharedPreferences(this)
+				.edit()
 				.putBoolean("shuffle_mode", shuffleMode)
 				.apply();
 	}

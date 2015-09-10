@@ -26,9 +26,9 @@ public class MainActivity extends AppCompatActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(this);
-		if(!(new File(preference.getString("root_directory", "/"))).isDirectory()) {
-			preference.edit()
+		if(!FileTypeUtil.getRootDirectory(this).isDirectory()) {
+			PreferenceManager.getDefaultSharedPreferences(this)
+					.edit()
 					.putString("root_directory", "/")
 					.apply();
 		}
@@ -72,10 +72,8 @@ public class MainActivity extends AppCompatActivity {
 	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 		int id = item.getItemId();
 		
-		SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(this);
-
 		if(id == R.id.action_set_root || id == R.id.action_unset_root) {
-			SharedPreferences.Editor editor = preference.edit();
+			SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
 			if (id == R.id.action_set_root) {
 				editor.putString("root_directory", playlist.current.getPath());
 			}

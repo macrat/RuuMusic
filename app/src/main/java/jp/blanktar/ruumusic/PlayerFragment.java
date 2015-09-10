@@ -18,8 +18,6 @@ import android.content.Context;
 import android.os.Handler;
 import android.widget.TextView;
 import android.widget.SeekBar;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 
@@ -228,15 +226,11 @@ public class PlayerFragment extends Fragment {
 	
 	public void updateRoot() {
 		if(currentMusicPath != null) {
-			SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(getActivity());
-			String path = currentMusicPath.getParent().substring(preference.getString("root_directory", "").length()) + "/";
-			if (!path.startsWith("/")) {
-				path = "/" + path;
-			}
-			
 			View view = getView();
 			if(view != null) {
-				((TextView) view.findViewById(R.id.musicPath)).setText(path);
+				((TextView) view.findViewById(R.id.musicPath)).setText(
+						FileTypeUtil.getPathFromRoot(getActivity(), currentMusicPath.getParentFile())
+				);
 				((TextView) view.findViewById(R.id.musicName)).setText(currentMusicPath.getName());
 			}
 		}
