@@ -31,6 +31,7 @@ public class RuuService extends Service {
 	private boolean shuffleMode = false;
 	private boolean ready = false;
 	private Timer deathTimer;
+	private boolean loadingWait = false;
 	
 	private List<RuuFile> playlist;
 	private int currentIndex;
@@ -45,9 +46,32 @@ public class RuuService extends Service {
 	public void onCreate() {
 		player = new MediaPlayer();
 
-		SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(this);
+		final SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(this);
 		repeatMode = preference.getString("repeat_mode", "off");
 		shuffleMode = preference.getBoolean("shuffle_mode", false);
+
+		String last_play = preference.getString("last_play_music", "");
+		if(!last_play.equals("")) {
+			try {
+				load(new RuuFile(this, last_play), new MediaPlayer.OnPreparedListener() {
+					@Override
+					public void onPrepared(MediaPlayer mp) {
+						ready = true;
+						player.seekTo(preference.getInt("last_play_position", 0));
+						if(loadingWait) {
+							play();
+							loadingWait = false;
+						}else {
+							sendStatus();
+						}
+					}
+				});
+			}catch(RuuFileBase.CanNotOpen e) {
+				PreferenceManager.getDefaultSharedPreferences(this).edit()
+						.putString("last_play_music", "")
+						.apply();
+			}
+		}
 
 		player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
 			@Override
@@ -83,6 +107,8 @@ public class RuuService extends Service {
 				return true;
 			}
 		});
+		
+		startDeathTimer();
 	}
 
 	@Override
@@ -124,6 +150,12 @@ public class RuuService extends Service {
 	@Override
 	public void onDestroy() {
 		removePlayingNotification();
+
+		PreferenceManager.getDefaultSharedPreferences(this)
+				.edit()
+				.putString("last_play_music", RuuService.this.path.getFullPath())
+				.putInt("last_play_position", player.getCurrentPosition())
+				.apply();
 	}
 	
 	private void sendStatus() {
@@ -218,7 +250,11 @@ public class RuuService extends Service {
 	
 	private void play(String path) {
 		if(path == null) {
-			play();
+			if(ready) {
+				play();
+			}else {
+				loadingWait = true;
+			}
 			return;
 		}
 		try {
@@ -236,6 +272,16 @@ public class RuuService extends Service {
 			return;
 		}
 		
+		load(path, new MediaPlayer.OnPreparedListener() {
+			@Override
+			public void onPrepared(MediaPlayer mp) {
+				ready = true;
+				play();
+			}
+		});
+	}
+
+	private void load(@NonNull RuuFile path, @NonNull MediaPlayer.OnPreparedListener onPrepared){
 		ready = false;
 		player.reset();
 		this.path = path;
@@ -251,13 +297,7 @@ public class RuuService extends Service {
 			try {
 				player.setDataSource(realName);
 
-				player.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-					@Override
-					public void onPrepared(MediaPlayer mp) {
-						ready = true;
-						play();
-					}
-				});
+				player.setOnPreparedListener(onPrepared);
 				player.prepareAsync();
 			}catch(IOException e) {
 				showToast(String.format(getString(R.string.failed_open_music), realName));
@@ -423,11 +463,13 @@ public class RuuService extends Service {
 				handler.post(new Runnable() {
 					@Override
 					public void run() {
-						RuuService.this.stopSelf();
+						if(!player.isPlaying()) {
+							RuuService.this.stopSelf();
+						}
 					}
 				});
 			}
-		}, 5 * 60 * 1000);
+		}, 60 * 1000);
 	}
 	
 	private void stopDeathTimer() {
