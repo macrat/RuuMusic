@@ -224,26 +224,32 @@ public class PlayerFragment extends Fragment {
 				((MainActivity) getActivity()).moveToPlaylist();
 				firstMessage = false;
 			}
+			currentMusic = null;
 		}else{
 			try {
 				currentMusic = new RuuFile(getContext(), path);
 			}catch(RuuFileBase.CanNotOpen e) {
 			}
-			updateRoot();
 		}
+		updateRoot();
 	}
 	
 	public void updateRoot() {
+		String path = "";
+		String name = "";
+
 		if(currentMusic != null) {
-			View view = getView();
-			if(view != null) {
-				try {
-					((TextView) view.findViewById(R.id.musicPath)).setText(currentMusic.getParent().getRuuPath());
-				}catch(RuuFileBase.CanNotOpen e) {
-				}catch(RuuFileBase.OutOfRootDirectory e) {
-				}
-				((TextView) view.findViewById(R.id.musicName)).setText(currentMusic.getName());
+			try {
+				path = currentMusic.getParent().getRuuPath();
+			}catch(RuuFileBase.CanNotOpen | RuuFileBase.OutOfRootDirectory e) {
 			}
+			name = currentMusic.getName();
+		}
+
+		View view = getView();
+		if(view != null) {
+			((TextView) view.findViewById(R.id.musicPath)).setText(path);
+			((TextView) view.findViewById(R.id.musicName)).setText(name);
 		}
 	}
 	

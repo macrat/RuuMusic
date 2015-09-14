@@ -35,7 +35,6 @@ public class RuuService extends Service {
 	
 	private List<RuuFile> playlist;
 	private int currentIndex;
-	private RuuDirectory currentDir;
 	
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -97,12 +96,15 @@ public class RuuService extends Service {
 			@Override
 			public boolean onError(MediaPlayer mp, int what, int extra) {
 				player.reset();
-				String realName = path.getRealPath();
 
-				Intent sendIntent = new Intent();
-				sendIntent.setAction("RUU_FAILED_OPEN");
-				sendIntent.putExtra("path", (realName==null ? path.getFullPath() : realName));
-				getBaseContext().sendBroadcast(sendIntent);
+				if(path != null) {
+					String realName = path.getRealPath();
+
+					Intent sendIntent = new Intent();
+					sendIntent.setAction("RUU_FAILED_OPEN");
+					sendIntent.putExtra("path", (realName == null ? path.getFullPath() : realName));
+					getBaseContext().sendBroadcast(sendIntent);
+				}
 	
 				return true;
 			}
@@ -232,7 +234,31 @@ public class RuuService extends Service {
 	}
 	
 	private void updateRoot() {
-		if(player.isPlaying()) {
+		RuuDirectory root;
+		try {
+			root = RuuDirectory.rootDirectory(this);
+		}catch(RuuFileBase.CanNotOpen e) {
+			root = null;
+		}
+
+		if(path != null && (root == null || !root.contains(path))) {
+			if(player.isPlaying()) {
+				stopForeground(true);
+			}else {
+				((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).cancel(1);
+			}
+			player.reset();
+
+			PreferenceManager.getDefaultSharedPreferences(this).edit()
+					.putString("last_play_music", "")
+					.apply();
+
+			path = null;
+			ready = false;
+			playlist = null;
+	
+			sendStatus();
+		}else if(player.isPlaying()) {
 			updatePlayingNotification();
 		}else {
 			((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).cancel(1);
@@ -284,6 +310,14 @@ public class RuuService extends Service {
 	private void load(@NonNull RuuFile path, @NonNull MediaPlayer.OnPreparedListener onPrepared){
 		ready = false;
 		player.reset();
+
+		RuuDirectory oldDir;
+		try {
+			oldDir = path.getParent();
+		}catch(RuuFileBase.CanNotOpen e) {
+			oldDir = null;
+		}
+
 		this.path = path;
 		
 		String realName = path.getRealPath();
@@ -311,10 +345,8 @@ public class RuuService extends Service {
 			showToast(String.format(getString(R.string.cant_open_dir), path.path.getParent()));
 			return;
 		}
-		if(currentDir == null || !currentDir.equals(newparent)) {
-			currentDir = newparent;
-	
-			playlist = currentDir.getMusics();
+		if(playlist == null || oldDir == null || !oldDir.equals(newparent)) {
+			playlist = newparent.getMusics();
 
 			if(shuffleMode) {
 				shuffleList();
