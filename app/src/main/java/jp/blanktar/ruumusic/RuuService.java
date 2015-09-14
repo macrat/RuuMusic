@@ -191,9 +191,9 @@ public class RuuService extends Service {
 		
 		String parentPath;
 		try {
-			parentPath = path.getParent().getFullPath();
-		}catch(RuuFileBase.CanNotOpen e) {
-			parentPath = path.path.getParent();
+			parentPath = path.getParent().getRuuPath();
+		}catch(RuuFileBase.OutOfRootDirectory | RuuFileBase.CanNotOpen e) {
+			parentPath = "";
 		}
 
 		return new NotificationCompat.Builder(getApplicationContext())
