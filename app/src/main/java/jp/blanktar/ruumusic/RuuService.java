@@ -379,16 +379,20 @@ public class RuuService extends Service {
 	
 	private void prev() {
 		if(playlist != null) {
-			if (currentIndex > 0) {
-				play(playlist.get(currentIndex - 1));
-			} else if (repeatMode.equals("loop")) {
-				if (shuffleMode) {
-					shufflePlay();
+			if(player.getCurrentPosition() >= 3000) {
+				seek(0);
+			}else {
+				if (currentIndex > 0) {
+					play(playlist.get(currentIndex - 1));
+				} else if (repeatMode.equals("loop")) {
+					if (shuffleMode) {
+						shufflePlay();
+					} else {
+						play(playlist.get(playlist.size() - 1));
+					}
 				} else {
-					play(playlist.get(playlist.size() - 1));
+					showToast(getString(R.string.first_of_directory));
 				}
-			} else {
-				showToast(getString(R.string.first_of_directory));
 			}
 		}
 	}
