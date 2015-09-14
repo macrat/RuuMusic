@@ -311,11 +311,13 @@ public class RuuService extends Service {
 		ready = false;
 		player.reset();
 
-		RuuDirectory oldDir;
-		try {
-			oldDir = path.getParent();
-		}catch(RuuFileBase.CanNotOpen e) {
-			oldDir = null;
+		RuuDirectory oldDir = null;
+		if(this.path != null) {
+			try {
+				oldDir = this.path.getParent();
+			} catch (RuuFileBase.CanNotOpen e) {
+				oldDir = null;
+			}
 		}
 
 		this.path = path;
