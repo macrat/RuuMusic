@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Collections;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import android.support.annotation.NonNull;
 import android.app.Service;
@@ -28,6 +30,7 @@ public class RuuService extends Service {
 	private String repeatMode = "off";
 	private boolean shuffleMode = false;
 	private boolean ready = false;
+	private Timer deathTimer;
 	
 	private List<RuuFile> playlist;
 	private int currentIndex;
@@ -209,6 +212,7 @@ public class RuuService extends Service {
 			player.start();
 			sendStatus();
 			updatePlayingNotification();
+			stopDeathTimer();
 		}
 	}
 	
@@ -315,6 +319,7 @@ public class RuuService extends Service {
 		player.pause();
 		sendStatus();
 		removePlayingNotification();
+		startDeathTimer();
 	}
 	
 	private void seek(int newtime) {
@@ -401,5 +406,30 @@ public class RuuService extends Service {
 				});
 			}
 		})).start();
+	}
+	
+	private void startDeathTimer() {
+		stopDeathTimer();
+
+		final Handler handler = new Handler();
+		deathTimer = new Timer(true);
+		deathTimer.schedule(new TimerTask() {
+			@Override
+			public void run() {
+				handler.post(new Runnable() {
+					@Override
+					public void run() {
+						RuuService.this.stopSelf();
+					}
+				});
+			}
+		}, 5 * 60 * 1000);
+	}
+	
+	private void stopDeathTimer() {
+		if(deathTimer != null) {
+			deathTimer.cancel();
+			deathTimer = null;
+		}
 	}
 }
