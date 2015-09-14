@@ -149,7 +149,7 @@ public class PlayerFragment extends Fragment {
 					}
 				});
 			}
-		}, 500, 500);
+		}, 0, 300);
 	}
 	
 	@Override
@@ -239,7 +239,8 @@ public class PlayerFragment extends Fragment {
 			if(view != null) {
 				try {
 					((TextView) view.findViewById(R.id.musicPath)).setText(currentMusic.getParent().getRuuPath());
-				}catch(RuuFileBase.CanNotOpen | RuuFileBase.OutOfRootDirectory e) {
+				}catch(RuuFileBase.CanNotOpen e) {
+				}catch(RuuFileBase.OutOfRootDirectory e) {
 				}
 				((TextView) view.findViewById(R.id.musicName)).setText(currentMusic.getName());
 			}
