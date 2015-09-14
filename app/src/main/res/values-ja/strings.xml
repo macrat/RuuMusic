@@ -4,10 +4,8 @@
 	<string name="action_set_root">このディレクトリをルートに設定</string>
 	<string name="action_unset_root">ルートディレクトリの設定を解除</string>
 
-	<string name="is_not_directory">`%s`はディレクトリではありません</string>
 	<string name="out_of_root">`%s`はルートディレクトリの外です</string>
 	<string name="cant_open_dir">ディレクトリ`%s`を開くことが出来ません</string>
-	<string name="failed_get_canonical_path">`%s`を正規化出来ませんでした</string>
 	<string name="failed_open_music">音楽の読み込みに失敗しました</string>
 	<string name="music_not_found">ファイルが見つかりません</string>
 	<string name="on_error_next_music">次の曲へ</string>

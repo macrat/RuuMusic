@@ -1,6 +1,5 @@
 package jp.blanktar.ruumusic;
 
-import java.io.File;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -20,10 +19,11 @@ import android.widget.TextView;
 import android.widget.SeekBar;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.widget.Toast;
 
 
 public class PlayerFragment extends Fragment {
-	private File currentMusicPath;
+	private RuuFile currentMusic;
 	private boolean playing;
 	private int duration = -1;
 	private long basetime = -1;
@@ -89,10 +89,14 @@ public class PlayerFragment extends Fragment {
 		view.findViewById(R.id.musicPath).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				if(currentMusicPath != null) {
+				if(currentMusic != null) {
 					MainActivity main = (MainActivity) getActivity();
 					if (main != null) {
-						main.moveToPlaylist(currentMusicPath.getParentFile());
+						try {
+							main.moveToPlaylist(currentMusic.getParent());
+						}catch(RuuFileBase.CanNotOpen e) {
+							Toast.makeText(getActivity(), String.format(getString(R.string.cant_open_dir), currentMusic.path.getParent()), Toast.LENGTH_LONG).show();
+						}
 					}
 				}
 			}
@@ -110,10 +114,12 @@ public class PlayerFragment extends Fragment {
 			}
 
 			@Override
-			public void onStartTrackingTouch(SeekBar seekBar) { }
+			public void onStartTrackingTouch(SeekBar seekBar) {
+			}
 
 			@Override
-			public void onStopTrackingTouch(SeekBar seekBar) { }
+			public void onStopTrackingTouch(SeekBar seekBar) {
+			}
 		});
 		
 		return view;
@@ -219,19 +225,23 @@ public class PlayerFragment extends Fragment {
 				firstMessage = false;
 			}
 		}else{
-			currentMusicPath = new File(path);
+			try {
+				currentMusic = new RuuFile(getContext(), path);
+			}catch(RuuFileBase.CanNotOpen e) {
+			}
 			updateRoot();
 		}
 	}
 	
 	public void updateRoot() {
-		if(currentMusicPath != null) {
+		if(currentMusic != null) {
 			View view = getView();
 			if(view != null) {
-				((TextView) view.findViewById(R.id.musicPath)).setText(
-						FileTypeUtil.getPathFromRoot(getActivity(), currentMusicPath.getParentFile())
-				);
-				((TextView) view.findViewById(R.id.musicName)).setText(currentMusicPath.getName());
+				try {
+					((TextView) view.findViewById(R.id.musicPath)).setText(currentMusic.getParent().getRuuPath());
+				}catch(RuuFileBase.CanNotOpen | RuuFileBase.OutOfRootDirectory e) {
+				}
+				((TextView) view.findViewById(R.id.musicName)).setText(currentMusic.getName());
 			}
 		}
 	}

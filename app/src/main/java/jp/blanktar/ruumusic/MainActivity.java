@@ -1,7 +1,5 @@
 package jp.blanktar.ruumusic;
 
-import java.io.File;
-
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -26,7 +24,9 @@ public class MainActivity extends AppCompatActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		if(!FileTypeUtil.getRootDirectory(this).isDirectory()) {
+		try {
+			RuuDirectory.rootDirectory(this);
+		}catch(RuuFileBase.CanNotOpen e){
 			PreferenceManager.getDefaultSharedPreferences(this)
 					.edit()
 					.putString("root_directory", "/")
@@ -75,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
 		if(id == R.id.action_set_root || id == R.id.action_unset_root) {
 			SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
 			if (id == R.id.action_set_root) {
-				editor.putString("root_directory", playlist.current.getPath());
+				editor.putString("root_directory", playlist.current.path.getFullPath());
 			}
 			if (id == R.id.action_unset_root) {
 				editor.putString("root_directory", "/");
@@ -118,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
 		viewPager.setCurrentItem(1);
 	}
 	
-	public void moveToPlaylist(@NonNull File path) {
+	public void moveToPlaylist(@NonNull RuuDirectory path) {
 		playlist.changeDir(path);
 		moveToPlaylist();
 	}

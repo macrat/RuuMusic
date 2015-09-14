@@ -4,10 +4,8 @@
 	<string name="action_set_root">Set here as root directory</string>
 	<string name="action_unset_root">Unset root directory</string>
 	
-	<string name="is_not_directory">`%s` is not directory</string>
 	<string name="out_of_root">`%s` is out of root directory</string>
 	<string name="cant_open_dir">Can\'t open directory `%s`</string>
-	<string name="failed_get_canonical_path">Failed get canonical path of `%s`</string>
 	<string name="failed_open_music">Failed loading music</string>
 	<string name="music_not_found">Music file not found</string>
 	<string name="on_error_next_music">Play next</string>

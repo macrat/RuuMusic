@@ -1,6 +1,5 @@
 package jp.blanktar.ruumusic;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -24,15 +23,15 @@ import android.os.Build;
 
 
 public class RuuService extends Service {
-	private File path;
+	private RuuFile path;
 	private MediaPlayer player;
 	private String repeatMode = "off";
 	private boolean shuffleMode = false;
 	private boolean ready = false;
 	
-	private List<File> playlist;
+	private List<RuuFile> playlist;
 	private int currentIndex;
-	private File currentDir;
+	private RuuDirectory currentDir;
 	
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -71,11 +70,11 @@ public class RuuService extends Service {
 			@Override
 			public boolean onError(MediaPlayer mp, int what, int extra) {
 				player.reset();
-				File realName = FileTypeUtil.detectRealName(path);
+				String realName = path.getRealPath();
 
 				Intent sendIntent = new Intent();
 				sendIntent.setAction("RUU_FAILED_OPEN");
-				sendIntent.putExtra("path", (realName==null ? path : realName).getPath());
+				sendIntent.putExtra("path", (realName==null ? path.getFullPath() : realName));
 				getBaseContext().sendBroadcast(sendIntent);
 	
 				return true;
@@ -129,7 +128,7 @@ public class RuuService extends Service {
 		
 		sendIntent.setAction("RUU_STATUS");
 		if(path != null) {
-			sendIntent.putExtra("path", path.getPath());
+			sendIntent.putExtra("path", path.getFullPath());
 		}
 		sendIntent.putExtra("repeat", repeatMode);
 		sendIntent.putExtra("shuffle", shuffleMode);
@@ -154,13 +153,20 @@ public class RuuService extends Service {
 
 		Intent intent = new Intent(this, MainActivity.class);
 		PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, 0);
+		
+		String parentPath;
+		try {
+			parentPath = path.getParent().getFullPath();
+		}catch(RuuFileBase.CanNotOpen e) {
+			parentPath = path.path.getParent();
+		}
 
 		return new NotificationCompat.Builder(getApplicationContext())
 				.setSmallIcon(R.drawable.ic_play_notification)
 				.setColor(0xff333333)
 				.setTicker(path.getName())
 				.setContentTitle(path.getName())
-				.setContentText(FileTypeUtil.getPathFromRoot(this, path.getParentFile()))
+				.setContentText(parentPath)
 				.setContentIntent(contentIntent)
 				.setPriority(Notification.PRIORITY_MIN)
 				.setVisibility(Notification.VISIBILITY_PUBLIC)
@@ -211,10 +217,14 @@ public class RuuService extends Service {
 			play();
 			return;
 		}
-		play(new File(path));
+		try {
+			play(new RuuFile(this, path));
+		}catch(RuuFileBase.CanNotOpen e) {
+			showToast(String.format(getString(R.string.cant_open_dir), path));
+		}
 	}
 	
-	private void play(@NonNull File path) {
+	private void play(@NonNull RuuFile path) {
 		if(this.path != null && this.path.equals(path)) {
 			player.pause();
 			player.seekTo(0);
@@ -225,16 +235,17 @@ public class RuuService extends Service {
 		ready = false;
 		player.reset();
 		this.path = path;
-	
-		File realName = FileTypeUtil.detectRealName(path);
+		
+		String realName = path.getRealPath();
+
 		if(realName == null) {
 			Intent sendIntent = new Intent();
 			sendIntent.setAction("RUU_NOT_FOUND");
-			sendIntent.putExtra("path", path.getPath());
+			sendIntent.putExtra("path", path.getFullPath());
 			getBaseContext().sendBroadcast(sendIntent);
 		}else {
 			try {
-				player.setDataSource(realName.getPath());
+				player.setDataSource(realName);
 
 				player.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
 					@Override
@@ -244,19 +255,22 @@ public class RuuService extends Service {
 					}
 				});
 				player.prepareAsync();
-			} catch (IOException e) {
-				Intent sendIntent = new Intent();
-				sendIntent.setAction("RUU_FAILED_OPEN");
-				sendIntent.putExtra("path", realName.getPath());
-				getBaseContext().sendBroadcast(sendIntent);
+			}catch(IOException e) {
+				showToast(String.format(getString(R.string.failed_open_music), realName));
 			}
 		}
 
-		File newparent = path.getParentFile();
+		RuuDirectory newparent;
+		try {
+			newparent = path.getParent();
+		}catch(RuuFileBase.CanNotOpen e) {
+			showToast(String.format(getString(R.string.cant_open_dir), path.path.getParent()));
+			return;
+		}
 		if(currentDir == null || !currentDir.equals(newparent)) {
 			currentDir = newparent;
 	
-			playlist = FileTypeUtil.getMusics(currentDir);
+			playlist = currentDir.getMusics();
 
 			if(shuffleMode) {
 				shuffleList();
@@ -271,9 +285,18 @@ public class RuuService extends Service {
 	
 	private void shuffleList() {
 		if(playlist != null) {
-			Collections.shuffle(playlist);
-			Collections.swap(playlist, 0, playlist.indexOf(path));
-			currentIndex = 0;
+			int pos = -1;
+			for(int i=0; i<playlist.size(); i++) {
+				if(playlist.get(i).equals(path)) {
+					pos = i;
+					break;
+				}
+			}
+			if(pos >= 0) {
+				Collections.shuffle(playlist);
+				Collections.swap(playlist, 0, pos);
+				currentIndex = 0;
+			}
 		}
 	}
 	

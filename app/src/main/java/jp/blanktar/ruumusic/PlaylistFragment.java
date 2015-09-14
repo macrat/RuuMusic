@@ -1,7 +1,6 @@
 package jp.blanktar.ruumusic;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Stack;
 
@@ -18,20 +17,21 @@ import android.widget.AdapterView;
 import android.content.Intent;
 import android.app.Activity;
 import android.view.Menu;
+import android.preference.PreferenceManager;
 
 
 public class PlaylistFragment extends Fragment {
 	private ArrayAdapter<String> adapter;
-	public File current;
-	private final Stack<DirectoryCache> directoryCache = new Stack<>();
-	private DirectoryCache currentCache;
+	private final Stack<DirectoryInfo> directoryCache = new Stack<>();
+	DirectoryInfo current;
 
-	private class DirectoryCache {
-		public final File path;
-		public final ArrayList<String> files = new ArrayList<>();
+	class DirectoryInfo {
+		public final RuuDirectory path;
+		public final ArrayList<RuuDirectory> directories = new ArrayList<>();
+		public final ArrayList<RuuFile> files = new ArrayList<>();
 		public int selection = 0;
 
-		public DirectoryCache(@NonNull File path) {
+		public DirectoryInfo(@NonNull RuuDirectory path) {
 			this.path = path;
 		}
 	}
@@ -50,24 +50,37 @@ public class PlaylistFragment extends Fragment {
 		lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				File file = new File(current, (String) lv.getItemAtPosition(position));
-				if (file.isDirectory()) {
-					changeDir(file);
-				} else {
-					changeMusic(file.getPath());
+				String selected = (String) lv.getItemAtPosition(position);
+				try {
+					if ((new File(current.path.getFullPath(), selected)).isDirectory()) {
+						changeDir(new RuuDirectory(getContext(), current.path.getFullPath() + selected));
+					} else {
+						changeMusic(new RuuFile(getContext(), current.path.getFullPath() + selected));
+					}
+				} catch (RuuFileBase.CanNotOpen e) {
 				}
 			}
 		});
 
-		if(savedInstanceState == null) {
-			changeDir(FileTypeUtil.getRootDirectory(getActivity()));
-		}else{
-			String currentPath = savedInstanceState.getString("CURRENT_PATH");
-			if(currentPath != null) {
-				changeDir(new File(currentPath));
-			}else {
-				changeDir(FileTypeUtil.getRootDirectory(getActivity()));
+		try {
+			if (savedInstanceState == null) {
+				changeDir(RuuDirectory.rootDirectory(getContext()));
+			} else {
+				String currentPath = savedInstanceState.getString("CURRENT_PATH");
+				if (currentPath != null) {
+					try {
+						changeDir(new RuuDirectory(getContext(), currentPath));
+					}catch(RuuFileBase.CanNotOpen e) {
+						changeDir(RuuDirectory.rootDirectory(getContext()));
+					}
+				} else {
+					changeDir(RuuDirectory.rootDirectory(getContext()));
+				}
 			}
+		}catch(RuuFileBase.CanNotOpen err) {
+			PreferenceManager.getDefaultSharedPreferences(getContext()).edit()
+					.putString("root_directory", "/")
+					.apply();
 		}
 		
 		return view;
@@ -77,14 +90,19 @@ public class PlaylistFragment extends Fragment {
 	public void onSaveInstanceState(@NonNull Bundle state) {
 		super.onSaveInstanceState(state);
 		
-		state.putString("CURRENT_PATH", current.getPath());
+		state.putString("CURRENT_PATH", current.path.getFullPath());
 	}
 	
 	public void updateTitle(@NonNull Activity activity) {
 		if(current == null) {
 			activity.setTitle("");
 		}else{
-			activity.setTitle(FileTypeUtil.getPathFromRoot(getActivity(), current));
+			try {
+				activity.setTitle(current.path.getRuuPath());
+			}catch(RuuFileBase.OutOfRootDirectory e) {
+				activity.setTitle("");
+				Toast.makeText(getActivity(), String.format(getString(R.string.out_of_root), current.path.getFullPath()), Toast.LENGTH_LONG).show();
+			}
 		}
 	}
 	private void updateTitle() {
@@ -94,102 +112,109 @@ public class PlaylistFragment extends Fragment {
 	public void updateRoot() {
 		updateTitle();
 		updateMenu();
-		changeDir(current);
+		changeDir(current.path);
 	}
 	
-	protected void changeDir(@NonNull File dir){
+	void changeDir(@NonNull RuuDirectory dir){
+		RuuDirectory rootDirectory;
 		try {
-			dir = dir.getCanonicalFile();
-		}catch(IOException e) {
-			Toast.makeText(getActivity(), String.format(getString(R.string.failed_get_canonical_path), dir.getPath()), Toast.LENGTH_LONG).show();
+			rootDirectory = RuuDirectory.rootDirectory(getContext());
+		}catch(RuuFileBase.CanNotOpen e) {
+			Toast.makeText(getActivity(), String.format(getString(R.string.cant_open_dir), "root directory"), Toast.LENGTH_LONG).show();
 			return;
 		}
-
-		File rootDirectory = FileTypeUtil.getRootDirectory(getActivity());
 		
-		if(!dir.equals(rootDirectory)
-		&& !dir.getPath().startsWith(rootDirectory.getPath())) {
-			Toast.makeText(getActivity(), String.format(getString(R.string.out_of_root), dir.getPath()), Toast.LENGTH_LONG).show();
-		}else if(!dir.isDirectory()) {
-			Toast.makeText(getActivity(), String.format(getString(R.string.is_not_directory), dir.getPath()), Toast.LENGTH_LONG).show();
+		if(!rootDirectory.contains(dir)) {
+			Toast.makeText(getActivity(), String.format(getString(R.string.out_of_root), dir.getFullPath()), Toast.LENGTH_LONG).show();
 		}else if(!directoryCache.empty() && directoryCache.peek().path.equals(dir)) {
-			currentCache = directoryCache.pop();
-			
-			current = dir;
-			
+			current = directoryCache.pop();
+
+			if(((MainActivity)getActivity()).getCurrentPage() == 1) {
+				updateTitle();
+			}
+
+			adapter.clear();
+			if(!rootDirectory.equals(current.path) && rootDirectory.contains(current.path)) {
+				adapter.add("../");
+			}
+			for(RuuDirectory directory: current.directories) {
+				adapter.add(directory.getName() + "/");
+			}
+			for(RuuFile file: current.files) {
+				adapter.add(file.getName());
+			}
+
+			((ListView) getActivity().findViewById(R.id.playlist)).setSelection(current.selection);
+
+			updateMenu();
+		}else{
+			RuuDirectory parent;
+			try {
+				parent = dir.getParent();
+			}catch(RuuFileBase.CanNotOpen e) {
+				parent = null;
+			}
+		
+			if(!directoryCache.empty() && (parent == null || current != null && !current.path.equals(parent))){
+				while(!directoryCache.empty()) {
+					directoryCache.pop();
+				}
+			}else if(current != null) {
+				current.selection = ((ListView) getActivity().findViewById(R.id.playlist)).getFirstVisiblePosition();
+				directoryCache.push(current);
+			}
+			current = new DirectoryInfo(dir);
+
 			if(((MainActivity)getActivity()).getCurrentPage() == 1) {
 				updateTitle();
 			}
 			
 			adapter.clear();
-			if(current.getParentFile() != null && !current.equals(rootDirectory)) {
+			
+			if(!rootDirectory.equals(current.path) && rootDirectory.contains(current.path)) {
 				adapter.add("../");
 			}
-			for(String file: currentCache.files) {
-				adapter.add(file);
+			
+			for(RuuDirectory directory: current.path.getDirectories()) {
+				adapter.add(directory.getName() + "/");
+				current.directories.add(directory);
 			}
 			
-			((ListView) getActivity().findViewById(R.id.playlist)).setSelection(currentCache.selection);
+			for(RuuFile music: current.path.getMusics()) {
+				adapter.add(music.getName());
+				current.files.add(music);
+			}
 
+			ListView lv = (ListView)getActivity().findViewById(R.id.playlist);
+			if(lv != null) {
+				lv.setSelection(0);
+			}
+			
 			updateMenu();
-		}else{
-			File[] files = dir.listFiles();
-			
-			if(files == null) {
-				Toast.makeText(getActivity(), String.format(getString(R.string.cant_open_dir), dir.getPath()), Toast.LENGTH_LONG).show();
-			}else {
-				if(!directoryCache.empty() && !currentCache.path.equals(dir.getParentFile())){
-					while(!directoryCache.empty()) {
-						directoryCache.pop();
-					}
-				}else if(currentCache != null) {
-					currentCache.selection = ((ListView) getActivity().findViewById(R.id.playlist)).getFirstVisiblePosition();
-					directoryCache.push(currentCache);
-				}
-				currentCache = new DirectoryCache(dir);
-
-				current = dir;
-				if(current.getPath().equals("")) {
-					current = rootDirectory;
-				}
-				
-				if(((MainActivity)getActivity()).getCurrentPage() == 1) {
-					updateTitle();
-				}
-				
-				adapter.clear();
-				
-				if(current.getParentFile() != null && !current.equals(rootDirectory)) {
-					adapter.add("../");
-				}
-				
-				for(File directory: FileTypeUtil.getDirectories(files)) {
-					adapter.add(directory.getName() + "/");
-					currentCache.files.add(directory.getName() + "/");
-				}
-				
-				for(File music: FileTypeUtil.getMusics(files)) {
-					adapter.add(music.getName());
-					currentCache.files.add(music.getName());
-				}
-
-				ListView lv = (ListView)getActivity().findViewById(R.id.playlist);
-				if(lv != null) {
-					lv.setSelection(0);
-				}
-				
-				updateMenu();
-			}
 		}
 	}
 	
 	public void updateMenu(@NonNull MainActivity activity) {
 		Menu menu = activity.menu;
 		if (menu != null) {
-			File rootDirectory = FileTypeUtil.getRootDirectory(getActivity());
+			RuuDirectory rootDirectory;
+			try {
+				rootDirectory = RuuDirectory.rootDirectory(getContext());
+			}catch(RuuFileBase.CanNotOpen e) {
+				Toast.makeText(getActivity(), String.format(getString(R.string.cant_open_dir), "root directory"), Toast.LENGTH_LONG).show();
+				return;
+			}
+			
+			RuuDirectory realRoot;
+			try {
+				realRoot = new RuuDirectory(getContext(), "/");
+			}catch(RuuFileBase.CanNotOpen e) {
+				Toast.makeText(getActivity(), String.format(getString(R.string.cant_open_dir), "/"), Toast.LENGTH_LONG).show();
+				return;
+			}
 
-			menu.findItem(R.id.action_set_root).setVisible(!rootDirectory.equals(current));
-			menu.findItem(R.id.action_unset_root).setVisible(!rootDirectory.equals(new File("/")));
+			menu.findItem(R.id.action_set_root).setVisible(!rootDirectory.equals(current.path));
+			menu.findItem(R.id.action_unset_root).setVisible(!rootDirectory.equals(realRoot));
 		}
 	}
 	
@@ -197,20 +222,31 @@ public class PlaylistFragment extends Fragment {
 		updateMenu((MainActivity)getActivity());
 	}
 	
-	private void changeMusic(@NonNull String file) {
+	private void changeMusic(@NonNull RuuFile file) {
 		Intent intent = new Intent(getActivity(), RuuService.class);
 		intent.setAction("RUU_PLAY");
-		intent.putExtra("path", file);
+		intent.putExtra("path", file.getFullPath());
 		getActivity().startService(intent);
 		
 		((MainActivity)getActivity()).moveToPlayer();
 	}
 	
 	public boolean onBackKey() {
-		if(current.equals(FileTypeUtil.getRootDirectory(getActivity()))) {
+		RuuDirectory root;
+		try {
+			root = RuuDirectory.rootDirectory(getContext());
+		}catch(RuuFileBase.CanNotOpen e) {
+			return false;
+		}
+
+		if(current.path.equals(root)) {
 			return false;
 		}else{
-			changeDir(current.getParentFile());
+			try {
+				changeDir(current.path.getParent());
+			}catch(RuuDirectory.CanNotOpen e) {
+				Toast.makeText(getActivity(), String.format(getString(R.string.cant_open_dir), current.path.path.getParent()), Toast.LENGTH_LONG).show();
+			}
 			return true;
 		}
 	}
