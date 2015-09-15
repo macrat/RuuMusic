@@ -10,6 +10,8 @@ import java.util.TimerTask;
 import android.support.annotation.NonNull;
 import android.app.Service;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.BroadcastReceiver;
 import android.os.IBinder;
 import android.media.MediaPlayer;
 import android.os.Handler;
@@ -22,6 +24,7 @@ import android.content.Context;
 import android.support.v4.app.NotificationCompat;
 import android.app.PendingIntent;
 import android.os.Build;
+import android.media.AudioManager;
 
 
 public class RuuService extends Service {
@@ -109,6 +112,15 @@ public class RuuService extends Service {
 				return true;
 			}
 		});
+		
+		registerReceiver(new BroadcastReceiver() {
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				if(intent.getAction().equals(AudioManager.ACTION_AUDIO_BECOMING_NOISY)) {
+					pause();
+				}
+			}
+		}, new IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY));
 		
 		startDeathTimer();
 	}
@@ -398,6 +410,12 @@ public class RuuService extends Service {
 		sendStatus();
 		removePlayingNotification();
 		startDeathTimer();
+
+		PreferenceManager.getDefaultSharedPreferences(this)
+				.edit()
+				.putString("last_play_music", RuuService.this.path.getFullPath())
+				.putInt("last_play_position", player.getCurrentPosition())
+				.apply();
 	}
 	
 	private void seek(int newtime) {
