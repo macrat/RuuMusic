@@ -271,6 +271,10 @@ public class RuuService extends Service {
 			sendStatus();
 			updatePlayingNotification();
 			stopDeathTimer();
+
+			PreferenceManager.getDefaultSharedPreferences(this).edit()
+					.putString("last_play_music", RuuService.this.path.getFullPath())
+					.apply();
 		}
 	}
 	
