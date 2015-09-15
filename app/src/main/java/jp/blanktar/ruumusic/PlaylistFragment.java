@@ -1,6 +1,5 @@
 package jp.blanktar.ruumusic;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Stack;
 
@@ -33,7 +32,7 @@ public class PlaylistFragment extends Fragment {
 
 		View view = inflater.inflate(R.layout.fragment_playlist, container, false);
 	
-		adapter = new RuuAdapter(view.getContext(), R.layout.list_item);
+		adapter = new RuuAdapter(view.getContext());
 		
 		final ListView lv = (ListView)view.findViewById(R.id.playlist);
 		lv.setAdapter(adapter);
@@ -259,8 +258,8 @@ public class PlaylistFragment extends Fragment {
 	}
 	
 	class RuuAdapter extends ArrayAdapter<RuuListItem> {
-		public RuuAdapter(@NonNull Context context, int resourceID) {
-			super(context, resourceID);
+		public RuuAdapter(@NonNull Context context) {
+			super(context, R.layout.list_item);
 		}
 
 		public void setRuuFiles(@NonNull DirectoryInfo dirInfo) throws RuuFileBase.CanNotOpen {
@@ -280,8 +279,8 @@ public class PlaylistFragment extends Fragment {
 		}
 		
 		@Override
-		public View getView(int position, @NonNull View convertView, @NonNull ViewGroup parent) {
-			RuuListItem item = (RuuListItem)getItem(position);
+		public View getView(int position, View convertView, ViewGroup parent) {
+			RuuListItem item = getItem(position);
 			
 			if(convertView == null) {
 				convertView = ((LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.list_item, null);
