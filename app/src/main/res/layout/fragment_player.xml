@@ -14,7 +14,7 @@
 		android:id="@+id/playButton"
 		android:layout_alignParentBottom="true"
 		android:layout_centerHorizontal="true"
-		android:src="@drawable/ic_play_arrow"/>
+		android:src="@drawable/ic_play"/>
 
 	<ImageButton
 		android:layout_width="70dp"
@@ -22,7 +22,7 @@
 		android:id="@+id/prevButton"
 		android:layout_alignBottom="@+id/playButton"
 		android:layout_toLeftOf="@+id/playButton"
-		android:src="@drawable/ic_skip_previous"/>
+		android:src="@drawable/ic_prev"/>
 
 	<ImageButton
 		android:layout_width="60dp"
@@ -30,7 +30,7 @@
 		android:id="@+id/shuffleButton"
 		android:layout_alignBottom="@+id/prevButton"
 		android:layout_toLeftOf="@+id/prevButton"
-		android:src="@drawable/ic_reorder"/>
+		android:src="@drawable/ic_shuffle_off"/>
 
 	<ImageButton
 		android:layout_width="70dp"
@@ -38,7 +38,7 @@
 		android:id="@+id/nextButton"
 		android:layout_alignBottom="@+id/playButton"
 		android:layout_toRightOf="@+id/playButton"
-		android:src="@drawable/ic_skip_next"/>
+		android:src="@drawable/ic_next"/>
 	
 	<ImageButton
 		android:layout_width="60dp"
@@ -46,7 +46,7 @@
 		android:id="@+id/repeatButton"
 		android:layout_alignBottom="@+id/nextButton"
 		android:layout_toRightOf="@+id/nextButton"
-		android:src="@drawable/ic_trending_flat"/>
+		android:src="@drawable/ic_repeat_off"/>
 
 	<SeekBar
 		android:layout_width="match_parent"

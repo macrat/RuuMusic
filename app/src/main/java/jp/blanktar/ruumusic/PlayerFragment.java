@@ -192,27 +192,27 @@ public class PlayerFragment extends Fragment {
 			if (playing) {
 				playButton.setImageResource(R.drawable.ic_pause);
 			} else {
-				playButton.setImageResource(R.drawable.ic_play_arrow);
+				playButton.setImageResource(R.drawable.ic_play);
 			}
 
 			ImageButton repeatButton = (ImageButton) view.findViewById(R.id.repeatButton);
 			switch (repeatMode) {
 				case "loop":
-					repeatButton.setImageResource(R.drawable.ic_repeat);
+					repeatButton.setImageResource(R.drawable.ic_repeat_all);
 					break;
 				case "one":
 					repeatButton.setImageResource(R.drawable.ic_repeat_one);
 					break;
 				default:
-					repeatButton.setImageResource(R.drawable.ic_trending_flat);
+					repeatButton.setImageResource(R.drawable.ic_repeat_off);
 					break;
 			}
 
 			ImageButton shuffleButton = (ImageButton) view.findViewById(R.id.shuffleButton);
 			if (shuffleMode) {
-				shuffleButton.setImageResource(R.drawable.ic_shuffle);
+				shuffleButton.setImageResource(R.drawable.ic_shuffle_on);
 			} else {
-				shuffleButton.setImageResource(R.drawable.ic_reorder);
+				shuffleButton.setImageResource(R.drawable.ic_shuffle_off);
 			}
 
 			((SeekBar) view.findViewById(R.id.seekBar)).setMax(duration);

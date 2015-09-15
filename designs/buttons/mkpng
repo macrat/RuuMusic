@@ -1,0 +1,22 @@
+#!/bin/sh
+
+function makepng(){
+	inkscape -e drawable-mdpi/$1.png -w $2 $1.svg
+	inkscape -e drawable-hdpi/$1.png -w `echo $2 1.5\*p | dc` $1.svg
+	inkscape -e drawable-xhdpi/$1.png -w `echo $2 2\*p | dc` $1.svg
+	inkscape -e drawable-xxhdpi/$1.png -w `echo $2 3\*p | dc` $1.svg
+	inkscape -e drawable-xxxhdpi/$1.png -w `echo $2 4\*p | dc` $1.svg
+}
+
+
+mkdir drawable-{m,h,xh,xxh,xxxh}dpi
+
+makepng ic_play 50
+makepng ic_pause 50
+
+makepng ic_prev 40
+makepng ic_next 40
+
+for x in `ls ic_*_*`; do
+	makepng `echo $x | sed -e 's/\.svg$//'` 30
+done

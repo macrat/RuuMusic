@@ -205,7 +205,7 @@ public class RuuService extends Service {
 	}
 
 	private Notification makeNotification() {
-		int playpause_icon = player.isPlaying() ? R.drawable.ic_pause : R.drawable.ic_play_arrow;
+		int playpause_icon = player.isPlaying() ? R.drawable.ic_pause : R.drawable.ic_play;
 		String playpause_text = player.isPlaying() ? "pause" : "play";
 		PendingIntent playpause_pi = PendingIntent.getService(this, 0, (new Intent(this, RuuService.class)).setAction(player.isPlaying() ? "RUU_PAUSE" : "RUU_PLAY"), 0);
 		
@@ -231,9 +231,9 @@ public class RuuService extends Service {
 				.setContentIntent(contentIntent)
 				.setPriority(Notification.PRIORITY_MIN)
 				.setVisibility(Notification.VISIBILITY_PUBLIC)
-				.addAction(R.drawable.ic_skip_previous, "prev", prev_pi)
+				.addAction(R.drawable.ic_prev, "prev", prev_pi)
 				.addAction(playpause_icon, playpause_text, playpause_pi)
-				.addAction(R.drawable.ic_skip_next, "next", next_pi)
+				.addAction(R.drawable.ic_next, "next", next_pi)
 				.build();
 	}
 
