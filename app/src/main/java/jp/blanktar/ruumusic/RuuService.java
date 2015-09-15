@@ -69,9 +69,7 @@ public class RuuService extends Service {
 					}
 				});
 			}catch(RuuFileBase.CanNotOpen e) {
-				PreferenceManager.getDefaultSharedPreferences(this).edit()
-						.putString("last_play_music", "")
-						.apply();
+				removeSavedStatus();
 			}
 		}
 
@@ -167,11 +165,7 @@ public class RuuService extends Service {
 	public void onDestroy() {
 		removePlayingNotification();
 
-		PreferenceManager.getDefaultSharedPreferences(this)
-				.edit()
-				.putString("last_play_music", RuuService.this.path.getFullPath())
-				.putInt("last_play_position", player.getCurrentPosition())
-				.apply();
+		saveStatus();
 	}
 	
 	private void sendStatus() {
@@ -193,7 +187,23 @@ public class RuuService extends Service {
 		
 		getBaseContext().sendBroadcast(sendIntent);
 	}
-	
+
+	private void saveStatus() {
+		if(path != null) {
+			PreferenceManager.getDefaultSharedPreferences(this).edit()
+					.putString("last_play_music", path.getFullPath())
+					.putInt("last_play_position", player.getCurrentPosition())
+					.apply();
+		}
+	}
+
+	private void removeSavedStatus() {
+		PreferenceManager.getDefaultSharedPreferences(this).edit()
+				.putString("last_play_music", "")
+				.putInt("last_play_position", 0)
+				.apply();
+	}
+
 	private Notification makeNotification() {
 		int playpause_icon = player.isPlaying() ? R.drawable.ic_pause : R.drawable.ic_play_arrow;
 		String playpause_text = player.isPlaying() ? "pause" : "play";
@@ -263,9 +273,7 @@ public class RuuService extends Service {
 			}
 			player.reset();
 
-			PreferenceManager.getDefaultSharedPreferences(this).edit()
-					.putString("last_play_music", "")
-					.apply();
+			removeSavedStatus();
 
 			path = null;
 			ready = false;
@@ -284,11 +292,8 @@ public class RuuService extends Service {
 			player.start();
 			sendStatus();
 			updatePlayingNotification();
+			saveStatus();
 			stopDeathTimer();
-
-			PreferenceManager.getDefaultSharedPreferences(this).edit()
-					.putString("last_play_music", RuuService.this.path.getFullPath())
-					.apply();
 		}
 	}
 	
@@ -411,19 +416,15 @@ public class RuuService extends Service {
 		player.pause();
 		sendStatus();
 		removePlayingNotification();
+		saveStatus();
 		startDeathTimer();
-
-		PreferenceManager.getDefaultSharedPreferences(this)
-				.edit()
-				.putString("last_play_music", RuuService.this.path.getFullPath())
-				.putInt("last_play_position", player.getCurrentPosition())
-				.apply();
 	}
 	
 	private void seek(int newtime) {
 		if(0 <= newtime && newtime <= player.getDuration()) {
 			player.seekTo(newtime);
 			sendStatus();
+			saveStatus();
 		}
 	}
 	
