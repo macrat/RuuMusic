@@ -18,31 +18,22 @@ import android.content.Intent;
 import android.app.Activity;
 import android.view.Menu;
 import android.preference.PreferenceManager;
+import android.content.Context;
+import android.widget.TextView;
 
 
 public class PlaylistFragment extends Fragment {
-	private ArrayAdapter<String> adapter;
+	private RuuAdapter adapter;
 	private final Stack<DirectoryInfo> directoryCache = new Stack<>();
 	DirectoryInfo current;
 
-	class DirectoryInfo {
-		public final RuuDirectory path;
-		public final ArrayList<RuuDirectory> directories = new ArrayList<>();
-		public final ArrayList<RuuFile> files = new ArrayList<>();
-		public int selection = 0;
-
-		public DirectoryInfo(@NonNull RuuDirectory path) {
-			this.path = path;
-		}
-	}
-	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 							 Bundle savedInstanceState) {
 
 		View view = inflater.inflate(R.layout.fragment_playlist, container, false);
 	
-		adapter = new ArrayAdapter<>(view.getContext(), R.layout.list_item);
+		adapter = new RuuAdapter(view.getContext(), R.layout.list_item);
 		
 		final ListView lv = (ListView)view.findViewById(R.id.playlist);
 		lv.setAdapter(adapter);
@@ -50,14 +41,11 @@ public class PlaylistFragment extends Fragment {
 		lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				String selected = (String) lv.getItemAtPosition(position);
-				try {
-					if ((new File(current.path.getFullPath(), selected)).isDirectory()) {
-						changeDir(new RuuDirectory(getContext(), current.path.getFullPath() + selected));
-					} else {
-						changeMusic(new RuuFile(getContext(), current.path.getFullPath() + selected));
-					}
-				} catch (RuuFileBase.CanNotOpen e) {
+				RuuListItem selected = (RuuListItem)lv.getItemAtPosition(position);
+				if(selected.file.isDirectory()){
+					changeDir((RuuDirectory)selected.file);
+				}else{
+					changeMusic((RuuFile)selected.file);
 				}
 			}
 		});
@@ -133,15 +121,11 @@ public class PlaylistFragment extends Fragment {
 				updateTitle();
 			}
 
-			adapter.clear();
-			if(!rootDirectory.equals(current.path) && rootDirectory.contains(current.path)) {
-				adapter.add("../");
-			}
-			for(RuuDirectory directory: current.directories) {
-				adapter.add(directory.getName() + "/");
-			}
-			for(RuuFile file: current.files) {
-				adapter.add(file.getName());
+			try {
+				adapter.setRuuFiles(current);
+			}catch(RuuFileBase.CanNotOpen e) {
+				Toast.makeText(getActivity(), String.format(getString(R.string.cant_open_dir), e.path), Toast.LENGTH_LONG).show();
+				return;
 			}
 
 			((ListView) getActivity().findViewById(R.id.playlist)).setSelection(current.selection);
@@ -169,20 +153,11 @@ public class PlaylistFragment extends Fragment {
 				updateTitle();
 			}
 			
-			adapter.clear();
-			
-			if(!rootDirectory.equals(current.path) && rootDirectory.contains(current.path)) {
-				adapter.add("../");
-			}
-			
-			for(RuuDirectory directory: current.path.getDirectories()) {
-				adapter.add(directory.getName() + "/");
-				current.directories.add(directory);
-			}
-			
-			for(RuuFile music: current.path.getMusics()) {
-				adapter.add(music.getName());
-				current.files.add(music);
+			try {
+				adapter.setRuuFiles(current);
+			}catch(RuuFileBase.CanNotOpen e) {
+				Toast.makeText(getActivity(), String.format(getString(R.string.cant_open_dir), e.path), Toast.LENGTH_LONG).show();
+				return;
 			}
 
 			ListView lv = (ListView)getActivity().findViewById(R.id.playlist);
@@ -250,5 +225,71 @@ public class PlaylistFragment extends Fragment {
 			return true;
 		}
 	}
-}
 
+
+	class DirectoryInfo {
+		public final RuuDirectory path;
+		public final ArrayList<RuuDirectory> directories;
+		public final ArrayList<RuuFile> files;
+		public int selection = 0;
+
+		public DirectoryInfo(@NonNull RuuDirectory path) {
+			this.path = path;
+			this.directories = path.getDirectories();
+			this.files = path.getMusics();
+		}
+	}
+
+	public class RuuListItem {
+		public final RuuFileBase file;
+		public final String text;
+
+		public RuuListItem(@NonNull RuuFileBase file, @NonNull String text) {
+			this.file = file;
+			this.text = text;
+		}
+		
+		public RuuListItem(@NonNull RuuFile file) {
+			this(file, file.getName());
+		}
+		
+		public RuuListItem(@NonNull RuuDirectory dir) {
+			this(dir, dir.getName() + "/");
+		}
+	}
+	
+	class RuuAdapter extends ArrayAdapter<RuuListItem> {
+		public RuuAdapter(@NonNull Context context, int resourceID) {
+			super(context, resourceID);
+		}
+
+		public void setRuuFiles(@NonNull DirectoryInfo dirInfo) throws RuuFileBase.CanNotOpen {
+			clear();
+	
+			RuuDirectory rootDirectory = RuuDirectory.rootDirectory(getContext());
+			if(!rootDirectory.equals(dirInfo.path) && rootDirectory.contains(dirInfo.path)) {
+				add(new RuuListItem(dirInfo.path.getParent(), "../"));
+			}
+
+			for(RuuDirectory dir: dirInfo.directories) {
+				add(new RuuListItem(dir));
+			}
+			for(RuuFile file: dirInfo.files) {
+				add(new RuuListItem(file));
+			}
+		}
+		
+		@Override
+		public View getView(int position, @NonNull View convertView, @NonNull ViewGroup parent) {
+			RuuListItem item = (RuuListItem)getItem(position);
+			
+			if(convertView == null) {
+				convertView = ((LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.list_item, null);
+			}
+			
+			((TextView)convertView).setText(item.text);
+			
+			return convertView;
+		}
+	}
+}
