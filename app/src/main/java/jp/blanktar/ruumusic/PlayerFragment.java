@@ -32,6 +32,7 @@ public class PlayerFragment extends Fragment {
 	private boolean shuffleMode;
 	private Timer updateProgressTimer;
 	private boolean firstMessage = true;
+	private boolean seeking = false;
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -103,22 +104,36 @@ public class PlayerFragment extends Fragment {
 		});
 		
 		((SeekBar)view.findViewById(R.id.seekBar)).setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+			private int progress = 0;
+			private boolean needResume = false;
+	
 			@Override
 			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-				if (fromUser) {
-					Intent intent = new Intent(getActivity(), RuuService.class);
-					intent.setAction("RUU_SEEK");
-					intent.putExtra("newtime", progress);
-					getActivity().startService(intent);
+				if(seeking) {
+					this.progress = progress;
+					updateProgress(progress);
 				}
 			}
 
 			@Override
 			public void onStartTrackingTouch(SeekBar seekBar) {
+				seeking = true;
+				needResume = playing;
+				startRuuService("RUU_PAUSE");
 			}
 
 			@Override
 			public void onStopTrackingTouch(SeekBar seekBar) {
+				seeking = false;
+	
+				Intent intent = new Intent(getActivity(), RuuService.class);
+				intent.setAction("RUU_SEEK");
+				intent.putExtra("newtime", progress);
+				getActivity().startService(intent);
+
+				if(needResume) {
+					startRuuService("RUU_PLAY");
+				}
 			}
 		});
 		
@@ -145,7 +160,9 @@ public class PlayerFragment extends Fragment {
 				handler.post(new Runnable() {
 					@Override
 					public void run() {
-						updateProgress();
+						if(!seeking) {
+							updateProgress();
+						}
 					}
 				});
 			}
@@ -258,6 +275,10 @@ public class PlayerFragment extends Fragment {
 	}
 	
 	private void updateProgress() {
+		updateProgress(-1);
+	}
+	
+	private void updateProgress(int time) {
 		if(getView() == null) {
 			return;
 		}
@@ -266,7 +287,10 @@ public class PlayerFragment extends Fragment {
 		SeekBar bar = (SeekBar)getView().findViewById(R.id.seekBar);
 		
 		String currentStr = "-";
-		if(playing && basetime >= 0) {
+		if(time >= 0) {
+			currentStr = msec2str(time);
+			bar.setProgress(time);
+		}else if(playing && basetime >= 0) {
 			currentStr = msec2str(System.currentTimeMillis() - basetime);
 			bar.setProgress((int)(System.currentTimeMillis() - basetime));
 		}else if(!playing && current >= 0) {
