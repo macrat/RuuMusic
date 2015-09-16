@@ -47,8 +47,12 @@ public class MainActivity extends AppCompatActivity {
 	@Override
 	public void onSaveInstanceState(@NonNull Bundle state) {
 		super.onSaveInstanceState(state);
-		getSupportFragmentManager().putFragment(state, "player_fragment", player);
-		getSupportFragmentManager().putFragment(state, "playlist_fragment", playlist);
+		if(player != null) {
+			getSupportFragmentManager().putFragment(state, "player_fragment", player);
+		}
+		if(playlist != null) {
+			getSupportFragmentManager().putFragment(state, "playlist_fragment", playlist);
+		}
 	}
 
 	@Override
