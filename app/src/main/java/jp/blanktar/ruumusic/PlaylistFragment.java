@@ -242,18 +242,20 @@ public class PlaylistFragment extends Fragment {
 	public class RuuListItem {
 		public final RuuFileBase file;
 		public final String text;
+		public final boolean isUpperDir;
 
-		public RuuListItem(@NonNull RuuFileBase file, @NonNull String text) {
+		public RuuListItem(@NonNull RuuFileBase file, String text, boolean isUpperDir) {
 			this.file = file;
 			this.text = text;
+			this.isUpperDir = isUpperDir;
 		}
 		
 		public RuuListItem(@NonNull RuuFile file) {
-			this(file, file.getName());
+			this(file, file.getName(), false);
 		}
 		
 		public RuuListItem(@NonNull RuuDirectory dir) {
-			this(dir, dir.getName() + "/");
+			this(dir, dir.getName() + "/", false);
 		}
 	}
 	
@@ -267,7 +269,7 @@ public class PlaylistFragment extends Fragment {
 	
 			RuuDirectory rootDirectory = RuuDirectory.rootDirectory(getContext());
 			if(!rootDirectory.equals(dirInfo.path) && rootDirectory.contains(dirInfo.path)) {
-				add(new RuuListItem(dirInfo.path.getParent(), "../"));
+				add(new RuuListItem(dirInfo.path.getParent(), null, true));
 			}
 
 			for(RuuDirectory dir: dirInfo.directories) {
@@ -279,14 +281,35 @@ public class PlaylistFragment extends Fragment {
 		}
 		
 		@Override
+		public int getViewTypeCount() {
+			return 2;
+		}
+
+		@Override
+		public int getItemViewType(int position) {
+			RuuListItem item = getItem(position);
+			if(item.isUpperDir) {
+				return 1;
+			}else {
+				return 0;
+			}
+		}
+		
+		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			RuuListItem item = getItem(position);
 			
-			if(convertView == null) {
-				convertView = ((LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.list_item, null);
+			if(item.isUpperDir) {
+				if(convertView == null) {
+					convertView = ((LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.list_item_upper, null);
+				}
+			}else{
+				if(convertView == null) {
+					convertView = ((LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.list_item, null);
+				}
+
+				((TextView) convertView).setText(item.text);
 			}
-			
-			((TextView)convertView).setText(item.text);
 			
 			return convertView;
 		}

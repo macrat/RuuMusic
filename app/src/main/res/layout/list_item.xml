@@ -5,4 +5,4 @@
 	android:orientation="vertical"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
-	android:textSize="28sp" />
+	android:textSize="@dimen/list_item_text_size" />
