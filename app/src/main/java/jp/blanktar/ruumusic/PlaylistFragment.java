@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Stack;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -27,9 +28,8 @@ public class PlaylistFragment extends Fragment {
 	DirectoryInfo current;
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-							 Bundle savedInstanceState) {
-
+	@NonNull
+	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_playlist, container, false);
 	
 		adapter = new RuuAdapter(view.getContext());
@@ -39,7 +39,7 @@ public class PlaylistFragment extends Fragment {
 		
 		lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
-			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+			public void onItemClick(@NonNull AdapterView<?> parent, @Nullable View view, int position, long id) {
 				RuuListItem selected = (RuuListItem)lv.getItemAtPosition(position);
 				if(selected.file.isDirectory()){
 					changeDir((RuuDirectory)selected.file);
@@ -225,7 +225,7 @@ public class PlaylistFragment extends Fragment {
 		public final String text;
 		public final boolean isUpperDir;
 
-		public RuuListItem(@NonNull RuuFileBase file, String text, boolean isUpperDir) {
+		public RuuListItem(@NonNull RuuFileBase file, @Nullable String text, boolean isUpperDir) {
 			this.file = file;
 			this.text = text;
 			this.isUpperDir = isUpperDir;
@@ -277,7 +277,8 @@ public class PlaylistFragment extends Fragment {
 		}
 		
 		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
+		@NonNull
+		public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
 			RuuListItem item = getItem(position);
 			
 			if(item.isUpperDir) {

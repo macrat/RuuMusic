@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Arrays;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.os.Build;
 import android.content.Context;
 import android.preference.PreferenceManager;
@@ -24,6 +25,7 @@ public abstract class RuuFileBase implements Comparable {
 		this.context = context;
 	}
 
+	@NonNull
 	static List<String> getSupportedTypes() {
 		if (Build.VERSION.SDK_INT >= 12) {
 			return Arrays.asList(".flac", ".aac", ".mp3", ".ogg", ".wav", ".3gp");
@@ -32,14 +34,17 @@ public abstract class RuuFileBase implements Comparable {
 		}
 	}
 
+	@NonNull
 	static String getRootDirectory(Context context) {
 		return PreferenceManager.getDefaultSharedPreferences(context).getString("root_directory", "/");
 	}
 
+	@NonNull
 	public abstract String getFullPath();
 
 	public abstract boolean isDirectory();
 
+	@NonNull
 	public String getRuuPath() throws OutOfRootDirectory {
 		String root = getRootDirectory(context);
 		if(!getFullPath().startsWith(root)) {
@@ -48,10 +53,12 @@ public abstract class RuuFileBase implements Comparable {
 		return "/" + getFullPath().substring(root.length());
 	}
 
+	@NonNull
 	public String getName() {
 		return path.getName();
 	}
 
+	@Nullable
 	public RuuDirectory getParent() throws RuuFileBase.CanNotOpen {
 		String parent = path.getParent();
 		if(parent == null) {

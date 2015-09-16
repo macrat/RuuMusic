@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.ArrayList;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.content.Context;
 
 
@@ -17,6 +18,7 @@ public class RuuDirectory extends RuuFileBase {
 		}
 	}
 	
+	@NonNull
 	public static RuuDirectory rootDirectory(@NonNull Context context) throws RuuFileBase.CanNotOpen {
 		return new RuuDirectory(context, getRootDirectory(context));
 	}
@@ -27,6 +29,7 @@ public class RuuDirectory extends RuuFileBase {
 	}
 
 	@Override
+	@NonNull
 	public String getFullPath() {
 		String result = path.getPath();
 		if(!result.endsWith("/")) {
@@ -39,6 +42,7 @@ public class RuuDirectory extends RuuFileBase {
 		return file.getFullPath().startsWith(getFullPath());
 	}
 
+	@Nullable
 	public ArrayList<RuuDirectory> getDirectories() {
 		ArrayList<RuuDirectory> list = new ArrayList<>();
 
@@ -62,6 +66,7 @@ public class RuuDirectory extends RuuFileBase {
 		return list;
 	}
 
+	@Nullable
 	public ArrayList<RuuFile> getMusics() {
 		ArrayList<RuuFile> list = new ArrayList<>();
 

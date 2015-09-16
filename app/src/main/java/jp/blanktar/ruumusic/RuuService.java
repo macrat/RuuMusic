@@ -8,6 +8,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.app.Service;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -54,7 +55,8 @@ public class RuuService extends Service {
 	private int currentIndex;
 	
 	@Override
-	public IBinder onBind(Intent intent) {
+	@Nullable
+	public IBinder onBind(@Nullable Intent intent) {
 		throw null;
 	}
 	
@@ -71,7 +73,7 @@ public class RuuService extends Service {
 			try {
 				load(new RuuFile(this, last_play), new MediaPlayer.OnPreparedListener() {
 					@Override
-					public void onPrepared(MediaPlayer mp) {
+					public void onPrepared(@Nullable MediaPlayer mp) {
 						ready = true;
 						player.seekTo(preference.getInt("last_play_position", 0));
 						if(loadingWait) {
@@ -89,7 +91,7 @@ public class RuuService extends Service {
 
 		player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
 			@Override
-			public void onCompletion(MediaPlayer mp) {
+			public void onCompletion(@Nullable MediaPlayer mp) {
 				if (repeatMode.equals("one")) {
 					player.pause();
 					play();
@@ -111,7 +113,7 @@ public class RuuService extends Service {
 		
 		player.setOnErrorListener(new MediaPlayer.OnErrorListener() {
 			@Override
-			public boolean onError(MediaPlayer mp, int what, int extra) {
+			public boolean onError(@Nullable MediaPlayer mp, int what, int extra) {
 				player.reset();
 
 				if(!errored && path != null) {
@@ -137,7 +139,7 @@ public class RuuService extends Service {
 	}
 
 	@Override
-	public int onStartCommand(Intent intent, int flags, int startId) {
+	public int onStartCommand(@Nullable Intent intent, int flags, int startId) {
 		if(intent != null) {
 			switch (intent.getAction()) {
 				case ACTION_PLAY:
@@ -216,6 +218,7 @@ public class RuuService extends Service {
 				.apply();
 	}
 
+	@NonNull
 	private Notification makeNotification() {
 		int playpause_icon = player.isPlaying() ? R.drawable.ic_pause_for_notif : R.drawable.ic_play_for_notif;
 		String playpause_text = player.isPlaying() ? "pause" : "play";
@@ -312,7 +315,7 @@ public class RuuService extends Service {
 		}
 	}
 	
-	private void play(String path) {
+	private void play(@Nullable String path) {
 		if(path == null) {
 			if(ready) {
 				play();
@@ -564,7 +567,7 @@ public class RuuService extends Service {
 
 	private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
 		@Override
-		public void onReceive(Context context, Intent intent) {
+		public void onReceive(@Nullable Context context, @NonNull Intent intent) {
 			if(intent.getAction().equals(AudioManager.ACTION_AUDIO_BECOMING_NOISY)) {
 				pause();
 			}

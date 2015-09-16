@@ -1,6 +1,8 @@
 package jp.blanktar.ruumusic;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.annotation.IntRange;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -20,7 +22,7 @@ public class MainActivity extends AppCompatActivity {
 	private PlaylistFragment playlist;
 	
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+	protected void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
@@ -65,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
 	}
 	
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
+	public boolean onCreateOptionsMenu(@Nullable Menu menu) {
 		getMenuInflater().inflate(R.menu.menu_main, menu);
 		this.menu = menu;
 
@@ -146,14 +148,14 @@ public class MainActivity extends AppCompatActivity {
 		}
 
 		@Override
+		@NonNull
+		@IntRange(from=0,to=1)
 		public Fragment getItem(int position) {
-			switch (position) {
-				case 0:
-					return (player = new PlayerFragment());
-				case 1:
-					return (playlist = new PlaylistFragment());
+			if(position == 0) {
+				return (player = new PlayerFragment());
+			}else{
+				return (playlist = new PlaylistFragment());
 			}
-			return null;
 		}
 
 		@Override

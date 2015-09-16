@@ -4,6 +4,9 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
+import android.support.annotation.FloatRange;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -35,35 +38,34 @@ public class PlayerFragment extends Fragment {
 	private boolean seeking = false;
 	
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-							 Bundle savedInstanceState) {
-
+	@NonNull
+	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_player, container, false);
 		
 		view.findViewById(R.id.playButton).setOnClickListener(new View.OnClickListener() {
 			@Override
-			public void onClick(View view) {
+			public void onClick(@Nullable View view) {
 				startRuuService(playing ? RuuService.ACTION_PAUSE : RuuService.ACTION_PLAY);
 			}
 		});
 
 		view.findViewById(R.id.nextButton).setOnClickListener(new View.OnClickListener() {
 			@Override
-			public void onClick(View view) {
+			public void onClick(@Nullable View view) {
 				startRuuService(RuuService.ACTION_NEXT);
 			}
 		});
 
 		view.findViewById(R.id.prevButton).setOnClickListener(new View.OnClickListener() {
 			@Override
-			public void onClick(View view) {
+			public void onClick(@Nullable View view) {
 				startRuuService(RuuService.ACTION_PREV);
 			}
 		});
 
 		view.findViewById(R.id.repeatButton).setOnClickListener(new View.OnClickListener() {
 			@Override
-			public void onClick(View view) {
+			public void onClick(@Nullable View view) {
 				Intent intent = new Intent(getActivity(), RuuService.class);
 				intent.setAction(RuuService.ACTION_REPEAT);
 				if (repeatMode != null && repeatMode.equals("loop")) {
@@ -79,7 +81,7 @@ public class PlayerFragment extends Fragment {
 
 		view.findViewById(R.id.shuffleButton).setOnClickListener(new View.OnClickListener() {
 			@Override
-			public void onClick(View view) {
+			public void onClick(@Nullable View view) {
 				Intent intent = new Intent(getActivity(), RuuService.class);
 				intent.setAction(RuuService.ACTION_SHUFFLE);
 				intent.putExtra("mode", !shuffleMode);
@@ -89,14 +91,18 @@ public class PlayerFragment extends Fragment {
 		
 		view.findViewById(R.id.musicPath).setOnClickListener(new View.OnClickListener() {
 			@Override
-			public void onClick(View view) {
+			public void onClick(@Nullable View view) {
 				if(currentMusic != null) {
 					MainActivity main = (MainActivity) getActivity();
 					if (main != null) {
+						RuuDirectory parent = null;
 						try {
-							main.moveToPlaylist(currentMusic.getParent());
+							parent = currentMusic.getParent();
 						}catch(RuuFileBase.CanNotOpen e) {
 							Toast.makeText(getActivity(), String.format(getString(R.string.cant_open_dir), currentMusic.path.getParent()), Toast.LENGTH_LONG).show();
+						}
+						if(parent != null) {
+							main.moveToPlaylist(parent);
 						}
 					}
 				}
@@ -108,7 +114,7 @@ public class PlayerFragment extends Fragment {
 			private boolean needResume = false;
 	
 			@Override
-			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+			public void onProgressChanged(@Nullable SeekBar seekBar, int progress, boolean fromUser) {
 				if(seeking) {
 					this.progress = progress;
 					updateProgress(progress);
@@ -116,14 +122,14 @@ public class PlayerFragment extends Fragment {
 			}
 
 			@Override
-			public void onStartTrackingTouch(SeekBar seekBar) {
+			public void onStartTrackingTouch(@Nullable SeekBar seekBar) {
 				seeking = true;
 				needResume = playing;
 				startRuuService(RuuService.ACTION_PAUSE);
 			}
 
 			@Override
-			public void onStopTrackingTouch(SeekBar seekBar) {
+			public void onStopTrackingTouch(@Nullable SeekBar seekBar) {
 				seeking = false;
 	
 				Intent intent = new Intent(getActivity(), RuuService.class);
@@ -180,7 +186,7 @@ public class PlayerFragment extends Fragment {
 	
 	final private BroadcastReceiver receiver = new BroadcastReceiver() {
 		@Override
-		public void onReceive(Context context, Intent intent) {
+		public void onReceive(@Nullable Context context, @NonNull Intent intent) {
 			switch(intent.getAction()) {
 				case RuuService.ACTION_FAILED_PLAY:
 					onFailPlay(R.string.failed_play, intent.getStringExtra("path"));
@@ -194,7 +200,7 @@ public class PlayerFragment extends Fragment {
 			}
 		}
 	};
-	
+
 	private void onReceiveStatus(@NonNull Intent intent) {
 		playing = intent.getBooleanExtra("playing", false);
 		duration = intent.getIntExtra("duration", -1);
@@ -250,7 +256,7 @@ public class PlayerFragment extends Fragment {
 		}
 		updateRoot();
 	}
-	
+
 	public void updateRoot() {
 		String path = "";
 		String name = "";
@@ -269,23 +275,24 @@ public class PlayerFragment extends Fragment {
 			((TextView) view.findViewById(R.id.musicName)).setText(name);
 		}
 	}
-	
-	private String msec2str(long msec) {
+
+	@NonNull
+	private String msec2str(@FloatRange(from=0) long msec) {
 		return ((int)Math.floor(msec/1000/60)) + ":" + String.format("%02d", Math.round(msec/1000)%60);
 	}
-	
+
 	private void updateProgress() {
 		updateProgress(-1);
 	}
-	
+
 	private void updateProgress(int time) {
 		if(getView() == null) {
 			return;
 		}
-		
+
 		TextView text = (TextView)getView().findViewById(R.id.progress);
 		SeekBar bar = (SeekBar)getView().findViewById(R.id.seekBar);
-		
+
 		String currentStr = "-";
 		if(time >= 0) {
 			currentStr = msec2str(time);
@@ -303,16 +310,16 @@ public class PlayerFragment extends Fragment {
 		}else {
 			bar.setProgress(0);
 		}
-		
+
 		String durationStr = "-";
 		if(duration >= 0) {
 			durationStr = msec2str(duration);
 		}
-		
+
 		text.setText(currentStr + " / " + durationStr);
 	}
 
-	private void onFailPlay(final int messageId, @NonNull final String path) {
+	private void onFailPlay(@StringRes final int messageId, @NonNull final String path) {
 		((ImageButton) getActivity().findViewById(R.id.playButton)).setImageResource(R.drawable.ic_play);
 
 		(new AlertDialog.Builder(getActivity()))

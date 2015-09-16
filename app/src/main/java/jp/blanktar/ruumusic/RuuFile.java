@@ -3,6 +3,7 @@ package jp.blanktar.ruumusic;
 import java.io.File;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.content.Context;
 
 
@@ -17,10 +18,12 @@ public class RuuFile extends RuuFileBase {
 	}
 	
 	@Override
+	@NonNull
 	public String getFullPath() {
 		return path.getPath();
 	}
-	
+
+	@Nullable
 	public String getRealPath() {
 		for(String ext: getSupportedTypes()) {
 			File file = new File(getFullPath() + ext);
@@ -30,7 +33,8 @@ public class RuuFile extends RuuFileBase {
 		}
 		return null;
 	}
-	
+
+	@NonNull
 	public String getName() {
 		return path.getName();
 	}
