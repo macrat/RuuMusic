@@ -26,6 +26,8 @@ import android.app.PendingIntent;
 import android.os.Build;
 import android.media.AudioManager;
 
+import android.util.Log;
+
 
 public class RuuService extends Service {
 	private RuuFile path;
@@ -35,6 +37,7 @@ public class RuuService extends Service {
 	private boolean ready = false;
 	private Timer deathTimer;
 	private boolean loadingWait = false;
+	private boolean errored = false;
 	
 	private List<RuuFile> playlist;
 	private int currentIndex;
@@ -100,14 +103,18 @@ public class RuuService extends Service {
 			public boolean onError(MediaPlayer mp, int what, int extra) {
 				player.reset();
 
-				if(path != null) {
+				if(!errored && path != null) {
 					String realName = path.getRealPath();
 
 					Intent sendIntent = new Intent();
-					sendIntent.setAction("RUU_FAILED_OPEN");
+					sendIntent.setAction("RUU_FAILED_PLAY");
 					sendIntent.putExtra("path", (realName == null ? path.getFullPath() : realName));
 					getBaseContext().sendBroadcast(sendIntent);
 				}
+	
+				ready = false;
+				errored = true;
+				removePlayingNotification();
 	
 				return true;
 			}
@@ -253,7 +260,7 @@ public class RuuService extends Service {
 
 		stopForeground(true);
 
-		if(Build.VERSION.SDK_INT >= 16) {
+		if(Build.VERSION.SDK_INT >= 16 && path != null) {
 			((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).notify(1, makeNotification());
 		}
 	}
@@ -290,6 +297,8 @@ public class RuuService extends Service {
 	
 	private void play() {
 		if(path != null) {
+			errored = false;
+	
 			player.start();
 			sendStatus();
 			updatePlayingNotification();
@@ -302,8 +311,13 @@ public class RuuService extends Service {
 		if(path == null) {
 			if(ready) {
 				play();
-			}else {
+			}else if(!errored) {
 				loadingWait = true;
+			}else {
+				Log.d("RuuService", "retry play");
+				RuuFile music = this.path;
+				this.path = null;
+				play(music);
 			}
 			return;
 		}

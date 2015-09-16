@@ -133,7 +133,7 @@ public class PlayerFragment extends Fragment {
 		
 		IntentFilter intentFilter = new IntentFilter();
 		intentFilter.addAction("RUU_STATUS");
-		intentFilter.addAction("RUU_FAILED_OPEN");
+		intentFilter.addAction("RUU_FAILED_PLAY");
 		intentFilter.addAction("RUU_NOT_FOUND");
 		getActivity().registerReceiver(receiver, intentFilter);
 
@@ -165,8 +165,8 @@ public class PlayerFragment extends Fragment {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			switch(intent.getAction()) {
-				case "RUU_FAILED_OPEN":
-					onFailPlay(R.string.failed_open_music, intent.getStringExtra("path"));
+				case "RUU_FAILED_PLAY":
+					onFailPlay(R.string.failed_play, intent.getStringExtra("path"));
 					break;
 				case "RUU_NOT_FOUND":
 					onFailPlay(R.string.music_not_found, intent.getStringExtra("path"));
@@ -285,6 +285,8 @@ public class PlayerFragment extends Fragment {
 	}
 
 	private void onFailPlay(final int messageId, @NonNull final String path) {
+		((ImageButton) getActivity().findViewById(R.id.playButton)).setImageResource(R.drawable.ic_play);
+
 		(new AlertDialog.Builder(getActivity()))
 				.setTitle(getString(messageId))
 				.setMessage(path)
