@@ -131,14 +131,7 @@ public class RuuService extends Service {
 			}
 		});
 		
-		registerReceiver(new BroadcastReceiver() {
-			@Override
-			public void onReceive(Context context, Intent intent) {
-				if(intent.getAction().equals(AudioManager.ACTION_AUDIO_BECOMING_NOISY)) {
-					pause();
-				}
-			}
-		}, new IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY));
+		registerReceiver(broadcastReceiver, new IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY));
 		
 		startDeathTimer();
 	}
@@ -182,6 +175,7 @@ public class RuuService extends Service {
 	@Override
 	public void onDestroy() {
 		removePlayingNotification();
+		unregisterReceiver(broadcastReceiver);
 
 		saveStatus();
 	}
@@ -567,4 +561,13 @@ public class RuuService extends Service {
 			deathTimer = null;
 		}
 	}
+
+	private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			if(intent.getAction().equals(AudioManager.ACTION_AUDIO_BECOMING_NOISY)) {
+				pause();
+			}
+		}
+	};
 }
