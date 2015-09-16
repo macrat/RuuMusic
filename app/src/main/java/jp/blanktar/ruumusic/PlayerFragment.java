@@ -291,8 +291,12 @@ public class PlayerFragment extends Fragment {
 			currentStr = msec2str(time);
 			bar.setProgress(time);
 		}else if(playing && basetime >= 0) {
-			currentStr = msec2str(System.currentTimeMillis() - basetime);
-			bar.setProgress((int)(System.currentTimeMillis() - basetime));
+			if(duration >= 0) {
+				currentStr = msec2str(Math.min(duration, System.currentTimeMillis() - basetime));
+			}else {
+				currentStr = msec2str(System.currentTimeMillis() - basetime);
+			}
+			bar.setProgress((int) (System.currentTimeMillis() - basetime));
 		}else if(!playing && current >= 0) {
 			currentStr = msec2str(current);
 			bar.setProgress(current);
