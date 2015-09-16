@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
 			player.updateRoot();
 			
 			Intent intent = new Intent(this, RuuService.class);
-			intent.setAction("RUU_ROOT_CHANGE");
+			intent.setAction(RuuService.ACTION_ROOT_CHANGED);
 			startService(intent);
 
 			return true;

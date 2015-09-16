@@ -28,6 +28,19 @@ import android.media.AudioManager;
 
 
 public class RuuService extends Service {
+	public final static String ACTION_PLAY = "jp.blanktar.ruumusic.PLAY";
+	public final static String ACTION_PAUSE = "jp.blanktar.ruumusic.PAUSE";
+	public final static String ACTION_NEXT = "jp.blanktar.ruumusic.NEXT";
+	public final static String ACTION_PREV = "jp.blanktar.ruumusic.PREV";
+	public final static String ACTION_SEEK = "jp.blanktar.ruumusic.SEEK";
+	public final static String ACTION_REPEAT = "jp.blanktar.ruumusic.REPEAT";
+	public final static String ACTION_SHUFFLE = "jp.blanktar.ruumusic.SHUFFLE";
+	public final static String ACTION_ROOT_CHANGED = "jp.blanktar.ruumusic.ROOT_CHANGED";
+	public final static String ACTION_PING = "jp.blanktar.ruumusic.PING";
+	public final static String ACTION_STATUS = "jp.blanktar.ruumusic.STATUS";
+	public final static String ACTION_FAILED_PLAY = "jp.blanktar.ruumusic.FAILED_PLAY";
+	public final static String ACTION_NOT_FOUND = "jp.blanktar.ruumusic.NOT_FOUND";
+
 	private RuuFile path;
 	private MediaPlayer player;
 	private String repeatMode = "off";
@@ -105,7 +118,7 @@ public class RuuService extends Service {
 					String realName = path.getRealPath();
 
 					Intent sendIntent = new Intent();
-					sendIntent.setAction("RUU_FAILED_PLAY");
+					sendIntent.setAction(ACTION_FAILED_PLAY);
 					sendIntent.putExtra("path", (realName == null ? path.getFullPath() : realName));
 					getBaseContext().sendBroadcast(sendIntent);
 				}
@@ -134,31 +147,31 @@ public class RuuService extends Service {
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		if(intent != null) {
 			switch (intent.getAction()) {
-				case "RUU_PLAY":
+				case ACTION_PLAY:
 					play(intent.getStringExtra("path"));
 					break;
-				case "RUU_PAUSE":
+				case ACTION_PAUSE:
 					pause();
 					break;
-				case "RUU_SEEK":
+				case ACTION_SEEK:
 					seek(intent.getIntExtra("newtime", -1));
 					break;
-				case "RUU_REPEAT":
+				case ACTION_REPEAT:
 					setRepeatMode(intent.getStringExtra("mode"));
 					break;
-				case "RUU_SHUFFLE":
+				case ACTION_SHUFFLE:
 					setShuffleMode(intent.getBooleanExtra("mode", false));
 					break;
-				case "RUU_PING":
+				case ACTION_PING:
 					sendStatus();
 					break;
-				case "RUU_NEXT":
+				case ACTION_NEXT:
 					next();
 					break;
-				case "RUU_PREV":
+				case ACTION_PREV:
 					prev();
 					break;
-				case "RUU_ROOT_CHANGE":
+				case ACTION_ROOT_CHANGED:
 					updateRoot();
 					break;
 			}
@@ -176,7 +189,7 @@ public class RuuService extends Service {
 	private void sendStatus() {
 		Intent sendIntent = new Intent();
 		
-		sendIntent.setAction("RUU_STATUS");
+		sendIntent.setAction(ACTION_STATUS);
 		if(path != null) {
 			sendIntent.putExtra("path", path.getFullPath());
 		}
@@ -212,10 +225,10 @@ public class RuuService extends Service {
 	private Notification makeNotification() {
 		int playpause_icon = player.isPlaying() ? R.drawable.ic_pause_for_notif : R.drawable.ic_play_for_notif;
 		String playpause_text = player.isPlaying() ? "pause" : "play";
-		PendingIntent playpause_pi = PendingIntent.getService(this, 0, (new Intent(this, RuuService.class)).setAction(player.isPlaying() ? "RUU_PAUSE" : "RUU_PLAY"), 0);
+		PendingIntent playpause_pi = PendingIntent.getService(this, 0, (new Intent(this, RuuService.class)).setAction(player.isPlaying() ? ACTION_PAUSE : ACTION_PLAY), 0);
 		
-		PendingIntent prev_pi = PendingIntent.getService(this, 0, (new Intent(this, RuuService.class)).setAction("RUU_PREV"), 0);
-		PendingIntent next_pi = PendingIntent.getService(this, 0, (new Intent(this, RuuService.class)).setAction("RUU_NEXT"), 0);
+		PendingIntent prev_pi = PendingIntent.getService(this, 0, (new Intent(this, RuuService.class)).setAction(ACTION_PREV), 0);
+		PendingIntent next_pi = PendingIntent.getService(this, 0, (new Intent(this, RuuService.class)).setAction(ACTION_NEXT), 0);
 
 		Intent intent = new Intent(this, MainActivity.class);
 		PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, 0);
@@ -361,7 +374,7 @@ public class RuuService extends Service {
 
 		if(realName == null) {
 			Intent sendIntent = new Intent();
-			sendIntent.setAction("RUU_NOT_FOUND");
+			sendIntent.setAction(ACTION_NOT_FOUND);
 			sendIntent.putExtra("path", path.getFullPath());
 			getBaseContext().sendBroadcast(sendIntent);
 		}else {

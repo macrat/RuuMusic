@@ -43,21 +43,21 @@ public class PlayerFragment extends Fragment {
 		view.findViewById(R.id.playButton).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				startRuuService(playing ? "RUU_PAUSE" : "RUU_PLAY");
+				startRuuService(playing ? RuuService.ACTION_PAUSE : RuuService.ACTION_PLAY);
 			}
 		});
 
 		view.findViewById(R.id.nextButton).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				startRuuService("RUU_NEXT");
+				startRuuService(RuuService.ACTION_NEXT);
 			}
 		});
 
 		view.findViewById(R.id.prevButton).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				startRuuService("RUU_PREV");
+				startRuuService(RuuService.ACTION_PREV);
 			}
 		});
 
@@ -65,7 +65,7 @@ public class PlayerFragment extends Fragment {
 			@Override
 			public void onClick(View view) {
 				Intent intent = new Intent(getActivity(), RuuService.class);
-				intent.setAction("RUU_REPEAT");
+				intent.setAction(RuuService.ACTION_REPEAT);
 				if (repeatMode != null && repeatMode.equals("loop")) {
 					intent.putExtra("mode", "one");
 				} else if (repeatMode != null && repeatMode.equals("one")) {
@@ -81,7 +81,7 @@ public class PlayerFragment extends Fragment {
 			@Override
 			public void onClick(View view) {
 				Intent intent = new Intent(getActivity(), RuuService.class);
-				intent.setAction("RUU_SHUFFLE");
+				intent.setAction(RuuService.ACTION_SHUFFLE);
 				intent.putExtra("mode", !shuffleMode);
 				getActivity().startService(intent);
 			}
@@ -119,7 +119,7 @@ public class PlayerFragment extends Fragment {
 			public void onStartTrackingTouch(SeekBar seekBar) {
 				seeking = true;
 				needResume = playing;
-				startRuuService("RUU_PAUSE");
+				startRuuService(RuuService.ACTION_PAUSE);
 			}
 
 			@Override
@@ -127,12 +127,12 @@ public class PlayerFragment extends Fragment {
 				seeking = false;
 	
 				Intent intent = new Intent(getActivity(), RuuService.class);
-				intent.setAction("RUU_SEEK");
+				intent.setAction(RuuService.ACTION_SEEK);
 				intent.putExtra("newtime", progress);
 				getActivity().startService(intent);
 
 				if(needResume) {
-					startRuuService("RUU_PLAY");
+					startRuuService(RuuService.ACTION_PLAY);
 				}
 			}
 		});
@@ -144,12 +144,12 @@ public class PlayerFragment extends Fragment {
 	public void onResume() {
 		super.onResume();
 
-		startRuuService("RUU_PING");
+		startRuuService(RuuService.ACTION_PING);
 		
 		IntentFilter intentFilter = new IntentFilter();
-		intentFilter.addAction("RUU_STATUS");
-		intentFilter.addAction("RUU_FAILED_PLAY");
-		intentFilter.addAction("RUU_NOT_FOUND");
+		intentFilter.addAction(RuuService.ACTION_STATUS);
+		intentFilter.addAction(RuuService.ACTION_FAILED_PLAY);
+		intentFilter.addAction(RuuService.ACTION_NOT_FOUND);
 		getActivity().registerReceiver(receiver, intentFilter);
 
 		final Handler handler = new Handler();
@@ -182,13 +182,13 @@ public class PlayerFragment extends Fragment {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			switch(intent.getAction()) {
-				case "RUU_FAILED_PLAY":
+				case RuuService.ACTION_FAILED_PLAY:
 					onFailPlay(R.string.failed_play, intent.getStringExtra("path"));
 					break;
-				case "RUU_NOT_FOUND":
+				case RuuService.ACTION_NOT_FOUND:
 					onFailPlay(R.string.music_not_found, intent.getStringExtra("path"));
 					break;
-				case "RUU_STATUS":
+				case RuuService.ACTION_STATUS:
 					onReceiveStatus(intent);
 					break;
 			}
@@ -323,7 +323,7 @@ public class PlayerFragment extends Fragment {
 						new DialogInterface.OnClickListener() {
 							@Override
 							public void onClick(DialogInterface dialog, int which) {
-								startRuuService("RUU_NEXT");
+								startRuuService(RuuService.ACTION_NEXT);
 							}
 						}
 				)

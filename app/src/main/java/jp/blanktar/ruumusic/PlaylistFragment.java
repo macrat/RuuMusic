@@ -198,7 +198,7 @@ public class PlaylistFragment extends Fragment {
 	
 	private void changeMusic(@NonNull RuuFile file) {
 		Intent intent = new Intent(getActivity(), RuuService.class);
-		intent.setAction("RUU_PLAY");
+		intent.setAction(RuuService.ACTION_PLAY);
 		intent.putExtra("path", file.getFullPath());
 		getActivity().startService(intent);
 		
