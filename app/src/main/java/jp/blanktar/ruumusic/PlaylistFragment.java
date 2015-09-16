@@ -110,62 +110,43 @@ public class PlaylistFragment extends Fragment {
 			Toast.makeText(getActivity(), String.format(getString(R.string.cant_open_dir), "root directory"), Toast.LENGTH_LONG).show();
 			return;
 		}
-		
+
 		if(!rootDirectory.contains(dir)) {
 			Toast.makeText(getActivity(), String.format(getString(R.string.out_of_root), dir.getFullPath()), Toast.LENGTH_LONG).show();
-		}else if(!directoryCache.empty() && directoryCache.peek().path.equals(dir)) {
+			return;
+		}
+
+		while(!directoryCache.empty() && !directoryCache.peek().path.contains(dir)) {
+			directoryCache.pop();
+		}
+
+		if(!directoryCache.empty() && directoryCache.peek().path.equals(dir)) {
 			current = directoryCache.pop();
-
-			if(((MainActivity)getActivity()).getCurrentPage() == 1) {
-				updateTitle();
-			}
-
-			try {
-				adapter.setRuuFiles(current);
-			}catch(RuuFileBase.CanNotOpen e) {
-				Toast.makeText(getActivity(), String.format(getString(R.string.cant_open_dir), e.path), Toast.LENGTH_LONG).show();
-				return;
-			}
-
-			((ListView) getActivity().findViewById(R.id.playlist)).setSelection(current.selection);
-
-			updateMenu();
-		}else{
-			RuuDirectory parent;
-			try {
-				parent = dir.getParent();
-			}catch(RuuFileBase.CanNotOpen e) {
-				parent = null;
-			}
-		
-			if(!directoryCache.empty() && (parent == null || current != null && !current.path.equals(parent))){
-				while(!directoryCache.empty()) {
-					directoryCache.pop();
-				}
-			}else if(current != null) {
+		}else {
+			if (current != null) {
 				current.selection = ((ListView) getActivity().findViewById(R.id.playlist)).getFirstVisiblePosition();
 				directoryCache.push(current);
 			}
 			current = new DirectoryInfo(dir);
-
-			if(((MainActivity)getActivity()).getCurrentPage() == 1) {
-				updateTitle();
-			}
-			
-			try {
-				adapter.setRuuFiles(current);
-			}catch(RuuFileBase.CanNotOpen e) {
-				Toast.makeText(getActivity(), String.format(getString(R.string.cant_open_dir), e.path), Toast.LENGTH_LONG).show();
-				return;
-			}
-
-			ListView lv = (ListView)getActivity().findViewById(R.id.playlist);
-			if(lv != null) {
-				lv.setSelection(0);
-			}
-			
-			updateMenu();
 		}
+
+		if (((MainActivity) getActivity()).getCurrentPage() == 1) {
+			updateTitle();
+		}
+
+		try {
+			adapter.setRuuFiles(current);
+		} catch (RuuFileBase.CanNotOpen e) {
+			Toast.makeText(getActivity(), String.format(getString(R.string.cant_open_dir), e.path), Toast.LENGTH_LONG).show();
+			return;
+		}
+
+		ListView lv = (ListView) getActivity().findViewById(R.id.playlist);
+		if (lv != null) {
+			lv.setSelection(current.selection);
+		}
+
+		updateMenu();
 	}
 	
 	public void updateMenu(@NonNull MainActivity activity) {
