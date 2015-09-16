@@ -381,19 +381,24 @@ public class RuuService extends Service {
 				currentIndex = Arrays.binarySearch(playlist.toArray(), path);
 			}
 		}else {
-			currentIndex = playlist.indexOf(path);
+			currentIndex = findMusicPos(path);
 		}
+	}
+	
+	private int findMusicPos(@NonNull RuuFile music) {
+		int pos = -1;
+		for(int i=0; i<playlist.size(); i++) {
+			if(playlist.get(i).equals(music)) {
+				pos = i;
+				break;
+			}
+		}
+		return pos;
 	}
 	
 	private void shuffleList() {
 		if(playlist != null) {
-			int pos = -1;
-			for(int i=0; i<playlist.size(); i++) {
-				if(playlist.get(i).equals(path)) {
-					pos = i;
-					break;
-				}
-			}
+			int pos = findMusicPos(path);
 			if(pos >= 0) {
 				Collections.shuffle(playlist);
 				Collections.swap(playlist, 0, pos);
