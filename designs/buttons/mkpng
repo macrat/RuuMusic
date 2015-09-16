@@ -1,11 +1,11 @@
 #!/bin/sh
 
 function makepng(){
-	inkscape -e drawable-mdpi/$1.png -w $2 $1.svg
-	inkscape -e drawable-hdpi/$1.png -w `echo $2 1.5\*p | dc` $1.svg
-	inkscape -e drawable-xhdpi/$1.png -w `echo $2 2\*p | dc` $1.svg
-	inkscape -e drawable-xxhdpi/$1.png -w `echo $2 3\*p | dc` $1.svg
-	inkscape -e drawable-xxxhdpi/$1.png -w `echo $2 4\*p | dc` $1.svg
+	inkscape -e drawable-mdpi/${3:-$1}.png -w $2 $1.svg
+	inkscape -e drawable-hdpi/${3:-$1}.png -w `echo $2 1.5\*p | dc` $1.svg
+	inkscape -e drawable-xhdpi/${3:-$1}.png -w `echo $2 2\*p | dc` $1.svg
+	inkscape -e drawable-xxhdpi/${3:-$1}.png -w `echo $2 3\*p | dc` $1.svg
+	inkscape -e drawable-xxxhdpi/${3:-$1}.png -w `echo $2 4\*p | dc` $1.svg
 }
 
 
@@ -16,6 +16,11 @@ makepng ic_pause 50
 
 makepng ic_prev 40
 makepng ic_next 40
+
+makepng ic_play_for_notif 32
+makepng ic_pause 32 ic_pause_for_notif
+makepng ic_prev 32 ic_prev_for_notif
+makepng ic_next 32 ic_next_for_notif
 
 for x in `ls ic_*_*`; do
 	makepng `echo $x | sed -e 's/\.svg$//'` 30
