@@ -26,8 +26,6 @@ import android.app.PendingIntent;
 import android.os.Build;
 import android.media.AudioManager;
 
-import android.util.Log;
-
 
 public class RuuService extends Service {
 	private RuuFile path;
@@ -314,7 +312,6 @@ public class RuuService extends Service {
 			}else if(!errored) {
 				loadingWait = true;
 			}else {
-				Log.d("RuuService", "retry play");
 				RuuFile music = this.path;
 				this.path = null;
 				play(music);
