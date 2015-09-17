@@ -319,22 +319,16 @@ public class RuuService extends Service {
 	
 	private void play() {
 		if(path != null) {
-			errored = false;
-	
-			player.start();
-			sendStatus();
-			updatePlayingNotification();
-			saveStatus();
-			stopDeathTimer();
-
-			MediaButtonReceiver.onStartService(this);
-		}
-	}
-	
-	private void play(@Nullable String path) {
-		if(path == null) {
 			if(ready) {
-				play();
+				errored = false;
+
+				player.start();
+				sendStatus();
+				updatePlayingNotification();
+				saveStatus();
+				stopDeathTimer();
+
+				MediaButtonReceiver.onStartService(this);
 			}else if(!errored) {
 				loadingWait = true;
 			}else {
@@ -342,12 +336,18 @@ public class RuuService extends Service {
 				this.path = null;
 				play(music);
 			}
-			return;
 		}
-		try {
-			play(new RuuFile(this, path));
-		}catch(RuuFileBase.CanNotOpen e) {
-			showToast(String.format(getString(R.string.cant_open_dir), path));
+	}
+	
+	private void play(@Nullable String path) {
+		if(path == null) {
+			play();
+		}else {
+			try {
+				play(new RuuFile(this, path));
+			} catch (RuuFileBase.CanNotOpen e) {
+				showToast(String.format(getString(R.string.cant_open_dir), path));
+			}
 		}
 	}
 	
@@ -571,7 +571,7 @@ public class RuuService extends Service {
 					}
 				});
 			}
-		}, 60 * 1000);
+		},  60 * 1000);
 	}
 	
 	private void stopDeathTimer() {
