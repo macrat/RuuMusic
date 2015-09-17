@@ -70,6 +70,18 @@ public class MainActivity extends AppCompatActivity {
 	}
 	
 	@Override
+	public void onResume() {
+		super.onResume();
+		RuuService.MediaButtonReceiver.onStartActivity(this);
+	}
+	
+	@Override
+	public void onPause() {
+		super.onPause();
+		RuuService.MediaButtonReceiver.onStopActivity(this);
+	}
+	
+	@Override
 	public boolean onCreateOptionsMenu(@Nullable Menu menu) {
 		getMenuInflater().inflate(R.menu.menu_main, menu);
 		this.menu = menu;

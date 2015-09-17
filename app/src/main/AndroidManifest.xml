@@ -27,5 +27,12 @@
             android:enabled="true"
             android:exported="false" >
         </service>
+        
+        <receiver android:name=".RuuService$MediaButtonReceiver">
+            
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_BUTTON" />
+            </intent-filter>
+        </receiver>
     </application>
 </manifest>

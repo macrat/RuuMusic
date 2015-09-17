@@ -9,6 +9,8 @@ import java.util.TimerTask;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.UiThread;
+import android.support.annotation.WorkerThread;
 import android.app.Service;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -26,11 +28,14 @@ import android.support.v4.app.NotificationCompat;
 import android.app.PendingIntent;
 import android.os.Build;
 import android.media.AudioManager;
+import android.content.ComponentName;
+import android.view.KeyEvent;
 
 
 public class RuuService extends Service {
 	public final static String ACTION_PLAY = "jp.blanktar.ruumusic.PLAY";
 	public final static String ACTION_PAUSE = "jp.blanktar.ruumusic.PAUSE";
+	public final static String ACTION_PLAY_PAUSE = "jp.blanktar.ruumusic.PLAY_PAUSE";
 	public final static String ACTION_NEXT = "jp.blanktar.ruumusic.NEXT";
 	public final static String ACTION_PREV = "jp.blanktar.ruumusic.PREV";
 	public final static String ACTION_SEEK = "jp.blanktar.ruumusic.SEEK";
@@ -116,7 +121,7 @@ public class RuuService extends Service {
 			public boolean onError(@Nullable MediaPlayer mp, int what, int extra) {
 				player.reset();
 
-				if(!errored && path != null) {
+				if (!errored && path != null) {
 					String realName = path.getRealPath();
 
 					Intent sendIntent = new Intent();
@@ -124,11 +129,11 @@ public class RuuService extends Service {
 					sendIntent.putExtra("path", (realName == null ? path.getFullPath() : realName));
 					getBaseContext().sendBroadcast(sendIntent);
 				}
-	
+
 				ready = false;
 				errored = true;
 				removePlayingNotification();
-	
+
 				return true;
 			}
 		});
@@ -147,6 +152,13 @@ public class RuuService extends Service {
 					break;
 				case ACTION_PAUSE:
 					pause();
+					break;
+				case ACTION_PLAY_PAUSE:
+					if(player.isPlaying()) {
+						pause();
+					}else {
+						play();
+					}
 					break;
 				case ACTION_SEEK:
 					seek(intent.getIntExtra("newtime", -1));
@@ -178,6 +190,8 @@ public class RuuService extends Service {
 	public void onDestroy() {
 		removePlayingNotification();
 		unregisterReceiver(broadcastReceiver);
+		
+		MediaButtonReceiver.onStopService(this);
 
 		saveStatus();
 	}
@@ -312,6 +326,8 @@ public class RuuService extends Service {
 			updatePlayingNotification();
 			saveStatus();
 			stopDeathTimer();
+
+			MediaButtonReceiver.onStartService(this);
 		}
 	}
 	
@@ -573,4 +589,80 @@ public class RuuService extends Service {
 			}
 		}
 	};
+
+	public static class MediaButtonReceiver extends BroadcastReceiver {
+		private static ComponentName componentName;
+		private static boolean serviceRunning = false;
+		private static boolean activityRunning = false;
+
+		@Override
+		public void onReceive(@NonNull Context context, @NonNull Intent intent) {
+			if(intent.getAction().equals(Intent.ACTION_MEDIA_BUTTON)) {
+				KeyEvent keyEvent = intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
+				if(keyEvent.getAction() != KeyEvent.ACTION_UP) {
+					return;
+				}
+				switch(keyEvent.getKeyCode()) {
+					case KeyEvent.KEYCODE_MEDIA_PLAY:
+						sendIntent(context, ACTION_PLAY);
+						break;
+					case KeyEvent.KEYCODE_MEDIA_PAUSE:
+						sendIntent(context, ACTION_PAUSE);
+						break;
+					case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
+					case KeyEvent.KEYCODE_HEADSETHOOK:
+						sendIntent(context, ACTION_PLAY_PAUSE);
+						break;
+					case KeyEvent.KEYCODE_MEDIA_NEXT:
+						sendIntent(context, ACTION_NEXT);
+						break;
+					case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
+						sendIntent(context, ACTION_PREV);
+						break;
+				}
+			}
+		}
+
+		private void sendIntent(@NonNull Context context, @NonNull String event) {
+			context.startService((new Intent(context, RuuService.class)).setAction(event));
+		}
+
+		private static void registation(@NonNull Context context) {
+			if(componentName == null) {
+				componentName = new ComponentName(context, MediaButtonReceiver.class);
+				((AudioManager)context.getSystemService(Context.AUDIO_SERVICE)).registerMediaButtonEventReceiver(componentName);
+			}
+		}
+
+		@WorkerThread
+		public static void onStartService(@NonNull Context context) {
+			serviceRunning = true;
+			registation(context);
+		}
+
+		@UiThread
+		public static void onStartActivity(@NonNull Context context) {
+			activityRunning = true;
+			registation(context);
+		}
+
+		private static void unregistation(@NonNull Context context) {
+			if(componentName != null && !serviceRunning && !activityRunning) {
+				((AudioManager)context.getSystemService(Context.AUDIO_SERVICE)).unregisterMediaButtonEventReceiver(componentName);
+				componentName = null;
+			}
+		}
+
+		@WorkerThread
+		public static void onStopService(@NonNull Context context) {
+			serviceRunning = false;
+			unregistation(context);
+		}
+
+		@UiThread
+		public static void onStopActivity(@NonNull Context context) {
+			activityRunning = false;
+			unregistation(context);
+		}
+	}
 }
