@@ -32,6 +32,7 @@ import android.content.ComponentName;
 import android.view.KeyEvent;
 
 
+@WorkerThread
 public class RuuService extends Service {
 	public final static String ACTION_PLAY = "jp.blanktar.ruumusic.PLAY";
 	public final static String ACTION_PAUSE = "jp.blanktar.ruumusic.PAUSE";
@@ -596,6 +597,7 @@ public class RuuService extends Service {
 		private static boolean activityRunning = false;
 
 		@Override
+		@WorkerThread
 		public void onReceive(@NonNull Context context, @NonNull Intent intent) {
 			if(intent.getAction().equals(Intent.ACTION_MEDIA_BUTTON)) {
 				KeyEvent keyEvent = intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
@@ -623,6 +625,7 @@ public class RuuService extends Service {
 			}
 		}
 
+		@WorkerThread
 		private void sendIntent(@NonNull Context context, @NonNull String event) {
 			context.startService((new Intent(context, RuuService.class)).setAction(event));
 		}

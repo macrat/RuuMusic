@@ -5,6 +5,7 @@ import java.util.Stack;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.UiThread;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -22,6 +23,7 @@ import android.content.Context;
 import android.widget.TextView;
 
 
+@UiThread
 public class PlaylistFragment extends Fragment {
 	private RuuAdapter adapter;
 	private final Stack<DirectoryInfo> directoryCache = new Stack<>();
@@ -220,6 +222,7 @@ public class PlaylistFragment extends Fragment {
 		}
 	}
 
+	@UiThread
 	public class RuuListItem {
 		public final RuuFileBase file;
 		public final String text;
@@ -239,7 +242,8 @@ public class PlaylistFragment extends Fragment {
 			this(dir, dir.getName() + "/", false);
 		}
 	}
-	
+
+	@UiThread
 	class RuuAdapter extends ArrayAdapter<RuuListItem> {
 		public RuuAdapter(@NonNull Context context) {
 			super(context, R.layout.list_item);

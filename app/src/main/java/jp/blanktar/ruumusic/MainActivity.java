@@ -3,6 +3,7 @@ package jp.blanktar.ruumusic;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.IntRange;
+import android.support.annotation.UiThread;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -16,6 +17,7 @@ import android.preference.PreferenceManager;
 import android.media.AudioManager;
 
 
+@UiThread
 public class MainActivity extends AppCompatActivity { 
 	private ViewPager viewPager;
 	Menu menu;
@@ -157,6 +159,7 @@ public class MainActivity extends AppCompatActivity {
 		}
 	}
 
+	@UiThread
 	final private class RuuPager extends FragmentPagerAdapter {
 		RuuPager() {
 			super(MainActivity.this.getSupportFragmentManager());
