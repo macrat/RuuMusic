@@ -13,6 +13,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.media.AudioManager;
 
 
 public class MainActivity extends AppCompatActivity { 
@@ -25,6 +26,8 @@ public class MainActivity extends AppCompatActivity {
 	protected void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		
+		setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
 		try {
 			RuuDirectory.rootDirectory(this);
