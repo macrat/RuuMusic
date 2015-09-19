@@ -116,7 +116,16 @@ public class MainActivity extends AppCompatActivity {
 
 			return true;
 		}
-		
+
+		if(id == R.id.action_recursive_play) {
+			Intent intent = new Intent(this, RuuService.class);
+			intent.setAction(RuuService.ACTION_PLAY_RECURSIVE);
+			intent.putExtra("path", playlist.current.path.getFullPath());
+			startService(intent);
+			
+			moveToPlayer();
+		}
+
 		return super.onOptionsItemSelected(item);
 	}
 
@@ -126,11 +135,13 @@ public class MainActivity extends AppCompatActivity {
 			if(menu != null) {
 				menu.findItem(R.id.action_unset_root).setVisible(false);
 				menu.findItem(R.id.action_set_root).setVisible(false);
+				menu.findItem(R.id.action_recursive_play).setVisible(false);
 			}
 		} else if (playlist != null) {
 			playlist.updateTitle(MainActivity.this);
 			if(menu != null) {
 				playlist.updateMenu(MainActivity.this);
+				menu.findItem(R.id.action_recursive_play).setVisible(true);
 			}
 		}
 	}

@@ -35,6 +35,7 @@ public class PlayerFragment extends Fragment {
 	private int current = -1;
 	private String repeatMode;
 	private boolean shuffleMode;
+	private RuuDirectory recursivePath;
 	private Timer updateProgressTimer;
 	private boolean firstMessage = true;
 	private boolean seeking = false;
@@ -110,14 +111,26 @@ public class PlayerFragment extends Fragment {
 				}
 			}
 		});
+
+		view.findViewById(R.id.recursive).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(@Nullable View view) {
+				if(recursivePath != null) {
+					MainActivity main = (MainActivity) getActivity();
+					if(main != null) {
+						main.moveToPlaylist(recursivePath);
+					}
+				}
+			}
+		});
 		
 		((SeekBar)view.findViewById(R.id.seekBar)).setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
 			private int progress = 0;
 			private boolean needResume = false;
-	
+
 			@Override
 			public void onProgressChanged(@Nullable SeekBar seekBar, int progress, boolean fromUser) {
-				if(seeking) {
+				if (seeking) {
 					this.progress = progress;
 					updateProgress(progress);
 				}
@@ -133,13 +146,13 @@ public class PlayerFragment extends Fragment {
 			@Override
 			public void onStopTrackingTouch(@Nullable SeekBar seekBar) {
 				seeking = false;
-	
+
 				Intent intent = new Intent(getActivity(), RuuService.class);
 				intent.setAction(RuuService.ACTION_SEEK);
 				intent.putExtra("newtime", progress);
 				getActivity().startService(intent);
 
-				if(needResume) {
+				if (needResume) {
 					startRuuService(RuuService.ACTION_PLAY);
 				}
 			}
@@ -168,7 +181,7 @@ public class PlayerFragment extends Fragment {
 				handler.post(new Runnable() {
 					@Override
 					public void run() {
-						if(!seeking) {
+						if (!seeking) {
 							updateProgress();
 						}
 					}
@@ -210,6 +223,17 @@ public class PlayerFragment extends Fragment {
 		current = intent.getIntExtra("current", -1);
 		repeatMode = intent.getStringExtra("repeat");
 		shuffleMode = intent.getBooleanExtra("shuffle", false);
+		
+		String recursivePathStr = intent.getStringExtra("recursivePath");
+		if(recursivePathStr == null) {
+			recursivePath = null;
+		}else {
+			try {
+				recursivePath = new RuuDirectory(getContext(), recursivePathStr);
+			} catch (RuuFileBase.CanNotOpen e) {
+				recursivePath = null;
+			}
+		}
 
 		View view = getView();
 		if(view != null) {
@@ -238,6 +262,16 @@ public class PlayerFragment extends Fragment {
 				shuffleButton.setImageResource(R.drawable.ic_shuffle_on);
 			} else {
 				shuffleButton.setImageResource(R.drawable.ic_shuffle_off);
+			}
+			
+			if(recursivePath == null) {
+				((TextView) view.findViewById(R.id.recursive)).setText("");
+			}else {
+				try {
+					((TextView) view.findViewById(R.id.recursive)).setText(String.format(getString(R.string.recursive), recursivePath.getRuuPath()));
+				}catch(RuuFileBase.OutOfRootDirectory e) {
+					((TextView) view.findViewById(R.id.recursive)).setText("");
+				}
 			}
 
 			((SeekBar) view.findViewById(R.id.seekBar)).setMax(duration);

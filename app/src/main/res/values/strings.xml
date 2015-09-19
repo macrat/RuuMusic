@@ -3,8 +3,11 @@
 
 	<string name="action_set_root">Set here as root directory</string>
 	<string name="action_unset_root">Unset root directory</string>
-	
+	<string name="action_recursive_play">Play under here</string>
+
 	<string name="upper_dir">upper directory</string>
+	
+	<string name="recursive">Playing under %s</string>
 	
 	<string name="out_of_root">`%s` is out of root directory</string>
 	<string name="cant_open_dir">Can\'t open directory `%s`</string>

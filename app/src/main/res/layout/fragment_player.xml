@@ -80,4 +80,13 @@
 		android:gravity="center"
 		android:id="@+id/progress"/>
 	
+	<TextView
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="10dp"
+		android:textSize="@dimen/recursive_size"
+		android:layout_below="@+id/progress"
+		android:id="@+id/recursive"
+		android:gravity="center"/>
+	
 </RelativeLayout>

@@ -35,6 +35,7 @@ import android.view.KeyEvent;
 @WorkerThread
 public class RuuService extends Service {
 	public final static String ACTION_PLAY = "jp.blanktar.ruumusic.PLAY";
+	public final static String ACTION_PLAY_RECURSIVE = "jp.blanktar.ruumusic.PLAY_RECURSIVE";
 	public final static String ACTION_PAUSE = "jp.blanktar.ruumusic.PAUSE";
 	public final static String ACTION_PLAY_PAUSE = "jp.blanktar.ruumusic.PLAY_PAUSE";
 	public final static String ACTION_NEXT = "jp.blanktar.ruumusic.NEXT";
@@ -56,6 +57,7 @@ public class RuuService extends Service {
 	private Timer deathTimer;
 	private boolean loadingWait = false;
 	private boolean errored = false;
+	private RuuDirectory recursivePath = null;
 	
 	private List<RuuFile> playlist;
 	private int currentIndex;
@@ -149,7 +151,14 @@ public class RuuService extends Service {
 		if(intent != null) {
 			switch (intent.getAction()) {
 				case ACTION_PLAY:
-					play(intent.getStringExtra("path"));
+					String path = intent.getStringExtra("path");
+					play(path);
+					if(path != null) {
+						recursivePath = null;
+					}
+					break;
+				case ACTION_PLAY_RECURSIVE:
+					playRecursive(intent.getStringExtra("path"));
 					break;
 				case ACTION_PAUSE:
 					pause();
@@ -206,6 +215,12 @@ public class RuuService extends Service {
 		}
 		sendIntent.putExtra("repeat", repeatMode);
 		sendIntent.putExtra("shuffle", shuffleMode);
+
+		if(recursivePath == null) {
+			sendIntent.putExtra("recursivePath", (String)null);
+		}else {
+			sendIntent.putExtra("recursivePath", recursivePath.getFullPath());
+		}
 		
 		if(ready) {
 			sendIntent.putExtra("playing", player.isPlaying());
@@ -367,6 +382,34 @@ public class RuuService extends Service {
 				play();
 			}
 		});
+	}
+	
+	private void playRecursive(@NonNull RuuDirectory dir) {
+		playlist = dir.getMusicsRecursive();
+		recursivePath = dir;
+
+		if(!shuffleMode) {
+			path = playlist.get(0);
+
+			load(path, new MediaPlayer.OnPreparedListener() {
+				@Override
+				public void onPrepared(MediaPlayer mp) {
+					ready = true;
+					play();
+				}
+			});
+		}else {
+			shufflePlay();
+		}
+	}
+
+	private void playRecursive(@Nullable String path) {
+		if(path != null) {
+			try {
+				playRecursive(new RuuDirectory(this, path));
+			}catch(RuuFileBase.CanNotOpen e) {
+			}
+		}
 	}
 
 	private void load(@NonNull RuuFile path, @NonNull MediaPlayer.OnPreparedListener onPrepared){
