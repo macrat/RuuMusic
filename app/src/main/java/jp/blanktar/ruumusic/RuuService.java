@@ -348,9 +348,7 @@ public class RuuService extends Service {
 			}else if(!errored) {
 				loadingWait = true;
 			}else {
-				RuuFile music = this.path;
-				this.path = null;
-				play(music);
+				play(this.path);
 			}
 		}
 	}
@@ -369,10 +367,15 @@ public class RuuService extends Service {
 	
 	private void play(@NonNull RuuFile path) {
 		if(this.path != null && this.path.equals(path)) {
-			player.pause();
-			player.seekTo(0);
-			play();
-			return;
+			if(ready) {
+				player.pause();
+				player.seekTo(0);
+				play();
+				return;
+			}else if(!errored) {
+				loadingWait = true;
+				return;
+			}
 		}
 		
 		load(path, new MediaPlayer.OnPreparedListener() {
