@@ -455,7 +455,11 @@ public class RuuService extends Service {
 			showToast(String.format(getString(R.string.cant_open_dir), path.path.getParent()));
 			return;
 		}
-		if(playlist == null || oldDir == null || !oldDir.equals(newparent)) {
+		if(playlist == null || oldDir == null
+		|| (recursivePath != null && !recursivePath.contains(newparent))
+		|| (recursivePath == null && !oldDir.equals(newparent)))
+		{
+			recursivePath = null;
 			playlist = newparent.getMusics();
 
 			if(shuffleMode) {
@@ -464,7 +468,7 @@ public class RuuService extends Service {
 				Collections.sort(playlist);
 				currentIndex = Arrays.binarySearch(playlist.toArray(), path);
 			}
-		}else {
+		}else{
 			currentIndex = findMusicPos(path);
 		}
 	}
