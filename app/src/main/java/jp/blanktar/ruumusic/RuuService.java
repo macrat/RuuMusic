@@ -76,6 +76,15 @@ public class RuuService extends Service {
 		repeatMode = preference.getString("repeat_mode", "off");
 		shuffleMode = preference.getBoolean("shuffle_mode", false);
 
+		String recursive = preference.getString("recursive_path", null);
+		if(recursive != null) {
+			try {
+				recursivePath = new RuuDirectory(this, recursive);
+			}catch(RuuFileBase.CanNotOpen e) {
+				recursivePath = null;
+			}
+		}
+
 		String last_play = preference.getString("last_play_music", "");
 		if(!last_play.equals("")) {
 			try {
@@ -234,9 +243,14 @@ public class RuuService extends Service {
 
 	private void saveStatus() {
 		if(path != null) {
+			String recursive = null;
+			if(recursivePath != null) {
+				recursive = recursivePath.getFullPath();
+			}
 			PreferenceManager.getDefaultSharedPreferences(this).edit()
 					.putString("last_play_music", path.getFullPath())
 					.putInt("last_play_position", player.getCurrentPosition())
+					.putString("recursive_path", recursive)
 					.apply();
 		}
 	}
@@ -245,6 +259,7 @@ public class RuuService extends Service {
 		PreferenceManager.getDefaultSharedPreferences(this).edit()
 				.putString("last_play_music", "")
 				.putInt("last_play_position", 0)
+				.putString("recursive_path", null)
 				.apply();
 	}
 
@@ -455,16 +470,24 @@ public class RuuService extends Service {
 			showToast(String.format(getString(R.string.cant_open_dir), path.path.getParent()));
 			return;
 		}
-		if(playlist == null || oldDir == null
+		if(recursivePath != null && playlist == null) {
+			playlist = recursivePath.getMusicsRecursive();
+
+			if (shuffleMode) {
+				shuffleList();
+			} else {
+				Collections.sort(playlist);
+				currentIndex = Arrays.binarySearch(playlist.toArray(), path);
+			}
+		}else if(playlist == null || oldDir == null
 		|| (recursivePath != null && !recursivePath.contains(newparent))
-		|| (recursivePath == null && !oldDir.equals(newparent)))
-		{
+		|| (recursivePath == null && !oldDir.equals(newparent))) {
 			recursivePath = null;
 			playlist = newparent.getMusics();
 
-			if(shuffleMode) {
+			if (shuffleMode) {
 				shuffleList();
-			}else {
+			} else {
 				Collections.sort(playlist);
 				currentIndex = Arrays.binarySearch(playlist.toArray(), path);
 			}
