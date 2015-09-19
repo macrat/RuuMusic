@@ -9,40 +9,40 @@
 				tools:context="jp.blanktar.ruumusic.PlayerFragment">
 
 	<ImageButton
-		android:layout_width="80dp"
-		android:layout_height="80dp"
+		android:layout_width="@dimen/play_button_size"
+		android:layout_height="@dimen/play_button_size"
 		android:id="@+id/playButton"
 		android:layout_alignParentBottom="true"
 		android:layout_centerHorizontal="true"
 		android:src="@drawable/ic_play"/>
 
 	<ImageButton
-		android:layout_width="70dp"
-		android:layout_height="70dp"
+		android:layout_width="@dimen/skip_button_size"
+		android:layout_height="@dimen/skip_button_size"
 		android:id="@+id/prevButton"
 		android:layout_alignBottom="@+id/playButton"
 		android:layout_toLeftOf="@+id/playButton"
 		android:src="@drawable/ic_prev"/>
 
 	<ImageButton
-		android:layout_width="60dp"
-		android:layout_height="60dp"
+		android:layout_width="@dimen/mode_button_size"
+		android:layout_height="@dimen/mode_button_size"
 		android:id="@+id/shuffleButton"
 		android:layout_alignBottom="@+id/prevButton"
 		android:layout_toLeftOf="@+id/prevButton"
 		android:src="@drawable/ic_shuffle_off"/>
 
 	<ImageButton
-		android:layout_width="70dp"
-		android:layout_height="70dp"
+		android:layout_width="@dimen/skip_button_size"
+		android:layout_height="@dimen/skip_button_size"
 		android:id="@+id/nextButton"
 		android:layout_alignBottom="@+id/playButton"
 		android:layout_toRightOf="@+id/playButton"
 		android:src="@drawable/ic_next"/>
 	
 	<ImageButton
-		android:layout_width="60dp"
-		android:layout_height="60dp"
+		android:layout_width="@dimen/mode_button_size"
+		android:layout_height="@dimen/mode_button_size"
 		android:id="@+id/repeatButton"
 		android:layout_alignBottom="@+id/nextButton"
 		android:layout_toRightOf="@+id/nextButton"
@@ -58,7 +58,7 @@
 	<TextView
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:textSize="20sp"
+		android:textSize="@dimen/music_path_size"
 		android:gravity="center"
 		android:id="@+id/musicPath"
 		android:layout_above="@+id/musicName"/>
@@ -66,7 +66,7 @@
 	<TextView
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:textSize="60sp"
+		android:textSize="@dimen/music_name_size"
 		android:gravity="center"
 		android:id="@+id/musicName"
 		android:layout_above="@+id/seekBar"/>
@@ -75,7 +75,7 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_below="@+id/seekBar"
-		android:textSize="30sp"
+		android:textSize="@dimen/progress_size"
 		android:text="- / -"
 		android:gravity="center"
 		android:id="@+id/progress"/>
