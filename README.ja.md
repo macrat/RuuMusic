@@ -2,9 +2,15 @@ RuuMusic
 ========
 ディレクトリをプレイリストとして使うAndroid用音楽プレイヤー。
 
+![RuuMusicのプロモーション画像](designs/promotion.png)
+
 ## Description
 メタデータを利用せず、ディレクトリをプレイリストとして使用する音楽プレイヤーです。
 ファイラのような画面で音楽を選んで、再生することが出来ます。
+
+## Screenshots
+![プレイヤー画面](screenshots/phone/play.png)
+![選択画面](screenshots/phone/dirlist.png)
 
 ## Features
 * ファイラのような画面で音楽を選べます。

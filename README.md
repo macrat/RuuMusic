@@ -2,9 +2,15 @@ RuuMusic
 ========
 The dirctory based music player for Android.
 
+![RuuMusic promotion image](designs/promotion.png)
+
 ## Description
 RuuMusic is directory based music player. You can choose music by a interface like filer, and play it.
 RuuMusic doesn't use music file metadata. It uses only directory structure and file name.
+
+## Screenshots
+![player view](screenshots/phone/play.png)
+![selecting view](screenshots/phone/dirlist.png)
 
 ## Features
 * Selecting music by simple filer.
