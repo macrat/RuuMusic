@@ -105,15 +105,17 @@ public class RuuDirectory extends RuuFileBase {
 		ArrayList<RuuFile> list = new ArrayList<>();
 
 		ArrayList<RuuDirectory> dirs = getDirectories();
-		for(RuuDirectory dir: dirs) {
-			list.addAll(dir.getMusicsRecursive());
+		if(dirs != null) {
+			for (RuuDirectory dir : dirs) {
+				list.addAll(dir.getMusicsRecursive());
+			}
 		}
-		
+
 		ArrayList<RuuFile> musics = getMusics();
 		if(musics != null) {
 			list.addAll(musics);
 		}
-		
+
 		return list;
 	}
 }
