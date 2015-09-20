@@ -383,7 +383,9 @@ public class RuuService extends Service {
 	private void play(@NonNull RuuFile path) {
 		if(this.path != null && this.path.equals(path)) {
 			if(ready) {
-				player.pause();
+				if(player.isPlaying()) {
+					player.pause();
+				}
 				player.seekTo(0);
 				play();
 				return;
