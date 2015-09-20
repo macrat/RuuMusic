@@ -58,9 +58,13 @@ public class RuuService extends Service {
 	private boolean loadingWait = false;
 	private boolean errored = false;
 	private RuuDirectory recursivePath = null;
-	
+
 	private List<RuuFile> playlist;
 	private int currentIndex;
+	
+	private MediaPlayer endOfListSE;
+	private MediaPlayer errorSE;
+
 	
 	@Override
 	@Nullable
@@ -71,6 +75,8 @@ public class RuuService extends Service {
 	@Override
 	public void onCreate() {
 		player = new MediaPlayer();
+		endOfListSE = MediaPlayer.create(getApplicationContext(), R.raw.eol);
+		errorSE = MediaPlayer.create(getApplicationContext(), R.raw.err);
 
 		final SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(this);
 		repeatMode = preference.getString("repeat_mode", "off");
@@ -140,6 +146,10 @@ public class RuuService extends Service {
 					sendIntent.setAction(ACTION_FAILED_PLAY);
 					sendIntent.putExtra("path", (realName == null ? path.getFullPath() : realName));
 					getBaseContext().sendBroadcast(sendIntent);
+
+					if(!errorSE.isPlaying()) {
+						errorSE.start();
+					}
 				}
 
 				ready = false;
@@ -607,6 +617,9 @@ public class RuuService extends Service {
 				}
 			} else {
 				showToast(getString(R.string.last_of_directory));
+				if(!endOfListSE.isPlaying()) {
+					endOfListSE.start();
+				}
 			}
 		}
 	}
@@ -626,6 +639,9 @@ public class RuuService extends Service {
 					}
 				} else {
 					showToast(getString(R.string.first_of_directory));
+					if(!endOfListSE.isPlaying()) {
+						endOfListSE.start();
+					}
 				}
 			}
 		}
