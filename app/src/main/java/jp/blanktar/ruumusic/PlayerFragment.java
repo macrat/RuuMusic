@@ -98,14 +98,10 @@ public class PlayerFragment extends Fragment {
 				if(currentMusic != null) {
 					MainActivity main = (MainActivity) getActivity();
 					if (main != null) {
-						RuuDirectory parent = null;
 						try {
-							parent = currentMusic.getParent();
+							main.moveToPlaylist(currentMusic.getParent());
 						}catch(RuuFileBase.CanNotOpen e) {
 							Toast.makeText(getActivity(), String.format(getString(R.string.cant_open_dir), currentMusic.path.getParent()), Toast.LENGTH_LONG).show();
-						}
-						if(parent != null) {
-							main.moveToPlaylist(parent);
 						}
 					}
 				}
@@ -301,6 +297,7 @@ public class PlayerFragment extends Fragment {
 			try {
 				path = currentMusic.getParent().getRuuPath();
 			}catch(RuuFileBase.CanNotOpen | RuuFileBase.OutOfRootDirectory e) {
+				path = "";
 			}
 			name = currentMusic.getName();
 		}

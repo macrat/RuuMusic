@@ -58,11 +58,11 @@ public abstract class RuuFileBase implements Comparable {
 		return path.getName();
 	}
 
-	@Nullable
-	public RuuDirectory getParent() throws RuuFileBase.CanNotOpen {
+	@NonNull
+	public RuuDirectory getParent() throws CanNotOpen {
 		String parent = path.getParent();
 		if(parent == null) {
-			return null;
+			throw new CanNotOpen(null);
 		}else {
 			return new RuuDirectory(context, parent);
 		}
@@ -82,7 +82,7 @@ public abstract class RuuFileBase implements Comparable {
 	public class CanNotOpen extends Throwable {
 		final String path;
 		
-		public CanNotOpen(@NonNull String path) {
+		public CanNotOpen(@Nullable String path) {
 			this.path = path;
 		}
 	}
