@@ -284,6 +284,7 @@ public class PlayerFragment extends Fragment {
 			try {
 				currentMusic = new RuuFile(getContext(), path);
 			}catch(RuuFileBase.CanNotOpen e) {
+				currentMusic = null;
 			}
 		}
 		updateRoot();

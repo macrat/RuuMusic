@@ -432,7 +432,6 @@ public class RuuService extends Service {
 				playRecursive(new RuuDirectory(this, path));
 			}catch(RuuFileBase.CanNotOpen e) {
 				showToast(String.format(getString(R.string.cant_open_dir), e.path));
-				return;
 			}
 		}
 	}
@@ -672,7 +671,7 @@ public class RuuService extends Service {
 		}
 	}
 
-	private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+	private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(@Nullable Context context, @NonNull Intent intent) {
 			if(intent.getAction().equals(AudioManager.ACTION_AUDIO_BECOMING_NOISY)) {

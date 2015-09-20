@@ -57,7 +57,6 @@ public class RuuDirectory extends RuuFileBase {
 				try {
 					list.add(new RuuDirectory(context, file.getPath()));
 				}catch(RuuFileBase.CanNotOpen e) {
-					continue;
 				}
 			}
 		}
