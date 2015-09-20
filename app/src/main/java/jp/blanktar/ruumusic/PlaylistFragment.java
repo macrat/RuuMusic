@@ -42,11 +42,11 @@ public class PlaylistFragment extends Fragment {
 		lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
 			public void onItemClick(@NonNull AdapterView<?> parent, @Nullable View view, int position, long id) {
-				RuuListItem selected = (RuuListItem)lv.getItemAtPosition(position);
-				if(selected.file.isDirectory()){
-					changeDir((RuuDirectory)selected.file);
-				}else{
-					changeMusic((RuuFile)selected.file);
+				RuuListItem selected = (RuuListItem) lv.getItemAtPosition(position);
+				if (selected.file.isDirectory()) {
+					changeDir((RuuDirectory) selected.file);
+				} else {
+					changeMusic((RuuFile) selected.file);
 				}
 			}
 		});
@@ -129,7 +129,12 @@ public class PlaylistFragment extends Fragment {
 				current.selection = ((ListView) getActivity().findViewById(R.id.playlist)).getFirstVisiblePosition();
 				directoryCache.push(current);
 			}
-			current = new DirectoryInfo(dir);
+			try {
+				current = new DirectoryInfo(dir);
+			}catch(RuuFileBase.CanNotOpen e) {
+				current = null;
+				Toast.makeText(getActivity(), String.format(getString(R.string.cant_open_dir), e.path), Toast.LENGTH_LONG).show();
+			}
 		}
 
 		if (((MainActivity) getActivity()).getCurrentPage() == 1) {
@@ -215,7 +220,7 @@ public class PlaylistFragment extends Fragment {
 		public final ArrayList<RuuFile> files;
 		public int selection = 0;
 
-		public DirectoryInfo(@NonNull RuuDirectory path) {
+		public DirectoryInfo(@NonNull RuuDirectory path) throws RuuFileBase.CanNotOpen {
 			this.path = path;
 			this.directories = path.getDirectories();
 			this.files = path.getMusics();

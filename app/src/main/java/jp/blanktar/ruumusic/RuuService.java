@@ -403,7 +403,12 @@ public class RuuService extends Service {
 	}
 	
 	private void playRecursive(@NonNull RuuDirectory dir) {
-		playlist = dir.getMusicsRecursive();
+		try {
+			playlist = dir.getMusicsRecursive();
+		}catch(RuuFileBase.CanNotOpen e) {
+			showToast(String.format(getString(R.string.cant_open_dir), e.path));
+			return;
+		}
 		recursivePath = dir;
 
 		if(!shuffleMode) {
@@ -426,6 +431,8 @@ public class RuuService extends Service {
 			try {
 				playRecursive(new RuuDirectory(this, path));
 			}catch(RuuFileBase.CanNotOpen e) {
+				showToast(String.format(getString(R.string.cant_open_dir), e.path));
+				return;
 			}
 		}
 	}
@@ -471,7 +478,12 @@ public class RuuService extends Service {
 			return;
 		}
 		if(recursivePath != null && playlist == null) {
-			playlist = recursivePath.getMusicsRecursive();
+			try {
+				playlist = recursivePath.getMusicsRecursive();
+			}catch(RuuFileBase.CanNotOpen e) {
+				showToast(String.format(getString(R.string.cant_open_dir), e.path));
+				return;
+			}
 
 			if (shuffleMode) {
 				shuffleList();
@@ -482,8 +494,13 @@ public class RuuService extends Service {
 		}else if(playlist == null || oldDir == null
 		|| (recursivePath != null && !recursivePath.contains(newparent))
 		|| (recursivePath == null && !oldDir.equals(newparent))) {
+			try {
+				playlist = newparent.getMusics();
+			}catch(RuuFileBase.CanNotOpen e) {
+				showToast(String.format(getString(R.string.cant_open_dir), e.path));
+				return;
+			}
 			recursivePath = null;
-			playlist = newparent.getMusics();
 
 			if (shuffleMode) {
 				shuffleList();

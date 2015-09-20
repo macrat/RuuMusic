@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.ArrayList;
 
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.content.Context;
 
 
@@ -42,13 +41,13 @@ public class RuuDirectory extends RuuFileBase {
 		return file.getFullPath().startsWith(getFullPath());
 	}
 
-	@Nullable
-	public ArrayList<RuuDirectory> getDirectories() {
+	@NonNull
+	public ArrayList<RuuDirectory> getDirectories() throws RuuFileBase.CanNotOpen {
 		ArrayList<RuuDirectory> list = new ArrayList<>();
 
 		File[] files = path.listFiles();
 		if(files == null) {
-			return null;
+			throw new RuuFileBase.CanNotOpen(getFullPath());
 		}
 
 		Arrays.sort(files);
@@ -66,13 +65,13 @@ public class RuuDirectory extends RuuFileBase {
 		return list;
 	}
 
-	@Nullable
-	public ArrayList<RuuFile> getMusics() {
+	@NonNull
+	public ArrayList<RuuFile> getMusics() throws RuuFileBase.CanNotOpen {
 		ArrayList<RuuFile> list = new ArrayList<>();
 
 		File[] files = path.listFiles();
 		if(files == null) {
-			return null;
+			throw new RuuFileBase.CanNotOpen(getFullPath());
 		}
 
 		Arrays.sort(files);
@@ -101,20 +100,17 @@ public class RuuDirectory extends RuuFileBase {
 	}
 
 	@NonNull
-	public ArrayList<RuuFile> getMusicsRecursive() {
+	public ArrayList<RuuFile> getMusicsRecursive() throws RuuFileBase.CanNotOpen {
 		ArrayList<RuuFile> list = new ArrayList<>();
 
-		ArrayList<RuuDirectory> dirs = getDirectories();
-		if(dirs != null) {
-			for (RuuDirectory dir : dirs) {
+		for(RuuDirectory dir : getDirectories()) {
+			try {
 				list.addAll(dir.getMusicsRecursive());
+			}catch(RuuFileBase.CanNotOpen e) {
 			}
 		}
 
-		ArrayList<RuuFile> musics = getMusics();
-		if(musics != null) {
-			list.addAll(musics);
-		}
+		list.addAll(getMusics());
 
 		return list;
 	}
