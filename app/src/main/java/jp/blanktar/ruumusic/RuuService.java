@@ -118,7 +118,7 @@ public class RuuService extends Service {
 						player.seekTo(0);
 						pause();
 					} else {
-						if (shuffleMode) {
+						if(shuffleMode && currentIndex + 1 >= playlist.size()) {
 							shufflePlay();
 						} else {
 							play(playlist.get((currentIndex + 1) % playlist.size()));
