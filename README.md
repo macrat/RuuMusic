@@ -9,8 +9,8 @@ RuuMusic is directory based music player. You can choose music by a interface li
 RuuMusic doesn't use music file metadata. It uses only directory structure and file name.
 
 ## Screenshots
-![player view](screenshots/phone/play.png)
-![selecting view](screenshots/phone/dirlist.png)
+![player view](screenshots/for-readme/play.png)
+![selecting view](screenshots/for-readme/dirlist.png)
 
 ## Features
 * Selecting music by simple filer.

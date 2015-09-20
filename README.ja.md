@@ -9,8 +9,8 @@ RuuMusic
 ファイラのような画面で音楽を選んで、再生することが出来ます。
 
 ## Screenshots
-![プレイヤー画面](screenshots/phone/play.png)
-![選択画面](screenshots/phone/dirlist.png)
+![プレイヤー画面](screenshots/for-readme/play.png)
+![選択画面](screenshots/for-readme/dirlist.png)
 
 ## Features
 * ファイラのような画面で音楽を選べます。
