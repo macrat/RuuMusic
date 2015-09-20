@@ -363,7 +363,7 @@ public class RuuService extends Service {
 			}else if(!errored) {
 				loadingWait = true;
 			}else {
-				play(this.path);
+				play(path);
 			}
 		}
 	}
@@ -656,7 +656,7 @@ public class RuuService extends Service {
 					@Override
 					public void run() {
 						if(!player.isPlaying()) {
-							RuuService.this.stopSelf();
+							stopSelf();
 						}
 					}
 				});

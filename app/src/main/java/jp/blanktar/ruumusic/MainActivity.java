@@ -131,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
 
 	private void updateTitleAndMenu() {
 		if (getCurrentPage() == 0) {
-			MainActivity.this.setTitle(R.string.app_name);
+			setTitle(R.string.app_name);
 			if(menu != null) {
 				menu.findItem(R.id.action_unset_root).setVisible(false);
 				menu.findItem(R.id.action_set_root).setVisible(false);
@@ -173,7 +173,7 @@ public class MainActivity extends AppCompatActivity {
 	@UiThread
 	final private class RuuPager extends FragmentPagerAdapter {
 		RuuPager() {
-			super(MainActivity.this.getSupportFragmentManager());
+			super(getSupportFragmentManager());
 		}
 
 		@Override

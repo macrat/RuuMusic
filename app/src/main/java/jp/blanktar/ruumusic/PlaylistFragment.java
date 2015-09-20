@@ -222,8 +222,8 @@ public class PlaylistFragment extends Fragment {
 
 		public DirectoryInfo(@NonNull RuuDirectory path) throws RuuFileBase.CanNotOpen {
 			this.path = path;
-			this.directories = path.getDirectories();
-			this.files = path.getMusics();
+			directories = path.getDirectories();
+			files = path.getMusics();
 		}
 	}
 
