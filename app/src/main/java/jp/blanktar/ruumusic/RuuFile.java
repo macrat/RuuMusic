@@ -7,27 +7,27 @@ import android.support.annotation.Nullable;
 import android.content.Context;
 
 
-public class RuuFile extends RuuFileBase {
-	public RuuFile(@NonNull Context context, @NonNull String path) throws RuuFileBase.CanNotOpen {
+public class RuuFile extends RuuFileBase{
+	public RuuFile(@NonNull Context context, @NonNull String path) throws RuuFileBase.CanNotOpen{
 		super(context, path);
 	}
-	
+
 	@Override
-	public boolean isDirectory() {
+	public boolean isDirectory(){
 		return false;
 	}
-	
+
 	@Override
 	@NonNull
-	public String getFullPath() {
+	public String getFullPath(){
 		return path.getPath();
 	}
 
 	@Nullable
-	public String getRealPath() {
-		for(String ext: getSupportedTypes()) {
+	public String getRealPath(){
+		for(String ext: getSupportedTypes()){
 			File file = new File(getFullPath() + ext);
-			if (file.isFile()) {
+			if(file.isFile()){
 				return file.getPath();
 			}
 		}
@@ -35,7 +35,7 @@ public class RuuFile extends RuuFileBase {
 	}
 
 	@NonNull
-	public String getName() {
+	public String getName(){
 		return path.getName();
 	}
 }

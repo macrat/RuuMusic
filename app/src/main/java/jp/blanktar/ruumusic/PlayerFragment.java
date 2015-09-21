@@ -27,7 +27,7 @@ import android.widget.Toast;
 
 
 @UiThread
-public class PlayerFragment extends Fragment {
+public class PlayerFragment extends Fragment{
 	private RuuFile currentMusic;
 	private boolean playing;
 	private int duration = -1;
@@ -39,68 +39,71 @@ public class PlayerFragment extends Fragment {
 	private Timer updateProgressTimer;
 	private boolean firstMessage = true;
 	private boolean seeking = false;
-	
+
+
 	@Override
 	@NonNull
-	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState){
 		View view = inflater.inflate(R.layout.fragment_player, container, false);
-		
-		view.findViewById(R.id.playButton).setOnClickListener(new View.OnClickListener() {
+
+		view.findViewById(R.id.playButton).setOnClickListener(new View.OnClickListener(){
 			@Override
-			public void onClick(@Nullable View view) {
+			public void onClick(@Nullable View view){
 				startRuuService(playing ? RuuService.ACTION_PAUSE : RuuService.ACTION_PLAY);
 			}
 		});
 
-		view.findViewById(R.id.nextButton).setOnClickListener(new View.OnClickListener() {
+		view.findViewById(R.id.nextButton).setOnClickListener(new View.OnClickListener(){
 			@Override
-			public void onClick(@Nullable View view) {
+			public void onClick(@Nullable View view){
 				startRuuService(RuuService.ACTION_NEXT);
 			}
 		});
 
-		view.findViewById(R.id.prevButton).setOnClickListener(new View.OnClickListener() {
+		view.findViewById(R.id.prevButton).setOnClickListener(new View.OnClickListener(){
 			@Override
-			public void onClick(@Nullable View view) {
+			public void onClick(@Nullable View view){
 				startRuuService(RuuService.ACTION_PREV);
 			}
 		});
 
-		view.findViewById(R.id.repeatButton).setOnClickListener(new View.OnClickListener() {
+		view.findViewById(R.id.repeatButton).setOnClickListener(new View.OnClickListener(){
 			@Override
-			public void onClick(@Nullable View view) {
+			public void onClick(@Nullable View view){
 				Intent intent = new Intent(getActivity(), RuuService.class);
 				intent.setAction(RuuService.ACTION_REPEAT);
-				if (repeatMode != null && repeatMode.equals("loop")) {
+
+				if(repeatMode != null && repeatMode.equals("loop")){
 					intent.putExtra("mode", "one");
-				} else if (repeatMode != null && repeatMode.equals("one")) {
+				}else if(repeatMode != null && repeatMode.equals("one")){
 					intent.putExtra("mode", "off");
-				} else {
+				}else{
 					intent.putExtra("mode", "loop");
 				}
+	
 				getActivity().startService(intent);
 			}
 		});
 
-		view.findViewById(R.id.shuffleButton).setOnClickListener(new View.OnClickListener() {
+		view.findViewById(R.id.shuffleButton).setOnClickListener(new View.OnClickListener(){
 			@Override
-			public void onClick(@Nullable View view) {
+			public void onClick(@Nullable View view){
 				Intent intent = new Intent(getActivity(), RuuService.class);
 				intent.setAction(RuuService.ACTION_SHUFFLE);
 				intent.putExtra("mode", !shuffleMode);
 				getActivity().startService(intent);
 			}
 		});
-		
-		view.findViewById(R.id.musicPath).setOnClickListener(new View.OnClickListener() {
+
+		view.findViewById(R.id.musicPath).setOnClickListener(new View.OnClickListener(){
 			@Override
-			public void onClick(@Nullable View view) {
-				if(currentMusic != null) {
-					MainActivity main = (MainActivity) getActivity();
-					if (main != null) {
-						try {
+			public void onClick(@Nullable View view){
+				if(currentMusic != null){
+					MainActivity main = (MainActivity)getActivity();
+					if(main != null){
+						try{
 							main.moveToPlaylist(currentMusic.getParent());
-						}catch(RuuFileBase.CanNotOpen e) {
+						}catch(RuuFileBase.CanNotOpen e){
 							Toast.makeText(getActivity(), String.format(getString(R.string.cant_open_dir), currentMusic.path.getParent()), Toast.LENGTH_LONG).show();
 						}
 					}
@@ -108,39 +111,39 @@ public class PlayerFragment extends Fragment {
 			}
 		});
 
-		view.findViewById(R.id.recursive).setOnClickListener(new View.OnClickListener() {
+		view.findViewById(R.id.recursive).setOnClickListener(new View.OnClickListener(){
 			@Override
-			public void onClick(@Nullable View view) {
-				if(recursivePath != null) {
-					MainActivity main = (MainActivity) getActivity();
-					if(main != null) {
+			public void onClick(@Nullable View view){
+				if(recursivePath != null){
+					MainActivity main = (MainActivity)getActivity();
+					if(main != null){
 						main.moveToPlaylist(recursivePath);
 					}
 				}
 			}
 		});
-		
-		((SeekBar)view.findViewById(R.id.seekBar)).setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
+		((SeekBar)view.findViewById(R.id.seekBar)).setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
 			private int progress = 0;
 			private boolean needResume = false;
 
 			@Override
-			public void onProgressChanged(@Nullable SeekBar seekBar, int progress, boolean fromUser) {
-				if (seeking) {
+			public void onProgressChanged(@Nullable SeekBar seekBar, int progress, boolean fromUser){
+				if(seeking){
 					this.progress = progress;
 					updateProgress(progress);
 				}
 			}
 
 			@Override
-			public void onStartTrackingTouch(@Nullable SeekBar seekBar) {
+			public void onStartTrackingTouch(@Nullable SeekBar seekBar){
 				seeking = true;
 				needResume = playing;
 				startRuuService(RuuService.ACTION_PAUSE);
 			}
 
 			@Override
-			public void onStopTrackingTouch(@Nullable SeekBar seekBar) {
+			public void onStopTrackingTouch(@Nullable SeekBar seekBar){
 				seeking = false;
 
 				Intent intent = new Intent(getActivity(), RuuService.class);
@@ -148,21 +151,21 @@ public class PlayerFragment extends Fragment {
 				intent.putExtra("newtime", progress);
 				getActivity().startService(intent);
 
-				if (needResume) {
+				if(needResume){
 					startRuuService(RuuService.ACTION_PLAY);
 				}
 			}
 		});
-		
+
 		return view;
 	}
-	
+
 	@Override
-	public void onResume() {
+	public void onResume(){
 		super.onResume();
 
 		startRuuService(RuuService.ACTION_PING);
-		
+
 		IntentFilter intentFilter = new IntentFilter();
 		intentFilter.addAction(RuuService.ACTION_STATUS);
 		intentFilter.addAction(RuuService.ACTION_FAILED_PLAY);
@@ -171,13 +174,13 @@ public class PlayerFragment extends Fragment {
 
 		final Handler handler = new Handler();
 		updateProgressTimer = new Timer(true);
-		updateProgressTimer.schedule(new TimerTask() {
+		updateProgressTimer.schedule(new TimerTask(){
 			@Override
-			public void run() {
-				handler.post(new Runnable() {
+			public void run(){
+				handler.post(new Runnable(){
 					@Override
-					public void run() {
-						if (!seeking) {
+					public void run(){
+						if(!seeking){
 							updateProgress();
 						}
 					}
@@ -185,20 +188,20 @@ public class PlayerFragment extends Fragment {
 			}
 		}, 0, 300);
 	}
-	
+
 	@Override
-	public void onPause() {
+	public void onPause(){
 		super.onPause();
 
 		getActivity().unregisterReceiver(receiver);
-		
+
 		updateProgressTimer.cancel();
 	}
-	
-	final private BroadcastReceiver receiver = new BroadcastReceiver() {
+
+	final private BroadcastReceiver receiver = new BroadcastReceiver(){
 		@Override
-		public void onReceive(@Nullable Context context, @NonNull Intent intent) {
-			switch(intent.getAction()) {
+		public void onReceive(@Nullable Context context, @NonNull Intent intent){
+			switch(intent.getAction()){
 				case RuuService.ACTION_FAILED_PLAY:
 					onFailPlay(R.string.failed_play, intent.getStringExtra("path"));
 					break;
@@ -212,36 +215,36 @@ public class PlayerFragment extends Fragment {
 		}
 	};
 
-	private void onReceiveStatus(@NonNull Intent intent) {
+	private void onReceiveStatus(@NonNull Intent intent){
 		playing = intent.getBooleanExtra("playing", false);
 		duration = intent.getIntExtra("duration", -1);
 		basetime = intent.getLongExtra("basetime", -1);
 		current = intent.getIntExtra("current", -1);
 		repeatMode = intent.getStringExtra("repeat");
 		shuffleMode = intent.getBooleanExtra("shuffle", false);
-		
+
 		String recursivePathStr = intent.getStringExtra("recursivePath");
-		if(recursivePathStr == null) {
+		if(recursivePathStr == null){
 			recursivePath = null;
-		}else {
-			try {
+		}else{
+			try{
 				recursivePath = new RuuDirectory(getContext(), recursivePathStr);
-			} catch (RuuFileBase.CanNotOpen e) {
+			}catch(RuuFileBase.CanNotOpen e){
 				recursivePath = null;
 			}
 		}
 
 		View view = getView();
-		if(view != null) {
-			ImageButton playButton = (ImageButton) view.findViewById(R.id.playButton);
-			if (playing) {
+		if(view != null){
+			ImageButton playButton = (ImageButton)view.findViewById(R.id.playButton);
+			if(playing){
 				playButton.setImageResource(R.drawable.ic_pause);
-			} else {
+			}else{
 				playButton.setImageResource(R.drawable.ic_play);
 			}
 
-			ImageButton repeatButton = (ImageButton) view.findViewById(R.id.repeatButton);
-			switch (repeatMode) {
+			ImageButton repeatButton = (ImageButton)view.findViewById(R.id.repeatButton);
+			switch(repeatMode){
 				case "loop":
 					repeatButton.setImageResource(R.drawable.ic_repeat_all);
 					break;
@@ -253,74 +256,74 @@ public class PlayerFragment extends Fragment {
 					break;
 			}
 
-			ImageButton shuffleButton = (ImageButton) view.findViewById(R.id.shuffleButton);
-			if (shuffleMode) {
+			ImageButton shuffleButton = (ImageButton)view.findViewById(R.id.shuffleButton);
+			if(shuffleMode){
 				shuffleButton.setImageResource(R.drawable.ic_shuffle_on);
-			} else {
+			}else{
 				shuffleButton.setImageResource(R.drawable.ic_shuffle_off);
 			}
-			
-			if(recursivePath == null) {
-				((TextView) view.findViewById(R.id.recursive)).setText("");
-			}else {
-				try {
-					((TextView) view.findViewById(R.id.recursive)).setText(String.format(getString(R.string.recursive), recursivePath.getRuuPath()));
-				}catch(RuuFileBase.OutOfRootDirectory e) {
-					((TextView) view.findViewById(R.id.recursive)).setText("");
+
+			if(recursivePath == null){
+				((TextView)view.findViewById(R.id.recursive)).setText("");
+			}else{
+				try{
+					((TextView)view.findViewById(R.id.recursive)).setText(String.format(getString(R.string.recursive), recursivePath.getRuuPath()));
+				}catch(RuuFileBase.OutOfRootDirectory e){
+					((TextView)view.findViewById(R.id.recursive)).setText("");
 				}
 			}
 
-			((SeekBar) view.findViewById(R.id.seekBar)).setMax(duration);
+			((SeekBar)view.findViewById(R.id.seekBar)).setMax(duration);
 		}
 
 		String path = intent.getStringExtra("path");
-		if(path == null) {
-			if(firstMessage) {
-				((MainActivity) getActivity()).moveToPlaylist();
+		if(path == null){
+			if(firstMessage){
+				((MainActivity)getActivity()).moveToPlaylist();
 				firstMessage = false;
 			}
 			currentMusic = null;
 		}else{
-			try {
+			try{
 				currentMusic = new RuuFile(getContext(), path);
-			}catch(RuuFileBase.CanNotOpen e) {
+			}catch(RuuFileBase.CanNotOpen e){
 				currentMusic = null;
 			}
 		}
 		updateRoot();
 	}
 
-	public void updateRoot() {
+	public void updateRoot(){
 		String path = "";
 		String name = "";
 
-		if(currentMusic != null) {
-			try {
+		if(currentMusic != null){
+			try{
 				path = currentMusic.getParent().getRuuPath();
-			}catch(RuuFileBase.CanNotOpen | RuuFileBase.OutOfRootDirectory e) {
+			}catch(RuuFileBase.CanNotOpen | RuuFileBase.OutOfRootDirectory e){
 				path = "";
 			}
 			name = currentMusic.getName();
 		}
 
 		View view = getView();
-		if(view != null) {
-			((TextView) view.findViewById(R.id.musicPath)).setText(path);
-			((TextView) view.findViewById(R.id.musicName)).setText(name);
+		if(view != null){
+			((TextView)view.findViewById(R.id.musicPath)).setText(path);
+			((TextView)view.findViewById(R.id.musicName)).setText(name);
 		}
 	}
 
 	@NonNull
-	private String msec2str(@FloatRange(from=0) long msec) {
-		return ((int)Math.floor(msec/1000/60)) + ":" + String.format("%02d", Math.round(msec/1000)%60);
+	private String msec2str(@FloatRange(from = 0) long msec){
+		return ((int)Math.floor(msec / 1000 / 60)) + ":" + String.format("%02d", Math.round(msec / 1000) % 60);
 	}
 
-	private void updateProgress() {
+	private void updateProgress(){
 		updateProgress(-1);
 	}
 
-	private void updateProgress(int time) {
-		if(getView() == null) {
+	private void updateProgress(int time){
+		if(getView() == null){
 			return;
 		}
 
@@ -328,57 +331,57 @@ public class PlayerFragment extends Fragment {
 		SeekBar bar = (SeekBar)getView().findViewById(R.id.seekBar);
 
 		String currentStr = "-";
-		if(time >= 0) {
+		if(time >= 0){
 			currentStr = msec2str(time);
 			bar.setProgress(time);
-		}else if(playing && basetime >= 0) {
-			if(duration >= 0) {
+		}else if(playing && basetime >= 0){
+			if(duration >= 0){
 				currentStr = msec2str(Math.min(duration, System.currentTimeMillis() - basetime));
-			}else {
+			}else{
 				currentStr = msec2str(System.currentTimeMillis() - basetime);
 			}
-			bar.setProgress((int) (System.currentTimeMillis() - basetime));
-		}else if(!playing && current >= 0) {
+			bar.setProgress((int)(System.currentTimeMillis() - basetime));
+		}else if(!playing && current >= 0){
 			currentStr = msec2str(current);
 			bar.setProgress(current);
-		}else {
+		}else{
 			bar.setProgress(0);
 		}
 
 		String durationStr = "-";
-		if(duration >= 0) {
+		if(duration >= 0){
 			durationStr = msec2str(duration);
 		}
 
 		text.setText(currentStr + " / " + durationStr);
 	}
 
-	private void onFailPlay(@StringRes final int messageId, @NonNull final String path) {
-		((ImageButton) getActivity().findViewById(R.id.playButton)).setImageResource(R.drawable.ic_play);
+	private void onFailPlay(@StringRes final int messageId, @NonNull final String path){
+		((ImageButton)getActivity().findViewById(R.id.playButton)).setImageResource(R.drawable.ic_play);
 
 		(new AlertDialog.Builder(getActivity()))
 				.setTitle(getString(messageId))
 				.setMessage(path)
 				.setPositiveButton(
 						getString(R.string.on_error_next_music),
-						new DialogInterface.OnClickListener() {
+						new DialogInterface.OnClickListener(){
 							@Override
-							public void onClick(DialogInterface dialog, int which) {
+							public void onClick(DialogInterface dialog, int which){
 								startRuuService(RuuService.ACTION_NEXT);
 							}
 						}
 				)
 				.setNegativeButton(
 						getString(R.string.on_error_cancel),
-						new DialogInterface.OnClickListener() {
+						new DialogInterface.OnClickListener(){
 							@Override
-							public void onClick(DialogInterface dialog, int which) { }
+							public void onClick(DialogInterface dialog, int which){ }
 						}
 				)
 				.create().show();
 	}
-	
-	private void startRuuService(@NonNull String action) {
+
+	private void startRuuService(@NonNull String action){
 		Intent intent = new Intent(getActivity(), RuuService.class);
 		intent.setAction(action);
 		getActivity().startService(intent);
