@@ -170,11 +170,11 @@ public class RuuService extends Service{
 		if(intent != null){
 			switch(intent.getAction()){
 				case ACTION_PLAY:
-					String path = intent.getStringExtra("path");
-					play(path);
-					if(path != null){
+					String newpath = intent.getStringExtra("path");
+					if(newpath != null){
 						recursivePath = null;
 					}
+					play(newpath);
 					break;
 				case ACTION_PLAY_RECURSIVE:
 					playRecursive(intent.getStringExtra("path"));
