@@ -73,9 +73,30 @@ public abstract class RuuFileBase implements Comparable{
 		return isDirectory() == file.isDirectory() && path.equals(file.path);
 	}
 
+	public int depth(){
+		String pathStr = getFullPath();
+		return pathStr.length() - pathStr.replaceAll("/", "").length();
+	}
+
 	@Override
-	public int compareTo(@NonNull Object file){
-		return getFullPath().compareTo(((RuuFileBase)file).getFullPath());
+	public int compareTo(@NonNull Object obj){
+		RuuFileBase file = (RuuFileBase)obj;
+
+		if(equals(file)){
+			return 0;
+		}else if(isDirectory() && file.isDirectory()){
+			if(((RuuDirectory)this).contains(file)){
+				return -1;
+			}else if(((RuuDirectory)file).contains(this)){
+				return 1;
+			}
+		}else if(!isDirectory() && !file.isDirectory()){
+			int depthDiff = file.depth() - depth();
+			if(depthDiff != 0){
+				return depthDiff;
+			}
+		}
+		return path.compareTo(file.path);
 	}
 
 
