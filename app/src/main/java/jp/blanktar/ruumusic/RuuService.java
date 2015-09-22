@@ -405,13 +405,15 @@ public class RuuService extends Service{
 			}
 		}
 
-		load(path, new MediaPlayer.OnPreparedListener(){
-			@Override
-			public void onPrepared(MediaPlayer mp){
-				ready = true;
-				play();
-			}
-		});
+		if(ready || errored || this.path == null){
+			load(path, new MediaPlayer.OnPreparedListener(){
+				@Override
+				public void onPrepared(MediaPlayer mp){
+					ready = true;
+					play();
+				}
+			});
+		}
 	}
 
 	private void playRecursive(@NonNull RuuDirectory dir){
@@ -470,6 +472,7 @@ public class RuuService extends Service{
 			sendIntent.setAction(ACTION_NOT_FOUND);
 			sendIntent.putExtra("path", path.getFullPath());
 			getBaseContext().sendBroadcast(sendIntent);
+			errored = true;
 		}else{
 			try{
 				player.setDataSource(realName);
