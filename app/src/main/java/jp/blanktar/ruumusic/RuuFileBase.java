@@ -29,9 +29,9 @@ public abstract class RuuFileBase implements Comparable{
 	@NonNull
 	static List<String> getSupportedTypes(){
 		if(Build.VERSION.SDK_INT >= 12){
-			return Arrays.asList(".flac", ".aac", ".mp3", ".ogg", ".wav", ".3gp");
+			return Arrays.asList(".flac", ".aac", ".mp3", ".m4a", ".ogg", ".wav", ".3gp");
 		}else{
-			return Arrays.asList(".flac", ".mp3", ".ogg", ".wav", ".3gp");
+			return Arrays.asList(".mp3", ".m4a", ".ogg", ".wav", ".3gp");
 		}
 	}
 
