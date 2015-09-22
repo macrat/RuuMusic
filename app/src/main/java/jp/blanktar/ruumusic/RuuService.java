@@ -146,6 +146,7 @@ public class RuuService extends Service{
 					sendIntent.setAction(ACTION_FAILED_PLAY);
 					sendIntent.putExtra("path", (realName == null ? path.getFullPath() : realName));
 					getBaseContext().sendBroadcast(sendIntent);
+					sendStatus();
 
 					if(!errorSE.isPlaying()){
 						errorSE.start();
@@ -176,6 +177,7 @@ public class RuuService extends Service{
 						playlist = null;
 					}
 					play(newpath);
+					errored = false;
 					break;
 				case ACTION_PLAY_RECURSIVE:
 					playRecursive(intent.getStringExtra("path"));
