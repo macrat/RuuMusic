@@ -472,6 +472,7 @@ public class RuuService extends Service{
 			sendIntent.setAction(ACTION_NOT_FOUND);
 			sendIntent.putExtra("path", path.getFullPath());
 			getBaseContext().sendBroadcast(sendIntent);
+			sendStatus();
 			errored = true;
 		}else{
 			try{
