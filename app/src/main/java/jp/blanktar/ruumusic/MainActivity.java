@@ -12,7 +12,6 @@ import android.support.v4.view.ViewPager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.media.AudioManager;
 
@@ -20,9 +19,9 @@ import android.media.AudioManager;
 @UiThread
 public class MainActivity extends AppCompatActivity{
 	private ViewPager viewPager;
-	Menu menu;
 	private PlayerFragment player;
 	private PlaylistFragment playlist;
+	Menu menu;
 
 
 	@Override
@@ -33,15 +32,31 @@ public class MainActivity extends AppCompatActivity{
 		setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
 		try{
-			RuuDirectory.rootDirectory(this);
+			RuuDirectory.rootDirectory(getApplicationContext());
 		}catch(RuuFileBase.CanNotOpen e){
-			PreferenceManager.getDefaultSharedPreferences(this).edit()
+			PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit()
 					.putString("root_directory", "/")
 					.apply();
 		}
 
 		viewPager = (ViewPager)findViewById(R.id.viewPager);
-		viewPager.setAdapter(new RuuPager());
+
+		viewPager.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager()){
+			@Override
+			@NonNull
+			public Fragment getItem(@IntRange(from=0, to=1) int position){
+				if(position == 0){
+					return (player = new PlayerFragment());
+				}else{
+					return (playlist = new PlaylistFragment());
+				}
+			}
+
+			@Override
+			public int getCount(){
+				return 2;
+			}
+		});
 
 		viewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener(){
 			@Override
@@ -54,17 +69,15 @@ public class MainActivity extends AppCompatActivity{
 	@Override
 	public void onSaveInstanceState(@NonNull Bundle state){
 		super.onSaveInstanceState(state);
-		if(player != null){
-			getSupportFragmentManager().putFragment(state, "player_fragment", player);
-		}
-		if(playlist != null){
-			getSupportFragmentManager().putFragment(state, "playlist_fragment", playlist);
-		}
+
+		getSupportFragmentManager().putFragment(state, "player_fragment", player);
+		getSupportFragmentManager().putFragment(state, "playlist_fragment", playlist);
 	}
 
 	@Override
 	public void onRestoreInstanceState(@NonNull Bundle state){
 		super.onRestoreInstanceState(state);
+
 		player = (PlayerFragment)getSupportFragmentManager().getFragment(state, "player_fragment");
 		playlist = (PlaylistFragment)getSupportFragmentManager().getFragment(state, "playlist_fragment");
 
@@ -74,13 +87,13 @@ public class MainActivity extends AppCompatActivity{
 	@Override
 	public void onResume(){
 		super.onResume();
-		RuuService.MediaButtonReceiver.onStartActivity(this);
+		RuuService.MediaButtonReceiver.onStartActivity(getApplicationContext());
 	}
 
 	@Override
 	public void onPause(){
 		super.onPause();
-		RuuService.MediaButtonReceiver.onStopActivity(this);
+		RuuService.MediaButtonReceiver.onStopActivity(getApplicationContext());
 	}
 
 	@Override
@@ -98,30 +111,27 @@ public class MainActivity extends AppCompatActivity{
 		int id = item.getItemId();
 
 		if(id == R.id.action_set_root || id == R.id.action_unset_root){
-			SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
+			String rootPath = "/";
 			if(id == R.id.action_set_root){
-				editor.putString("root_directory", playlist.current.path.getFullPath());
+				rootPath = playlist.current.path.getFullPath();
 			}
-			if(id == R.id.action_unset_root){
-				editor.putString("root_directory", "/");
-			}
-			editor.apply();
+			PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit()
+					.putString("root_directory", rootPath)
+					.apply();
+
+			startService((new Intent(getApplicationContext(), RuuService.class))
+					.setAction(RuuService.ACTION_ROOT_CHANGED));
 
 			playlist.updateRoot();
 			player.updateRoot();
-
-			Intent intent = new Intent(this, RuuService.class);
-			intent.setAction(RuuService.ACTION_ROOT_CHANGED);
-			startService(intent);
 
 			return true;
 		}
 
 		if(id == R.id.action_recursive_play){
-			Intent intent = new Intent(this, RuuService.class);
-			intent.setAction(RuuService.ACTION_PLAY_RECURSIVE);
-			intent.putExtra("path", playlist.current.path.getFullPath());
-			startService(intent);
+			startService((new Intent(getApplicationContext(), RuuService.class))
+					.setAction(RuuService.ACTION_PLAY_RECURSIVE)
+					.putExtra("path", playlist.current.path.getFullPath()));
 
 			moveToPlayer();
 		}
@@ -138,9 +148,9 @@ public class MainActivity extends AppCompatActivity{
 				menu.findItem(R.id.action_recursive_play).setVisible(false);
 			}
 		}else if(playlist != null){
-			playlist.updateTitle(MainActivity.this);
+			playlist.updateTitle(this);
 			if(menu != null){
-				playlist.updateMenu(MainActivity.this);
+				playlist.updateMenu(this);
 				menu.findItem(R.id.action_recursive_play).setVisible(true);
 			}
 		}
@@ -167,30 +177,6 @@ public class MainActivity extends AppCompatActivity{
 	public void onBackPressed(){
 		if(viewPager.getCurrentItem() == 0 || !playlist.onBackKey()){
 			super.onBackPressed();
-		}
-	}
-
-
-	@UiThread
-	final private class RuuPager extends FragmentPagerAdapter{
-		RuuPager(){
-			super(getSupportFragmentManager());
-		}
-
-		@Override
-		@NonNull
-		@IntRange(from=0, to=1)
-		public Fragment getItem(int position){
-			if(position == 0){
-				return (player = new PlayerFragment());
-			}else{
-				return (playlist = new PlaylistFragment());
-			}
-		}
-
-		@Override
-		public int getCount(){
-			return 2;
 		}
 	}
 }
