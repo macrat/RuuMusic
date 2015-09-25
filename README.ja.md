@@ -8,7 +8,7 @@ RuuMusic
 メタデータを利用せず、ディレクトリをプレイリストとして使用する音楽プレイヤーです。
 ファイラのような画面で音楽を選んで、再生することが出来ます。
 
-[google play](https://bitbucket.org/MacRat/ruumusic)で安定板をインストールすることが出来ます。
+[google play](https://play.google.com/store/apps/details?id=jp.blanktar.ruumusic)で安定板をインストールすることが出来ます。
 
 ## Screenshots
 ![プレイヤー画面](screenshots/for-readme/play.png)
