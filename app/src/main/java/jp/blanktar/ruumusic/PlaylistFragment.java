@@ -164,16 +164,8 @@ public class PlaylistFragment extends Fragment{
 				return;
 			}
 
-			RuuDirectory realRoot;
-			try{
-				realRoot = RuuDirectory.getInstance(getContext(), "/");
-			}catch(RuuFileBase.CanNotOpen e){
-				Toast.makeText(getActivity(), String.format(getString(R.string.cant_open_dir), "/"), Toast.LENGTH_LONG).show();
-				return;
-			}
-
 			menu.findItem(R.id.action_set_root).setVisible(!rootDirectory.equals(current.path));
-			menu.findItem(R.id.action_unset_root).setVisible(!rootDirectory.equals(realRoot));
+			menu.findItem(R.id.action_unset_root).setVisible(!rootDirectory.getFullPath().equals("/"));
 		}
 	}
 
