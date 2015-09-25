@@ -78,14 +78,14 @@ public class RuuService extends Service{
 		endOfListSE = MediaPlayer.create(getApplicationContext(), R.raw.eol);
 		errorSE = MediaPlayer.create(getApplicationContext(), R.raw.err);
 
-		final SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(this);
+		final SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		repeatMode = preference.getString("repeat_mode", "off");
 		shuffleMode = preference.getBoolean("shuffle_mode", false);
 
 		String recursive = preference.getString("recursive_path", null);
 		if(recursive != null){
 			try{
-				recursivePath = RuuDirectory.getInstance(this, recursive);
+				recursivePath = RuuDirectory.getInstance(getApplicationContext(), recursive);
 			}catch(RuuFileBase.CanNotOpen e){
 				recursivePath = null;
 			}
@@ -94,7 +94,7 @@ public class RuuService extends Service{
 		String last_play = preference.getString("last_play_music", "");
 		if(!last_play.equals("")){
 			try{
-				load(new RuuFile(this, last_play), new MediaPlayer.OnPreparedListener(){
+				load(new RuuFile(getApplicationContext(), last_play), new MediaPlayer.OnPreparedListener(){
 					@Override
 					public void onPrepared(@Nullable MediaPlayer mp){
 						ready = true;
@@ -223,7 +223,7 @@ public class RuuService extends Service{
 		removePlayingNotification();
 		unregisterReceiver(broadcastReceiver);
 
-		MediaButtonReceiver.onStopService(this);
+		MediaButtonReceiver.onStopService(getApplicationContext());
 
 		saveStatus();
 	}
@@ -260,7 +260,7 @@ public class RuuService extends Service{
 			if(recursivePath != null){
 				recursive = recursivePath.getFullPath();
 			}
-			PreferenceManager.getDefaultSharedPreferences(this).edit()
+			PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit()
 					.putString("last_play_music", path.getFullPath())
 					.putInt("last_play_position", player.getCurrentPosition())
 					.putString("recursive_path", recursive)
@@ -269,7 +269,7 @@ public class RuuService extends Service{
 	}
 
 	private void removeSavedStatus(){
-		PreferenceManager.getDefaultSharedPreferences(this).edit()
+		PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit()
 				.putString("last_play_music", "")
 				.putInt("last_play_position", 0)
 				.putString("recursive_path", null)
@@ -280,13 +280,13 @@ public class RuuService extends Service{
 	private Notification makeNotification(){
 		int playpause_icon = player.isPlaying() ? R.drawable.ic_pause_for_notif : R.drawable.ic_play_for_notif;
 		String playpause_text = player.isPlaying() ? "pause" : "play";
-		PendingIntent playpause_pi = PendingIntent.getService(this, 0, (new Intent(this, RuuService.class)).setAction(player.isPlaying() ? ACTION_PAUSE : ACTION_PLAY), 0);
+		PendingIntent playpause_pi = PendingIntent.getService(getApplicationContext(), 0, (new Intent(getApplicationContext(), RuuService.class)).setAction(player.isPlaying() ? ACTION_PAUSE : ACTION_PLAY), 0);
 
-		PendingIntent prev_pi = PendingIntent.getService(this, 0, (new Intent(this, RuuService.class)).setAction(ACTION_PREV), 0);
-		PendingIntent next_pi = PendingIntent.getService(this, 0, (new Intent(this, RuuService.class)).setAction(ACTION_NEXT), 0);
+		PendingIntent prev_pi = PendingIntent.getService(getApplicationContext(), 0, (new Intent(getApplicationContext(), RuuService.class)).setAction(ACTION_PREV), 0);
+		PendingIntent next_pi = PendingIntent.getService(getApplicationContext(), 0, (new Intent(getApplicationContext(), RuuService.class)).setAction(ACTION_NEXT), 0);
 
-		Intent intent = new Intent(this, MainActivity.class);
-		PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, 0);
+		Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+		PendingIntent contentIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
 
 		String parentPath;
 		try{
@@ -334,7 +334,7 @@ public class RuuService extends Service{
 	private void updateRoot(){
 		RuuDirectory root;
 		try{
-			root = RuuDirectory.rootDirectory(this);
+			root = RuuDirectory.rootDirectory(getApplicationContext());
 		}catch(RuuFileBase.CanNotOpen e){
 			root = null;
 		}
@@ -372,7 +372,7 @@ public class RuuService extends Service{
 				saveStatus();
 				stopDeathTimer();
 
-				MediaButtonReceiver.onStartService(this);
+				MediaButtonReceiver.onStartService(getApplicationContext());
 			}else if(!errored){
 				loadingWait = true;
 			}else{
@@ -386,7 +386,7 @@ public class RuuService extends Service{
 			play();
 		}else{
 			try{
-				play(new RuuFile(this, path));
+				play(new RuuFile(getApplicationContext(), path));
 			}catch(RuuFileBase.CanNotOpen e){
 				showToast(String.format(getString(R.string.cant_open_dir), path));
 			}
@@ -448,7 +448,7 @@ public class RuuService extends Service{
 	private void playRecursive(@Nullable String path){
 		if(path != null){
 			try{
-				playRecursive(RuuDirectory.getInstance(this, path));
+				playRecursive(RuuDirectory.getInstance(getApplicationContext(), path));
 			}catch(RuuFileBase.CanNotOpen e){
 				showToast(String.format(getString(R.string.cant_open_dir), e.path));
 			}
@@ -587,7 +587,7 @@ public class RuuService extends Service{
 			repeatMode = mode;
 			sendStatus();
 
-			PreferenceManager.getDefaultSharedPreferences(this).edit()
+			PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit()
 					.putString("repeat_mode", repeatMode)
 					.apply();
 		}
@@ -607,7 +607,7 @@ public class RuuService extends Service{
 		shuffleMode = mode;
 		sendStatus();
 
-		PreferenceManager.getDefaultSharedPreferences(this).edit()
+		PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit()
 				.putBoolean("shuffle_mode", shuffleMode)
 				.apply();
 	}
@@ -662,7 +662,7 @@ public class RuuService extends Service{
 				handler.post(new Runnable(){
 					@Override
 					public void run(){
-						Toast.makeText(RuuService.this, message, Toast.LENGTH_LONG).show();
+						Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
 					}
 				});
 			}
