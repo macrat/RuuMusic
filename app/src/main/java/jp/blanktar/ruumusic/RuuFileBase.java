@@ -65,7 +65,7 @@ public abstract class RuuFileBase implements Comparable{
 		if(parent == null){
 			throw new CanNotOpen(null);
 		}else{
-			return new RuuDirectory(context, parent);
+			return RuuDirectory.getInstance(context, parent);
 		}
 	}
 

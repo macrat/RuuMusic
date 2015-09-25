@@ -1,6 +1,5 @@
 package jp.blanktar.ruumusic;
 
-import java.util.ArrayList;
 import java.util.Stack;
 
 import android.support.annotation.NonNull;
@@ -59,7 +58,7 @@ public class PlaylistFragment extends Fragment{
 				String currentPath = savedInstanceState.getString("CURRENT_PATH");
 				if(currentPath != null){
 					try{
-						changeDir(new RuuDirectory(getContext(), currentPath));
+						changeDir(RuuDirectory.getInstance(getContext(), currentPath));
 					}catch(RuuFileBase.CanNotOpen e){
 						changeDir(RuuDirectory.rootDirectory(getContext()));
 					}
@@ -132,12 +131,7 @@ public class PlaylistFragment extends Fragment{
 				directoryCache.push(current);
 			}
 
-			try{
-				current = new DirectoryInfo(dir);
-			}catch(RuuFileBase.CanNotOpen e){
-				current = null;
-				Toast.makeText(getActivity(), String.format(getString(R.string.cant_open_dir), e.path), Toast.LENGTH_LONG).show();
-			}
+			current = new DirectoryInfo(dir);
 		}
 
 		if(((MainActivity)getActivity()).getCurrentPage() == 1){
@@ -172,7 +166,7 @@ public class PlaylistFragment extends Fragment{
 
 			RuuDirectory realRoot;
 			try{
-				realRoot = new RuuDirectory(getContext(), "/");
+				realRoot = RuuDirectory.getInstance(getContext(), "/");
 			}catch(RuuFileBase.CanNotOpen e){
 				Toast.makeText(getActivity(), String.format(getString(R.string.cant_open_dir), "/"), Toast.LENGTH_LONG).show();
 				return;
@@ -219,14 +213,10 @@ public class PlaylistFragment extends Fragment{
 
 	class DirectoryInfo{
 		public final RuuDirectory path;
-		public final ArrayList<RuuDirectory> directories;
-		public final ArrayList<RuuFile> files;
 		public int selection = 0;
 
-		public DirectoryInfo(@NonNull RuuDirectory path) throws RuuFileBase.CanNotOpen{
+		public DirectoryInfo(@NonNull RuuDirectory path){
 			this.path = path;
-			directories = path.getDirectories();
-			files = path.getMusics();
 		}
 	}
 
@@ -267,11 +257,11 @@ public class PlaylistFragment extends Fragment{
 				add(new RuuListItem(dirInfo.path.getParent(), null, true));
 			}
 
-			for(RuuDirectory dir: dirInfo.directories){
+			for(RuuDirectory dir: dirInfo.path.getDirectories()){
 				add(new RuuListItem(dir));
 			}
 
-			for(RuuFile file: dirInfo.files){
+			for(RuuFile file: dirInfo.path.getMusics()){
 				add(new RuuListItem(file));
 			}
 		}

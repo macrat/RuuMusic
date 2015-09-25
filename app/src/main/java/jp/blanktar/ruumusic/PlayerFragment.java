@@ -228,7 +228,7 @@ public class PlayerFragment extends Fragment{
 			recursivePath = null;
 		}else{
 			try{
-				recursivePath = new RuuDirectory(getContext(), recursivePathStr);
+				recursivePath = RuuDirectory.getInstance(getContext(), recursivePathStr);
 			}catch(RuuFileBase.CanNotOpen e){
 				recursivePath = null;
 			}

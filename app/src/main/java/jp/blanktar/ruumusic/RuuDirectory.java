@@ -3,13 +3,25 @@ package jp.blanktar.ruumusic;
 import java.io.File;
 import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.LinkedHashMap;
 
 import android.support.annotation.NonNull;
 import android.content.Context;
 
 
 public class RuuDirectory extends RuuFileBase{
-	public RuuDirectory(@NonNull Context context, @NonNull String path) throws RuuFileBase.CanNotOpen{
+	private static LinkedHashMap<String, RuuDirectory> cache = new LinkedHashMap<String, RuuDirectory>(){
+		@Override
+		protected boolean removeEldestEntry(Map.Entry<String, RuuDirectory> eldest){
+			return size() > 64;
+		}
+	};
+	
+	private ArrayList<RuuFile> musicsCache = null;
+	private ArrayList<RuuDirectory> directoriesCache = null;
+	
+	private RuuDirectory(@NonNull Context context, @NonNull String path) throws RuuFileBase.CanNotOpen{
 		super(context, path);
 
 		if(this.path.listFiles() == null){
@@ -17,9 +29,18 @@ public class RuuDirectory extends RuuFileBase{
 		}
 	}
 
+	public static RuuDirectory getInstance(@NonNull Context context, @NonNull String path) throws RuuFileBase.CanNotOpen{
+		RuuDirectory result = cache.get(path);
+		if(result == null){
+			result = new RuuDirectory(context, path);
+			cache.put(path, result);
+		}
+		return result;
+	}
+
 	@NonNull
 	public static RuuDirectory rootDirectory(@NonNull Context context) throws RuuFileBase.CanNotOpen{
-		return new RuuDirectory(context, getRootDirectory(context));
+		return RuuDirectory.getInstance(context, getRootDirectory(context));
 	}
 
 	@Override
@@ -43,59 +64,63 @@ public class RuuDirectory extends RuuFileBase{
 
 	@NonNull
 	public ArrayList<RuuDirectory> getDirectories() throws RuuFileBase.CanNotOpen{
-		ArrayList<RuuDirectory> list = new ArrayList<>();
+		if(directoriesCache == null){
+			File[] files = path.listFiles();
+			if(files == null){
+				throw new RuuFileBase.CanNotOpen(getFullPath());
+			}
 
-		File[] files = path.listFiles();
-		if(files == null){
-			throw new RuuFileBase.CanNotOpen(getFullPath());
-		}
+			Arrays.sort(files);
 
-		Arrays.sort(files);
+			directoriesCache = new ArrayList<>();
 
-		for(File file: files){
-			if(file.getName().lastIndexOf(".") != 0){
-				try{
-					list.add(new RuuDirectory(context, file.getPath()));
-				}catch(RuuFileBase.CanNotOpen e){
+			for(File file: files){
+				if(file.getName().lastIndexOf(".") != 0){
+					try{
+						directoriesCache.add(RuuDirectory.getInstance(context, file.getPath()));
+					}catch(RuuFileBase.CanNotOpen e){
+					}
 				}
 			}
 		}
 
-		return list;
+		return directoriesCache;
 	}
 
 	@NonNull
 	public ArrayList<RuuFile> getMusics() throws RuuFileBase.CanNotOpen{
-		ArrayList<RuuFile> list = new ArrayList<>();
-
-		File[] files = path.listFiles();
-		if(files == null){
-			throw new RuuFileBase.CanNotOpen(getFullPath());
-		}
-
-		Arrays.sort(files);
-
-		String before = "";
-		for(File file: files){
-			if(file.getName().lastIndexOf(".") <= 0){
-				continue;
+		if(musicsCache == null){
+			File[] files = path.listFiles();
+			if(files == null){
+				throw new RuuFileBase.CanNotOpen(getFullPath());
 			}
 
-			String path = file.getPath();
-			int dotPos = path.lastIndexOf(".");
-			String name = path.substring(0, dotPos);
-			String ext = path.substring(dotPos);
-			if(!file.isDirectory() && !name.equals(before) && getSupportedTypes().contains(ext)){
-				try{
-					list.add(new RuuFile(context, name));
-				}catch(RuuFileBase.CanNotOpen e){
+			Arrays.sort(files);
+
+			musicsCache = new ArrayList<>();
+
+			String before = "";
+			for(File file: files){
+				if(file.getName().lastIndexOf(".") <= 0){
 					continue;
 				}
-				before = name;
+
+				String path = file.getPath();
+				int dotPos = path.lastIndexOf(".");
+				String name = path.substring(0, dotPos);
+				String ext = path.substring(dotPos);
+				if(!file.isDirectory() && !name.equals(before) && getSupportedTypes().contains(ext)){
+					try{
+						musicsCache.add(new RuuFile(context, name));
+					}catch(RuuFileBase.CanNotOpen e){
+						continue;
+					}
+					before = name;
+				}
 			}
 		}
 
-		return list;
+		return musicsCache;
 	}
 
 	@NonNull

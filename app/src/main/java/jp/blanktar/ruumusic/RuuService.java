@@ -85,7 +85,7 @@ public class RuuService extends Service{
 		String recursive = preference.getString("recursive_path", null);
 		if(recursive != null){
 			try{
-				recursivePath = new RuuDirectory(this, recursive);
+				recursivePath = RuuDirectory.getInstance(this, recursive);
 			}catch(RuuFileBase.CanNotOpen e){
 				recursivePath = null;
 			}
@@ -446,7 +446,7 @@ public class RuuService extends Service{
 	private void playRecursive(@Nullable String path){
 		if(path != null){
 			try{
-				playRecursive(new RuuDirectory(this, path));
+				playRecursive(RuuDirectory.getInstance(this, path));
 			}catch(RuuFileBase.CanNotOpen e){
 				showToast(String.format(getString(R.string.cant_open_dir), e.path));
 			}
