@@ -420,15 +420,19 @@ public class RuuService extends Service{
 	}
 
 	private void playRecursive(@NonNull RuuDirectory dir){
-		try{
-			playlist = dir.getMusicsRecursive();
-		}catch(RuuFileBase.CanNotOpen e){
-			showToast(String.format(getString(R.string.cant_open_dir), e.path));
-			return;
+		if(playlist == null || recursivePath == null || !recursivePath.equals(dir)){
+			try{
+				playlist = dir.getMusicsRecursive();
+			}catch(RuuFileBase.CanNotOpen e){
+				showToast(String.format(getString(R.string.cant_open_dir), e.path));
+				return;
+			}
+			recursivePath = dir;
 		}
-		recursivePath = dir;
 
-		if(!shuffleMode){
+		if(shuffleMode){
+			shufflePlay();
+		}else{
 			path = playlist.get(0);
 
 			load(path, new MediaPlayer.OnPreparedListener(){
@@ -438,8 +442,6 @@ public class RuuService extends Service{
 					play();
 				}
 			});
-		}else{
-			shufflePlay();
 		}
 	}
 
