@@ -37,7 +37,6 @@ public class PlayerFragment extends Fragment{
 	private boolean shuffleMode;
 	private RuuDirectory recursivePath;
 	private Timer updateProgressTimer;
-	private boolean firstMessage = true;
 	private boolean seeking = false;
 
 
@@ -278,10 +277,6 @@ public class PlayerFragment extends Fragment{
 
 		String path = intent.getStringExtra("path");
 		if(path == null){
-			if(firstMessage){
-				((MainActivity)getActivity()).moveToPlaylist();
-				firstMessage = false;
-			}
 			currentMusic = null;
 		}else{
 			try{

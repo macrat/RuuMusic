@@ -65,6 +65,9 @@ public class MainActivity extends AppCompatActivity{
 				updateTitleAndMenu();
 			}
 		});
+
+		viewPager.setCurrentItem(PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
+				.getInt("last_view_page", 1));
 	}
 
 	@Override
@@ -94,7 +97,12 @@ public class MainActivity extends AppCompatActivity{
 	@Override
 	public void onPause(){
 		super.onPause();
+
 		RuuService.MediaButtonReceiver.onStopActivity(getApplicationContext());
+
+		PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit()
+				.putInt("last_view_page", getCurrentPage())
+				.apply();
 	}
 
 	@Override
@@ -161,13 +169,9 @@ public class MainActivity extends AppCompatActivity{
 		viewPager.setCurrentItem(0);
 	}
 
-	public void moveToPlaylist(){
-		viewPager.setCurrentItem(1);
-	}
-
 	public void moveToPlaylist(@NonNull RuuDirectory path){
 		playlist.changeDir(path);
-		moveToPlaylist();
+		viewPager.setCurrentItem(1);
 	}
 
 	public int getCurrentPage(){
