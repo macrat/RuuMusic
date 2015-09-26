@@ -262,16 +262,6 @@ public class PlayerFragment extends Fragment{
 				shuffleButton.setImageResource(R.drawable.ic_shuffle_off);
 			}
 
-			if(recursivePath == null){
-				((TextView)view.findViewById(R.id.recursive)).setText("");
-			}else{
-				try{
-					((TextView)view.findViewById(R.id.recursive)).setText(String.format(getString(R.string.recursive), recursivePath.getRuuPath()));
-				}catch(RuuFileBase.OutOfRootDirectory e){
-					((TextView)view.findViewById(R.id.recursive)).setText("");
-				}
-			}
-
 			((SeekBar)view.findViewById(R.id.seekBar)).setMax(duration);
 		}
 
@@ -305,6 +295,12 @@ public class PlayerFragment extends Fragment{
 		if(view != null){
 			((TextView)view.findViewById(R.id.musicPath)).setText(path);
 			((TextView)view.findViewById(R.id.musicName)).setText(name);
+
+			try{
+				((TextView)view.findViewById(R.id.recursive)).setText(String.format(getString(R.string.recursive), recursivePath.getRuuPath()));
+			}catch(RuuFileBase.OutOfRootDirectory | NullPointerException e){
+				((TextView)view.findViewById(R.id.recursive)).setText("");
+			}
 		}
 	}
 
