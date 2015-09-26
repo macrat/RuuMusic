@@ -15,6 +15,8 @@ import android.content.Intent;
 import android.preference.PreferenceManager;
 import android.media.AudioManager;
 import android.view.KeyEvent;
+import android.support.v7.widget.SearchView;
+import android.support.v4.view.MenuItemCompat;
 
 
 @UiThread
@@ -23,6 +25,7 @@ public class MainActivity extends AppCompatActivity{
 	private PlayerFragment player;
 	private PlaylistFragment playlist;
 	Menu menu;
+	SearchView searchView;
 
 
 	@Override
@@ -112,6 +115,10 @@ public class MainActivity extends AppCompatActivity{
 
 		updateTitleAndMenu();
 
+		searchView = (SearchView)MenuItemCompat.getActionView(menu.findItem(R.id.menu_search));
+		searchView.setOnQueryTextListener(playlist);
+		searchView.setOnCloseListener(playlist);
+
 		return true;
 	}
 
@@ -155,12 +162,14 @@ public class MainActivity extends AppCompatActivity{
 				menu.findItem(R.id.action_unset_root).setVisible(false);
 				menu.findItem(R.id.action_set_root).setVisible(false);
 				menu.findItem(R.id.action_recursive_play).setVisible(false);
+				menu.findItem(R.id.menu_search).setVisible(false);
 			}
 		}else if(playlist != null){
 			playlist.updateTitle(this);
 			if(menu != null){
 				playlist.updateMenu(this);
 				menu.findItem(R.id.action_recursive_play).setVisible(true);
+				menu.findItem(R.id.menu_search).setVisible(true);
 			}
 		}
 	}

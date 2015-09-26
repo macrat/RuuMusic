@@ -4,6 +4,7 @@
 	<string name="action_set_root">このディレクトリをルートに設定</string>
 	<string name="action_unset_root">ルートディレクトリの設定を解除</string>
 	<string name="action_recursive_play">このディレクトリ以下を再生</string>
+	<string name="menu_search">音楽を検索</string>
 
 	<string name="upper_dir">親ディレクトリ</string>
 

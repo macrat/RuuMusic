@@ -1,6 +1,8 @@
 package jp.blanktar.ruumusic;
 
 import java.util.Stack;
+import java.util.List;
+import java.util.ArrayList;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -20,13 +22,17 @@ import android.view.Menu;
 import android.preference.PreferenceManager;
 import android.content.Context;
 import android.widget.TextView;
+import android.support.v7.widget.SearchView;
+import android.text.TextUtils;
 
 
 @UiThread
-public class PlaylistFragment extends Fragment{
+public class PlaylistFragment extends Fragment implements SearchView.OnQueryTextListener, SearchView.OnCloseListener{
 	private RuuAdapter adapter;
 	private final Stack<DirectoryInfo> directoryCache = new Stack<>();
 	DirectoryInfo current;
+	private List<RuuFile> searchCache;
+	private RuuDirectory searchPath;
 
 
 	@Override
@@ -120,6 +126,11 @@ public class PlaylistFragment extends Fragment{
 			return;
 		}
 
+		if(((MainActivity)getActivity()).searchView != null){
+			((MainActivity)getActivity()).searchView.setQuery("", false);
+			((MainActivity)getActivity()).searchView.setIconified(true);
+		}
+
 		while(!directoryCache.empty() && !directoryCache.peek().path.contains(dir)){
 			directoryCache.pop();
 		}
@@ -203,6 +214,66 @@ public class PlaylistFragment extends Fragment{
 		}
 	}
 
+	@Override
+	public boolean onQueryTextChange(String text){
+		return false;
+	}
+
+	@Override
+	public boolean onQueryTextSubmit(String text){
+		if(TextUtils.isEmpty(text)){
+			onClose();
+			return false;
+		}
+		
+		((MainActivity)getActivity()).searchView.clearFocus();
+
+		String[] queries = TextUtils.split(text.toLowerCase(), " \t");
+
+		if(searchPath == null || searchCache == null || !searchPath.equals(current.path)){
+			try{
+				searchCache = current.path.getMusicsRecursive();
+			}catch(RuuFileBase.CanNotOpen e){
+				Toast.makeText(getActivity(), String.format(getString(R.string.cant_open_dir), e.path), Toast.LENGTH_LONG).show();
+				return false;
+			}
+			searchPath = current.path;
+		}
+
+		ArrayList<RuuFile> filtered = new ArrayList<>();
+		for(RuuFile music: searchCache){
+			String name = music.getName().toLowerCase();
+			boolean isOk = true;
+			for(String query: queries){
+				if(!name.contains(query)){
+					isOk = false;
+					break;
+				}
+			}
+			if(isOk){
+				filtered.add(music);
+			}
+		}
+
+		adapter.setSearchResults(filtered);
+
+		return false;
+	}
+
+	@Override
+	public boolean onClose(){
+		try{
+			adapter.resumeFromSearch();
+		}catch(RuuFileBase.CanNotOpen e){
+			try{
+				changeDir(RuuDirectory.rootDirectory(getContext()));
+			}catch(RuuFileBase.CanNotOpen e2){
+				adapter.clear();
+			}
+		}
+		return false;
+	}
+
 
 	class DirectoryInfo{
 		public final RuuDirectory path;
@@ -238,12 +309,17 @@ public class PlaylistFragment extends Fragment{
 
 	@UiThread
 	class RuuAdapter extends ArrayAdapter<RuuListItem>{
+		private boolean searchMode = false;
+		private DirectoryInfo dirInfo;
+
 		public RuuAdapter(@NonNull Context context){
 			super(context, R.layout.list_item);
 		}
 
 		public void setRuuFiles(@NonNull DirectoryInfo dirInfo) throws RuuFileBase.CanNotOpen{
 			clear();
+			searchMode = false;
+			this.dirInfo = dirInfo;
 
 			RuuDirectory rootDirectory = RuuDirectory.rootDirectory(getContext());
 			if(!rootDirectory.equals(dirInfo.path) && rootDirectory.contains(dirInfo.path)){
@@ -259,13 +335,33 @@ public class PlaylistFragment extends Fragment{
 			}
 		}
 
+		public void setSearchResults(@NonNull List<RuuFile> results){
+			clear();
+			searchMode = true;
+
+			for(RuuFile file: results){
+				add(new RuuListItem(file));
+			}
+		}
+
+		public void resumeFromSearch() throws RuuFileBase.CanNotOpen{
+			if(dirInfo != null){
+				clear();
+				setRuuFiles(dirInfo);
+			}
+		}
+
 		@Override
 		public int getViewTypeCount(){
-			return 2;
+			return 3;
 		}
 
 		@Override
 		public int getItemViewType(int position){
+			if(searchMode){
+				return 2;
+			}
+	
 			RuuListItem item = getItem(position);
 			if(item.isUpperDir){
 				return 1;
@@ -279,16 +375,29 @@ public class PlaylistFragment extends Fragment{
 		public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent){
 			RuuListItem item = getItem(position);
 
-			if(item.isUpperDir){
+			if(searchMode){
 				if(convertView == null){
-					convertView = ((LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.list_item_upper, null);
+					convertView = ((LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.list_item_search, null);
+					
+					((TextView)convertView.findViewById(R.id.search_name)).setText(item.text);
+					try{
+						((TextView)convertView.findViewById(R.id.search_path)).setText(item.file.getParent().getRuuPath());
+					}catch(RuuFileBase.CanNotOpen | RuuFileBase.OutOfRootDirectory e){
+						((TextView)convertView.findViewById(R.id.search_path)).setText("");
+					}
 				}
 			}else{
-				if(convertView == null){
-					convertView = ((LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.list_item, null);
-				}
+				if(item.isUpperDir){
+					if(convertView == null){
+						convertView = ((LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.list_item_upper, null);
+					}
+				}else{
+					if(convertView == null){
+						convertView = ((LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.list_item, null);
+					}
 
-				((TextView)convertView).setText(item.text);
+					((TextView)convertView).setText(item.text);
+				}
 			}
 
 			return convertView;
