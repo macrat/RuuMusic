@@ -22,6 +22,8 @@ RuuMusic
 	複数のファイルがあっても拡張子を気にする必要がありません。
 * bluetoothレシーバから操作出来ます。
 * 通知エリアから操作出来ます。(Android 4.1以上)
+* 音楽の検索が出来ます。
+	検索結果をプレイリストとして再生することも出来ます。
 
 ## Author / License
 [MIT License](http://opensource.org/licenses/mit-license.php) (c)2015 MacRat

@@ -22,6 +22,8 @@ You can install stable version from [google play](https://play.google.com/store/
 	User not have to care extension.
 * Control by bluetooth receiver.
 * Control by Notification area. (Android 4.1+)
+* Search musics.
+	Can playing search results as playlist.
 
 ## Author / License
 [MIT License](http://opensource.org/licenses/mit-license.php) (c)2015 MacRat
