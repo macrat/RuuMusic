@@ -404,13 +404,13 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			if(searchMode){
 				if(convertView == null){
 					convertView = ((LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.list_item_search, null);
-					
-					((TextView)convertView.findViewById(R.id.search_name)).setText(item.text);
-					try{
-						((TextView)convertView.findViewById(R.id.search_path)).setText(item.file.getParent().getRuuPath());
-					}catch(RuuFileBase.CanNotOpen | RuuFileBase.OutOfRootDirectory e){
-						((TextView)convertView.findViewById(R.id.search_path)).setText("");
-					}
+				}
+
+				((TextView)convertView.findViewById(R.id.search_name)).setText(item.text);
+				try{
+					((TextView)convertView.findViewById(R.id.search_path)).setText(item.file.getParent().getRuuPath());
+				}catch(RuuFileBase.CanNotOpen | RuuFileBase.OutOfRootDirectory e){
+					((TextView)convertView.findViewById(R.id.search_path)).setText("");
 				}
 			}else{
 				if(item.isUpperDir){
