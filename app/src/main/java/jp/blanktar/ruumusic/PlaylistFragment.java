@@ -33,6 +33,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 	DirectoryInfo current;
 	private List<RuuFile> searchCache;
 	private RuuDirectory searchPath;
+	private boolean searchMode = false;
 
 
 	@Override
@@ -178,6 +179,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 
 			menu.findItem(R.id.action_set_root).setVisible(current != null && !rootDirectory.equals(current.path));
 			menu.findItem(R.id.action_unset_root).setVisible(!rootDirectory.getFullPath().equals("/"));
+			menu.findItem(R.id.action_search_play).setVisible(searchMode && adapter.getCount() > 0);
 		}
 	}
 
@@ -195,6 +197,13 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 	}
 
 	public boolean onBackKey(){
+		if(searchMode){
+			((MainActivity)getActivity()).searchView.setQuery("", false);
+			((MainActivity)getActivity()).searchView.setIconified(true);
+			onClose();
+			return true;
+		}
+
 		RuuDirectory root;
 		try{
 			root = RuuDirectory.rootDirectory(getContext());
@@ -212,6 +221,12 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			}
 			return true;
 		}
+	}
+
+	public void setSearchQuery(@NonNull RuuDirectory path, @NonNull String query){
+		changeDir(path);
+		((MainActivity)getActivity()).searchView.setIconified(false);
+		((MainActivity)getActivity()).searchView.setQuery(query, true);
 	}
 
 	@Override
@@ -255,6 +270,11 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			}
 		}
 
+		MainActivity main = (MainActivity)getActivity();
+		if(main != null){
+			main.menu.findItem(R.id.action_search_play).setVisible(filtered.size() > 0);
+		}
+
 		adapter.setSearchResults(filtered);
 
 		return false;
@@ -271,6 +291,12 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 				adapter.clear();
 			}
 		}
+
+		MainActivity main = (MainActivity)getActivity();
+		if(main != null){
+			main.menu.findItem(R.id.action_search_play).setVisible(false);
+		}
+
 		return false;
 	}
 
@@ -309,7 +335,6 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 
 	@UiThread
 	class RuuAdapter extends ArrayAdapter<RuuListItem>{
-		private boolean searchMode = false;
 		private DirectoryInfo dirInfo;
 
 		public RuuAdapter(@NonNull Context context){

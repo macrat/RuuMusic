@@ -38,6 +38,8 @@ public class PlayerFragment extends Fragment{
 	private RuuDirectory recursivePath;
 	private Timer updateProgressTimer;
 	private boolean seeking = false;
+	private String searchQuery = null;
+	private RuuDirectory searchPath = null;
 
 
 	@Override
@@ -110,13 +112,19 @@ public class PlayerFragment extends Fragment{
 			}
 		});
 
-		view.findViewById(R.id.recursive).setOnClickListener(new View.OnClickListener(){
+		view.findViewById(R.id.status_indicator).setOnClickListener(new View.OnClickListener(){
 			@Override
 			public void onClick(@Nullable View view){
 				if(recursivePath != null){
 					MainActivity main = (MainActivity)getActivity();
 					if(main != null){
 						main.moveToPlaylist(recursivePath);
+					}
+				}
+				if(searchQuery != null){
+					MainActivity main = (MainActivity)getActivity();
+					if(main != null){
+						main.moveToPlaylistSearch(searchPath, searchQuery);
 					}
 				}
 			}
@@ -221,6 +229,18 @@ public class PlayerFragment extends Fragment{
 		current = intent.getIntExtra("current", -1);
 		repeatMode = intent.getStringExtra("repeat");
 		shuffleMode = intent.getBooleanExtra("shuffle", false);
+		searchQuery = intent.getStringExtra("searchQuery");
+
+		String searchPathStr = intent.getStringExtra("searchPath");
+		if(searchPathStr == null){
+			searchPath = null;
+		}else{
+			try{
+				searchPath = RuuDirectory.getInstance(getContext(), searchPathStr);
+			}catch(RuuFileBase.CanNotOpen e){
+				searchPath = null;
+			}
+		}
 
 		String recursivePathStr = intent.getStringExtra("recursivePath");
 		if(recursivePathStr == null){
@@ -296,10 +316,15 @@ public class PlayerFragment extends Fragment{
 			((TextView)view.findViewById(R.id.musicPath)).setText(path);
 			((TextView)view.findViewById(R.id.musicName)).setText(name);
 
-			try{
-				((TextView)view.findViewById(R.id.recursive)).setText(String.format(getString(R.string.recursive), recursivePath.getRuuPath()));
-			}catch(RuuFileBase.OutOfRootDirectory | NullPointerException e){
-				((TextView)view.findViewById(R.id.recursive)).setText("");
+			if(recursivePath != null){
+				try{
+					((TextView)view.findViewById(R.id.status_indicator)).setText(String.format(getString(R.string.recursive), recursivePath.getRuuPath()));
+				}catch(RuuFileBase.OutOfRootDirectory e){
+					((TextView)view.findViewById(R.id.status_indicator)).setText("");
+				}
+			}
+			if(searchQuery != null){
+				((TextView)view.findViewById(R.id.status_indicator)).setText(String.format(getString(R.string.search_play), searchQuery));
 			}
 		}
 	}

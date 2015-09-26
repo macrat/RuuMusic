@@ -5,10 +5,12 @@
 	<string name="action_unset_root">ルートディレクトリの設定を解除</string>
 	<string name="action_recursive_play">このディレクトリ以下を再生</string>
 	<string name="menu_search">音楽を検索</string>
+	<string name="menu_search_play">検索結果を全て再生</string>
 
 	<string name="upper_dir">親ディレクトリ</string>
 
 	<string name="recursive">%s 以下を再生中</string>
+	<string name="search_play">検索結果を再生中: %s</string>
 
 	<string name="out_of_root">`%s`はルートディレクトリの外です</string>
 	<string name="cant_open_dir">ディレクトリ`%s`を開くことが出来ません</string>

@@ -21,4 +21,10 @@
         android:title="@string/menu_search"
         app:actionViewClass="android.support.v7.widget.SearchView"
         app:showAsAction="ifRoom" />
+
+	<item
+		android:id="@+id/action_search_play"
+		android:icon="@android:drawable/ic_media_play"
+		android:title="@string/menu_search_play"
+		app:showAsAction="ifRoom"/>
 </menu>

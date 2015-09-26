@@ -3,6 +3,7 @@ package jp.blanktar.ruumusic;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -30,12 +31,14 @@ import android.os.Build;
 import android.media.AudioManager;
 import android.content.ComponentName;
 import android.view.KeyEvent;
+import android.text.TextUtils;
 
 
 @WorkerThread
 public class RuuService extends Service{
 	public final static String ACTION_PLAY = "jp.blanktar.ruumusic.PLAY";
 	public final static String ACTION_PLAY_RECURSIVE = "jp.blanktar.ruumusic.PLAY_RECURSIVE";
+	public final static String ACTION_PLAY_SEARCH = "jp.blanktar.ruumusic.PLAY_SEARCH";
 	public final static String ACTION_PAUSE = "jp.blanktar.ruumusic.PAUSE";
 	public final static String ACTION_PLAY_PAUSE = "jp.blanktar.ruumusic.PLAY_PAUSE";
 	public final static String ACTION_NEXT = "jp.blanktar.ruumusic.NEXT";
@@ -58,6 +61,8 @@ public class RuuService extends Service{
 	private boolean loadingWait = false;
 	private boolean errored = false;
 	private RuuDirectory recursivePath = null;
+	private String searchQuery = null;
+	private RuuDirectory searchPath = null;
 
 	private List<RuuFile> playlist;
 	private int currentIndex;
@@ -176,11 +181,16 @@ public class RuuService extends Service{
 						recursivePath = null;
 						playlist = null;
 					}
+					searchPath = null;
+					searchQuery = null;
 					play(newpath);
 					errored = false;
 					break;
 				case ACTION_PLAY_RECURSIVE:
 					playRecursive(intent.getStringExtra("path"));
+					break;
+				case ACTION_PLAY_SEARCH:
+					playSearch(intent.getStringExtra("path"), intent.getStringExtra("query"));
 					break;
 				case ACTION_PAUSE:
 					pause();
@@ -243,6 +253,9 @@ public class RuuService extends Service{
 		}else{
 			sendIntent.putExtra("recursivePath", recursivePath.getFullPath());
 		}
+
+		sendIntent.putExtra("searchQuery", searchQuery);
+		sendIntent.putExtra("searchPath", searchPath == null ? null : searchPath.getFullPath());
 
 		if(ready){
 			sendIntent.putExtra("playing", player.isPlaying());
@@ -452,6 +465,58 @@ public class RuuService extends Service{
 				playRecursive(RuuDirectory.getInstance(getApplicationContext(), path));
 			}catch(RuuFileBase.CanNotOpen e){
 				showToast(String.format(getString(R.string.cant_open_dir), e.path));
+			}
+		}
+	}
+
+	private void playSearch(@NonNull RuuDirectory dir, @NonNull String query){
+		String[] queries = TextUtils.split(query.toLowerCase(), " \t");
+
+		recursivePath = null;
+		playlist = new ArrayList<>();
+		try{
+			for(RuuFile music: dir.getMusicsRecursive()){
+				String name = music.getName().toLowerCase();
+				boolean isOk = true;
+				for(String qs: queries){
+					if(!name.contains(qs)){
+						isOk = false;
+						break;
+					}
+				}
+				if(isOk){
+					playlist.add(music);
+				}
+			}
+		}catch(RuuFileBase.CanNotOpen e){
+			return;
+		}
+
+		searchQuery = query;
+		searchPath = dir;
+
+		if(shuffleMode){
+			shufflePlay();
+		}else{
+			path = playlist.get(0);
+			searchQuery = query;
+
+			load(path, new MediaPlayer.OnPreparedListener(){
+				@Override
+				public void onPrepared(MediaPlayer mp){
+					ready = true;
+					play();
+				}
+			});
+		}
+	}
+
+	private void playSearch(@Nullable String path, @Nullable String query){
+		if(!TextUtils.isEmpty(path) && !TextUtils.isEmpty(query)){
+			try{
+				playSearch(RuuDirectory.getInstance(getApplicationContext(), path), query);
+			}catch(RuuFileBase.CanNotOpen e){
+				return;
 			}
 		}
 	}

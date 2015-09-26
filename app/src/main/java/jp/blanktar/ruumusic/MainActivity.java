@@ -156,6 +156,15 @@ public class MainActivity extends AppCompatActivity{
 			moveToPlayer();
 		}
 
+		if(id == R.id.action_search_play){
+			startService((new Intent(getApplicationContext(), RuuService.class))
+					.setAction(RuuService.ACTION_PLAY_SEARCH)
+					.putExtra("path", playlist.current.path.getFullPath())
+					.putExtra("query", "" + searchView.getQuery()));
+
+			moveToPlayer();
+		}
+
 		return super.onOptionsItemSelected(item);
 	}
 
@@ -167,6 +176,7 @@ public class MainActivity extends AppCompatActivity{
 				menu.findItem(R.id.action_set_root).setVisible(false);
 				menu.findItem(R.id.action_recursive_play).setVisible(false);
 				menu.findItem(R.id.menu_search).setVisible(false);
+				menu.findItem(R.id.action_search_play).setVisible(false);
 			}
 		}else if(playlist != null){
 			playlist.updateTitle(this);
@@ -184,6 +194,11 @@ public class MainActivity extends AppCompatActivity{
 
 	public void moveToPlaylist(@NonNull RuuDirectory path){
 		playlist.changeDir(path);
+		viewPager.setCurrentItem(1);
+	}
+
+	public void moveToPlaylistSearch(@NonNull RuuDirectory path, @NonNull String query){
+		playlist.setSearchQuery(path, query);
 		viewPager.setCurrentItem(1);
 	}
 
