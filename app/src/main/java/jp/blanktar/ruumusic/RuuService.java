@@ -286,6 +286,7 @@ public class RuuService extends Service{
 		PendingIntent next_pi = PendingIntent.getService(getApplicationContext(), 0, (new Intent(getApplicationContext(), RuuService.class)).setAction(ACTION_NEXT), 0);
 
 		Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+		intent.setAction("jp.blanktar.ruumusic.OPEN_PLAYER");
 		PendingIntent contentIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
 
 		String parentPath;

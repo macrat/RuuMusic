@@ -69,8 +69,12 @@ public class MainActivity extends AppCompatActivity{
 			}
 		});
 
-		viewPager.setCurrentItem(PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
-				.getInt("last_view_page", 1));
+		if("jp.blanktar.ruumusic.OPEN_PLAYER".equals(getIntent().getAction())){
+			viewPager.setCurrentItem(0);
+		}else{
+			viewPager.setCurrentItem(PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
+					.getInt("last_view_page", 1));
+		}
 	}
 
 	@Override
