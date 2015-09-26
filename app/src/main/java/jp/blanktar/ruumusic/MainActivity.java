@@ -14,6 +14,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.content.Intent;
 import android.preference.PreferenceManager;
 import android.media.AudioManager;
+import android.view.KeyEvent;
 
 
 @UiThread
@@ -179,4 +180,13 @@ public class MainActivity extends AppCompatActivity{
 			super.onBackPressed();
 		}
 	}
+
+    @Override
+    public boolean onKeyLongPress(int keyCode, @Nullable KeyEvent event){
+        if(keyCode == KeyEvent.KEYCODE_BACK){
+            super.onBackPressed();
+			return false;
+        }
+        return super.onKeyLongPress(keyCode, event);
+    }
 }
