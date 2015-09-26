@@ -165,7 +165,7 @@ public class PlaylistFragment extends Fragment{
 				return;
 			}
 
-			menu.findItem(R.id.action_set_root).setVisible(!rootDirectory.equals(current.path));
+			menu.findItem(R.id.action_set_root).setVisible(current != null && !rootDirectory.equals(current.path));
 			menu.findItem(R.id.action_unset_root).setVisible(!rootDirectory.getFullPath().equals("/"));
 		}
 	}
