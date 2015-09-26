@@ -229,6 +229,7 @@ public class PlayerFragment extends Fragment{
 		current = intent.getIntExtra("current", -1);
 		repeatMode = intent.getStringExtra("repeat");
 		shuffleMode = intent.getBooleanExtra("shuffle", false);
+
 		searchQuery = intent.getStringExtra("searchQuery");
 
 		String searchPathStr = intent.getStringExtra("searchPath");
@@ -322,9 +323,10 @@ public class PlayerFragment extends Fragment{
 				}catch(RuuFileBase.OutOfRootDirectory e){
 					((TextView)view.findViewById(R.id.status_indicator)).setText("");
 				}
-			}
-			if(searchQuery != null){
+			}else if(searchQuery != null && !searchQuery.equals("")){
 				((TextView)view.findViewById(R.id.status_indicator)).setText(String.format(getString(R.string.search_play), searchQuery));
+			}else{
+				((TextView)view.findViewById(R.id.status_indicator)).setText("");
 			}
 		}
 	}

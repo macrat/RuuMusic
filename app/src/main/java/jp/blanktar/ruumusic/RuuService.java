@@ -33,6 +33,8 @@ import android.content.ComponentName;
 import android.view.KeyEvent;
 import android.text.TextUtils;
 
+import android.util.Log;
+
 
 @WorkerThread
 public class RuuService extends Service{
@@ -177,12 +179,14 @@ public class RuuService extends Service{
 			switch(intent.getAction()){
 				case ACTION_PLAY:
 					String newpath = intent.getStringExtra("path");
-					if(newpath != null && recursivePath != null){
-						recursivePath = null;
-						playlist = null;
+					if(newpath != null){
+						if(recursivePath != null){
+							recursivePath = null;
+							playlist = null;
+						}
+						searchPath = null;
+						searchQuery = null;
 					}
-					searchPath = null;
-					searchQuery = null;
 					play(newpath);
 					errored = false;
 					break;
@@ -579,7 +583,7 @@ public class RuuService extends Service{
 			}
 		}else if(playlist == null || oldDir == null
 				|| (recursivePath != null && !recursivePath.contains(newparent))
-				|| (recursivePath == null && !oldDir.equals(newparent))){
+				|| (recursivePath == null && searchQuery == null && !oldDir.equals(newparent))){
 			try{
 				playlist = newparent.getMusics();
 			}catch(RuuFileBase.CanNotOpen e){
