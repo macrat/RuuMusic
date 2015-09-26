@@ -197,9 +197,10 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 	}
 
 	public boolean onBackKey(){
-		if(searchMode){
-			((MainActivity)getActivity()).searchView.setQuery("", false);
-			((MainActivity)getActivity()).searchView.setIconified(true);
+		SearchView search = ((MainActivity)getActivity()).searchView;
+		if(!search.isIconified()){
+			search.setQuery("", false);
+			search.setIconified(true);
 			onClose();
 			return true;
 		}
