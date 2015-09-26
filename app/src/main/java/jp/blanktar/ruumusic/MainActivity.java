@@ -221,4 +221,13 @@ public class MainActivity extends AppCompatActivity{
         }
         return super.onKeyLongPress(keyCode, event);
     }
+
+	@Override
+	public boolean onKeyUp(int keyCode, @NonNull KeyEvent event){
+		if(keyCode == KeyEvent.KEYCODE_SEARCH){
+			viewPager.setCurrentItem(1);
+			searchView.setIconified(false);
+		}
+		return super.onKeyUp(keyCode, event);
+	}
 }
