@@ -51,18 +51,15 @@ public class PlaylistFragment extends Fragment{
 			}
 		});
 
+		String currentPath = PreferenceManager.getDefaultSharedPreferences(getContext())
+				.getString("current_view_path", null);
 		try{
-			if(savedInstanceState == null){
+			if(currentPath == null){
 				changeDir(RuuDirectory.rootDirectory(getContext()));
 			}else{
-				String currentPath = savedInstanceState.getString("CURRENT_PATH");
-				if(currentPath != null){
-					try{
-						changeDir(RuuDirectory.getInstance(getContext(), currentPath));
-					}catch(RuuFileBase.CanNotOpen e){
-						changeDir(RuuDirectory.rootDirectory(getContext()));
-					}
-				}else{
+				try{
+					changeDir(RuuDirectory.getInstance(getContext(), currentPath));
+				}catch(RuuFileBase.CanNotOpen e){
 					changeDir(RuuDirectory.rootDirectory(getContext()));
 				}
 			}
@@ -76,10 +73,14 @@ public class PlaylistFragment extends Fragment{
 	}
 
 	@Override
-	public void onSaveInstanceState(@NonNull Bundle state){
-		super.onSaveInstanceState(state);
+	public void onPause(){
+		super.onPause();
 
-		state.putString("CURRENT_PATH", current.path.getFullPath());
+		if(current != null){
+			PreferenceManager.getDefaultSharedPreferences(getContext()).edit()
+					.putString("current_view_path", current.path.getFullPath())
+					.apply();
+		}
 	}
 
 	public void updateTitle(@NonNull Activity activity){
