@@ -33,8 +33,6 @@ import android.content.ComponentName;
 import android.view.KeyEvent;
 import android.text.TextUtils;
 
-import android.util.Log;
-
 
 @WorkerThread
 public class RuuService extends Service{
