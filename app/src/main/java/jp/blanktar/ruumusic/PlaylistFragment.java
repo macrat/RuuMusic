@@ -177,9 +177,11 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 				return;
 			}
 
-			menu.findItem(R.id.action_set_root).setVisible(current != null && !rootDirectory.equals(current.path));
-			menu.findItem(R.id.action_unset_root).setVisible(!rootDirectory.getFullPath().equals("/"));
+			menu.findItem(R.id.action_set_root).setVisible(current != null && !rootDirectory.equals(current.path) && searchQuery == null);
+			menu.findItem(R.id.action_unset_root).setVisible(!rootDirectory.getFullPath().equals("/") && searchQuery == null);
 			menu.findItem(R.id.action_search_play).setVisible(searchQuery != null && adapter.getCount() > 0);
+			menu.findItem(R.id.action_recursive_play).setVisible(searchQuery == null);
+			menu.findItem(R.id.menu_search).setVisible(true);
 		}
 	}
 
@@ -271,13 +273,10 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			}
 		}
 
-		MainActivity main = (MainActivity)getActivity();
-		if(main != null){
-			main.menu.findItem(R.id.action_search_play).setVisible(filtered.size() > 0);
-		}
-
 		adapter.setSearchResults(filtered);
 		searchQuery = text;
+
+		updateMenu();
 
 		return false;
 	}
@@ -294,10 +293,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			}
 		}
 
-		MainActivity main = (MainActivity)getActivity();
-		if(main != null){
-			main.menu.findItem(R.id.action_search_play).setVisible(false);
-		}
+		updateMenu();
 
 		return false;
 	}

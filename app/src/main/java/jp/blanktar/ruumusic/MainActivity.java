@@ -186,8 +186,6 @@ public class MainActivity extends AppCompatActivity{
 			playlist.updateTitle(this);
 			if(menu != null){
 				playlist.updateMenu(this);
-				menu.findItem(R.id.action_recursive_play).setVisible(true);
-				menu.findItem(R.id.menu_search).setVisible(true);
 			}
 		}
 	}
