@@ -12,7 +12,7 @@ RuuMusic
 
 ## Screenshots
 ![プレイヤー画面](screenshots/for-readme/play.png)
-![選択画面](screenshots/for-readme/dirlist.png)
+![選択画面](screenshots/for-readme/playlists.png)
 
 ## Features
 * ファイラのような画面で音楽を選べます。

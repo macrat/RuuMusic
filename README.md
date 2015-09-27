@@ -12,7 +12,7 @@ You can install stable version from [google play](https://play.google.com/store/
 
 ## Screenshots
 ![player view](screenshots/for-readme/play.png)
-![selecting view](screenshots/for-readme/dirlist.png)
+![selecting view](screenshots/for-readme/playlists.png)
 
 ## Features
 * Selecting music by simple filer.
