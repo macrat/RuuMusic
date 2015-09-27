@@ -96,6 +96,18 @@ public class RuuService extends Service{
 			}
 		}
 
+		searchQuery = preference.getString("search_query", null);
+		String searchPathStr = preference.getString("search_path", null);
+		if(searchQuery != null && searchPathStr != null){
+			try{
+				searchPath = RuuDirectory.getInstance(getApplicationContext(), searchPathStr);
+				playSearch(searchPath, searchQuery);
+			}catch(RuuFileBase.CanNotOpen e){
+				searchPath = null;
+				searchQuery = null;
+			}
+		}
+
 		String last_play = preference.getString("last_play_music", "");
 		if(!last_play.equals("")){
 			try{
@@ -190,9 +202,12 @@ public class RuuService extends Service{
 					break;
 				case ACTION_PLAY_RECURSIVE:
 					playRecursive(intent.getStringExtra("path"));
+					searchQuery = null;
+					searchPath = null;
 					break;
 				case ACTION_PLAY_SEARCH:
 					playSearch(intent.getStringExtra("path"), intent.getStringExtra("query"));
+					recursivePath = null;
 					break;
 				case ACTION_PAUSE:
 					pause();
@@ -279,6 +294,8 @@ public class RuuService extends Service{
 					.putString("last_play_music", path.getFullPath())
 					.putInt("last_play_position", player.getCurrentPosition())
 					.putString("recursive_path", recursive)
+					.putString("search_query", searchQuery)
+					.putString("search_path", searchPath == null ? null : searchPath.getFullPath())
 					.apply();
 		}
 	}
