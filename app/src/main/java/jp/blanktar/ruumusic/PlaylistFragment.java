@@ -33,7 +33,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 	DirectoryInfo current;
 	private List<RuuFile> searchCache;
 	private RuuDirectory searchPath;
-	private boolean searchMode = false;
+	public String searchQuery = null;
 
 
 	@Override
@@ -179,7 +179,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 
 			menu.findItem(R.id.action_set_root).setVisible(current != null && !rootDirectory.equals(current.path));
 			menu.findItem(R.id.action_unset_root).setVisible(!rootDirectory.getFullPath().equals("/"));
-			menu.findItem(R.id.action_search_play).setVisible(searchMode && adapter.getCount() > 0);
+			menu.findItem(R.id.action_search_play).setVisible(searchQuery != null && adapter.getCount() > 0);
 		}
 	}
 
@@ -277,6 +277,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 		}
 
 		adapter.setSearchResults(filtered);
+		searchQuery = text;
 
 		return false;
 	}
@@ -344,7 +345,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 
 		public void setRuuFiles(@NonNull DirectoryInfo dirInfo) throws RuuFileBase.CanNotOpen{
 			clear();
-			searchMode = false;
+			searchQuery = null;
 			this.dirInfo = dirInfo;
 
 			RuuDirectory rootDirectory = RuuDirectory.rootDirectory(getContext());
@@ -363,7 +364,6 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 
 		public void setSearchResults(@NonNull List<RuuFile> results){
 			clear();
-			searchMode = true;
 
 			for(RuuFile file: results){
 				add(new RuuListItem(file));
@@ -384,7 +384,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 
 		@Override
 		public int getItemViewType(int position){
-			if(searchMode){
+			if(searchQuery != null){
 				return 2;
 			}
 	
@@ -401,7 +401,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 		public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent){
 			RuuListItem item = getItem(position);
 
-			if(searchMode){
+			if(searchQuery != null){
 				if(convertView == null){
 					convertView = ((LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.list_item_search, null);
 				}

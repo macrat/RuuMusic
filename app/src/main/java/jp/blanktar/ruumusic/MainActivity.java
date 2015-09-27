@@ -164,7 +164,7 @@ public class MainActivity extends AppCompatActivity{
 			startService((new Intent(getApplicationContext(), RuuService.class))
 					.setAction(RuuService.ACTION_PLAY_SEARCH)
 					.putExtra("path", playlist.current.path.getFullPath())
-					.putExtra("query", "" + searchView.getQuery()));
+					.putExtra("query", playlist.searchQuery == null ? null : playlist.searchQuery));
 
 			moveToPlayer();
 		}
