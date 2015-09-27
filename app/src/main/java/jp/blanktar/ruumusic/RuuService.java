@@ -564,6 +564,10 @@ public class RuuService extends Service{
 			getBaseContext().sendBroadcast(sendIntent);
 			sendStatus();
 			errored = true;
+
+			if(!errorSE.isPlaying()){
+				errorSE.start();
+			}
 		}else{
 			try{
 				player.setDataSource(realName);
