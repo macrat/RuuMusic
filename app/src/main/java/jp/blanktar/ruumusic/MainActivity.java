@@ -124,8 +124,10 @@ public class MainActivity extends AppCompatActivity{
 		updateTitleAndMenu();
 
 		searchView = (SearchView)MenuItemCompat.getActionView(menu.findItem(R.id.menu_search));
-		searchView.setOnQueryTextListener(playlist);
-		searchView.setOnCloseListener(playlist);
+		if(searchView != null){
+			searchView.setOnQueryTextListener(playlist);
+			searchView.setOnCloseListener(playlist);
+		}
 
 		return true;
 	}
