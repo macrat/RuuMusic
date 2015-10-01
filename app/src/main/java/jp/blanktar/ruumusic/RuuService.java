@@ -63,6 +63,7 @@ public class RuuService extends Service{
 	private RuuDirectory recursivePath = null;
 	private String searchQuery = null;
 	private RuuDirectory searchPath = null;
+	private boolean playingFromLastest = true;
 
 	private List<RuuFile> playlist;
 	private int currentIndex;
@@ -198,6 +199,7 @@ public class RuuService extends Service{
 						searchQuery = null;
 					}
 					play(newpath);
+					playingFromLastest = false;
 					errored = false;
 					break;
 				case ACTION_PLAY_RECURSIVE:
@@ -441,7 +443,7 @@ public class RuuService extends Service{
 			}
 		}
 
-		if(ready || errored || this.path == null){
+		if(playingFromLastest || ready || errored || this.path == null){
 			load(path, new MediaPlayer.OnPreparedListener(){
 				@Override
 				public void onPrepared(MediaPlayer mp){
