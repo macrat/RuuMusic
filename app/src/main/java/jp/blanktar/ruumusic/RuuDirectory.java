@@ -5,13 +5,14 @@ import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.LinkedHashMap;
+import java.util.Collections;
 
 import android.support.annotation.NonNull;
 import android.content.Context;
 
 
 public class RuuDirectory extends RuuFileBase{
-	private static LinkedHashMap<String, RuuDirectory> cache = new LinkedHashMap<String, RuuDirectory>(){
+	private final static LinkedHashMap<String, RuuDirectory> cache = new LinkedHashMap<String, RuuDirectory>(){
 		@Override
 		protected boolean removeEldestEntry(Map.Entry<String, RuuDirectory> eldest){
 			return size() > 128;
@@ -151,6 +152,27 @@ public class RuuDirectory extends RuuFileBase{
 		}
 
 		list.addAll(getMusics());
+
+		return list;
+	}
+
+	@NonNull
+	public ArrayList<RuuFileBase> getAllRecursive() throws RuuFileBase.CanNotOpen{
+		ArrayList<RuuFileBase> list = new ArrayList<>();
+
+		ArrayList<RuuDirectory> dirs = getDirectories();
+
+		for(RuuDirectory dir: dirs){
+			try{
+				list.addAll(dir.getAllRecursive());
+			}catch(RuuFileBase.CanNotOpen e){
+			}
+		}
+
+		list.addAll(dirs);
+		list.addAll(getMusics());
+
+		Collections.sort(list);
 
 		return list;
 	}

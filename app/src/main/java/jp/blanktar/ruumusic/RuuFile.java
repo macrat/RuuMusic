@@ -33,9 +33,4 @@ public class RuuFile extends RuuFileBase{
 		}
 		return null;
 	}
-
-	@NonNull
-	public String getName(){
-		return path.getName();
-	}
 }

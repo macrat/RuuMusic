@@ -31,7 +31,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 	private RuuAdapter adapter;
 	private final Stack<DirectoryInfo> directoryCache = new Stack<>();
 	DirectoryInfo current;
-	private List<RuuFile> searchCache;
+	private List<RuuFileBase> searchCache;
 	private RuuDirectory searchPath;
 	public String searchQuery = null;
 
@@ -179,7 +179,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 
 			menu.findItem(R.id.action_set_root).setVisible(current != null && !rootDirectory.equals(current.path) && searchQuery == null);
 			menu.findItem(R.id.action_unset_root).setVisible(!rootDirectory.getFullPath().equals("/") && searchQuery == null);
-			menu.findItem(R.id.action_search_play).setVisible(searchQuery != null && adapter.getCount() > 0);
+			menu.findItem(R.id.action_search_play).setVisible(searchQuery != null && adapter.musicNum > 0);
 			menu.findItem(R.id.action_recursive_play).setVisible(searchQuery == null);
 			menu.findItem(R.id.menu_search).setVisible(true);
 		}
@@ -250,7 +250,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 
 		if(searchPath == null || searchCache == null || !searchPath.equals(current.path)){
 			try{
-				searchCache = current.path.getMusicsRecursive();
+				searchCache = current.path.getAllRecursive();
 			}catch(RuuFileBase.CanNotOpen e){
 				Toast.makeText(getActivity(), String.format(getString(R.string.cant_open_dir), e.path), Toast.LENGTH_LONG).show();
 				return false;
@@ -258,9 +258,9 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			searchPath = current.path;
 		}
 
-		ArrayList<RuuFile> filtered = new ArrayList<>();
-		for(RuuFile music: searchCache){
-			String name = music.getName().toLowerCase();
+		ArrayList<RuuFileBase> filtered = new ArrayList<>();
+		for(RuuFileBase file: searchCache){
+			String name = file.getName().toLowerCase();
 			boolean isOk = true;
 			for(String query: queries){
 				if(!name.contains(query)){
@@ -269,7 +269,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 				}
 			}
 			if(isOk){
-				filtered.add(music);
+				filtered.add(file);
 			}
 		}
 
@@ -334,6 +334,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 	@UiThread
 	class RuuAdapter extends ArrayAdapter<RuuListItem>{
 		private DirectoryInfo dirInfo;
+		public int musicNum = 0;
 
 		public RuuAdapter(@NonNull Context context){
 			super(context, R.layout.list_item);
@@ -358,11 +359,17 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			}
 		}
 
-		public void setSearchResults(@NonNull List<RuuFile> results){
+		public void setSearchResults(@NonNull List<RuuFileBase> results){
 			clear();
+			musicNum = 0;
 
-			for(RuuFile file: results){
-				add(new RuuListItem(file));
+			for(RuuFileBase file: results){
+				if(file.isDirectory()){
+					add(new RuuListItem((RuuDirectory)file));
+				}else{
+					musicNum++;
+					add(new RuuListItem((RuuFile)file));
+				}
 			}
 		}
 
