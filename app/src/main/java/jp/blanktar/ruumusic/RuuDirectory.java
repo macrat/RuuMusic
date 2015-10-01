@@ -14,13 +14,13 @@ public class RuuDirectory extends RuuFileBase{
 	private static LinkedHashMap<String, RuuDirectory> cache = new LinkedHashMap<String, RuuDirectory>(){
 		@Override
 		protected boolean removeEldestEntry(Map.Entry<String, RuuDirectory> eldest){
-			return size() > 64;
+			return size() > 128;
 		}
 	};
-	
-	private ArrayList<RuuFile> musicsCache = null;
-	private ArrayList<RuuDirectory> directoriesCache = null;
-	
+
+	private ArrayList<File> musicsCache = null;
+	private ArrayList<File> directoriesCache = null;
+
 	private RuuDirectory(@NonNull Context context, @NonNull String path) throws RuuFileBase.CanNotOpen{
 		super(context, path);
 
@@ -64,7 +64,13 @@ public class RuuDirectory extends RuuFileBase{
 
 	@NonNull
 	public ArrayList<RuuDirectory> getDirectories() throws RuuFileBase.CanNotOpen{
-		if(directoriesCache == null){
+		ArrayList<RuuDirectory> result = new ArrayList<>();
+
+		if(directoriesCache != null){
+			for(File file: directoriesCache){
+				result.add(RuuDirectory.getInstance(context, file.getPath()));
+			}
+		}else{
 			File[] files = path.listFiles();
 			if(files == null){
 				throw new RuuFileBase.CanNotOpen(getFullPath());
@@ -77,19 +83,27 @@ public class RuuDirectory extends RuuFileBase{
 			for(File file: files){
 				if(file.getName().lastIndexOf(".") != 0){
 					try{
-						directoriesCache.add(RuuDirectory.getInstance(context, file.getPath()));
+						RuuDirectory dir = RuuDirectory.getInstance(context, file.getPath());
+						result.add(dir);
+						directoriesCache.add(dir.path);
 					}catch(RuuFileBase.CanNotOpen e){
 					}
 				}
 			}
 		}
 
-		return directoriesCache;
+		return result;
 	}
 
 	@NonNull
 	public ArrayList<RuuFile> getMusics() throws RuuFileBase.CanNotOpen{
-		if(musicsCache == null){
+		ArrayList<RuuFile> result = new ArrayList<>();
+
+		if(musicsCache != null){
+			for(File file: musicsCache){
+				result.add(new RuuFile(context, file.getPath()));
+			}
+		}else{
 			File[] files = path.listFiles();
 			if(files == null){
 				throw new RuuFileBase.CanNotOpen(getFullPath());
@@ -111,7 +125,9 @@ public class RuuDirectory extends RuuFileBase{
 				String ext = path.substring(dotPos);
 				if(!file.isDirectory() && !name.equals(before) && getSupportedTypes().contains(ext)){
 					try{
-						musicsCache.add(new RuuFile(context, name));
+						RuuFile music = new RuuFile(context, name);
+						result.add(music);
+						musicsCache.add(music.path);
 					}catch(RuuFileBase.CanNotOpen e){
 						continue;
 					}
@@ -120,7 +136,7 @@ public class RuuDirectory extends RuuFileBase{
 			}
 		}
 
-		return musicsCache;
+		return result;
 	}
 
 	@NonNull
