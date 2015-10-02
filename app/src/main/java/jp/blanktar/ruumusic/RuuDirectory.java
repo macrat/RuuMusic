@@ -48,8 +48,8 @@ public class RuuDirectory extends RuuFileBase{
 		RuuDirectory result = cache.get(path);
 		if(result == null){
 			result = new RuuDirectory(context, path);
-			cache.put(path, result);
 		}
+		cache.put(path, result);
 		return result;
 	}
 
