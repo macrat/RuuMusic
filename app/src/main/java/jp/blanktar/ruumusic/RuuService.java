@@ -462,6 +462,12 @@ public class RuuService extends Service{
 				showToast(String.format(getString(R.string.cant_open_dir), e.path));
 				return;
 			}
+
+			if(playlist == null || playlist.isEmpty()){
+				showToast(String.format(getString(R.string.has_not_music), dir.getFullPath()));
+				return;
+			}
+
 			recursivePath = dir;
 		}
 

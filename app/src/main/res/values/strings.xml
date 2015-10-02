@@ -21,4 +21,5 @@
 	<string name="on_error_cancel">Cancel</string>
 	<string name="first_of_directory">this is first</string>
 	<string name="last_of_directory">this is last</string>
+	<string name="has_not_music">`%s` has not music file</string>
 </resources>
