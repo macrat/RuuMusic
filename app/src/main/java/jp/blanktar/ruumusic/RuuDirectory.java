@@ -152,7 +152,7 @@ public class RuuDirectory extends RuuFileBase{
 	}
 
 	@NonNull
-	public ArrayList<RuuFile> getMusicsRecursiveWithoutCache() throws RuuFileBase.CanNotOpen{
+	private ArrayList<RuuFile> getMusicsRecursiveWithoutCache() throws RuuFileBase.CanNotOpen{
 		ArrayList<RuuFile> list = new ArrayList<>();
 
 		for(RuuDirectory dir: getDirectories()){
@@ -181,7 +181,7 @@ public class RuuDirectory extends RuuFileBase{
 	}
 
 	@NonNull
-	public ArrayList<RuuFileBase> getAllRecursiveWithoutCache() throws RuuFileBase.CanNotOpen{
+	private ArrayList<RuuFileBase> getAllRecursiveWithoutCache() throws RuuFileBase.CanNotOpen{
 		ArrayList<RuuFileBase> list = new ArrayList<>();
 
 		ArrayList<RuuDirectory> dirs = getDirectories();
