@@ -35,13 +35,16 @@ public class RuuDirectory extends RuuFileBase{
 
 	private ArrayList<File> musicsCache = null;
 	private ArrayList<File> directoriesCache = null;
+	private File[] files = null;
 
 	private RuuDirectory(@NonNull Context context, @NonNull String path) throws RuuFileBase.CanNotOpen{
 		super(context, path);
 
-		if(this.path.listFiles() == null){
+		files = this.path.listFiles();
+		if(files == null){
 			throw new CanNotOpen(path);
 		}
+		Arrays.sort(files);
 	}
 
 	public static RuuDirectory getInstance(@NonNull Context context, @NonNull String path) throws RuuFileBase.CanNotOpen{
@@ -86,13 +89,6 @@ public class RuuDirectory extends RuuFileBase{
 				result.add(RuuDirectory.getInstance(context, file.getPath()));
 			}
 		}else{
-			File[] files = path.listFiles();
-			if(files == null){
-				throw new RuuFileBase.CanNotOpen(getFullPath());
-			}
-
-			Arrays.sort(files);
-
 			directoriesCache = new ArrayList<>();
 
 			for(File file: files){
@@ -104,6 +100,10 @@ public class RuuDirectory extends RuuFileBase{
 					}catch(RuuFileBase.CanNotOpen e){
 					}
 				}
+			}
+
+			if(musicsCache != null){
+				files = null;
 			}
 		}
 
@@ -119,13 +119,6 @@ public class RuuDirectory extends RuuFileBase{
 				result.add(new RuuFile(context, file.getPath()));
 			}
 		}else{
-			File[] files = path.listFiles();
-			if(files == null){
-				throw new RuuFileBase.CanNotOpen(getFullPath());
-			}
-
-			Arrays.sort(files);
-
 			musicsCache = new ArrayList<>();
 
 			String before = "";
@@ -148,6 +141,10 @@ public class RuuDirectory extends RuuFileBase{
 					}
 					before = name;
 				}
+			}
+
+			if(directoriesCache != null){
+				files = null;
 			}
 		}
 
@@ -211,6 +208,7 @@ public class RuuDirectory extends RuuFileBase{
 
 		if(list == null){
 			result = getAllRecursiveWithoutCache();
+			list = new ArrayList<>();
 			for(RuuFileBase file: result){
 				list.add(file.path);
 			}
