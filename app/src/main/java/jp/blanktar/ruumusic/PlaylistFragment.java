@@ -179,7 +179,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			menu.findItem(R.id.action_set_root).setVisible(current != null && !rootDirectory.equals(current.path) && searchQuery == null);
 			menu.findItem(R.id.action_unset_root).setVisible(!rootDirectory.getFullPath().equals("/") && searchQuery == null);
 			menu.findItem(R.id.action_search_play).setVisible(searchQuery != null && adapter.musicNum > 0);
-			menu.findItem(R.id.action_recursive_play).setVisible(searchQuery == null);
+			menu.findItem(R.id.action_recursive_play).setVisible(searchQuery == null && adapter.musicNum + adapter.directoryNum > 0);
 			menu.findItem(R.id.menu_search).setVisible(true);
 		}
 	}
@@ -330,6 +330,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 	class RuuAdapter extends ArrayAdapter<RuuListItem>{
 		private DirectoryInfo dirInfo;
 		public int musicNum = 0;
+		public int directoryNum = 0;
 
 		public RuuAdapter(@NonNull Context context){
 			super(context, R.layout.list_item);
@@ -339,6 +340,8 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			clear();
 			searchQuery = null;
 			this.dirInfo = dirInfo;
+			musicNum = 0;
+			directoryNum = 0;
 
 			RuuDirectory rootDirectory = RuuDirectory.rootDirectory(getContext());
 			if(!rootDirectory.equals(dirInfo.path) && rootDirectory.contains(dirInfo.path)){
@@ -346,10 +349,12 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			}
 
 			for(RuuDirectory dir: dirInfo.path.getDirectories()){
+				directoryNum++;
 				add(new RuuListItem(dir));
 			}
 
 			for(RuuFile file: dirInfo.path.getMusics()){
+				musicNum++;
 				add(new RuuListItem(file));
 			}
 		}
@@ -357,9 +362,11 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 		public void setSearchResults(@NonNull List<RuuFileBase> results){
 			clear();
 			musicNum = 0;
+			directoryNum = 0;
 
 			for(RuuFileBase file: results){
 				if(file.isDirectory()){
+					directoryNum++;
 					add(new RuuListItem((RuuDirectory)file));
 				}else{
 					musicNum++;
