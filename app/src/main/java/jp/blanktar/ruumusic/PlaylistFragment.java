@@ -31,7 +31,6 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 	private RuuAdapter adapter;
 	private final Stack<DirectoryInfo> directoryCache = new Stack<>();
 	DirectoryInfo current;
-	private List<RuuFileBase> searchCache;
 	private RuuDirectory searchPath;
 	public String searchQuery = null;
 
@@ -248,30 +247,26 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 
 		String[] queries = TextUtils.split(text.toLowerCase(), " \t");
 
-		if(searchPath == null || searchCache == null || !searchPath.equals(current.path)){
-			try{
-				searchCache = current.path.getAllRecursive();
-			}catch(RuuFileBase.CanNotOpen e){
-				Toast.makeText(getActivity(), String.format(getString(R.string.cant_open_dir), e.path), Toast.LENGTH_LONG).show();
-				return false;
-			}
-			searchPath = current.path;
-		}
-
 		ArrayList<RuuFileBase> filtered = new ArrayList<>();
-		for(RuuFileBase file: searchCache){
-			String name = file.getName().toLowerCase();
-			boolean isOk = true;
-			for(String query: queries){
-				if(!name.contains(query)){
-					isOk = false;
-					break;
+		try{
+			for(RuuFileBase file: current.path.getAllRecursive()){
+				String name = file.getName().toLowerCase();
+				boolean isOk = true;
+				for(String query: queries){
+					if(!name.contains(query)){
+						isOk = false;
+						break;
+					}
+				}
+				if(isOk){
+					filtered.add(file);
 				}
 			}
-			if(isOk){
-				filtered.add(file);
-			}
+		}catch(RuuFileBase.CanNotOpen e){
+			Toast.makeText(getActivity(), String.format(getString(R.string.cant_open_dir), e.path), Toast.LENGTH_LONG).show();
+			return false;
 		}
+		searchPath = current.path;
 
 		adapter.setSearchResults(filtered);
 		searchQuery = text;
