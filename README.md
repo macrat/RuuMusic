@@ -22,7 +22,7 @@ You can install stable version from [google play](https://play.google.com/store/
 	User not have to care extension.
 * Control by bluetooth receiver.
 * Control by Notification area. (Android 4.1+)
-* Search musics.
+* Search musics/directories.
 	Can playing search results as playlist.
 
 ## Author / License
