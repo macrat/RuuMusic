@@ -17,7 +17,7 @@ public abstract class RuuFileBase implements Comparable{
 	public final File path;
 
 
-	public RuuFileBase(@NonNull Context context, @NonNull String path) throws CanNotOpen{
+	RuuFileBase(@NonNull Context context, @NonNull String path) throws CanNotOpen{
 		try{
 			this.path = (new File(path)).getCanonicalFile();
 		}catch(IOException e){
@@ -73,7 +73,7 @@ public abstract class RuuFileBase implements Comparable{
 		return isDirectory() == file.isDirectory() && path.equals(file.path);
 	}
 
-	public int depth(){
+	private int depth(){
 		String pathStr = getFullPath();
 		return pathStr.length() - pathStr.replaceAll("/", "").length();
 	}

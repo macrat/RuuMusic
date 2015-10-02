@@ -463,7 +463,7 @@ public class RuuService extends Service{
 				return;
 			}
 
-			if(playlist == null || playlist.isEmpty()){
+			if(playlist.isEmpty()){
 				showToast(String.format(getString(R.string.has_not_music), dir.getFullPath()));
 				return;
 			}
@@ -543,7 +543,6 @@ public class RuuService extends Service{
 			try{
 				playSearch(RuuDirectory.getInstance(getApplicationContext(), path), query);
 			}catch(RuuFileBase.CanNotOpen e){
-				return;
 			}
 		}
 	}

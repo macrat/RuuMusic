@@ -31,7 +31,6 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 	private RuuAdapter adapter;
 	private final Stack<DirectoryInfo> directoryCache = new Stack<>();
 	DirectoryInfo current;
-	private RuuDirectory searchPath;
 	public String searchQuery = null;
 
 
@@ -266,7 +265,6 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			Toast.makeText(getActivity(), String.format(getString(R.string.cant_open_dir), e.path), Toast.LENGTH_LONG).show();
 			return false;
 		}
-		searchPath = current.path;
 
 		adapter.setSearchResults(filtered);
 		searchQuery = text;
