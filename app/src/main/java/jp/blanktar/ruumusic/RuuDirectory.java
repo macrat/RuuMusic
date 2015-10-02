@@ -181,22 +181,27 @@ public class RuuDirectory extends RuuFileBase{
 	}
 
 	@NonNull
-	private ArrayList<RuuFileBase> getAllRecursiveWithoutCache() throws RuuFileBase.CanNotOpen{
-		ArrayList<RuuFileBase> list = new ArrayList<>();
+	private ArrayList<RuuDirectory> getDirectoriesWithoutCache() throws RuuFileBase.CanNotOpen{
+		ArrayList<RuuDirectory> list = new ArrayList<>();
 
 		ArrayList<RuuDirectory> dirs = getDirectories();
-
 		for(RuuDirectory dir: dirs){
 			try{
-				list.addAll(dir.getAllRecursiveWithoutCache());
+				list.addAll(dir.getDirectoriesWithoutCache());
 			}catch(RuuFileBase.CanNotOpen e){
 			}
 		}
 
 		list.addAll(dirs);
-		list.addAll(getMusics());
 
-		Collections.sort(list);
+		return list;
+	}
+
+	@NonNull
+	private ArrayList<RuuFileBase> getAllRecursiveWithoutCache() throws RuuFileBase.CanNotOpen{
+		ArrayList<RuuFileBase> list = new ArrayList<>();
+		list.addAll(getDirectoriesWithoutCache());
+		list.addAll(getMusicsRecursive());
 
 		return list;
 	}
