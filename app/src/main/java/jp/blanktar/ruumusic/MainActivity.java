@@ -129,7 +129,7 @@ public class MainActivity extends AppCompatActivity{
 			searchView.setOnCloseListener(playlist);
 		}
 
-		return true;
+		return super.onCreateOptionsMenu(menu);
 	}
 
 	@Override
