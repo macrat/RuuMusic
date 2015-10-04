@@ -32,6 +32,8 @@ import android.media.AudioManager;
 import android.content.ComponentName;
 import android.view.KeyEvent;
 import android.text.TextUtils;
+import android.media.RemoteControlClient;
+import android.media.MediaMetadataRetriever;
 
 
 @WorkerThread
@@ -54,6 +56,7 @@ public class RuuService extends Service{
 
 	private RuuFile path;
 	private MediaPlayer player;
+	private static RemoteControlClient remoteControlClient;
 	private String repeatMode = "off";
 	private boolean shuffleMode = false;
 	private boolean ready = false;
@@ -366,6 +369,23 @@ public class RuuService extends Service{
 		}
 	}
 
+	private void updateMediaMetadata(){
+		if(remoteControlClient != null && Build.VERSION.SDK_INT >= 14){
+			String pathStr;
+			try{
+				pathStr = path.getRuuPath();
+			}catch(RuuFileBase.OutOfRootDirectory e){
+				pathStr = "";
+			}
+			remoteControlClient.editMetadata(true)
+					.putString(MediaMetadataRetriever.METADATA_KEY_TITLE, path.getName())
+					.putLong(MediaMetadataRetriever.METADATA_KEY_DURATION, player.getDuration())
+					.putString(MediaMetadataRetriever.METADATA_KEY_ALBUM, pathStr)
+					.apply();
+			remoteControlClient.setPlaybackState(player.isPlaying() ? RemoteControlClient.PLAYSTATE_PLAYING : RemoteControlClient.PLAYSTATE_PAUSED);
+		}
+	}
+
 	private void updateRoot(){
 		RuuDirectory root;
 		try{
@@ -391,6 +411,7 @@ public class RuuService extends Service{
 			sendStatus();
 		}else if(player.isPlaying()){
 			updatePlayingNotification();
+			updateMediaMetadata();
 		}else{
 			((NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE)).cancel(1);
 		}
@@ -401,9 +422,12 @@ public class RuuService extends Service{
 			if(ready){
 				errored = false;
 
+				((AudioManager)getSystemService(Context.AUDIO_SERVICE)).requestAudioFocus(focusListener, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
+
 				player.start();
 				sendStatus();
 				updatePlayingNotification();
+				updateMediaMetadata();
 				saveStatus();
 				stopDeathTimer();
 
@@ -668,6 +692,8 @@ public class RuuService extends Service{
 		removePlayingNotification();
 		saveStatus();
 		startDeathTimer();
+
+		((AudioManager)getSystemService(Context.AUDIO_SERVICE)).abandonAudioFocus(focusListener);
 	}
 
 	private void seek(int newtime){
@@ -807,7 +833,7 @@ public class RuuService extends Service{
 		private static ComponentName componentName;
 		private static boolean serviceRunning = false;
 		private static boolean activityRunning = false;
-	
+
 
 		@Override
 		@WorkerThread
@@ -845,8 +871,21 @@ public class RuuService extends Service{
 
 		private static void registation(@NonNull Context context){
 			if(componentName == null){
-				componentName = new ComponentName(context, MediaButtonReceiver.class);
-				((AudioManager)context.getSystemService(Context.AUDIO_SERVICE)).registerMediaButtonEventReceiver(componentName);
+				AudioManager audioManager = (AudioManager)context.getSystemService(Context.AUDIO_SERVICE);
+				componentName = new ComponentName(context.getPackageName(), MediaButtonReceiver.class.getName());
+				audioManager.registerMediaButtonEventReceiver(componentName);
+
+				if(Build.VERSION.SDK_INT >= 14 && remoteControlClient == null){
+					Intent mediaButtonIntent = new Intent(Intent.ACTION_MEDIA_BUTTON);
+					mediaButtonIntent.setComponent(componentName);
+					remoteControlClient = new RemoteControlClient(PendingIntent.getBroadcast(context, 0, mediaButtonIntent, 0));
+					remoteControlClient.setTransportControlFlags(
+							RemoteControlClient.FLAG_KEY_MEDIA_PLAY |
+							RemoteControlClient.FLAG_KEY_MEDIA_PAUSE |
+							RemoteControlClient.FLAG_KEY_MEDIA_NEXT |
+							RemoteControlClient.FLAG_KEY_MEDIA_PREVIOUS);
+					audioManager.registerRemoteControlClient(remoteControlClient);
+				}
 			}
 		}
 
@@ -864,8 +903,14 @@ public class RuuService extends Service{
 
 		private static void unregistation(@NonNull Context context){
 			if(componentName != null && !serviceRunning && !activityRunning){
-				((AudioManager)context.getSystemService(Context.AUDIO_SERVICE)).unregisterMediaButtonEventReceiver(componentName);
+				AudioManager audioManager = (AudioManager)context.getSystemService(Context.AUDIO_SERVICE);
+				audioManager.unregisterMediaButtonEventReceiver(componentName);
 				componentName = null;
+
+				if(remoteControlClient != null && Build.VERSION.SDK_INT >= 14){
+					audioManager.unregisterRemoteControlClient(remoteControlClient);
+					remoteControlClient = null;
+				}
 			}
 		}
 
@@ -881,4 +926,14 @@ public class RuuService extends Service{
 			unregistation(context);
 		}
 	}
+
+
+	private final AudioManager.OnAudioFocusChangeListener focusListener = new AudioManager.OnAudioFocusChangeListener(){
+		@Override
+		public void onAudioFocusChange(int focusChange){
+			if(focusChange == AudioManager.AUDIOFOCUS_LOSS){
+				pause();
+			}
+		}
+	};
 }
