@@ -22,6 +22,8 @@ You can install stable version from [google play](https://play.google.com/store/
 	User not have to care extension.
 * Control by bluetooth receiver.
 * Control by Notification area. (Android 4.1+)
+* Control by lock screen. (Android 4.0+)
+	Need change notification primary in android 5.0+.
 * Search musics/directories.
 	Can playing search results as playlist.
 
