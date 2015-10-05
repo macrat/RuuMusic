@@ -19,6 +19,8 @@ import android.media.audiofx.Equalizer;
 import android.media.audiofx.PresetReverb;
 import android.os.Build;
 
+import android.util.Log;
+
 
 public class AudioPreferenceActivity extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener{
 	public final static String PREFERENCE_PREFIX = "audio_";
@@ -149,7 +151,6 @@ public class AudioPreferenceActivity extends AppCompatActivity implements Compou
 
 		((SwitchCompat)findViewById(R.id.equalizer_switch)).setOnCheckedChangeListener(this);
 		((SwitchCompat)findViewById(R.id.equalizer_switch)).setChecked(getPreference(PREFERENCE_EQUALIZER_ENABLED, false));
-		findViewById(R.id.equalizer_container).setEnabled(getPreference(PREFERENCE_EQUALIZER_ENABLED, false));
 
 		Equalizer eq = new Equalizer(0, (new MediaPlayer()).getAudioSessionId());
 		final int equalizer_min = eq.getBandLevelRange()[0];
@@ -184,6 +185,8 @@ public class AudioPreferenceActivity extends AppCompatActivity implements Compou
 			}).setId(i));
 		}
 		eq.release();
+
+		setEqualizerEnabled(getPreference(PREFERENCE_EQUALIZER_ENABLED, false));
 	}
 
 	@Override
@@ -202,10 +205,23 @@ public class AudioPreferenceActivity extends AppCompatActivity implements Compou
 				putPreference(PREFERENCE_LOUDNESS_ENABLED, isChecked);
 				break;
 			case R.id.equalizer_switch:
-				findViewById(R.id.equalizer_container).setEnabled(isChecked);
+				setEqualizerEnabled(isChecked);
 				putPreference(PREFERENCE_EQUALIZER_ENABLED, isChecked);
 				break;
 		}
+	}
+
+	private void setEqualizerEnabled(boolean enabled){
+		Log.d("RuuPrefs", "equalizer enabled: " + enabled);
+		ViewGroup container = (ViewGroup)findViewById(R.id.equalizer_container);
+		for(int i=0; i<container.getChildCount(); i++){
+			ViewGroup row = (ViewGroup)container.getChildAt(i);
+			for(int j=0; j<row.getChildCount(); j++){
+				row.getChildAt(j).setEnabled(enabled);
+			}
+			row.setEnabled(enabled);
+		}
+		container.setEnabled(enabled);
 	}
 
 	private void putPreference(@NonNull String key, boolean value){
