@@ -26,6 +26,8 @@ You can install stable version from [google play](https://play.google.com/store/
 	Need change notification primary in android 5.0+.
 * Search musics/directories.
 	Can playing search results as playlist.
+* Supported audio preference.
+	Supported bass boost, reverb, equalizer, and roudness enhancer(Android 4.4+).
 
 ## Author / License
 [MIT License](http://opensource.org/licenses/mit-license.php) (c)2015 MacRat
