@@ -393,8 +393,8 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 		if(remoteControlClient != null && Build.VERSION.SDK_INT >= 14){
 			String pathStr;
 			try{
-				pathStr = path.getRuuPath();
-			}catch(RuuFileBase.OutOfRootDirectory e){
+				pathStr = path.getParent().getRuuPath();
+			}catch(RuuFileBase.CanNotOpen | RuuFileBase.OutOfRootDirectory e){
 				pathStr = "";
 			}
 			remoteControlClient.editMetadata(true)
