@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<TableRow
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:layout_marginBottom="10dp"
+	android:duplicateParentState="true">
+
+	<TextView
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:id="@+id/equalizer_freq"
+		android:layout_gravity="right"
+		android:duplicateParentState="true" />
+
+	<SeekBar
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:id="@+id/equalizer_bar"
+		android:duplicateParentState="true" />
+</TableRow>

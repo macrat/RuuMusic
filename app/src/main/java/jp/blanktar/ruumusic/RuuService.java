@@ -34,10 +34,14 @@ import android.view.KeyEvent;
 import android.text.TextUtils;
 import android.media.RemoteControlClient;
 import android.media.MediaMetadataRetriever;
+import android.media.audiofx.BassBoost;
+import android.media.audiofx.PresetReverb;
+import android.media.audiofx.LoudnessEnhancer;
+import android.media.audiofx.Equalizer;
 
 
 @WorkerThread
-public class RuuService extends Service{
+public class RuuService extends Service implements SharedPreferences.OnSharedPreferenceChangeListener{
 	public final static String ACTION_PLAY = "jp.blanktar.ruumusic.PLAY";
 	public final static String ACTION_PLAY_RECURSIVE = "jp.blanktar.ruumusic.PLAY_RECURSIVE";
 	public final static String ACTION_PLAY_SEARCH = "jp.blanktar.ruumusic.PLAY_SEARCH";
@@ -74,6 +78,10 @@ public class RuuService extends Service{
 	private MediaPlayer endOfListSE;
 	private MediaPlayer errorSE;
 
+	private BassBoost bassBoost = null;
+	private PresetReverb presetReverb = null;
+	private LoudnessEnhancer loudnessEnhancer = null;
+	private Equalizer equalizer = null;
 
 	@Override
 	@Nullable
@@ -184,6 +192,9 @@ public class RuuService extends Service{
 
 		registerReceiver(broadcastReceiver, new IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY));
 
+		updateAudioEffect();
+		PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).registerOnSharedPreferenceChangeListener(this);
+
 		startDeathTimer();
 	}
 
@@ -257,7 +268,16 @@ public class RuuService extends Service{
 
 		MediaButtonReceiver.onStopService(getApplicationContext());
 
+		PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).unregisterOnSharedPreferenceChangeListener(this);
+
 		saveStatus();
+	}
+
+	@Override
+	public void onSharedPreferenceChanged(@NonNull SharedPreferences preference, @NonNull String key){
+		if(key.startsWith(AudioPreferenceActivity.PREFERENCE_PREFIX)){
+			updateAudioEffect();
+		}
 	}
 
 	private void sendStatus(){
@@ -816,6 +836,62 @@ public class RuuService extends Service{
 			deathTimer.cancel();
 			deathTimer = null;
 		}
+	}
+
+	private void updateAudioEffect(){
+		if(getPreference(AudioPreferenceActivity.PREFERENCE_BASSBOOST_ENABLED, false)){
+			if(bassBoost == null){
+				bassBoost = new BassBoost(0, player.getAudioSessionId());
+			}
+			bassBoost.setStrength((short)getPreference(AudioPreferenceActivity.PREFERENCE_BASSBOOST_LEVEL, 0));
+			bassBoost.setEnabled(true);
+		}else if(bassBoost != null){
+			bassBoost.release();
+			bassBoost = null;
+		}
+
+		if(getPreference(AudioPreferenceActivity.PREFERENCE_REVERB_ENABLED, false)){
+			if(presetReverb == null){
+				presetReverb = new PresetReverb(0, player.getAudioSessionId());
+			}
+			presetReverb.setPreset((short)getPreference(AudioPreferenceActivity.PREFERENCE_REVERB_TYPE, 0));
+			presetReverb.setEnabled(true);
+		}else if(presetReverb != null){
+			presetReverb.release();
+			presetReverb = null;
+		}
+
+		if(Build.VERSION.SDK_INT >= 19 && getPreference(AudioPreferenceActivity.PREFERENCE_LOUDNESS_ENABLED, false)){
+			if(loudnessEnhancer == null){
+				loudnessEnhancer = new LoudnessEnhancer(player.getAudioSessionId());
+			}
+			loudnessEnhancer.setTargetGain(getPreference(AudioPreferenceActivity.PREFERENCE_LOUDNESS_LEVEL, 0));
+			loudnessEnhancer.setEnabled(true);
+		}else if(loudnessEnhancer != null){
+			loudnessEnhancer.release();
+			loudnessEnhancer = null;
+		}
+
+		if(getPreference(AudioPreferenceActivity.PREFERENCE_EQUALIZER_ENABLED, false)){
+			if(equalizer == null){
+				equalizer = new Equalizer(0, player.getAudioSessionId());
+			}
+			for(short i=0; i<equalizer.getNumberOfBands(); i++){
+				equalizer.setBandLevel(i, (short)getPreference(AudioPreferenceActivity.PREFERENCE_EQUALIZER_VALUE + i, (equalizer.getBandLevelRange()[0] + equalizer.getBandLevelRange()[1])/2));
+			}
+			equalizer.setEnabled(true);
+		}else if(equalizer != null){
+			equalizer.release();
+			equalizer = null;
+		}
+	}
+
+	private boolean getPreference(@NonNull String key, boolean default_value){
+		return PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean(key, default_value);
+	}
+
+	private int getPreference(@NonNull String key, int default_value){
+		return PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getInt(key, default_value);
 	}
 
 
