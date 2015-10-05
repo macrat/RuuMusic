@@ -710,6 +710,7 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 		player.pause();
 		sendStatus();
 		removePlayingNotification();
+		updateMediaMetadata();
 		saveStatus();
 		startDeathTimer();
 
