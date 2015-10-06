@@ -19,8 +19,6 @@ import android.media.audiofx.Equalizer;
 import android.media.audiofx.PresetReverb;
 import android.os.Build;
 
-import android.util.Log;
-
 
 public class AudioPreferenceActivity extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener{
 	public final static String PREFERENCE_PREFIX = "audio_";
@@ -212,7 +210,6 @@ public class AudioPreferenceActivity extends AppCompatActivity implements Compou
 	}
 
 	private void setEqualizerEnabled(boolean enabled){
-		Log.d("RuuPrefs", "equalizer enabled: " + enabled);
 		ViewGroup container = (ViewGroup)findViewById(R.id.equalizer_container);
 		for(int i=0; i<container.getChildCount(); i++){
 			ViewGroup row = (ViewGroup)container.getChildAt(i);
