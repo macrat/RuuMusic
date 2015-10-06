@@ -1,106 +1,111 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout
+<ScrollView
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	android:orientation="vertical"
 	android:paddingLeft="@dimen/activity_horizontal_margin"
 	android:paddingRight="@dimen/activity_horizontal_margin"
 	android:paddingTop="@dimen/activity_vertical_margin"
 	android:paddingBottom="@dimen/activity_vertical_margin"
-	tools:context="jp.blanktar.ruumusic.AudioPreferenceActivity"
-	android:divider="@drawable/preference_divider"
-	android:showDividers="middle">
+	tools:context="jp.blanktar.ruumusic.AudioPreferenceActivity">
 
 	<LinearLayout
-		android:orientation="vertical"
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:paddingBottom="10dp">
-
-		<android.support.v7.widget.SwitchCompat
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:layout_marginBottom="5dp"
-			android:text="@string/bass_boost_switch"
-			android:id="@+id/bass_boost_switch"
-			android:textSize="@dimen/preference_text_size" />
-
-		<SeekBar
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:layout_gravity="right"
-			android:id="@+id/bass_boost_level"
-			android:max="1000" />
-	</LinearLayout>
-
-	<LinearLayout
+		android:layout_height="match_parent"
 		android:orientation="vertical"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:paddingTop="10dp"
-		android:paddingBottom="10dp">
+		android:divider="@drawable/preference_divider"
+		android:showDividers="middle">
 
-		<android.support.v7.widget.SwitchCompat
+		<LinearLayout
+			android:orientation="vertical"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:layout_marginBottom="5dp"
-			android:text="@string/reverb_switch"
-			android:id="@+id/reverb_switch"
-			android:textSize="@dimen/preference_text_size" />
+			android:paddingBottom="10dp">
 
-		<Spinner
+			<android.support.v7.widget.SwitchCompat
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginBottom="5dp"
+				android:text="@string/bass_boost_switch"
+				android:id="@+id/bass_boost_switch"
+				android:textSize="@dimen/preference_text_size" />
+
+			<SeekBar
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_gravity="right"
+				android:id="@+id/bass_boost_level"
+				android:max="1000" />
+		</LinearLayout>
+
+		<LinearLayout
+			android:orientation="vertical"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:layout_gravity="right"
-			android:id="@+id/reverb_spinner" />
+			android:paddingTop="10dp"
+			android:paddingBottom="10dp">
+
+			<android.support.v7.widget.SwitchCompat
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginBottom="5dp"
+				android:text="@string/reverb_switch"
+				android:id="@+id/reverb_switch"
+				android:textSize="@dimen/preference_text_size" />
+
+			<Spinner
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_gravity="right"
+				android:id="@+id/reverb_spinner" />
+		</LinearLayout>
+
+		<LinearLayout
+			android:id="@+id/loudness_wrapper"
+			android:orientation="vertical"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:paddingTop="10dp"
+			android:paddingBottom="10dp">
+
+			<android.support.v7.widget.SwitchCompat
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginBottom="5dp"
+				android:text="@string/loudness_switch"
+				android:id="@+id/loudness_switch"
+				android:textSize="@dimen/preference_text_size" />
+
+			<SeekBar
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_gravity="right"
+				android:id="@+id/loudness_level"
+				android:max="5000" />
+		</LinearLayout>
+
+		<LinearLayout
+			android:orientation="vertical"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:paddingTop="10dp">
+
+			<android.support.v7.widget.SwitchCompat
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginBottom="5dp"
+				android:text="@string/equalizer_switch"
+				android:id="@+id/equalizer_switch"
+				android:textSize="@dimen/preference_text_size" />
+
+			<TableLayout
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:layout_gravity="right"
+				android:stretchColumns="1"
+				android:id="@+id/equalizer_container" />
+		</LinearLayout>
 	</LinearLayout>
-
-	<LinearLayout
-		android:id="@+id/loudness_wrapper"
-		android:orientation="vertical"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:paddingTop="10dp"
-		android:paddingBottom="10dp">
-
-		<android.support.v7.widget.SwitchCompat
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:layout_marginBottom="5dp"
-			android:text="@string/loudness_switch"
-			android:id="@+id/loudness_switch"
-			android:textSize="@dimen/preference_text_size" />
-
-		<SeekBar
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:layout_gravity="right"
-			android:id="@+id/loudness_level"
-			android:max="5000" />
-	</LinearLayout>
-
-	<LinearLayout
-		android:orientation="vertical"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:paddingTop="10dp">
-
-		<android.support.v7.widget.SwitchCompat
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:layout_marginBottom="5dp"
-			android:text="@string/equalizer_switch"
-			android:id="@+id/equalizer_switch"
-			android:textSize="@dimen/preference_text_size" />
-
-		<TableLayout
-			android:layout_width="match_parent"
-			android:layout_height="match_parent"
-			android:layout_gravity="right"
-			android:stretchColumns="1"
-			android:id="@+id/equalizer_container" />
-	</LinearLayout>
-</LinearLayout>
+</ScrollView>
