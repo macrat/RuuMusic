@@ -52,7 +52,6 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 	public final static String ACTION_SEEK = "jp.blanktar.ruumusic.SEEK";
 	public final static String ACTION_REPEAT = "jp.blanktar.ruumusic.REPEAT";
 	public final static String ACTION_SHUFFLE = "jp.blanktar.ruumusic.SHUFFLE";
-	public final static String ACTION_ROOT_CHANGED = "jp.blanktar.ruumusic.ROOT_CHANGED";
 	public final static String ACTION_PING = "jp.blanktar.ruumusic.PING";
 	public final static String ACTION_STATUS = "jp.blanktar.ruumusic.STATUS";
 	public final static String ACTION_FAILED_PLAY = "jp.blanktar.ruumusic.FAILED_PLAY";
@@ -253,9 +252,6 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 				case ACTION_PREV:
 					prev();
 					break;
-				case ACTION_ROOT_CHANGED:
-					updateRoot();
-					break;
 			}
 		}
 		return START_NOT_STICKY;
@@ -277,6 +273,8 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 	public void onSharedPreferenceChanged(@NonNull SharedPreferences preference, @NonNull String key){
 		if(key.startsWith(AudioPreferenceActivity.PREFERENCE_PREFIX)){
 			updateAudioEffect();
+		}else if(key.equals("root_directory")){
+			updateRoot();
 		}
 	}
 

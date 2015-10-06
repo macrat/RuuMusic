@@ -145,9 +145,6 @@ public class MainActivity extends AppCompatActivity{
 					.putString("root_directory", rootPath)
 					.apply();
 
-			startService((new Intent(getApplicationContext(), RuuService.class))
-					.setAction(RuuService.ACTION_ROOT_CHANGED));
-
 			playlist.updateRoot();
 			player.updateRoot();
 
