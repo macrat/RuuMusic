@@ -19,6 +19,8 @@ import android.media.audiofx.Equalizer;
 import android.media.audiofx.PresetReverb;
 import android.os.Build;
 
+import android.util.Log;
+
 
 public class AudioPreferenceActivity extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener{
 	public final static String PREFERENCE_PREFIX = "audio_";
@@ -185,6 +187,19 @@ public class AudioPreferenceActivity extends AppCompatActivity implements Compou
 		eq.release();
 
 		setEqualizerEnabled(getPreference(PREFERENCE_EQUALIZER_ENABLED, false));
+	}
+
+	@Override
+	public void onWindowFocusChanged(boolean hasFocus){
+		super.onWindowFocusChanged(hasFocus);
+		int maxWidth = (int)(600 * getResources().getDisplayMetrics().density);
+		int currentWidth = findViewById(R.id.bass_boost_level).getWidth();
+		if(currentWidth > maxWidth){
+			findViewById(R.id.bass_boost_level).setPadding(currentWidth - maxWidth, 0, 0, 0);
+			findViewById(R.id.reverb_spinner).setPadding(currentWidth - maxWidth, 0, 0, 0);
+			findViewById(R.id.loudness_level).setPadding(currentWidth - maxWidth, 0, 0, 0);
+			findViewById(R.id.equalizer_container).setPadding(currentWidth - maxWidth, 0, 0, 0);
+		}
 	}
 
 	@Override

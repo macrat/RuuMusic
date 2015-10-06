@@ -31,6 +31,7 @@
 		<SeekBar
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
+			android:layout_gravity="right"
 			android:id="@+id/bass_boost_level"
 			android:max="1000" />
 	</LinearLayout>
@@ -53,6 +54,7 @@
 		<Spinner
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
+			android:layout_gravity="right"
 			android:id="@+id/reverb_spinner" />
 	</LinearLayout>
 
@@ -75,6 +77,7 @@
 		<SeekBar
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
+			android:layout_gravity="right"
 			android:id="@+id/loudness_level"
 			android:max="5000" />
 	</LinearLayout>
@@ -96,6 +99,7 @@
 		<TableLayout
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
+			android:layout_gravity="right"
 			android:stretchColumns="1"
 			android:id="@+id/equalizer_container" />
 	</LinearLayout>
