@@ -47,11 +47,11 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 		lv.setOnItemClickListener(new AdapterView.OnItemClickListener(){
 			@Override
 			public void onItemClick(@NonNull AdapterView<?> parent, @Nullable View view, int position, long id){
-				RuuListItem selected = (RuuListItem)lv.getItemAtPosition(position);
-				if(selected.file.isDirectory()){
-					changeDir((RuuDirectory)selected.file);
+				RuuFileBase selected = (RuuFileBase)lv.getItemAtPosition(position);
+				if(selected.isDirectory()){
+					changeDir((RuuDirectory)selected);
 				}else{
-					changeMusic((RuuFile)selected.file);
+					changeMusic((RuuFile)selected);
 				}
 			}
 		});
@@ -304,29 +304,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 
 
 	@UiThread
-	public class RuuListItem{
-		public final RuuFileBase file;
-		public final String text;
-		public final boolean isUpperDir;
-
-		public RuuListItem(@NonNull RuuFileBase file, @Nullable String text, boolean isUpperDir){
-			this.file = file;
-			this.text = text;
-			this.isUpperDir = isUpperDir;
-		}
-
-		public RuuListItem(@NonNull RuuFile file){
-			this(file, file.getName(), false);
-		}
-
-		public RuuListItem(@NonNull RuuDirectory dir){
-			this(dir, dir.getName() + "/", false);
-		}
-	}
-
-
-	@UiThread
-	class RuuAdapter extends ArrayAdapter<RuuListItem>{
+	class RuuAdapter extends ArrayAdapter<RuuFileBase>{
 		private DirectoryInfo dirInfo;
 		public int musicNum = 0;
 		public int directoryNum = 0;
@@ -339,23 +317,19 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			clear();
 			searchQuery = null;
 			this.dirInfo = dirInfo;
-			musicNum = 0;
-			directoryNum = 0;
 
 			RuuDirectory rootDirectory = RuuDirectory.rootDirectory(getContext());
 			if(!rootDirectory.equals(dirInfo.path) && rootDirectory.contains(dirInfo.path)){
-				add(new RuuListItem(dirInfo.path.getParent(), null, true));
+				add(dirInfo.path.getParent());
 			}
 
-			for(RuuDirectory dir: dirInfo.path.getDirectories()){
-				directoryNum++;
-				add(new RuuListItem(dir));
-			}
+			List<RuuDirectory> directories = dirInfo.path.getDirectories();
+			directoryNum = directories.size();
+			addAll(directories);
 
-			for(RuuFile file: dirInfo.path.getMusics()){
-				musicNum++;
-				add(new RuuListItem(file));
-			}
+			List<RuuFile> musics = dirInfo.path.getMusics();
+			musicNum = musics.size();
+			addAll(musics);
 		}
 
 		public void setSearchResults(@NonNull List<RuuFileBase> results){
@@ -363,13 +337,13 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			musicNum = 0;
 			directoryNum = 0;
 
+			addAll(results);
+
 			for(RuuFileBase file: results){
 				if(file.isDirectory()){
 					directoryNum++;
-					add(new RuuListItem((RuuDirectory)file));
 				}else{
 					musicNum++;
-					add(new RuuListItem((RuuFile)file));
 				}
 			}
 		}
@@ -392,8 +366,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 				return 2;
 			}
 	
-			RuuListItem item = getItem(position);
-			if(item.isUpperDir){
+			if(getItem(position).isDirectory() && ((RuuDirectory)getItem(position)).contains(dirInfo.path)){
 				return 1;
 			}else{
 				return 0;
@@ -403,21 +376,21 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 		@Override
 		@NonNull
 		public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent){
-			RuuListItem item = getItem(position);
+			RuuFileBase item = getItem(position);
 
 			if(searchQuery != null){
 				if(convertView == null){
 					convertView = ((LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.list_item_search, null);
 				}
 
-				((TextView)convertView.findViewById(R.id.search_name)).setText(item.text);
+				((TextView)convertView.findViewById(R.id.search_name)).setText(item.getName() + (item.isDirectory() ? "/" : ""));
 				try{
-					((TextView)convertView.findViewById(R.id.search_path)).setText(item.file.getParent().getRuuPath());
+					((TextView)convertView.findViewById(R.id.search_path)).setText(item.getParent().getRuuPath());
 				}catch(RuuFileBase.CanNotOpen | RuuFileBase.OutOfRootDirectory e){
 					((TextView)convertView.findViewById(R.id.search_path)).setText("");
 				}
 			}else{
-				if(item.isUpperDir){
+				if(item.isDirectory() && ((RuuDirectory)item).contains(dirInfo.path)){
 					if(convertView == null){
 						convertView = ((LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.list_item_upper, null);
 					}
@@ -426,7 +399,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 						convertView = ((LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.list_item, null);
 					}
 
-					((TextView)convertView).setText(item.text);
+					((TextView)convertView).setText(item.getName() + (item.isDirectory() ? "/" : ""));
 				}
 			}
 
