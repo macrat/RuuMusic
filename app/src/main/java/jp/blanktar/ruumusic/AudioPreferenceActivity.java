@@ -19,8 +19,6 @@ import android.media.audiofx.Equalizer;
 import android.media.audiofx.PresetReverb;
 import android.os.Build;
 
-import android.util.Log;
-
 
 public class AudioPreferenceActivity extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener{
 	public final static String PREFERENCE_PREFIX = "audio_";
@@ -47,10 +45,10 @@ public class AudioPreferenceActivity extends AppCompatActivity implements Compou
 
 		((SwitchCompat)findViewById(R.id.bass_boost_switch)).setOnCheckedChangeListener(this);
 		((SwitchCompat)findViewById(R.id.bass_boost_switch)).setChecked(getPreference(PREFERENCE_BASSBOOST_ENABLED, false));
+
 		findViewById(R.id.bass_boost_level).setEnabled(getPreference(PREFERENCE_BASSBOOST_ENABLED, false));
-		SeekBar bassboost_level = (SeekBar)findViewById(R.id.bass_boost_level);
-		bassboost_level.setProgress(getPreference(PREFERENCE_BASSBOOST_LEVEL, 0));
-		bassboost_level.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
+		((SeekBar)findViewById(R.id.bass_boost_level)).setProgress(getPreference(PREFERENCE_BASSBOOST_LEVEL, 0));
+		((SeekBar)findViewById(R.id.bass_boost_level)).setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
 			@Override
 			public void onProgressChanged(@Nullable SeekBar seekBar, int progress, boolean fromUser){
 				putPreference(PREFERENCE_BASSBOOST_LEVEL, progress);
@@ -92,34 +90,30 @@ public class AudioPreferenceActivity extends AppCompatActivity implements Compou
 				spinner.setSelection(4);
 				break;
 		}
-		spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+		spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
 			@Override
-			public void onItemSelected(@Nullable AdapterView<?> parent, View view, int position, long id) {
-				int preset = -1;
+			public void onItemSelected(@Nullable AdapterView<?> parent, @Nullable View view, int position, long id){
 				switch(position){
 					case 0:
-						preset = PresetReverb.PRESET_LARGEHALL;
+						putPreference(PREFERENCE_REVERB_TYPE, PresetReverb.PRESET_LARGEHALL);
 						break;
 					case 1:
-						preset = PresetReverb.PRESET_MEDIUMHALL;
+						putPreference(PREFERENCE_REVERB_TYPE, PresetReverb.PRESET_MEDIUMHALL);
 						break;
 					case 2:
-						preset = PresetReverb.PRESET_LARGEROOM;
+						putPreference(PREFERENCE_REVERB_TYPE, PresetReverb.PRESET_LARGEROOM);
 						break;
 					case 3:
-						preset = PresetReverb.PRESET_MEDIUMROOM;
+						putPreference(PREFERENCE_REVERB_TYPE, PresetReverb.PRESET_MEDIUMROOM);
 						break;
 					case 4:
-						preset = PresetReverb.PRESET_SMALLROOM;
+						putPreference(PREFERENCE_REVERB_TYPE, PresetReverb.PRESET_SMALLROOM);
 						break;
-				}
-				if(preset >= 0){
-					putPreference(PREFERENCE_REVERB_TYPE, preset);
 				}
 			}
 
 			@Override
-			public void onNothingSelected(AdapterView<?> parent) {
+			public void onNothingSelected(@Nullable AdapterView<?> parent) {
 			}
 		});
 
@@ -130,9 +124,9 @@ public class AudioPreferenceActivity extends AppCompatActivity implements Compou
 			((SwitchCompat)findViewById(R.id.loudness_switch)).setOnCheckedChangeListener(this);
 			((SwitchCompat)findViewById(R.id.loudness_switch)).setChecked(getPreference(PREFERENCE_LOUDNESS_ENABLED, false));
 			findViewById(R.id.loudness_level).setEnabled(getPreference(PREFERENCE_LOUDNESS_ENABLED, false));
-			SeekBar loudness_level = (SeekBar)findViewById(R.id.loudness_level);
-			loudness_level.setProgress(getPreference(PREFERENCE_LOUDNESS_LEVEL, 0));
-			loudness_level.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
+			
+			((SeekBar)findViewById(R.id.loudness_level)).setProgress(getPreference(PREFERENCE_LOUDNESS_LEVEL, 0));
+			((SeekBar)findViewById(R.id.loudness_level)).setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
 				@Override
 				public void onProgressChanged(@Nullable SeekBar seekBar, int progress, boolean fromUser){
 					putPreference(PREFERENCE_LOUDNESS_LEVEL, progress);
@@ -159,6 +153,7 @@ public class AudioPreferenceActivity extends AppCompatActivity implements Compou
 			ViewGroup table = (ViewGroup)getLayoutInflater().inflate(R.layout.equalizer_preference_row, (ViewGroup)findViewById(R.id.equalizer_container));
 			ViewGroup newview = (ViewGroup)table.getChildAt(table.getChildCount()-1);
 			((TextView)newview.findViewById(R.id.equalizer_freq)).setText(eq.getCenterFreq(i)/1000 + "Hz");
+
 			SeekBar seekBar = (SeekBar)newview.findViewById(R.id.equalizer_bar);
 			seekBar.setMax(equalizer_max - equalizer_min);
 			seekBar.setProgress(getPreference(PREFERENCE_EQUALIZER_VALUE + i, (equalizer_max + equalizer_min)/2) - equalizer_min);
