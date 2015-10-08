@@ -4,19 +4,19 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.IntRange;
 import android.support.annotation.UiThread;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
+import android.content.Intent;
+import android.media.AudioManager;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.support.v4.view.ViewPager;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.content.Intent;
-import android.preference.PreferenceManager;
-import android.media.AudioManager;
+import android.support.v4.view.ViewPager;
 import android.view.KeyEvent;
-import android.support.v7.widget.SearchView;
-import android.support.v4.view.MenuItemCompat;
+import android.view.Menu;
+import android.view.MenuItem;
 
 
 @UiThread

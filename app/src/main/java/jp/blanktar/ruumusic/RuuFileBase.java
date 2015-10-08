@@ -2,13 +2,13 @@ package jp.blanktar.ruumusic;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.Arrays;
+import java.util.List;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.os.Build;
 import android.content.Context;
+import android.os.Build;
 import android.preference.PreferenceManager;
 
 

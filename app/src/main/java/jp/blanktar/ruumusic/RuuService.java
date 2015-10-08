@@ -1,10 +1,10 @@
 package jp.blanktar.ruumusic;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -12,32 +12,32 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 import android.support.annotation.WorkerThread;
-import android.app.Service;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.BroadcastReceiver;
-import android.os.IBinder;
-import android.media.MediaPlayer;
-import android.os.Handler;
-import android.widget.Toast;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.app.Notification;
 import android.app.NotificationManager;
-import android.content.Context;
-import android.support.v4.app.NotificationCompat;
 import android.app.PendingIntent;
-import android.os.Build;
-import android.media.AudioManager;
+import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
-import android.view.KeyEvent;
-import android.text.TextUtils;
-import android.media.RemoteControlClient;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
+import android.media.AudioManager;
 import android.media.MediaMetadataRetriever;
+import android.media.MediaPlayer;
+import android.media.RemoteControlClient;
 import android.media.audiofx.BassBoost;
-import android.media.audiofx.PresetReverb;
-import android.media.audiofx.LoudnessEnhancer;
 import android.media.audiofx.Equalizer;
+import android.media.audiofx.LoudnessEnhancer;
+import android.media.audiofx.PresetReverb;
+import android.os.Build;
+import android.os.Handler;
+import android.os.IBinder;
+import android.preference.PreferenceManager;
+import android.support.v4.app.NotificationCompat;
+import android.text.TextUtils;
+import android.view.KeyEvent;
+import android.widget.Toast;
 
 
 @WorkerThread
@@ -57,30 +57,32 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 	public final static String ACTION_FAILED_PLAY = "jp.blanktar.ruumusic.FAILED_PLAY";
 	public final static String ACTION_NOT_FOUND = "jp.blanktar.ruumusic.NOT_FOUND";
 
-	private RuuFile path;
-	private MediaPlayer player;
-	private static RemoteControlClient remoteControlClient;
-	private String repeatMode = "off";
-	private boolean shuffleMode = false;
-	private boolean ready = false;
-	private Timer deathTimer;
-	private boolean loadingWait = false;
-	private boolean errored = false;
-	private RuuDirectory recursivePath = null;
-	private String searchQuery = null;
-	private RuuDirectory searchPath = null;
-	private boolean playingFromLastest = true;
 
+	private MediaPlayer player;
+	private MediaPlayer endOfListSE;
+	private MediaPlayer errorSE;
+	private Timer deathTimer;
+	private static RemoteControlClient remoteControlClient;
+
+	private RuuFile path;
+	private String searchQuery = null;
+	private RuuDirectory recursivePath = null;
+	private RuuDirectory searchPath = null;
 	private List<RuuFile> playlist;
 	private int currentIndex;
 
-	private MediaPlayer endOfListSE;
-	private MediaPlayer errorSE;
+	private String repeatMode = "off";
+	private boolean shuffleMode = false;
+	private boolean ready = false;
+	private boolean loadingWait = false;
+	private boolean errored = false;
+	private boolean playingFromLastest = true;
 
 	private BassBoost bassBoost = null;
 	private PresetReverb presetReverb = null;
 	private LoudnessEnhancer loudnessEnhancer = null;
 	private Equalizer equalizer = null;
+
 
 	@Override
 	@Nullable
@@ -894,6 +896,16 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 	}
 
 
+	private final AudioManager.OnAudioFocusChangeListener focusListener = new AudioManager.OnAudioFocusChangeListener(){
+		@Override
+		public void onAudioFocusChange(int focusChange){
+			if(focusChange == AudioManager.AUDIOFOCUS_LOSS){
+				pause();
+			}
+		}
+	};
+
+
 	private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver(){
 		@Override
 		public void onReceive(@Nullable Context context, @NonNull Intent intent){
@@ -1001,14 +1013,4 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 			unregistation(context);
 		}
 	}
-
-
-	private final AudioManager.OnAudioFocusChangeListener focusListener = new AudioManager.OnAudioFocusChangeListener(){
-		@Override
-		public void onAudioFocusChange(int focusChange){
-			if(focusChange == AudioManager.AUDIOFOCUS_LOSS){
-				pause();
-			}
-		}
-	};
 }

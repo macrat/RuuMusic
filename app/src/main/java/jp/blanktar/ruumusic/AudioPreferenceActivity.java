@@ -2,22 +2,22 @@ package jp.blanktar.ruumusic;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.widget.ArrayAdapter;
-import android.widget.Spinner;
-import android.widget.SeekBar;
-import android.widget.TextView;
-import android.support.v7.widget.SwitchCompat;
-import android.widget.CompoundButton;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.preference.PreferenceManager;
 import android.media.MediaPlayer;
 import android.media.audiofx.Equalizer;
 import android.media.audiofx.PresetReverb;
 import android.os.Build;
+import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SwitchCompat;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.CompoundButton;
+import android.widget.SeekBar;
+import android.widget.Spinner;
+import android.widget.TextView;
 
 
 public class AudioPreferenceActivity extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener{

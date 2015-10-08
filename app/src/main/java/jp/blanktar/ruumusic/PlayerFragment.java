@@ -8,38 +8,41 @@ import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.annotation.FloatRange;
 import android.support.annotation.UiThread;
-import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.Bundle;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.os.Handler;
-import android.widget.TextView;
 import android.widget.SeekBar;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
+import android.widget.TextView;
 import android.widget.Toast;
 
 
 @UiThread
 public class PlayerFragment extends Fragment{
 	private RuuFile currentMusic;
-	private boolean playing;
+	private String searchQuery = null;
+	private RuuDirectory searchPath = null;
+	private RuuDirectory recursivePath;
+
 	private int duration = -1;
 	private long basetime = -1;
 	private int current = -1;
+
+	private boolean playing;
 	private String repeatMode;
 	private boolean shuffleMode;
-	private RuuDirectory recursivePath;
-	private Timer updateProgressTimer;
 	private boolean seeking = false;
-	private String searchQuery = null;
-	private RuuDirectory searchPath = null;
+
+	private Timer updateProgressTimer;
 
 
 	@Override

@@ -1,10 +1,10 @@
 package jp.blanktar.ruumusic;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.ArrayList;
-import java.util.Map;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 import android.support.annotation.NonNull;
 import android.content.Context;
@@ -35,6 +35,7 @@ public class RuuDirectory extends RuuFileBase{
 	private ArrayList<File> musicsCache = null;
 	private ArrayList<File> directoriesCache = null;
 	private File[] files = null;
+
 
 	private RuuDirectory(@NonNull Context context, @NonNull String path) throws RuuFileBase.CanNotOpen{
 		super(context, path);
