@@ -24,6 +24,10 @@ makepng ic_next 32 ic_next_for_notif
 
 makepng ic_upper_directory 20
 
+makepng ic_search 24
+makepng ic_play_all 24
+makepng ic_preference 24
+
 for x in `ls ic_{repeat,shuffle}_*`; do
 	makepng `echo $x | sed -e 's/\.svg$//'` 30
 done

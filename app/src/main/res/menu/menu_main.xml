@@ -11,26 +11,27 @@
 		  android:title="@string/action_unset_root"
 		  app:showAsAction="never"/>
 
-	<item android:id="@+id/action_recursive_play"
-		  android:title="@string/action_recursive_play"
-		  app:showAsAction="never"/>
-
     <item
         android:id="@+id/menu_search"
-        android:icon="@android:drawable/ic_menu_search"
+        android:icon="@drawable/ic_search"
         android:title="@string/menu_search"
         app:actionViewClass="android.support.v7.widget.SearchView"
         app:showAsAction="ifRoom" />
 
 	<item
 		android:id="@+id/action_search_play"
-		android:icon="@android:drawable/ic_media_play"
+		android:icon="@drawable/ic_play_all"
 		android:title="@string/menu_search_play"
 		app:showAsAction="ifRoom"/>
 
+	<item android:id="@+id/action_recursive_play"
+		  android:icon="@drawable/ic_play_all"
+		  android:title="@string/action_recursive_play"
+		  app:showAsAction="ifRoom"/>
+
 	<item
 		android:id="@+id/action_audio_preference"
-		android:icon="@android:drawable/ic_menu_preferences"
+		android:icon="@drawable/ic_preference"
 		android:title="@string/menu_audio_preference"
 		app:showAsAction="ifRoom"/>
 </menu>
