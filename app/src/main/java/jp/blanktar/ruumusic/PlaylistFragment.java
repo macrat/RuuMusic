@@ -325,11 +325,15 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 
 			List<RuuDirectory> directories = dirInfo.path.getDirectories();
 			directoryNum = directories.size();
-			addAll(directories);
+			for(RuuDirectory dir: directories){
+				add(dir);
+			}
 
 			List<RuuFile> musics = dirInfo.path.getMusics();
 			musicNum = musics.size();
-			addAll(musics);
+			for(RuuFile music: musics){
+				add(music);
+			}
 		}
 
 		public void setSearchResults(@NonNull List<RuuFileBase> results){
@@ -337,7 +341,9 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			musicNum = 0;
 			directoryNum = 0;
 
-			addAll(results);
+			for(RuuFileBase result: results){
+				add(result);
+			}
 
 			for(RuuFileBase file: results){
 				if(file.isDirectory()){
