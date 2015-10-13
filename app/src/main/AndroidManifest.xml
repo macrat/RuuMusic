@@ -23,14 +23,14 @@
             </intent-filter>
         </activity>
 
-		<activity
-			android:name=".AudioPreferenceActivity"
-			android:label="@string/title_activity_audio_preference"
-			android:parentActivityName=".MainActivity" >
-			<meta-data
-				android:name="android.support.PARENT_ACTIVITY"
-				android:value="jp.blanktar.ruumusic.MainActivity" />
-		</activity>
+        <activity
+            android:name=".AudioPreferenceActivity"
+            android:label="@string/title_activity_audio_preference"
+            android:parentActivityName=".MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="jp.blanktar.ruumusic.MainActivity" />
+        </activity>
 
         <service
             android:name=".RuuService"
@@ -42,6 +42,17 @@
             <intent-filter>
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
             </intent-filter>
+        </receiver>
+
+        <receiver android:name=".PlayPauseWidget" android:label="@string/playpause_widget_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+				<action android:name="jp.blanktar.ruumusic.STATUS" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/play_pause_widget_info" />
         </receiver>
     </application>
 </manifest>

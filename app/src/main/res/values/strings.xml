@@ -2,6 +2,8 @@
 	<string name="app_name">RuuMusic</string>
 	<string name="title_activity_audio_preference">AudioPreference</string>
 
+	<string name="playpause_widget_name">Play / Pause</string>
+
 	<string name="action_set_root">Set here as root directory</string>
 	<string name="action_unset_root">Unset root directory</string>
 	<string name="action_recursive_play">Play under here</string>
