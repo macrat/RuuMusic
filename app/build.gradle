@@ -6,7 +6,7 @@ android {
 	defaultConfig {
 		applicationId "jp.blanktar.ruumusic"
 		minSdkVersion 10
-		targetSdkVersion 23
+		targetSdkVersion 22
 		versionCode 9
 		versionName "0.3"
 	}
