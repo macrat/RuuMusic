@@ -5,6 +5,7 @@
 	<string name="playpause_widget_name">Play / Pause</string>
 	<string name="skipnext_widget_name">Skip next</string>
 	<string name="skipprev_widget_name">Skip prev</string>
+	<string name="musicname_widget_name">Music name</string>
 
 	<string name="action_set_root">Set here as root directory</string>
 	<string name="action_unset_root">Unset root directory</string>
@@ -41,4 +42,6 @@
 		<item>Medium Room</item>
 		<item>Small Room</item>
 	</string-array>
+
+	<string name="musicname_widget_nodata">NoData</string>
 </resources>

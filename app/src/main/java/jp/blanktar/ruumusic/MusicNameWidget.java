@@ -1,31 +1,36 @@
 package jp.blanktar.ruumusic;
 
+import java.io.File;
+
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.widget.RemoteViews;
 
 
-public class PlayPauseWidget extends AppWidgetProvider{
-	private boolean playing = false;
+public class MusicNameWidget extends AppWidgetProvider{
+	private String musicName = null;
 
 
 	@Override
 	public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds){
-		RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.play_pause_widget);
+		RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.music_name_widget);
 
-		views.setOnClickPendingIntent(R.id.widget_play_pause, PendingIntent.getService(
+		views.setOnClickPendingIntent(R.id.widget_music_name, PendingIntent.getActivity(
 				context,
 				0,
-				(new Intent(context, RuuService.class)).setAction(RuuService.ACTION_PLAY_PAUSE),
+				(new Intent(context, MainActivity.class)).setAction(MainActivity.ACTION_OPEN_PLAYER),
 				0
 		));
 
-		views.setImageViewResource(R.id.widget_play_pause, playing ? R.drawable.ic_pause : R.drawable.ic_play);
+		if(musicName == null){
+			views.setTextViewText(R.id.widget_music_name, context.getString(R.string.musicname_widget_nodata));
+		}else{
+			views.setTextViewText(R.id.widget_music_name, musicName);
+		}
 
 		for(int id: appWidgetIds){
 			appWidgetManager.updateAppWidget(id, views);
@@ -41,9 +46,15 @@ public class PlayPauseWidget extends AppWidgetProvider{
 				context.startService((new Intent(context, RuuService.class)).setAction(RuuService.ACTION_PING));
 				break;
 			case RuuService.ACTION_STATUS:
-				playing = intent.getBooleanExtra("playing", false);
+				String path = intent.getStringExtra("path");
+				if(path == null){
+					musicName = null;
+				}else{
+					musicName = (new File(path)).getName();
+				}
+
 				AppWidgetManager awm = AppWidgetManager.getInstance(context);
-				onUpdate(context, awm, awm.getAppWidgetIds(new ComponentName(context, PlayPauseWidget.class)));
+				onUpdate(context, awm, awm.getAppWidgetIds(new ComponentName(context, MusicNameWidget.class)));
 				break;
 		}
 	}

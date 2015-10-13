@@ -72,5 +72,16 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/skip_prev_widget_info" />
         </receiver>
+
+        <receiver android:name=".MusicNameWidget" android:label="@string/musicname_widget_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+				<action android:name="jp.blanktar.ruumusic.STATUS" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/music_name_widget_info" />
+        </receiver>
     </application>
 </manifest>

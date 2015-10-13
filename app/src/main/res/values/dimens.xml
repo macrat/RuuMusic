@@ -18,4 +18,6 @@
 	<dimen name="status_indicator_size">18sp</dimen>
 
 	<dimen name="preference_text_size">20sp</dimen>
+
+	<dimen name="musicname_widget_text_size">20sp</dimen>
 </resources>

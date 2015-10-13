@@ -1,0 +1,8 @@
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:padding="@dimen/widget_margin"
+				android:id="@+id/widget_music_name"
+				android:gravity="center"
+				android:textSize="@dimen/musicname_widget_text_size"
+				android:text="@string/musicname_widget_nodata" />

@@ -21,6 +21,8 @@ import android.view.MenuItem;
 
 @UiThread
 public class MainActivity extends AppCompatActivity{
+	public final static String ACTION_OPEN_PLAYER = "jp.blanktar.ruumusic.OPEN_PLAYER";
+
 	private ViewPager viewPager;
 	private PlayerFragment player;
 	private PlaylistFragment playlist;
@@ -69,7 +71,7 @@ public class MainActivity extends AppCompatActivity{
 			}
 		});
 
-		if("jp.blanktar.ruumusic.OPEN_PLAYER".equals(getIntent().getAction())){
+		if(ACTION_OPEN_PLAYER.equals(getIntent().getAction())){
 			viewPager.setCurrentItem(0);
 		}else{
 			viewPager.setCurrentItem(PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
