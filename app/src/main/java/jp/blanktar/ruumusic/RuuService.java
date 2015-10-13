@@ -205,13 +205,11 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 			switch(intent.getAction()){
 				case ACTION_PLAY:
 					String newpath = intent.getStringExtra("path");
-					if(newpath != null){
-						if(recursivePath != null){
-							recursivePath = null;
-							playlist = null;
-						}
+					if(newpath != null && (recursivePath != null || searchPath != null)){
+						recursivePath = null;
 						searchPath = null;
 						searchQuery = null;
+						playlist = null;
 					}
 					play(newpath);
 					playingFromLastest = false;
