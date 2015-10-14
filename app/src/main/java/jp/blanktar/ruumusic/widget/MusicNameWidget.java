@@ -2,6 +2,9 @@ package jp.blanktar.ruumusic.widget;
 
 import java.io.File;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.annotation.UiThread;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
@@ -15,12 +18,13 @@ import jp.blanktar.ruumusic.client.MainActivity;
 import jp.blanktar.ruumusic.service.RuuService;
 
 
+@UiThread
 public class MusicNameWidget extends AppWidgetProvider{
-	private String musicName = null;
+	@Nullable private String musicName = null;
 
 
 	@Override
-	public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds){
+	public void onUpdate(@NonNull Context context, @NonNull AppWidgetManager appWidgetManager, int[] appWidgetIds){
 		RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.music_name_widget);
 
 		views.setOnClickPendingIntent(R.id.widget_music_name, PendingIntent.getActivity(
@@ -42,7 +46,7 @@ public class MusicNameWidget extends AppWidgetProvider{
 	}
 
 	@Override
-	public void onReceive(Context context, Intent intent){
+	public void onReceive(@NonNull Context context, @NonNull Intent intent){
 		super.onReceive(context, intent);
 
 		switch(intent.getAction()){
