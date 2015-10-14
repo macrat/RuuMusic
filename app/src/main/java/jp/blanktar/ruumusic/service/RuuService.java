@@ -1,10 +1,6 @@
 package jp.blanktar.ruumusic.service;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -35,7 +31,6 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
-import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.widget.Toast;
 
@@ -71,12 +66,7 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 	private Timer deathTimer;
 	private static RemoteControlClient remoteControlClient;
 
-	private RuuFile path;
-	private String searchQuery = null;
-	private RuuDirectory recursivePath = null;
-	private RuuDirectory searchPath = null;
-	private List<RuuFile> playlist;
-	private int currentIndex;
+	private Playlist playlist;
 
 	private String repeatMode = "off";
 	private boolean shuffleMode = false;
@@ -110,28 +100,41 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 		String recursive = preference.getString("recursive_path", null);
 		if(recursive != null){
 			try{
-				recursivePath = RuuDirectory.getInstance(getApplicationContext(), recursive);
-			}catch(RuuFileBase.CanNotOpen e){
-				recursivePath = null;
+				playlist = Playlist.getRecursive(getApplicationContext(), recursive);
+			}catch(RuuFileBase.CanNotOpen | Playlist.EmptyDirectory e){
+				playlist = null;
 			}
 		}
 
-		searchQuery = preference.getString("search_query", null);
-		String searchPathStr = preference.getString("search_path", null);
-		if(searchQuery != null && searchPathStr != null){
-			try{
-				searchPath = RuuDirectory.getInstance(getApplicationContext(), searchPathStr);
-				playSearch(searchPath, searchQuery);
-			}catch(RuuFileBase.CanNotOpen e){
-				searchPath = null;
-				searchQuery = null;
+		if(playlist == null){
+			String searchQuery = preference.getString("search_query", null);
+			String searchPath = preference.getString("search_path", null);
+			if(searchQuery != null && searchPath != null){
+				try{
+					playlist = Playlist.getSearchResults(getApplicationContext(), searchPath, searchQuery);
+				}catch(RuuFileBase.CanNotOpen | Playlist.EmptyDirectory e){
+					playlist = null;
+				}
 			}
 		}
 
 		String last_play = preference.getString("last_play_music", "");
 		if(!last_play.equals("")){
-			try{
-				load(new RuuFile(getApplicationContext(), last_play), new MediaPlayer.OnPreparedListener(){
+			if(playlist != null){
+				try{
+					playlist.goMusic(new RuuFile(getApplicationContext(), last_play));
+				}catch(RuuFileBase.CanNotOpen | Playlist.NotFound e){
+					playlist = null;
+				}
+			}else{
+				try{
+					playlist = Playlist.getByMusicPath(getApplicationContext(), last_play);
+				}catch(RuuFileBase.CanNotOpen | Playlist.EmptyDirectory e){
+					playlist = null;
+				}
+			}
+			if(playlist != null){
+				load(new MediaPlayer.OnPreparedListener(){
 					@Override
 					public void onPrepared(@Nullable MediaPlayer mp){
 						ready = true;
@@ -144,8 +147,6 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 						}
 					}
 				});
-			}catch(RuuFileBase.CanNotOpen e){
-				removeSavedStatus();
 			}
 		}
 
@@ -156,15 +157,21 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 					player.pause();
 					play();
 				}else{
-					if(playlist == null || currentIndex + 1 >= playlist.size() && repeatMode.equals("off")){
-						player.pause();
-						player.seekTo(0);
-						pause();
-					}else{
-						if(shuffleMode && currentIndex + 1 >= playlist.size()){
-							shufflePlay();
+					try{
+						playlist.goNext();
+						playCurrent();
+					}catch(Playlist.EndOfList e){
+						if(repeatMode.equals("off")){
+							player.pause();
+							player.seekTo(0);
+							pause();
 						}else{
-							play(playlist.get((currentIndex + 1) % playlist.size()));
+							if(shuffleMode){
+								playlist.shuffle(false);
+							}else{
+								playlist.goFirst();
+							}
+							playCurrent();
 						}
 					}
 				}
@@ -176,12 +183,12 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 			public boolean onError(@Nullable MediaPlayer mp, int what, int extra){
 				player.reset();
 
-				if(!errored && path != null){
-					String realName = path.getRealPath();
+				if(!errored && playlist != null){
+					String realName = playlist.getCurrent().getRealPath();
 
 					Intent sendIntent = new Intent();
 					sendIntent.setAction(ACTION_FAILED_PLAY);
-					sendIntent.putExtra("path", (realName == null ? path.getFullPath() : realName));
+					sendIntent.putExtra("path", (realName == null ? playlist.getCurrent().getFullPath() : realName));
 					getBaseContext().sendBroadcast(sendIntent);
 					sendStatus();
 
@@ -211,25 +218,37 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 		if(intent != null){
 			switch(intent.getAction()){
 				case ACTION_PLAY:
-					String newpath = intent.getStringExtra("path");
-					if(newpath != null && (recursivePath != null || searchPath != null)){
-						recursivePath = null;
-						searchPath = null;
-						searchQuery = null;
-						playlist = null;
-					}
-					play(newpath);
-					playingFromLastest = false;
-					errored = false;
+					play(intent.getStringExtra("path"));
 					break;
 				case ACTION_PLAY_RECURSIVE:
-					playRecursive(intent.getStringExtra("path"));
-					searchQuery = null;
-					searchPath = null;
+					try{
+						playlist = Playlist.getRecursive(getApplicationContext(), intent.getStringExtra("path"));
+					}catch(RuuFileBase.CanNotOpen e){
+						showToast(String.format(getString(R.string.cant_open_dir), intent.getStringExtra("path")));
+						break;
+					}catch(Playlist.EmptyDirectory e){
+						showToast(String.format(getString(R.string.has_not_music), intent.getStringExtra("path")));
+						break;
+					}
+					if(shuffleMode){
+						playlist.shuffle(true);
+					}
+					playCurrent();
 					break;
 				case ACTION_PLAY_SEARCH:
-					playSearch(intent.getStringExtra("path"), intent.getStringExtra("query"));
-					recursivePath = null;
+					try{
+						playlist = Playlist.getSearchResults(getApplicationContext(), intent.getStringExtra("path"), intent.getStringExtra("query"));
+					}catch(RuuFileBase.CanNotOpen e){
+						showToast(String.format(getString(R.string.cant_open_dir), intent.getStringExtra("path")));
+						break;
+					}catch(Playlist.EmptyDirectory e){
+						showToast(String.format(getString(R.string.has_not_music), intent.getStringExtra("path")));
+						break;
+					}
+					if(shuffleMode){
+						playlist.shuffle(true);
+					}
+					playCurrent();
 					break;
 				case ACTION_PAUSE:
 					pause();
@@ -289,20 +308,16 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 		Intent sendIntent = new Intent();
 
 		sendIntent.setAction(ACTION_STATUS);
-		if(path != null){
-			sendIntent.putExtra("path", path.getFullPath());
-		}
+
 		sendIntent.putExtra("repeat", repeatMode);
 		sendIntent.putExtra("shuffle", shuffleMode);
 
-		if(recursivePath == null){
-			sendIntent.putExtra("recursivePath", (String)null);
-		}else{
-			sendIntent.putExtra("recursivePath", recursivePath.getFullPath());
+		if(playlist != null){
+			sendIntent.putExtra("path", playlist.getCurrent().getFullPath());
+			sendIntent.putExtra("recursivePath", playlist.type == Playlist.Type.RECURSIVE ? playlist.path.getFullPath() : null);
+			sendIntent.putExtra("searchPath", playlist.type == Playlist.Type.SEARCH ? playlist.path.getFullPath() : null);
+			sendIntent.putExtra("searchQuery", playlist.query);
 		}
-
-		sendIntent.putExtra("searchQuery", searchQuery);
-		sendIntent.putExtra("searchPath", searchPath == null ? null : searchPath.getFullPath());
 
 		if(ready){
 			sendIntent.putExtra("playing", player.isPlaying());
@@ -315,17 +330,13 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 	}
 
 	private void saveStatus(){
-		if(path != null){
-			String recursive = null;
-			if(recursivePath != null){
-				recursive = recursivePath.getFullPath();
-			}
+		if(playlist != null){
 			PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit()
-					.putString("last_play_music", path.getFullPath())
+					.putString("last_play_music", playlist.getCurrent().getFullPath())
 					.putInt("last_play_position", player.getCurrentPosition())
-					.putString("recursive_path", recursive)
-					.putString("search_query", searchQuery)
-					.putString("search_path", searchPath == null ? null : searchPath.getFullPath())
+					.putString("recursive_path", playlist.type == Playlist.Type.RECURSIVE ? playlist.path.getFullPath() : null)
+					.putString("search_query", playlist.query)
+					.putString("search_path", playlist.type == Playlist.Type.SEARCH ? playlist.path.getFullPath() : null)
 					.apply();
 		}
 	}
@@ -353,16 +364,16 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 
 		String parentPath;
 		try{
-			parentPath = path.getParent().getRuuPath();
-		}catch(RuuFileBase.OutOfRootDirectory | RuuFileBase.CanNotOpen e){
+			parentPath = playlist.path.getRuuPath();
+		}catch(RuuFileBase.OutOfRootDirectory e){
 			parentPath = "";
 		}
 
 		return new NotificationCompat.Builder(getApplicationContext())
 				.setSmallIcon(R.drawable.ic_play_notification)
 				.setColor(0xff333333)
-				.setTicker(path.getName())
-				.setContentTitle(path.getName())
+				.setTicker(playlist.getCurrent().getName())
+				.setContentTitle(playlist.getCurrent().getName())
 				.setContentText(parentPath)
 				.setContentIntent(contentIntent)
 				.setPriority(Notification.PRIORITY_MIN)
@@ -389,7 +400,7 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 
 		stopForeground(true);
 
-		if(Build.VERSION.SDK_INT >= 16 && path != null){
+		if(Build.VERSION.SDK_INT >= 16 && playlist != null){
 			((NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE)).notify(1, makeNotification());
 		}
 	}
@@ -398,12 +409,12 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 		if(remoteControlClient != null && Build.VERSION.SDK_INT >= 14){
 			String pathStr;
 			try{
-				pathStr = path.getParent().getRuuPath();
-			}catch(RuuFileBase.CanNotOpen | RuuFileBase.OutOfRootDirectory e){
+				pathStr = playlist.path.getRuuPath();
+			}catch(RuuFileBase.OutOfRootDirectory e){
 				pathStr = "";
 			}
 			remoteControlClient.editMetadata(true)
-					.putString(MediaMetadataRetriever.METADATA_KEY_TITLE, path.getName())
+					.putString(MediaMetadataRetriever.METADATA_KEY_TITLE, playlist.getCurrent().getName())
 					.putLong(MediaMetadataRetriever.METADATA_KEY_DURATION, player.getDuration())
 					.putString(MediaMetadataRetriever.METADATA_KEY_ALBUM, pathStr)
 					.apply();
@@ -419,7 +430,7 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 			root = null;
 		}
 
-		if(path != null && (root == null || !root.contains(path))){
+		if(playlist != null && (root == null || !root.contains(playlist.path))){
 			if(player.isPlaying()){
 				stopForeground(true);
 			}else{
@@ -429,7 +440,6 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 
 			removeSavedStatus();
 
-			path = null;
 			ready = false;
 			playlist = null;
 
@@ -443,7 +453,7 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 	}
 
 	private void play(){
-		if(path != null){
+		if(playlist != null){
 			if(ready){
 				errored = false;
 
@@ -460,7 +470,7 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 			}else if(!errored){
 				loadingWait = true;
 			}else{
-				play(path);
+				playCurrent();
 			}
 		}
 	}
@@ -468,244 +478,76 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 	private void play(@Nullable String path){
 		if(path == null){
 			play();
-		}else{
-			try{
-				play(new RuuFile(getApplicationContext(), path));
-			}catch(RuuFileBase.CanNotOpen e){
-				showToast(String.format(getString(R.string.cant_open_dir), path));
-			}
-		}
-	}
-
-	private void play(@NonNull RuuFile path){
-		if(this.path != null && this.path.equals(path) && playlist != null){
-			if(ready){
-				if(player.isPlaying()){
-					player.pause();
-				}
-				player.seekTo(0);
-				play();
-				return;
-			}else if(!errored){
-				loadingWait = true;
-				return;
-			}
-		}
-
-		if(playingFromLastest || ready || errored || this.path == null){
-			load(path, new MediaPlayer.OnPreparedListener(){
-				@Override
-				public void onPrepared(MediaPlayer mp){
-					ready = true;
-					play();
-				}
-			});
-		}
-	}
-
-	private void playRecursive(@NonNull RuuDirectory dir){
-		if(playlist == null || recursivePath == null || !recursivePath.equals(dir)){
-			try{
-				playlist = dir.getMusicsRecursive();
-			}catch(RuuFileBase.CanNotOpen e){
-				showToast(String.format(getString(R.string.cant_open_dir), e.path));
-				return;
-			}
-
-			if(playlist.isEmpty()){
-				showToast(String.format(getString(R.string.has_not_music), dir.getFullPath()));
-				return;
-			}
-
-			recursivePath = dir;
-		}
-
-		if(shuffleMode){
-			shufflePlay();
-		}else{
-			path = playlist.get(0);
-
-			load(path, new MediaPlayer.OnPreparedListener(){
-				@Override
-				public void onPrepared(MediaPlayer mp){
-					ready = true;
-					play();
-				}
-			});
-		}
-	}
-
-	private void playRecursive(@Nullable String path){
-		if(path != null){
-			try{
-				playRecursive(RuuDirectory.getInstance(getApplicationContext(), path));
-			}catch(RuuFileBase.CanNotOpen e){
-				showToast(String.format(getString(R.string.cant_open_dir), e.path));
-			}
-		}
-	}
-
-	private void playSearch(@NonNull RuuDirectory dir, @NonNull String query){
-		String[] queries = TextUtils.split(query.toLowerCase(), " \t");
-
-		recursivePath = null;
-		playlist = new ArrayList<>();
-		try{
-			for(RuuFile music: dir.getMusicsRecursive()){
-				String name = music.getName().toLowerCase();
-				boolean isOk = true;
-				for(String qs: queries){
-					if(!name.contains(qs)){
-						isOk = false;
-						break;
-					}
-				}
-				if(isOk){
-					playlist.add(music);
-				}
-			}
-		}catch(RuuFileBase.CanNotOpen e){
 			return;
 		}
 
-		searchQuery = query;
-		searchPath = dir;
+		if(playlist != null && playlist.type == Playlist.Type.SIMPLE){
+			RuuFile file;
+			try{
+				file = new RuuFile(getApplicationContext(), path);
+			}catch(RuuFileBase.CanNotOpen e){
+				showToast(String.format(getString(R.string.cant_open_dir), path));
+				return;
+			}
 
-		if(shuffleMode){
-			shufflePlay();
-		}else{
-			path = playlist.get(0);
-			searchQuery = query;
+			if(playlist.getCurrent().equals(file)){
+				if(ready){
+					if(player.isPlaying()){
+						player.pause();
+					}
+					player.seekTo(0);
+					play();
+					return;
+				}else if(!errored){
+					loadingWait = true;
+					return;
+				}
+			}
+		}
 
-			load(path, new MediaPlayer.OnPreparedListener(){
+		try{
+			playlist = Playlist.getByMusicPath(getApplicationContext(), path);
+		}catch(RuuFileBase.CanNotOpen e){
+			showToast(String.format(getString(R.string.cant_open_dir), e.path));
+			return;
+		}catch(Playlist.EmptyDirectory e){
+			showToast(String.format(getString(R.string.has_not_music), path));
+			return;
+		}
+		playCurrent();
+	}
+
+	private void playCurrent(){
+		if(playlist != null && (playingFromLastest || ready || errored)){
+			load(new MediaPlayer.OnPreparedListener(){
 				@Override
 				public void onPrepared(MediaPlayer mp){
 					ready = true;
+					playingFromLastest = false;
+					errored = false;
 					play();
 				}
 			});
 		}
 	}
 
-	private void playSearch(@Nullable String path, @Nullable String query){
-		if(!TextUtils.isEmpty(path) && !TextUtils.isEmpty(query)){
-			try{
-				playSearch(RuuDirectory.getInstance(getApplicationContext(), path), query);
-			}catch(RuuFileBase.CanNotOpen e){
-			}
-		}
-	}
-
-	private void load(@NonNull RuuFile path, @NonNull MediaPlayer.OnPreparedListener onPrepared){
+	private void load(@NonNull MediaPlayer.OnPreparedListener onPrepared){
 		ready = false;
 		player.reset();
 
-		RuuDirectory oldDir = null;
-		if(this.path != null){
-			try{
-				oldDir = this.path.getParent();
-			}catch(RuuFileBase.CanNotOpen e){
-				oldDir = null;
-			}
-		}
-
-		this.path = path;
-
-		String realName = path.getRealPath();
-
+		String realName = playlist.getCurrent().getRealPath();
 		if(realName == null){
-			Intent sendIntent = new Intent();
-			sendIntent.setAction(ACTION_NOT_FOUND);
-			sendIntent.putExtra("path", path.getFullPath());
-			getBaseContext().sendBroadcast(sendIntent);
-			sendStatus();
-			errored = true;
-
-			if(!errorSE.isPlaying()){
-				errorSE.start();
-			}
-		}else{
-			try{
-				player.setDataSource(realName);
-
-				player.setOnPreparedListener(onPrepared);
-				player.prepareAsync();
-			}catch(IOException e){
-				showToast(String.format(getString(R.string.failed_open_music), realName));
-			}
-		}
-
-		RuuDirectory newparent;
-		try{
-			newparent = path.getParent();
-		}catch(RuuFileBase.CanNotOpen e){
-			showToast(String.format(getString(R.string.cant_open_dir), path.path.getParent()));
+			showToast(String.format(getString(R.string.music_not_found), playlist.getCurrent().getFullPath()));
 			return;
 		}
-		if(recursivePath != null && playlist == null){
-			try{
-				playlist = recursivePath.getMusicsRecursive();
-			}catch(RuuFileBase.CanNotOpen e){
-				showToast(String.format(getString(R.string.cant_open_dir), e.path));
-				return;
-			}
 
-			if(shuffleMode){
-				shuffleList();
-			}else{
-				currentIndex = Arrays.binarySearch(playlist.toArray(), path);
-			}
-		}else if(playlist == null || oldDir == null
-				|| (recursivePath != null && !recursivePath.contains(newparent))
-				|| (recursivePath == null && searchQuery == null && !oldDir.equals(newparent))){
-			try{
-				playlist = newparent.getMusics();
-			}catch(RuuFileBase.CanNotOpen e){
-				showToast(String.format(getString(R.string.cant_open_dir), e.path));
-				return;
-			}
-			recursivePath = null;
+		try{
+			player.setDataSource(realName);
 
-			if(shuffleMode){
-				shuffleList();
-			}else{
-				currentIndex = Arrays.binarySearch(playlist.toArray(), path);
-			}
-		}else{
-			currentIndex = findMusicPos(path);
-		}
-	}
-
-	private int findMusicPos(@NonNull RuuFile music){
-		int pos = -1;
-		for(int i = 0; i < playlist.size(); i++){
-			if(playlist.get(i).equals(music)){
-				pos = i;
-				break;
-			}
-		}
-		return pos;
-	}
-
-	private void shuffleList(){
-		if(playlist != null){
-			int pos = findMusicPos(path);
-			if(pos >= 0){
-				Collections.shuffle(playlist);
-				Collections.swap(playlist, 0, pos);
-				currentIndex = 0;
-			}
-		}
-	}
-
-	private void shufflePlay(){
-		if(playlist != null){
-			do{
-				Collections.shuffle(playlist);
-			}while(playlist.get(0).equals(path));
-
-			currentIndex = 0;
-			play(playlist.get(0));
+			player.setOnPreparedListener(onPrepared);
+			player.prepareAsync();
+		}catch(IOException e){
+			showToast(String.format(getString(R.string.failed_open_music), realName));
 		}
 	}
 
@@ -741,12 +583,10 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 
 	private void setShuffleMode(boolean mode){
 		if(playlist != null){
-			if(!shuffleMode && mode){
-				shuffleList();
-			}
-			if(shuffleMode && !mode){
-				Collections.sort(playlist);
-				currentIndex = Arrays.binarySearch(playlist.toArray(), path);
+			if(mode){
+				playlist.shuffle(true);
+			}else{
+				playlist.sort();
 			}
 		}
 
@@ -760,18 +600,22 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 
 	private void next(){
 		if(playlist != null){
-			if(currentIndex + 1 < playlist.size()){
-				play(playlist.get(currentIndex + 1));
-			}else if(repeatMode.equals("loop")){
-				if(shuffleMode){
-					shufflePlay();
+			try{
+				playlist.goNext();
+				playCurrent();
+			}catch(Playlist.EndOfList e){
+				if(repeatMode.equals("loop")){
+					if(shuffleMode){
+						playlist.shuffle(false);
+					}else{
+						playlist.goFirst();
+					}
+					playCurrent();
 				}else{
-					play(playlist.get(0));
-				}
-			}else{
-				showToast(getString(R.string.last_of_directory));
-				if(!endOfListSE.isPlaying()){
-					endOfListSE.start();
+					showToast(getString(R.string.last_of_directory));
+					if(!endOfListSE.isPlaying()){
+						endOfListSE.start();
+					}
 				}
 			}
 		}
@@ -782,18 +626,22 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 			if(player.getCurrentPosition() >= 3000){
 				seek(0);
 			}else{
-				if(currentIndex > 0){
-					play(playlist.get(currentIndex - 1));
-				}else if(repeatMode.equals("loop")){
-					if(shuffleMode){
-						shufflePlay();
+				try{
+					playlist.goPrev();
+					playCurrent();
+				}catch(Playlist.EndOfList e){
+					if(repeatMode.equals("loop")){
+						if(shuffleMode){
+							playlist.shuffle(false);
+						}else{
+							playlist.goLast();
+						}
+						playCurrent();
 					}else{
-						play(playlist.get(playlist.size() - 1));
-					}
-				}else{
-					showToast(getString(R.string.first_of_directory));
-					if(!endOfListSE.isPlaying()){
-						endOfListSE.start();
+						showToast(getString(R.string.first_of_directory));
+						if(!endOfListSE.isPlaying()){
+							endOfListSE.start();
+						}
 					}
 				}
 			}
