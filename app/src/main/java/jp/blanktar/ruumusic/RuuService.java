@@ -646,7 +646,6 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 			if(shuffleMode){
 				shuffleList();
 			}else{
-				Collections.sort(playlist);
 				currentIndex = Arrays.binarySearch(playlist.toArray(), path);
 			}
 		}else if(playlist == null || oldDir == null
@@ -663,7 +662,6 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 			if(shuffleMode){
 				shuffleList();
 			}else{
-				Collections.sort(playlist);
 				currentIndex = Arrays.binarySearch(playlist.toArray(), path);
 			}
 		}else{
