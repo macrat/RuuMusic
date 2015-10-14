@@ -3,6 +3,7 @@ package jp.blanktar.ruumusic;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -32,8 +33,8 @@ public class RuuDirectory extends RuuFileBase{
 		}
 	};
 
-	private ArrayList<File> musicsCache = null;
-	private ArrayList<File> directoriesCache = null;
+	private File[] musicsCache = null;
+	private File[] directoriesCache = null;
 	private File[] files = null;
 
 
@@ -44,7 +45,6 @@ public class RuuDirectory extends RuuFileBase{
 		if(files == null){
 			throw new CanNotOpen(path);
 		}
-		Arrays.sort(files);
 	}
 
 	public static RuuDirectory getInstance(@NonNull Context context, @NonNull String path) throws RuuFileBase.CanNotOpen{
@@ -89,14 +89,14 @@ public class RuuDirectory extends RuuFileBase{
 				result.add(RuuDirectory.getInstance(context, file.getPath()));
 			}
 		}else{
-			directoriesCache = new ArrayList<>();
+			ArrayList<File> cacheTmp = new ArrayList<>();
 
 			for(File file: files){
 				if(file.getName().lastIndexOf(".") != 0){
 					try{
 						RuuDirectory dir = RuuDirectory.getInstance(context, file.getPath());
 						result.add(dir);
-						directoriesCache.add(dir.path);
+						cacheTmp.add(dir.path);
 					}catch(RuuFileBase.CanNotOpen e){
 					}
 				}
@@ -105,6 +105,11 @@ public class RuuDirectory extends RuuFileBase{
 			if(musicsCache != null){
 				files = null;
 			}
+
+			directoriesCache = cacheTmp.toArray(new File[0]);
+			Arrays.sort(directoriesCache);
+	
+			Collections.sort(result);
 		}
 
 		return result;
@@ -119,7 +124,7 @@ public class RuuDirectory extends RuuFileBase{
 				result.add(new RuuFile(context, file.getPath()));
 			}
 		}else{
-			musicsCache = new ArrayList<>();
+			ArrayList<File> cacheTmp = new ArrayList<>();
 
 			String before = "";
 			for(File file: files){
@@ -135,7 +140,7 @@ public class RuuDirectory extends RuuFileBase{
 					try{
 						RuuFile music = new RuuFile(context, name);
 						result.add(music);
-						musicsCache.add(music.path);
+						cacheTmp.add(music.path);
 					}catch(RuuFileBase.CanNotOpen e){
 						continue;
 					}
@@ -146,6 +151,11 @@ public class RuuDirectory extends RuuFileBase{
 			if(directoriesCache != null){
 				files = null;
 			}
+
+			musicsCache = cacheTmp.toArray(new File[0]);
+			Arrays.sort(musicsCache);
+
+			Collections.sort(result);
 		}
 
 		return result;
