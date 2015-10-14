@@ -12,7 +12,7 @@ import android.os.Build;
 import android.preference.PreferenceManager;
 
 
-public abstract class RuuFileBase implements Comparable{
+public abstract class RuuFileBase implements Comparable<RuuFileBase>{
 	final Context context;
 	public final File path;
 
@@ -79,9 +79,7 @@ public abstract class RuuFileBase implements Comparable{
 	}
 
 	@Override
-	public int compareTo(@NonNull Object obj){
-		RuuFileBase file = (RuuFileBase)obj;
-
+	public int compareTo(@NonNull RuuFileBase file){
 		if(equals(file)){
 			return 0;
 		}else if(isDirectory() && file.isDirectory()){
