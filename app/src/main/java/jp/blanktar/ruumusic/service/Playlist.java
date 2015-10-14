@@ -15,6 +15,8 @@ import jp.blanktar.ruumusic.util.RuuDirectory;
 import jp.blanktar.ruumusic.util.RuuFile;
 import jp.blanktar.ruumusic.util.RuuFileBase;
 
+import android.util.Log;
+
 
 @WorkerThread
 public class Playlist{
@@ -109,12 +111,7 @@ public class Playlist{
 	}
 
 	public void goMusic(@NonNull RuuFile path) throws NotFound{
-		int result;
-		if(sorted){
-			result = Arrays.binarySearch(playlist, path);
-		}else{
-			result = Arrays.asList(playlist).indexOf(path);
-		}
+		int result = Arrays.asList(playlist).indexOf(path);
 		if(result >= 0){
 			currentIndex = result;
 		}else{
@@ -144,7 +141,7 @@ public class Playlist{
 
 	public void sort(){
 		if(!sorted){
-			currentIndex = Arrays.binarySearch(playlistSorted, getCurrent());
+			currentIndex = Arrays.asList(playlistSorted).indexOf(getCurrent());
 			playlist = playlistSorted;
 			sorted = true;
 		}
