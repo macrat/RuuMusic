@@ -237,7 +237,7 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 						break;
 					}
 					if(shuffleMode){
-						playlist.shuffle(true);
+						playlist.shuffle(false);
 					}
 					playCurrent();
 					break;
@@ -252,7 +252,7 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 						break;
 					}
 					if(shuffleMode){
-						playlist.shuffle(true);
+						playlist.shuffle(false);
 					}
 					playCurrent();
 					break;
