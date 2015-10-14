@@ -1,4 +1,4 @@
-package jp.blanktar.ruumusic;
+package jp.blanktar.ruumusic.util;
 
 import java.io.File;
 

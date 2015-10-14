@@ -1,4 +1,4 @@
-package jp.blanktar.ruumusic;
+package jp.blanktar.ruumusic.client;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +24,12 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import jp.blanktar.ruumusic.R;
+import jp.blanktar.ruumusic.service.RuuService;
+import jp.blanktar.ruumusic.util.RuuDirectory;
+import jp.blanktar.ruumusic.util.RuuFile;
+import jp.blanktar.ruumusic.util.RuuFileBase;
 
 
 @UiThread

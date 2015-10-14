@@ -1,4 +1,4 @@
-package jp.blanktar.ruumusic;
+package jp.blanktar.ruumusic.widget;
 
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
@@ -7,16 +7,19 @@ import android.content.Context;
 import android.content.Intent;
 import android.widget.RemoteViews;
 
+import jp.blanktar.ruumusic.R;
+import jp.blanktar.ruumusic.service.RuuService;
 
-public class SkipNextWidget extends AppWidgetProvider{
+
+public class SkipPrevWidget extends AppWidgetProvider{
 	@Override
 	public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds){
-		RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.skip_next_widget);
+		RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.skip_prev_widget);
 
-		views.setOnClickPendingIntent(R.id.widget_skip_next, PendingIntent.getService(
+		views.setOnClickPendingIntent(R.id.widget_skip_prev, PendingIntent.getService(
 				context,
 				0,
-				(new Intent(context, RuuService.class)).setAction(RuuService.ACTION_NEXT),
+				(new Intent(context, RuuService.class)).setAction(RuuService.ACTION_PREV),
 				0
 		));
 
@@ -25,3 +28,4 @@ public class SkipNextWidget extends AppWidgetProvider{
 		}
 	}
 }
+

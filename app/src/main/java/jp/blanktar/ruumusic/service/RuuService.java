@@ -1,4 +1,4 @@
-package jp.blanktar.ruumusic;
+package jp.blanktar.ruumusic.service;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -38,6 +38,13 @@ import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.widget.Toast;
+
+import jp.blanktar.ruumusic.R;
+import jp.blanktar.ruumusic.client.AudioPreferenceActivity;
+import jp.blanktar.ruumusic.client.MainActivity;
+import jp.blanktar.ruumusic.util.RuuDirectory;
+import jp.blanktar.ruumusic.util.RuuFile;
+import jp.blanktar.ruumusic.util.RuuFileBase;
 
 
 @WorkerThread

@@ -11,7 +11,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".MainActivity"
+            android:name=".client.MainActivity"
             android:label="@string/app_name"
             android:launchMode="singleTask" >
             <intent-filter>
@@ -22,27 +22,27 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".AudioPreferenceActivity"
+            android:name=".client.AudioPreferenceActivity"
             android:label="@string/title_activity_audio_preference"
-            android:parentActivityName=".MainActivity" >
+            android:parentActivityName=".client.MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="jp.blanktar.ruumusic.MainActivity" />
+                android:value="jp.blanktar.ruumusic.client.MainActivity" />
         </activity>
 
         <service
-            android:name=".RuuService"
+            android:name=".service.RuuService"
             android:enabled="true"
             android:exported="false" >
         </service>
 
-        <receiver android:name=".RuuService$MediaButtonReceiver" >
+        <receiver android:name=".service.RuuService$MediaButtonReceiver" >
             <intent-filter>
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
             </intent-filter>
         </receiver>
 
-        <receiver android:name=".PlayPauseWidget" android:label="@string/playpause_widget_name">
+        <receiver android:name=".widget.PlayPauseWidget" android:label="@string/playpause_widget_name">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="jp.blanktar.ruumusic.STATUS" />
@@ -53,7 +53,7 @@
                 android:resource="@xml/play_pause_widget_info" />
         </receiver>
 
-        <receiver android:name=".SkipNextWidget" android:label="@string/skipnext_widget_name">
+        <receiver android:name=".widget.SkipNextWidget" android:label="@string/skipnext_widget_name">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -63,7 +63,7 @@
                 android:resource="@xml/skip_next_widget_info" />
         </receiver>
 
-        <receiver android:name=".SkipPrevWidget" android:label="@string/skipprev_widget_name">
+        <receiver android:name=".widget.SkipPrevWidget" android:label="@string/skipprev_widget_name">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -73,7 +73,7 @@
                 android:resource="@xml/skip_prev_widget_info" />
         </receiver>
 
-        <receiver android:name=".MusicNameWidget" android:label="@string/musicname_widget_name">
+        <receiver android:name=".widget.MusicNameWidget" android:label="@string/musicname_widget_name">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
 				<action android:name="jp.blanktar.ruumusic.STATUS" />
