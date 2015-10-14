@@ -101,6 +101,9 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 		if(recursive != null){
 			try{
 				playlist = Playlist.getRecursive(getApplicationContext(), recursive);
+				if(shuffleMode){
+					playlist.shuffle(false);
+				}
 			}catch(RuuFileBase.CanNotOpen | Playlist.EmptyDirectory e){
 				playlist = null;
 			}
@@ -112,6 +115,9 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 			if(searchQuery != null && searchPath != null){
 				try{
 					playlist = Playlist.getSearchResults(getApplicationContext(), searchPath, searchQuery);
+					if(shuffleMode){
+						playlist.shuffle(false);
+					}
 				}catch(RuuFileBase.CanNotOpen | Playlist.EmptyDirectory e){
 					playlist = null;
 				}
