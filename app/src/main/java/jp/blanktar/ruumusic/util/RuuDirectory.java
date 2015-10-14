@@ -106,9 +106,9 @@ public class RuuDirectory extends RuuFileBase{
 				files = null;
 			}
 
-			directoriesCache = cacheTmp.toArray(new File[0]);
+			directoriesCache = cacheTmp.toArray(new File[cacheTmp.size()]);
 			Arrays.sort(directoriesCache);
-	
+
 			Collections.sort(result);
 		}
 
@@ -152,7 +152,7 @@ public class RuuDirectory extends RuuFileBase{
 				files = null;
 			}
 
-			musicsCache = cacheTmp.toArray(new File[0]);
+			musicsCache = cacheTmp.toArray(new File[cacheTmp.size()]);
 			Arrays.sort(musicsCache);
 
 			Collections.sort(result);
