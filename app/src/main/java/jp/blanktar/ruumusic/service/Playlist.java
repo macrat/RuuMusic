@@ -3,6 +3,7 @@ package jp.blanktar.ruumusic.service;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.ArrayList;
 
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
@@ -68,7 +69,7 @@ public class Playlist{
 
 		RuuDirectory dir = RuuDirectory.getInstance(context, path);
 		List<RuuFile> list = dir.getMusicsRecursive();
-		for(RuuFile file: list){
+		for(RuuFile file: new ArrayList<>(list)){
 			String name = file.getName().toLowerCase();
 			for(String qs: queries){
 				if(!name.contains(qs)){
