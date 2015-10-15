@@ -110,12 +110,13 @@ public class Playlist{
 	}
 
 	public void goMusic(@NonNull RuuFile path) throws NotFound{
-		int result = Arrays.asList(playlist).indexOf(path);
-		if(result >= 0){
-			currentIndex = result;
-		}else{
-			throw new NotFound();
+		for(int i=0; i<playlist.length; i++){
+			if(playlist[i].equals(path)){
+				currentIndex = i;
+				return;
+			}
 		}
+		throw new NotFound();
 	}
 
 	public void shuffle(boolean keepCurrent){
