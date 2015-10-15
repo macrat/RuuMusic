@@ -17,10 +17,12 @@ import android.support.v4.view.ViewPager;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import jp.blanktar.ruumusic.R;
 import jp.blanktar.ruumusic.service.RuuService;
 import jp.blanktar.ruumusic.util.RuuDirectory;
+import jp.blanktar.ruumusic.util.RuuFile;
 import jp.blanktar.ruumusic.util.RuuFileBase;
 
 
@@ -78,6 +80,25 @@ public class MainActivity extends AppCompatActivity{
 
 		if(ACTION_OPEN_PLAYER.equals(getIntent().getAction())){
 			viewPager.setCurrentItem(0);
+		}else if(Intent.ACTION_VIEW.equals(getIntent().getAction()) && getIntent().getData() != null){
+			String path = getIntent().getData().getPath();
+			try{
+				RuuFile file = new RuuFile(getApplicationContext(), path.substring(0, path.lastIndexOf(".")));
+				file.getRuuPath();
+				startService(new Intent(getApplicationContext(), RuuService.class)
+								.setAction(RuuService.ACTION_PLAY)
+								.putExtra("path", file.getFullPath())
+				);
+				viewPager.setCurrentItem(0);
+			}catch(RuuFileBase.CanNotOpen e){
+				Toast.makeText(getApplicationContext(), getString(R.string.music_not_found), Toast.LENGTH_LONG).show();
+				viewPager.setCurrentItem(PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
+						.getInt("last_view_page", 1));
+			}catch(RuuFileBase.OutOfRootDirectory e){
+				Toast.makeText(getApplicationContext(), String.format(getString(R.string.out_of_root), path), Toast.LENGTH_LONG).show();
+				viewPager.setCurrentItem(PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
+						.getInt("last_view_page", 1));
+			}
 		}else{
 			viewPager.setCurrentItem(PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
 					.getInt("last_view_page", 1));

@@ -20,6 +20,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW"/>
+				<category android:name="android.intent.category.DEFAULT"/>
+				<category android:name="android.intent.category.OPENABLE"/>
+				<data android:scheme="file" android:mimeType="audio/*" />
+			</intent-filter>
         </activity>
         <activity
             android:name=".client.AudioPreferenceActivity"
