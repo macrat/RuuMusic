@@ -13,6 +13,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -66,7 +67,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 				.getString("current_view_path", null);
 		try{
 			if(currentPath == null){
-				changeDir(RuuDirectory.rootDirectory(getContext()));
+				changeDir(RuuDirectory.getInstance(getContext(), Environment.getExternalStorageDirectory().getPath()));
 			}else{
 				try{
 					changeDir(RuuDirectory.getInstance(getContext(), currentPath));
@@ -76,7 +77,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			}
 		}catch(RuuFileBase.CanNotOpen err){
 			PreferenceManager.getDefaultSharedPreferences(getContext()).edit()
-					.putString("root_directory", "/")
+					.remove("root_directory")
 					.apply();
 		}
 

@@ -349,9 +349,9 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 
 	private void removeSavedStatus(){
 		PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit()
-				.putString("last_play_music", "")
-				.putInt("last_play_position", 0)
-				.putString("recursive_path", null)
+				.remove("last_play_music")
+				.remove("last_play_position")
+				.remove("recursive_path")
 				.apply();
 	}
 

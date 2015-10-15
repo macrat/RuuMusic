@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity{
 			RuuDirectory.rootDirectory(getApplicationContext());
 		}catch(RuuFileBase.CanNotOpen e){
 			PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit()
-					.putString("root_directory", "/")
+					.remove("root_directory")
 					.apply();
 		}
 
