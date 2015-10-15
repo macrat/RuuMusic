@@ -162,11 +162,6 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			return;
 		}
 
-		ListView lv = (ListView)getActivity().findViewById(R.id.playlist);
-		if(lv != null){
-			lv.setSelection(current.selection);
-		}
-
 		updateMenu();
 	}
 
@@ -340,9 +335,17 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			for(RuuFile music: musics){
 				add(music);
 			}
+
+			try{
+				((ListView)getActivity().findViewById(R.id.playlist)).setSelection(dirInfo.selection);
+			}catch(NullPointerException e){
+			}
 		}
 
 		public void setSearchResults(@NonNull List<RuuFileBase> results){
+			if(dirInfo != null){
+				dirInfo.selection = ((ListView)getActivity().findViewById(R.id.playlist)).getFirstVisiblePosition();
+			}
 			clear();
 			musicNum = 0;
 			directoryNum = 0;
@@ -357,6 +360,11 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 				}else{
 					musicNum++;
 				}
+			}
+
+			try{
+				((ListView)getActivity().findViewById(R.id.playlist)).setSelection(0);
+			}catch(NullPointerException e){
 			}
 		}
 
