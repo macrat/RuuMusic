@@ -145,17 +145,18 @@ public class MainActivity extends AppCompatActivity{
 	}
 
 	@Override
-	public boolean onCreateOptionsMenu(@Nullable Menu menu){
+	public boolean onCreateOptionsMenu(@NonNull Menu menu){
 		getMenuInflater().inflate(R.menu.menu_main, menu);
 		this.menu = menu;
 
 		updateTitleAndMenu();
 
-		searchView = (SearchView)MenuItemCompat.getActionView(menu.findItem(R.id.menu_search));
-		if(searchView != null){
-			searchView.setOnQueryTextListener(playlist);
-			searchView.setOnCloseListener(playlist);
-		}
+		MenuItem searchMenu = menu.findItem(R.id.menu_search);
+		assert searchMenu != null;
+		searchView = (SearchView)MenuItemCompat.getActionView(searchMenu);
+		assert searchView != null;
+		searchView.setOnQueryTextListener(playlist);
+		searchView.setOnCloseListener(playlist);
 
 		return super.onCreateOptionsMenu(menu);
 	}
@@ -164,7 +165,7 @@ public class MainActivity extends AppCompatActivity{
 	public boolean onOptionsItemSelected(@NonNull MenuItem item){
 		int id = item.getItemId();
 
-		if(id == R.id.action_set_root || id == R.id.action_unset_root){
+		if((id == R.id.action_set_root || id == R.id.action_unset_root) && playlist.current != null){
 			String rootPath = "/";
 			if(id == R.id.action_set_root){
 				rootPath = playlist.current.path.getFullPath();
@@ -179,7 +180,7 @@ public class MainActivity extends AppCompatActivity{
 			return true;
 		}
 
-		if(id == R.id.action_recursive_play){
+		if(id == R.id.action_recursive_play && playlist.current != null){
 			startService((new Intent(getApplicationContext(), RuuService.class))
 					.setAction(RuuService.ACTION_PLAY_RECURSIVE)
 					.putExtra("path", playlist.current.path.getFullPath()));
@@ -187,7 +188,7 @@ public class MainActivity extends AppCompatActivity{
 			moveToPlayer();
 		}
 
-		if(id == R.id.action_search_play){
+		if(id == R.id.action_search_play && playlist.current != null){
 			startService((new Intent(getApplicationContext(), RuuService.class))
 					.setAction(RuuService.ACTION_PLAY_SEARCH)
 					.putExtra("path", playlist.current.path.getFullPath())

@@ -90,6 +90,8 @@ public class RuuDirectory extends RuuFileBase{
 				result.add(RuuDirectory.getInstance(context, file.getPath()));
 			}
 		}else{
+			assert files != null;
+
 			ArrayList<File> cacheTmp = new ArrayList<>();
 
 			for(File file: files){
@@ -125,6 +127,8 @@ public class RuuDirectory extends RuuFileBase{
 				result.add(new RuuFile(context, file.getPath()));
 			}
 		}else{
+			assert files != null;
+
 			ArrayList<File> cacheTmp = new ArrayList<>();
 
 			String before = "";
@@ -247,3 +251,4 @@ public class RuuDirectory extends RuuFileBase{
 		return result;
 	}
 }
+

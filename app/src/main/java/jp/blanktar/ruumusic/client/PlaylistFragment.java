@@ -419,7 +419,8 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 				}catch(RuuFileBase.CanNotOpen | RuuFileBase.OutOfRootDirectory e){
 					((TextView)convertView.findViewById(R.id.search_path)).setText("");
 				}
-			}else if(dirInfo != null){
+			}else{
+				assert dirInfo != null;
 				if(item.isDirectory() && ((RuuDirectory)item).contains(dirInfo.path)){
 					if(convertView == null){
 						convertView = ((LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.list_item_upper, null);
@@ -437,3 +438,4 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 		}
 	}
 }
+

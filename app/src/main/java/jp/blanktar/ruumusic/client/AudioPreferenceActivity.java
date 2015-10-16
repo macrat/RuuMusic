@@ -42,7 +42,9 @@ public class AudioPreferenceActivity extends AppCompatActivity implements Compou
 	protected void onCreate(@Nullable Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_audio_preference);
-		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		if(getSupportActionBar() != null){
+			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		}
 
 
 		((SwitchCompat)findViewById(R.id.bass_boost_switch)).setOnCheckedChangeListener(this);
