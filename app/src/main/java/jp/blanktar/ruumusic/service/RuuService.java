@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import android.support.annotation.CheckResult;
+import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
@@ -68,23 +70,22 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 		ERRORED
 	}
 
-
-	private MediaPlayer player;
+	@NonNull private final MediaPlayer player = new MediaPlayer();
 	private MediaPlayer endOfListSE;
 	private MediaPlayer errorSE;
-	private Timer deathTimer;
-	private static RemoteControlClient remoteControlClient;
+	@Nullable private Timer deathTimer;
+	@Nullable private static RemoteControlClient remoteControlClient;
 
-	private Playlist playlist;
+	@Nullable private Playlist playlist;
 
-	private String repeatMode = "off";
+	@NonNull private String repeatMode = "off";
 	private boolean shuffleMode = false;
-	private Status status = Status.INITIAL;
+	@NonNull private Status status = Status.INITIAL;
 
-	private BassBoost bassBoost = null;
-	private PresetReverb presetReverb = null;
-	private LoudnessEnhancer loudnessEnhancer = null;
-	private Equalizer equalizer = null;
+	@Nullable private BassBoost bassBoost = null;
+	@Nullable private PresetReverb presetReverb = null;
+	@Nullable private LoudnessEnhancer loudnessEnhancer = null;
+	@Nullable private Equalizer equalizer = null;
 
 
 	@Override
@@ -95,7 +96,6 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 
 	@Override
 	public void onCreate(){
-		player = new MediaPlayer();
 		endOfListSE = MediaPlayer.create(getApplicationContext(), R.raw.eol);
 		errorSE = MediaPlayer.create(getApplicationContext(), R.raw.err);
 
@@ -544,7 +544,7 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 		((AudioManager)getSystemService(Context.AUDIO_SERVICE)).abandonAudioFocus(focusListener);
 	}
 
-	private void seek(int newtime){
+	private void seek(@IntRange(from=0) int newtime){
 		if(0 <= newtime && newtime <= player.getDuration()){
 			player.seekTo(newtime);
 			sendStatus();
@@ -720,14 +720,18 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 		}
 	}
 
+	@CheckResult
 	private boolean getPreference(@NonNull String key, boolean default_value){
 		return PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean(key, default_value);
 	}
 
+	@CheckResult
 	private int getPreference(@NonNull String key, int default_value){
 		return PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getInt(key, default_value);
 	}
 
+	@Nullable
+	@CheckResult
 	private String getPreference(@NonNull String key, @Nullable String default_value){
 		return PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString(key, default_value);
 	}
@@ -754,7 +758,7 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 
 
 	public static class MediaButtonReceiver extends BroadcastReceiver{
-		private static ComponentName componentName;
+		@Nullable private static ComponentName componentName;
 		private static boolean serviceRunning = false;
 		private static boolean activityRunning = false;
 
