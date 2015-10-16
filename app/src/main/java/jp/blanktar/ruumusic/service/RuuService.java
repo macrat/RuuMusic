@@ -195,15 +195,20 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 		player.setOnPreparedListener(new MediaPlayer.OnPreparedListener(){
 			@Override
 			public void onPrepared(@NonNull MediaPlayer mp){
+				int last_position = getPreference("last_play_position", 0);
+				if(last_position >= 0){
+					player.seekTo(last_position);
+				}
 				if(status == Status.LOADING_FROM_LASTEST){
 					status = Status.READY;
-					player.seekTo(getPreference("last_play_position", 0));
 					sendStatus();
-					saveStatus();
 				}else{
 					status = Status.READY;
 					play();
 				}
+				PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit()
+						.remove("last_play_position")
+						.apply();
 			}
 		});
 
