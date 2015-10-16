@@ -13,8 +13,8 @@ import android.preference.PreferenceManager;
 
 
 public abstract class RuuFileBase implements Comparable<RuuFileBase>{
-	final Context context;
-	public final File path;
+	@NonNull final Context context;
+	@NonNull public final File path;
 
 
 	RuuFileBase(@NonNull Context context, @NonNull String path) throws CanNotOpen{
@@ -41,7 +41,7 @@ public abstract class RuuFileBase implements Comparable<RuuFileBase>{
 	}
 
 	@NonNull
-	abstract String getFullPath();
+	public abstract String getFullPath();
 
 	public abstract boolean isDirectory();
 

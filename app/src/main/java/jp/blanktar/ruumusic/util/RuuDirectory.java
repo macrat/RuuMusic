@@ -8,6 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.content.Context;
 
 
@@ -33,9 +34,9 @@ public class RuuDirectory extends RuuFileBase{
 		}
 	};
 
-	private File[] musicsCache = null;
-	private File[] directoriesCache = null;
-	private File[] files = null;
+	@Nullable private File[] musicsCache = null;
+	@Nullable private File[] directoriesCache = null;
+	@Nullable private File[] files = null;
 
 
 	private RuuDirectory(@NonNull Context context, @NonNull String path) throws RuuFileBase.CanNotOpen{
