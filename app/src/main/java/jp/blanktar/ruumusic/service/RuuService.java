@@ -195,10 +195,7 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 		player.setOnPreparedListener(new MediaPlayer.OnPreparedListener(){
 			@Override
 			public void onPrepared(@NonNull MediaPlayer mp){
-				int last_position = getPreference("last_play_position", 0);
-				if(last_position >= 0){
-					player.seekTo(last_position);
-				}
+				player.seekTo(getPreference("last_play_position", 0));
 				if(status == Status.LOADING_FROM_LASTEST){
 					status = Status.READY;
 					sendStatus();
@@ -532,21 +529,28 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 	}
 
 	private void pause(){
-		player.pause();
-		sendStatus();
-		removePlayingNotification();
-		updateMediaMetadata();
-		saveStatus();
-		startDeathTimer();
+		if(status == Status.READY && player.isPlaying()){
+			player.pause();
+			sendStatus();
+			removePlayingNotification();
+			updateMediaMetadata();
+			saveStatus();
+			startDeathTimer();
 
-		((AudioManager)getSystemService(Context.AUDIO_SERVICE)).abandonAudioFocus(focusListener);
+			((AudioManager)getSystemService(Context.AUDIO_SERVICE)).abandonAudioFocus(focusListener);
+		}
 	}
 
 	private void seek(@IntRange(from=0) int newtime){
 		if(0 <= newtime && newtime <= player.getDuration()){
-			player.seekTo(newtime);
-			sendStatus();
-			saveStatus();
+			if(status == Status.READY){
+				player.seekTo(newtime);
+				sendStatus();
+			}
+
+			PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit()
+					.putInt("last_play_position", newtime)
+					.apply();
 		}
 	}
 
