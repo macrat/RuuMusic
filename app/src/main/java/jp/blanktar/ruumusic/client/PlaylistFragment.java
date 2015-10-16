@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
+import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
@@ -37,8 +38,8 @@ import jp.blanktar.ruumusic.util.RuuFileBase;
 public class PlaylistFragment extends Fragment implements SearchView.OnQueryTextListener, SearchView.OnCloseListener{
 	private RuuAdapter adapter;
 	private final Stack<DirectoryInfo> directoryCache = new Stack<>();
-	DirectoryInfo current;
-	public String searchQuery = null;
+	@Nullable DirectoryInfo current;
+	@Nullable public String searchQuery = null;
 
 
 	@Override
@@ -234,12 +235,12 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 	}
 
 	@Override
-	public boolean onQueryTextChange(String text){
+	public boolean onQueryTextChange(@NonNull String text){
 		return false;
 	}
 
 	@Override
-	public boolean onQueryTextSubmit(String text){
+	public boolean onQueryTextSubmit(@NonNull String text){
 		if(TextUtils.isEmpty(text)){
 			onClose();
 			return false;
@@ -306,16 +307,16 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 
 
 	@UiThread
-	class RuuAdapter extends ArrayAdapter<RuuFileBase>{
-		private DirectoryInfo dirInfo;
-		public int musicNum = 0;
-		public int directoryNum = 0;
+	private class RuuAdapter extends ArrayAdapter<RuuFileBase>{
+		@Nullable private DirectoryInfo dirInfo;
+		int musicNum = 0;
+		int directoryNum = 0;
 
-		public RuuAdapter(@NonNull Context context){
+		RuuAdapter(@NonNull Context context){
 			super(context, R.layout.list_item);
 		}
 
-		public void setRuuFiles(@NonNull DirectoryInfo dirInfo) throws RuuFileBase.CanNotOpen{
+		void setRuuFiles(@NonNull DirectoryInfo dirInfo) throws RuuFileBase.CanNotOpen{
 			clear();
 			searchQuery = null;
 			this.dirInfo = dirInfo;
@@ -343,7 +344,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			}
 		}
 
-		public void setSearchResults(@NonNull List<RuuFileBase> results){
+		void setSearchResults(@NonNull List<RuuFileBase> results){
 			if(dirInfo != null){
 				dirInfo.selection = ((ListView)getActivity().findViewById(R.id.playlist)).getFirstVisiblePosition();
 			}
@@ -369,7 +370,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			}
 		}
 
-		public void resumeFromSearch() throws RuuFileBase.CanNotOpen{
+		void resumeFromSearch() throws RuuFileBase.CanNotOpen{
 			if(dirInfo != null){
 				clear();
 				setRuuFiles(dirInfo);
@@ -382,6 +383,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 		}
 
 		@Override
+		@IntRange(from=0, to=2)
 		public int getItemViewType(int position){
 			if(searchQuery != null){
 				return 2;
