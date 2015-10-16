@@ -345,9 +345,9 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 				add(music);
 			}
 
-			try{
-				((ListView)getActivity().findViewById(R.id.playlist)).setSelection(dirInfo.selection);
-			}catch(NullPointerException e){
+			ListView listView = (ListView)getActivity().findViewById(R.id.playlist);
+			if(listView != null){
+				listView.setSelection(dirInfo.selection);
 			}
 		}
 
@@ -371,9 +371,9 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 				}
 			}
 
-			try{
-				((ListView)getActivity().findViewById(R.id.playlist)).setSelection(0);
-			}catch(NullPointerException e){
+			ListView listView = (ListView)getActivity().findViewById(R.id.playlist);
+			if(listView != null){
+				listView.setSelection(0);
 			}
 		}
 

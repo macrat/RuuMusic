@@ -96,12 +96,14 @@ public class RuuDirectory extends RuuFileBase{
 
 			for(File file: files){
 				if(file.getName().lastIndexOf(".") != 0){
+					RuuDirectory dir;
 					try{
-						RuuDirectory dir = RuuDirectory.getInstance(context, file.getPath());
-						result.add(dir);
-						cacheTmp.add(dir.path);
+						dir = RuuDirectory.getInstance(context, file.getPath());
 					}catch(RuuFileBase.CanNotOpen e){
+						continue;
 					}
+					result.add(dir);
+					cacheTmp.add(dir.path);
 				}
 			}
 
@@ -171,10 +173,13 @@ public class RuuDirectory extends RuuFileBase{
 		ArrayList<RuuFile> list = new ArrayList<>();
 
 		for(RuuDirectory dir: getDirectories()){
+			ArrayList<RuuFile> files;
 			try{
-				list.addAll(dir.getMusicsRecursiveWithoutCache());
+				files = dir.getMusicsRecursiveWithoutCache();
 			}catch(RuuFileBase.CanNotOpen e){
+				continue;
 			}
+			list.addAll(files);
 		}
 
 		list.addAll(getMusics());
@@ -201,10 +206,13 @@ public class RuuDirectory extends RuuFileBase{
 
 		ArrayList<RuuDirectory> dirs = getDirectories();
 		for(RuuDirectory dir: dirs){
+			ArrayList<RuuDirectory> ruuDirs;
 			try{
-				list.addAll(dir.getDirectoriesWithoutCache());
+				ruuDirs = dir.getDirectoriesWithoutCache();
 			}catch(RuuFileBase.CanNotOpen e){
+				continue;
 			}
+			list.addAll(ruuDirs);
 		}
 
 		list.addAll(dirs);
@@ -235,14 +243,17 @@ public class RuuDirectory extends RuuFileBase{
 		}else{
 			result = new ArrayList<>();
 			for(File file: list){
+				RuuFileBase ruuFile;
 				try{
 					if(file.isDirectory()){
-						result.add(RuuDirectory.getInstance(context, file.getPath()));
+						ruuFile = RuuDirectory.getInstance(context, file.getPath());
 					}else{
-						result.add(new RuuFile(context, file.getPath()));
+						ruuFile = new RuuFile(context, file.getPath());
 					}
 				}catch(RuuFile.CanNotOpen e){
+					continue;
 				}
+				result.add(ruuFile);
 			}
 		}
 
