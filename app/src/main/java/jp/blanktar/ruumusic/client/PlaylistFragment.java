@@ -116,7 +116,9 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 	public void updateRoot(){
 		updateTitle();
 		updateMenu();
-		changeDir(current.path);
+		if(current != null){
+			changeDir(current.path);
+		}
 	}
 
 	void changeDir(@NonNull RuuDirectory dir){
@@ -216,7 +218,9 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			return false;
 		}
 
-		if(current.path.equals(root)){
+		if(current == null){
+			return false;
+		}else if(current.path.equals(root)){
 			return false;
 		}else{
 			try{
@@ -241,6 +245,9 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 
 	@Override
 	public boolean onQueryTextSubmit(@NonNull String text){
+		if(current == null){
+			return false;
+		}
 		if(TextUtils.isEmpty(text)){
 			onClose();
 			return false;
@@ -389,7 +396,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 				return 2;
 			}
 	
-			if(getItem(position).isDirectory() && ((RuuDirectory)getItem(position)).contains(dirInfo.path)){
+			if(getItem(position).isDirectory() && dirInfo != null && ((RuuDirectory)getItem(position)).contains(dirInfo.path)){
 				return 1;
 			}else{
 				return 0;
@@ -412,7 +419,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 				}catch(RuuFileBase.CanNotOpen | RuuFileBase.OutOfRootDirectory e){
 					((TextView)convertView.findViewById(R.id.search_path)).setText("");
 				}
-			}else{
+			}else if(dirInfo != null){
 				if(item.isDirectory() && ((RuuDirectory)item).contains(dirInfo.path)){
 					if(convertView == null){
 						convertView = ((LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.list_item_upper, null);
