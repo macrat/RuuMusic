@@ -43,6 +43,8 @@ import jp.blanktar.ruumusic.util.RuuDirectory;
 import jp.blanktar.ruumusic.util.RuuFile;
 import jp.blanktar.ruumusic.util.RuuFileBase;
 
+import android.util.Log;
+
 
 @WorkerThread
 public class RuuService extends Service implements SharedPreferences.OnSharedPreferenceChangeListener{
@@ -526,8 +528,10 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 	}
 
 	private void pause(){
-		if(status == Status.READY && player.isPlaying()){
-			player.pause();
+		if(status == Status.READY){
+			if(player.isPlaying()){
+				player.pause();
+			}
 			sendStatus();
 			removePlayingNotification();
 			updateMediaMetadata();
