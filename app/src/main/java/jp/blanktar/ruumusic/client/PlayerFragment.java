@@ -34,21 +34,21 @@ import jp.blanktar.ruumusic.util.RuuFileBase;
 
 @UiThread
 public class PlayerFragment extends Fragment{
-	private RuuFile currentMusic;
-	private String searchQuery = null;
-	private RuuDirectory searchPath = null;
-	private RuuDirectory recursivePath;
+	@Nullable private RuuFile currentMusic;
+	@Nullable private String searchQuery = null;
+	@Nullable private RuuDirectory searchPath = null;
+	@Nullable private RuuDirectory recursivePath = null;
 
 	private int duration = -1;
 	private long basetime = -1;
 	private int current = -1;
 
-	private boolean playing;
-	private String repeatMode;
-	private boolean shuffleMode;
+	private boolean playing = false;
+	@NonNull private String repeatMode = "off";
+	private boolean shuffleMode = false;
 	private boolean seeking = false;
 
-	private Timer updateProgressTimer;
+	@Nullable private Timer updateProgressTimer;
 
 
 	@Override
@@ -308,7 +308,7 @@ public class PlayerFragment extends Fragment{
 		updateRoot();
 	}
 
-	public void updateRoot(){
+	void updateRoot(){
 		String path = "";
 		String name = "";
 
