@@ -125,7 +125,7 @@ public class Playlist{
 		List<RuuFile> listTmp = Arrays.asList(playlistSorted.clone());
 		do{
 			Collections.shuffle(listTmp);
-		}while(keepCurrent && listTmp.get(0).equals(current));
+		}while(keepCurrent && listTmp.get(0).equals(current) && playlist.length > 1);
 		playlist = listTmp.toArray(new RuuFile[playlistSorted.length]);
 
 		if(keepCurrent){
