@@ -59,7 +59,7 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 	public final static String ACTION_FAILED_PLAY = "jp.blanktar.ruumusic.FAILED_PLAY";
 	public final static String ACTION_NOT_FOUND = "jp.blanktar.ruumusic.NOT_FOUND";
 
-	public static enum Status{
+	public enum Status{
 		INITIAL,
 		LOADING,
 		LOADING_FROM_LASTEST,
@@ -99,60 +99,48 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 		endOfListSE = MediaPlayer.create(getApplicationContext(), R.raw.eol);
 		errorSE = MediaPlayer.create(getApplicationContext(), R.raw.err);
 
-		final SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-		repeatMode = preference.getString("repeat_mode", "off");
-		shuffleMode = preference.getBoolean("shuffle_mode", false);
+		repeatMode = getPreference("repeat_mode", "off");
+		shuffleMode = getPreference("shuffle_mode", false);
 
-		String recursive = preference.getString("recursive_path", null);
+		String recursive = getPreference("recursive_path", null);
 		if(recursive != null){
 			try{
 				playlist = Playlist.getRecursive(getApplicationContext(), recursive);
-				if(shuffleMode){
-					playlist.shuffle(false);
-				}
 			}catch(RuuFileBase.CanNotOpen | Playlist.EmptyDirectory e){
 				playlist = null;
 			}
 		}
 
 		if(playlist == null){
-			String searchQuery = preference.getString("search_query", null);
-			String searchPath = preference.getString("search_path", null);
+			String searchQuery = getPreference("search_query", null);
+			String searchPath = getPreference("search_path", null);
 			if(searchQuery != null && searchPath != null){
 				try{
 					playlist = Playlist.getSearchResults(getApplicationContext(), searchPath, searchQuery);
-					if(shuffleMode){
-						playlist.shuffle(false);
-					}
 				}catch(RuuFileBase.CanNotOpen | Playlist.EmptyDirectory e){
 					playlist = null;
 				}
 			}
 		}
 
-		String last_play = preference.getString("last_play_music", "");
+		String last_play = getPreference("last_play_music", "");
 		if(!last_play.equals("")){
-			if(playlist != null){
-				try{
+			try{
+				if(playlist != null){
 					playlist.goMusic(new RuuFile(getApplicationContext(), last_play));
-					status = Status.LOADING_FROM_LASTEST;
-				}catch(RuuFileBase.CanNotOpen | Playlist.NotFound e){
-					playlist = null;
-				}
-			}else{
-				try{
+				}else{
 					playlist = Playlist.getByMusicPath(getApplicationContext(), last_play);
-					status = Status.LOADING_FROM_LASTEST;
-				}catch(RuuFileBase.CanNotOpen | Playlist.EmptyDirectory e){
-					playlist = null;
 				}
+			}catch(RuuFileBase.CanNotOpen | Playlist.NotFound | Playlist.EmptyDirectory e){
+				playlist = null;
 			}
 			if(playlist != null){
+				status = Status.LOADING_FROM_LASTEST;
 				load(new MediaPlayer.OnPreparedListener(){
 					@Override
 					public void onPrepared(@Nullable MediaPlayer mp){
 						status = Status.READY;
-						player.seekTo(preference.getInt("last_play_position", 0));
+						player.seekTo(getPreference("last_play_position", 0));
 						if(status == Status.WAITING_FOR_LOAD){
 							play();
 						}else{
@@ -161,6 +149,10 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 					}
 				});
 			}
+		}
+
+		if(playlist != null && shuffleMode){
+			playlist.shuffle(true);
 		}
 
 		player.setOnCompletionListener(new MediaPlayer.OnCompletionListener(){
@@ -217,10 +209,9 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 			}
 		});
 
-		registerReceiver(broadcastReceiver, new IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY));
-
 		updateAudioEffect();
 		PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).registerOnSharedPreferenceChangeListener(this);
+		registerReceiver(broadcastReceiver, new IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY));
 
 		startDeathTimer();
 	}
@@ -233,23 +224,13 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 					play(intent.getStringExtra("path"));
 					break;
 				case ACTION_PLAY_RECURSIVE:
-					try{
-						playlist = Playlist.getRecursive(getApplicationContext(), intent.getStringExtra("path"));
-					}catch(RuuFileBase.CanNotOpen e){
-						showToast(String.format(getString(R.string.cant_open_dir), intent.getStringExtra("path")));
-						break;
-					}catch(Playlist.EmptyDirectory e){
-						showToast(String.format(getString(R.string.has_not_music), intent.getStringExtra("path")));
-						break;
-					}
-					if(shuffleMode){
-						playlist.shuffle(false);
-					}
-					playCurrent();
-					break;
 				case ACTION_PLAY_SEARCH:
 					try{
-						playlist = Playlist.getSearchResults(getApplicationContext(), intent.getStringExtra("path"), intent.getStringExtra("query"));
+						if(intent.getAction().equals(ACTION_PLAY_RECURSIVE)){
+							playlist = Playlist.getRecursive(getApplicationContext(), intent.getStringExtra("path"));
+						}else{
+							playlist = Playlist.getSearchResults(getApplicationContext(), intent.getStringExtra("path"), intent.getStringExtra("query"));
+						}
 					}catch(RuuFileBase.CanNotOpen e){
 						showToast(String.format(getString(R.string.cant_open_dir), intent.getStringExtra("path")));
 						break;
@@ -398,22 +379,18 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 	}
 
 	private void updatePlayingNotification(){
-		if(!player.isPlaying()){
-			return;
+		if(player.isPlaying()){
+			startForeground(1, makeNotification());
 		}
-
-		startForeground(1, makeNotification());
 	}
 
 	private void removePlayingNotification(){
-		if(player.isPlaying()){
-			return;
-		}
+		if(!player.isPlaying()){
+			stopForeground(true);
 
-		stopForeground(true);
-
-		if(Build.VERSION.SDK_INT >= 16 && playlist != null){
-			((NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE)).notify(1, makeNotification());
+			if(Build.VERSION.SDK_INT >= 16 && playlist != null){
+				((NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE)).notify(1, makeNotification());
+			}
 		}
 	}
 
@@ -448,14 +425,13 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 			}else{
 				((NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE)).cancel(1);
 			}
+
 			player.reset();
-
-			removeSavedStatus();
-
 			status = Status.INITIAL;
 			playlist = null;
 
 			sendStatus();
+			removeSavedStatus();
 		}else if(player.isPlaying()){
 			updatePlayingNotification();
 			updateMediaMetadata();
@@ -517,14 +493,12 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 
 		try{
 			playlist = Playlist.getByMusicPath(getApplicationContext(), path);
+			playCurrent();
 		}catch(RuuFileBase.CanNotOpen e){
 			showToast(String.format(getString(R.string.cant_open_dir), e.path));
-			return;
 		}catch(Playlist.EmptyDirectory e){
 			showToast(String.format(getString(R.string.has_not_music), path));
-			return;
 		}
-		playCurrent();
 	}
 
 	private void playCurrent(){
@@ -752,6 +726,10 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 
 	private int getPreference(@NonNull String key, int default_value){
 		return PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getInt(key, default_value);
+	}
+
+	private String getPreference(@NonNull String key, @Nullable String default_value){
+		return PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString(key, default_value);
 	}
 
 
