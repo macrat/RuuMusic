@@ -83,12 +83,16 @@ public class PlayerFragment extends Fragment{
 				Intent intent = new Intent(getActivity(), RuuService.class);
 				intent.setAction(RuuService.ACTION_REPEAT);
 
-				if(repeatMode != null && repeatMode.equals("loop")){
-					intent.putExtra("mode", "one");
-				}else if(repeatMode != null && repeatMode.equals("one")){
-					intent.putExtra("mode", "off");
-				}else{
-					intent.putExtra("mode", "loop");
+				switch(repeatMode){
+					case "loop":
+						intent.putExtra("mode", "one");
+						break;
+					case "one":
+						intent.putExtra("mode", "off");
+						break;
+					default:
+						intent.putExtra("mode", "loop");
+						break;
 				}
 	
 				getActivity().startService(intent);
@@ -130,7 +134,7 @@ public class PlayerFragment extends Fragment{
 						main.moveToPlaylist(recursivePath);
 					}
 				}
-				if(searchQuery != null){
+				if(searchPath != null && searchQuery != null){
 					MainActivity main = (MainActivity)getActivity();
 					if(main != null){
 						main.moveToPlaylistSearch(searchPath, searchQuery);
@@ -211,7 +215,9 @@ public class PlayerFragment extends Fragment{
 
 		getActivity().unregisterReceiver(receiver);
 
-		updateProgressTimer.cancel();
+		if(updateProgressTimer != null){
+			updateProgressTimer.cancel();
+		}
 	}
 
 	final private BroadcastReceiver receiver = new BroadcastReceiver(){
