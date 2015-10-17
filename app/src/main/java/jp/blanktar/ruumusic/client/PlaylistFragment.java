@@ -329,7 +329,18 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 
 			RuuDirectory rootDirectory = RuuDirectory.rootDirectory(getContext());
 			if(!rootDirectory.equals(dirInfo.path) && rootDirectory.contains(dirInfo.path)){
-				add(dirInfo.path.getParent());
+				int i=0;
+				while(true){
+					i++;
+					try{
+						add(dirInfo.path.getParent(i));
+						break;
+					}catch(RuuFileBase.CanNotOpen e){
+						if(e.path == null){
+							break;
+						}
+					}
+				}
 			}
 
 			List<RuuDirectory> directories = dirInfo.path.getDirectories();

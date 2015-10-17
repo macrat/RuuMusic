@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.content.Context;
@@ -60,13 +61,21 @@ public abstract class RuuFileBase implements Comparable<RuuFileBase>{
 	}
 
 	@NonNull
-	public RuuDirectory getParent() throws CanNotOpen{
-		String parent = path.getParent();
-		if(parent == null){
-			throw new CanNotOpen(null);
-		}else{
-			return RuuDirectory.getInstance(context, parent);
+	public RuuDirectory getParent(@IntRange(from=1) int nth) throws CanNotOpen{
+		assert nth >= 1;
+		File parent = path;
+		for(int i=0; i<nth; i++){
+			parent = parent.getParentFile();
+			if(parent == null){
+				throw new CanNotOpen(null);
+			}
 		}
+		return RuuDirectory.getInstance(context, parent.getPath());
+	}
+
+	@NonNull
+	public RuuDirectory getParent() throws CanNotOpen{
+		return getParent(1);
 	}
 
 	public boolean equals(@NonNull RuuFileBase file){
