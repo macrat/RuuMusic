@@ -67,19 +67,20 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 		String currentPath = PreferenceManager.getDefaultSharedPreferences(getContext())
 				.getString("current_view_path", null);
 		try{
-			if(currentPath == null){
-				changeDir(RuuDirectory.getInstance(getContext(), Environment.getExternalStorageDirectory().getPath()));
+			if(currentPath != null){
+				changeDir(RuuDirectory.getInstance(getContext(), currentPath));
 			}else{
-				try{
-					changeDir(RuuDirectory.getInstance(getContext(), currentPath));
-				}catch(RuuFileBase.CanNotOpen e){
-					changeDir(RuuDirectory.rootDirectory(getContext()));
-				}
+				changeDir(RuuDirectory.getInstance(getContext(), Environment.getExternalStorageDirectory().getPath()));
 			}
 		}catch(RuuFileBase.CanNotOpen err){
-			PreferenceManager.getDefaultSharedPreferences(getContext()).edit()
-					.remove("root_directory")
-					.apply();
+			try{
+				changeDir(RuuDirectory.rootDirectory(getContext()));
+			}catch(RuuFileBase.CanNotOpen e){
+				Toast.makeText(getActivity(), String.format(getString(R.string.cant_open_dir), e.path), Toast.LENGTH_LONG).show();
+				PreferenceManager.getDefaultSharedPreferences(getContext()).edit()
+						.remove("root_directory")
+						.apply();
+			}
 		}
 
 		return view;
