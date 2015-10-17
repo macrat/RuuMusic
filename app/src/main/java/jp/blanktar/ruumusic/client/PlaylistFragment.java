@@ -136,9 +136,10 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			return;
 		}
 
-		if(((MainActivity)getActivity()).searchView != null){
-			((MainActivity)getActivity()).searchView.setQuery("", false);
-			((MainActivity)getActivity()).searchView.setIconified(true);
+		MainActivity main = (MainActivity)getActivity();
+		if(main.searchView != null && !main.searchView.isIconified()){
+			main.searchView.setQuery("", false);
+			main.searchView.setIconified(true);
 		}
 
 		while(!directoryCache.empty() && !directoryCache.peek().path.contains(dir)){
@@ -291,11 +292,8 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 		try{
 			adapter.resumeFromSearch();
 		}catch(RuuFileBase.CanNotOpen e){
-			try{
-				changeDir(RuuDirectory.rootDirectory(getContext()));
-			}catch(RuuFileBase.CanNotOpen e2){
-				adapter.clear();
-			}
+			Toast.makeText(getActivity(), String.format(getString(R.string.cant_open_dir), e.path), Toast.LENGTH_LONG).show();
+			adapter.clear();
 		}
 
 		updateMenu();
