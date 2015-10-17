@@ -225,12 +225,18 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 		}else if(current.path.equals(root)){
 			return false;
 		}else{
-			try{
-				changeDir(current.path.getParent());
-			}catch(RuuDirectory.CanNotOpen e){
-				Toast.makeText(getActivity(), String.format(getString(R.string.cant_open_dir), current.path.path.getParent()), Toast.LENGTH_LONG).show();
+			int i=0;
+			while(true){
+				i++;
+				try{
+					changeDir(current.path.getParent(i));
+					return true;
+				}catch(RuuFileBase.CanNotOpen e){
+					if(e.path == null){
+						return false;
+					}
+				}
 			}
-			return true;
 		}
 	}
 
