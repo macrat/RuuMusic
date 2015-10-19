@@ -43,8 +43,6 @@ import jp.blanktar.ruumusic.util.RuuDirectory;
 import jp.blanktar.ruumusic.util.RuuFile;
 import jp.blanktar.ruumusic.util.RuuFileBase;
 
-import android.util.Log;
-
 
 @WorkerThread
 public class RuuService extends Service implements SharedPreferences.OnSharedPreferenceChangeListener{
