@@ -225,9 +225,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 		}else if(current.path.equals(root)){
 			return false;
 		}else{
-			int i=0;
-			while(true){
-				i++;
+			for(int i=1;; i++){
 				try{
 					changeDir(current.path.getParent(i));
 					return true;
@@ -335,9 +333,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 
 			RuuDirectory rootDirectory = RuuDirectory.rootDirectory(getContext());
 			if(!rootDirectory.equals(dirInfo.path) && rootDirectory.contains(dirInfo.path)){
-				int i=0;
-				while(true){
-					i++;
+				for(int i=1; ; i++){
 					try{
 						add(dirInfo.path.getParent(i));
 						break;
