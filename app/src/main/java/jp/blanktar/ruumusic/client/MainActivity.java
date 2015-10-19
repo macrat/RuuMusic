@@ -10,7 +10,6 @@ import android.support.v7.widget.SearchView;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -21,6 +20,7 @@ import android.widget.Toast;
 
 import jp.blanktar.ruumusic.R;
 import jp.blanktar.ruumusic.service.RuuService;
+import jp.blanktar.ruumusic.util.Preference;
 import jp.blanktar.ruumusic.util.RuuDirectory;
 import jp.blanktar.ruumusic.util.RuuFile;
 import jp.blanktar.ruumusic.util.RuuFileBase;
@@ -47,9 +47,7 @@ public class MainActivity extends AppCompatActivity{
 		try{
 			RuuDirectory.rootDirectory(getApplicationContext());
 		}catch(RuuFileBase.CanNotOpen e){
-			PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit()
-					.remove("root_directory")
-					.apply();
+			Preference.Str.ROOT_DIRECTORY.remove(getApplicationContext());
 		}
 
 		viewPager = (ViewPager)findViewById(R.id.viewPager);
@@ -92,16 +90,13 @@ public class MainActivity extends AppCompatActivity{
 				viewPager.setCurrentItem(0);
 			}catch(RuuFileBase.CanNotOpen e){
 				Toast.makeText(getApplicationContext(), getString(R.string.music_not_found), Toast.LENGTH_LONG).show();
-				viewPager.setCurrentItem(PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
-						.getInt("last_view_page", 1));
+				viewPager.setCurrentItem(Preference.Int.LAST_VIEW_PAGE.get(getApplicationContext()));
 			}catch(RuuFileBase.OutOfRootDirectory e){
 				Toast.makeText(getApplicationContext(), String.format(getString(R.string.out_of_root), path), Toast.LENGTH_LONG).show();
-				viewPager.setCurrentItem(PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
-						.getInt("last_view_page", 1));
+				viewPager.setCurrentItem(Preference.Int.LAST_VIEW_PAGE.get(getApplicationContext()));
 			}
 		}else{
-			viewPager.setCurrentItem(PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
-					.getInt("last_view_page", 1));
+			viewPager.setCurrentItem(Preference.Int.LAST_VIEW_PAGE.get(getApplicationContext()));
 		}
 	}
 
@@ -139,9 +134,7 @@ public class MainActivity extends AppCompatActivity{
 
 		RuuService.MediaButtonReceiver.onStopActivity(getApplicationContext());
 
-		PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit()
-				.putInt("last_view_page", getCurrentPage())
-				.apply();
+		Preference.Int.LAST_VIEW_PAGE.set(getApplicationContext(), getCurrentPage());
 	}
 
 	@Override
@@ -170,9 +163,7 @@ public class MainActivity extends AppCompatActivity{
 			if(id == R.id.action_set_root){
 				rootPath = playlist.current.path.getFullPath();
 			}
-			PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit()
-					.putString("root_directory", rootPath)
-					.apply();
+			Preference.Str.ROOT_DIRECTORY.set(getApplicationContext(), rootPath);
 
 			playlist.updateRoot();
 			player.updateRoot();
@@ -266,3 +257,4 @@ public class MainActivity extends AppCompatActivity{
 		return super.onKeyUp(keyCode, event);
 	}
 }
+

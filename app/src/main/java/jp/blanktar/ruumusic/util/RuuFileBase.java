@@ -10,7 +10,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.content.Context;
 import android.os.Build;
-import android.preference.PreferenceManager;
 
 
 public abstract class RuuFileBase implements Comparable<RuuFileBase>{
@@ -37,18 +36,16 @@ public abstract class RuuFileBase implements Comparable<RuuFileBase>{
 	}
 
 	@NonNull
-	static String getRootDirectory(Context context){
-		return PreferenceManager.getDefaultSharedPreferences(context).getString("root_directory", "/");
-	}
-
-	@NonNull
 	public abstract String getFullPath();
 
 	public abstract boolean isDirectory();
 
 	@NonNull
 	public String getRuuPath() throws OutOfRootDirectory{
-		String root = getRootDirectory(context);
+		String root = Preference.Str.ROOT_DIRECTORY.get(context);
+		if(root == null){
+			root = "/";
+		}
 		if(!getFullPath().startsWith(root)){
 			throw new OutOfRootDirectory();
 		}
@@ -118,3 +115,4 @@ public abstract class RuuFileBase implements Comparable<RuuFileBase>{
 		}
 	}
 }
+

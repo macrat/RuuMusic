@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import android.support.annotation.CheckResult;
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -37,8 +36,8 @@ import android.view.KeyEvent;
 import android.widget.Toast;
 
 import jp.blanktar.ruumusic.R;
-import jp.blanktar.ruumusic.client.AudioPreferenceActivity;
 import jp.blanktar.ruumusic.client.MainActivity;
+import jp.blanktar.ruumusic.util.Preference;
 import jp.blanktar.ruumusic.util.RuuDirectory;
 import jp.blanktar.ruumusic.util.RuuFile;
 import jp.blanktar.ruumusic.util.RuuFileBase;
@@ -98,10 +97,10 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 		endOfListSE = MediaPlayer.create(getApplicationContext(), R.raw.eol);
 		errorSE = MediaPlayer.create(getApplicationContext(), R.raw.err);
 
-		repeatMode = getPreference("repeat_mode", "off");
-		shuffleMode = getPreference("shuffle_mode", false);
+		repeatMode = Preference.Str.REPEAT_MODE.get(getApplicationContext());
+		shuffleMode = Preference.Bool.SHUFFLE_MODE.get(getApplicationContext());
 
-		String recursive = getPreference("recursive_path", null);
+		String recursive = Preference.Str.RECURSIVE_PATH.get(getApplicationContext());
 		if(recursive != null){
 			try{
 				playlist = Playlist.getRecursive(getApplicationContext(), recursive);
@@ -109,8 +108,8 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 				playlist = null;
 			}
 		}else{
-			String searchQuery = getPreference("search_query", null);
-			String searchPath = getPreference("search_path", null);
+			String searchQuery = Preference.Str.SEARCH_QUERY.get(getApplicationContext());
+			String searchPath = Preference.Str.SEARCH_PATH.get(getApplicationContext());
 			if(searchQuery != null && searchPath != null){
 				try{
 					playlist = Playlist.getSearchResults(getApplicationContext(), searchPath, searchQuery);
@@ -120,8 +119,8 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 			}
 		}
 
-		String last_play = getPreference("last_play_music", "");
-		if(!last_play.equals("")){
+		String last_play = Preference.Str.LAST_PLAY_MUSIC.get(getApplicationContext());
+		if(last_play != null && !last_play.equals("")){
 			try{
 				if(playlist != null){
 					playlist.goMusic(new RuuFile(getApplicationContext(), last_play));
@@ -197,7 +196,7 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 			public void onPrepared(@NonNull MediaPlayer mp){
 				if(status == Status.LOADING_FROM_LASTEST){
 					status = Status.READY;
-					player.seekTo(getPreference("last_play_position", 0));
+					player.seekTo(Preference.Int.LAST_PLAY_POSITION.get(getApplicationContext()));
 					sendStatus();
 				}else{
 					status = Status.READY;
@@ -292,7 +291,7 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 
 	@Override
 	public void onSharedPreferenceChanged(@NonNull SharedPreferences preference, @NonNull String key){
-		if(key.startsWith(AudioPreferenceActivity.PREFERENCE_PREFIX)){
+		if(key.startsWith(Preference.AUDIO_PREFIX)){
 			updateAudioEffect();
 		}else if(key.equals("root_directory")){
 			updateRoot();
@@ -326,22 +325,29 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 
 	private void saveStatus(){
 		if(playlist != null){
-			PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit()
-					.putString("last_play_music", playlist.getCurrent().getFullPath())
-					.putInt("last_play_position", player.getCurrentPosition())
-					.putString("recursive_path", playlist.type == Playlist.Type.RECURSIVE ? playlist.path.getFullPath() : null)
-					.putString("search_query", playlist.query)
-					.putString("search_path", playlist.type == Playlist.Type.SEARCH ? playlist.path.getFullPath() : null)
-					.apply();
+			Preference.Str.LAST_PLAY_MUSIC.set(getApplicationContext(), playlist.getCurrent().getFullPath());
+			Preference.Int.LAST_PLAY_POSITION.set(getApplicationContext(), player.getCurrentPosition());
+
+			if(playlist.type == Playlist.Type.RECURSIVE){
+				Preference.Str.RECURSIVE_PATH.set(getApplicationContext(), playlist.path.getFullPath());
+			}else{
+				Preference.Str.RECURSIVE_PATH.remove(getApplicationContext());
+			}
+
+			if(playlist.type == Playlist.Type.SEARCH){
+				Preference.Str.SEARCH_PATH.set(getApplicationContext(), playlist.path.getFullPath());
+				Preference.Str.SEARCH_QUERY.set(getApplicationContext(), playlist.query);
+			}else{
+				Preference.Str.SEARCH_PATH.remove(getApplicationContext());
+				Preference.Str.SEARCH_QUERY.remove(getApplicationContext());
+			}
 		}
 	}
 
 	private void removeSavedStatus(){
-		PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit()
-				.remove("last_play_music")
-				.remove("last_play_position")
-				.remove("recursive_path")
-				.apply();
+		Preference.Str.LAST_PLAY_MUSIC.remove(getApplicationContext());
+		Preference.Int.LAST_PLAY_POSITION.remove(getApplicationContext());
+		Preference.Str.RECURSIVE_PATH.remove(getApplicationContext());
 	}
 
 	@NonNull
@@ -552,9 +558,7 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 			repeatMode = mode;
 			sendStatus();
 
-			PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit()
-					.putString("repeat_mode", repeatMode)
-					.apply();
+			Preference.Str.REPEAT_MODE.set(getApplicationContext(), repeatMode);
 		}
 	}
 
@@ -570,9 +574,7 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 		shuffleMode = mode;
 		sendStatus();
 
-		PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit()
-				.putBoolean("shuffle_mode", shuffleMode)
-				.apply();
+		Preference.Bool.SHUFFLE_MODE.set(getApplicationContext(), shuffleMode);
 	}
 
 	private void next(){
@@ -668,67 +670,51 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 	}
 
 	private void updateAudioEffect(){
-		if(getPreference(AudioPreferenceActivity.PREFERENCE_BASSBOOST_ENABLED, false)){
+		if(Preference.Bool.BASSBOOST_ENABLED.get(getApplicationContext())){
 			if(bassBoost == null){
 				bassBoost = new BassBoost(0, player.getAudioSessionId());
 			}
-			bassBoost.setStrength((short)getPreference(AudioPreferenceActivity.PREFERENCE_BASSBOOST_LEVEL, 0));
+			bassBoost.setStrength((short)Preference.Int.BASSBOOST_LEVEL.get(getApplicationContext()));
 			bassBoost.setEnabled(true);
 		}else if(bassBoost != null){
 			bassBoost.release();
 			bassBoost = null;
 		}
 
-		if(getPreference(AudioPreferenceActivity.PREFERENCE_REVERB_ENABLED, false)){
+		if(Preference.Bool.REVERB_ENABLED.get(getApplicationContext())){
 			if(presetReverb == null){
 				presetReverb = new PresetReverb(0, player.getAudioSessionId());
 			}
-			presetReverb.setPreset((short)getPreference(AudioPreferenceActivity.PREFERENCE_REVERB_TYPE, 0));
+			presetReverb.setPreset((short)Preference.Int.REVERB_TYPE.get(getApplicationContext()));
 			presetReverb.setEnabled(true);
 		}else if(presetReverb != null){
 			presetReverb.release();
 			presetReverb = null;
 		}
 
-		if(Build.VERSION.SDK_INT >= 19 && getPreference(AudioPreferenceActivity.PREFERENCE_LOUDNESS_ENABLED, false)){
+		if(Build.VERSION.SDK_INT >= 19 && Preference.Bool.LOUDNESS_ENABLED.get(getApplicationContext())){
 			if(loudnessEnhancer == null){
 				loudnessEnhancer = new LoudnessEnhancer(player.getAudioSessionId());
 			}
-			loudnessEnhancer.setTargetGain(getPreference(AudioPreferenceActivity.PREFERENCE_LOUDNESS_LEVEL, 0));
+			loudnessEnhancer.setTargetGain(Preference.Int.LOUDNESS_LEVEL.get(getApplicationContext()));
 			loudnessEnhancer.setEnabled(true);
 		}else if(loudnessEnhancer != null){
 			loudnessEnhancer.release();
 			loudnessEnhancer = null;
 		}
 
-		if(getPreference(AudioPreferenceActivity.PREFERENCE_EQUALIZER_ENABLED, false)){
+		if(Preference.Bool.EQUALIZER_ENABLED.get(getApplicationContext())){
 			if(equalizer == null){
 				equalizer = new Equalizer(0, player.getAudioSessionId());
 			}
 			for(short i=0; i<equalizer.getNumberOfBands(); i++){
-				equalizer.setBandLevel(i, (short)getPreference(AudioPreferenceActivity.PREFERENCE_EQUALIZER_VALUE + i, (equalizer.getBandLevelRange()[0] + equalizer.getBandLevelRange()[1])/2));
+				equalizer.setBandLevel(i, (short)Preference.IntArray.EQUALIZER_LEVEL.get(getApplicationContext(), i));
 			}
 			equalizer.setEnabled(true);
 		}else if(equalizer != null){
 			equalizer.release();
 			equalizer = null;
 		}
-	}
-
-	@CheckResult
-	private boolean getPreference(@NonNull String key, boolean default_value){
-		return PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean(key, default_value);
-	}
-
-	@CheckResult
-	private int getPreference(@NonNull String key, int default_value){
-		return PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getInt(key, default_value);
-	}
-
-	@Nullable
-	@CheckResult
-	private String getPreference(@NonNull String key, @Nullable String default_value){
-		return PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString(key, default_value);
 	}
 
 
@@ -850,3 +836,4 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 		}
 	}
 }
+

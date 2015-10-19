@@ -7,7 +7,6 @@ import android.media.audiofx.Equalizer;
 import android.media.audiofx.PresetReverb;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SwitchCompat;
 import android.view.View;
@@ -20,24 +19,10 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import jp.blanktar.ruumusic.R;
+import jp.blanktar.ruumusic.util.Preference;
 
 
 public class AudioPreferenceActivity extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener{
-	public final static String PREFERENCE_PREFIX = "audio_";
-
-	public final static String PREFERENCE_BASSBOOST_ENABLED = PREFERENCE_PREFIX + "bassboost_enabled";
-	public final static String PREFERENCE_BASSBOOST_LEVEL = PREFERENCE_PREFIX + "bassboost_level";
-
-	public final static String PREFERENCE_REVERB_ENABLED = PREFERENCE_PREFIX + "reverb_enabled";
-	public final static String PREFERENCE_REVERB_TYPE = PREFERENCE_PREFIX + "reverb_type";
-
-	public final static String PREFERENCE_LOUDNESS_ENABLED = PREFERENCE_PREFIX + "loudness_enabled";
-	public final static String PREFERENCE_LOUDNESS_LEVEL = PREFERENCE_PREFIX + "loudness_level";
-
-	public final static String PREFERENCE_EQUALIZER_ENABLED = PREFERENCE_PREFIX + "equalizer_enabled";
-	public final static String PREFERENCE_EQUALIZER_VALUE = PREFERENCE_PREFIX + "equalizer_value_";
-
-
 	@Override
 	protected void onCreate(@Nullable Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
@@ -48,14 +33,14 @@ public class AudioPreferenceActivity extends AppCompatActivity implements Compou
 
 
 		((SwitchCompat)findViewById(R.id.bass_boost_switch)).setOnCheckedChangeListener(this);
-		((SwitchCompat)findViewById(R.id.bass_boost_switch)).setChecked(getPreference(PREFERENCE_BASSBOOST_ENABLED, false));
+		((SwitchCompat)findViewById(R.id.bass_boost_switch)).setChecked(Preference.Bool.BASSBOOST_ENABLED.get(getApplicationContext()));
 
-		findViewById(R.id.bass_boost_level).setEnabled(getPreference(PREFERENCE_BASSBOOST_ENABLED, false));
-		((SeekBar)findViewById(R.id.bass_boost_level)).setProgress(getPreference(PREFERENCE_BASSBOOST_LEVEL, 0));
+		findViewById(R.id.bass_boost_level).setEnabled(Preference.Bool.BASSBOOST_ENABLED.get(getApplicationContext()));
+		((SeekBar)findViewById(R.id.bass_boost_level)).setProgress(Preference.Int.BASSBOOST_LEVEL.get(getApplicationContext()));
 		((SeekBar)findViewById(R.id.bass_boost_level)).setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
 			@Override
 			public void onProgressChanged(@Nullable SeekBar seekBar, int progress, boolean fromUser){
-				putPreference(PREFERENCE_BASSBOOST_LEVEL, progress);
+				Preference.Int.BASSBOOST_LEVEL.set(getApplicationContext(), progress);
 			}
 
 			@Override
@@ -69,15 +54,15 @@ public class AudioPreferenceActivity extends AppCompatActivity implements Compou
 
 
 		((SwitchCompat)findViewById(R.id.reverb_switch)).setOnCheckedChangeListener(this);
-		((SwitchCompat)findViewById(R.id.reverb_switch)).setChecked(getPreference(PREFERENCE_REVERB_ENABLED, false));
-		findViewById(R.id.reverb_spinner).setEnabled(getPreference(PREFERENCE_REVERB_ENABLED, false));
+		((SwitchCompat)findViewById(R.id.reverb_switch)).setChecked(Preference.Bool.REVERB_ENABLED.get(getApplicationContext()));
+		findViewById(R.id.reverb_spinner).setEnabled(Preference.Bool.REVERB_ENABLED.get(getApplicationContext()));
 
 		ArrayAdapter adapter = ArrayAdapter.createFromResource(this, R.array.reverb_options, android.R.layout.simple_spinner_item);
 		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
 		Spinner spinner = (Spinner)findViewById(R.id.reverb_spinner);
 		spinner.setAdapter(adapter);
-		switch(getPreference(PREFERENCE_REVERB_TYPE, 0)){
+		switch(Preference.Int.REVERB_TYPE.get(getApplicationContext())){
 			case PresetReverb.PRESET_LARGEHALL:
 				spinner.setSelection(0);
 				break;
@@ -97,22 +82,26 @@ public class AudioPreferenceActivity extends AppCompatActivity implements Compou
 		spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
 			@Override
 			public void onItemSelected(@Nullable AdapterView<?> parent, @Nullable View view, int position, long id){
+				int type = -1;
 				switch(position){
 					case 0:
-						putPreference(PREFERENCE_REVERB_TYPE, PresetReverb.PRESET_LARGEHALL);
+						type = PresetReverb.PRESET_LARGEHALL;
 						break;
 					case 1:
-						putPreference(PREFERENCE_REVERB_TYPE, PresetReverb.PRESET_MEDIUMHALL);
+						type = PresetReverb.PRESET_MEDIUMHALL;
 						break;
 					case 2:
-						putPreference(PREFERENCE_REVERB_TYPE, PresetReverb.PRESET_LARGEROOM);
+						type = PresetReverb.PRESET_LARGEROOM;
 						break;
 					case 3:
-						putPreference(PREFERENCE_REVERB_TYPE, PresetReverb.PRESET_MEDIUMROOM);
+						type = PresetReverb.PRESET_MEDIUMROOM;
 						break;
 					case 4:
-						putPreference(PREFERENCE_REVERB_TYPE, PresetReverb.PRESET_SMALLROOM);
+						type = PresetReverb.PRESET_SMALLROOM;
 						break;
+				}
+				if(type >= 0){
+					Preference.Int.REVERB_TYPE.set(getApplicationContext(), type);
 				}
 			}
 
@@ -126,14 +115,14 @@ public class AudioPreferenceActivity extends AppCompatActivity implements Compou
 			findViewById(R.id.loudness_wrapper).setVisibility(View.GONE);
 		}else{
 			((SwitchCompat)findViewById(R.id.loudness_switch)).setOnCheckedChangeListener(this);
-			((SwitchCompat)findViewById(R.id.loudness_switch)).setChecked(getPreference(PREFERENCE_LOUDNESS_ENABLED, false));
-			findViewById(R.id.loudness_level).setEnabled(getPreference(PREFERENCE_LOUDNESS_ENABLED, false));
-			
-			((SeekBar)findViewById(R.id.loudness_level)).setProgress(getPreference(PREFERENCE_LOUDNESS_LEVEL, 0));
+			((SwitchCompat)findViewById(R.id.loudness_switch)).setChecked(Preference.Bool.LOUDNESS_ENABLED.get(getApplicationContext()));
+			findViewById(R.id.loudness_level).setEnabled(Preference.Bool.LOUDNESS_ENABLED.get(getApplicationContext()));
+
+			((SeekBar)findViewById(R.id.loudness_level)).setProgress(Preference.Int.LOUDNESS_LEVEL.get(getApplicationContext()));
 			((SeekBar)findViewById(R.id.loudness_level)).setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
 				@Override
 				public void onProgressChanged(@Nullable SeekBar seekBar, int progress, boolean fromUser){
-					putPreference(PREFERENCE_LOUDNESS_LEVEL, progress);
+					Preference.Int.LOUDNESS_LEVEL.set(getApplicationContext(), progress);
 				}
 
 				@Override
@@ -148,7 +137,7 @@ public class AudioPreferenceActivity extends AppCompatActivity implements Compou
 
 
 		((SwitchCompat)findViewById(R.id.equalizer_switch)).setOnCheckedChangeListener(this);
-		((SwitchCompat)findViewById(R.id.equalizer_switch)).setChecked(getPreference(PREFERENCE_EQUALIZER_ENABLED, false));
+		((SwitchCompat)findViewById(R.id.equalizer_switch)).setChecked(Preference.Bool.EQUALIZER_ENABLED.get(getApplicationContext()));
 
 		Equalizer eq = new Equalizer(0, (new MediaPlayer()).getAudioSessionId());
 		final int equalizer_min = eq.getBandLevelRange()[0];
@@ -160,13 +149,13 @@ public class AudioPreferenceActivity extends AppCompatActivity implements Compou
 
 			SeekBar seekBar = (SeekBar)newview.findViewById(R.id.equalizer_bar);
 			seekBar.setMax(equalizer_max - equalizer_min);
-			seekBar.setProgress(getPreference(PREFERENCE_EQUALIZER_VALUE + i, (equalizer_max + equalizer_min)/2) - equalizer_min);
+			seekBar.setProgress(Preference.IntArray.EQUALIZER_LEVEL.get(getApplicationContext(), i));
 			seekBar.setOnSeekBarChangeListener((new SeekBar.OnSeekBarChangeListener(){
 				private int id;
 
 				@Override
 				public void onProgressChanged(@Nullable SeekBar seekBar, int progress, boolean fromUser){
-					putPreference(PREFERENCE_EQUALIZER_VALUE + id, progress + equalizer_min);
+					Preference.IntArray.EQUALIZER_LEVEL.set(getApplicationContext(), id, progress + equalizer_min);
 				}
 
 				@Override
@@ -185,7 +174,7 @@ public class AudioPreferenceActivity extends AppCompatActivity implements Compou
 		}
 		eq.release();
 
-		setEqualizerEnabled(getPreference(PREFERENCE_EQUALIZER_ENABLED, false));
+		setEqualizerEnabled(Preference.Bool.EQUALIZER_ENABLED.get(getApplicationContext()));
 	}
 
 	@Override
@@ -206,19 +195,19 @@ public class AudioPreferenceActivity extends AppCompatActivity implements Compou
 		switch(button.getId()){
 			case R.id.bass_boost_switch:
 				findViewById(R.id.bass_boost_level).setEnabled(isChecked);
-				putPreference(PREFERENCE_BASSBOOST_ENABLED, isChecked);
+				Preference.Bool.BASSBOOST_ENABLED.set(getApplicationContext(), isChecked);
 				break;
 			case R.id.reverb_switch:
 				findViewById(R.id.reverb_spinner).setEnabled(isChecked);
-				putPreference(PREFERENCE_REVERB_ENABLED, isChecked);
+				Preference.Bool.REVERB_ENABLED.set(getApplicationContext(), isChecked);
 				break;
 			case R.id.loudness_switch:
 				findViewById(R.id.loudness_level).setEnabled(isChecked);
-				putPreference(PREFERENCE_LOUDNESS_ENABLED, isChecked);
+				Preference.Bool.LOUDNESS_ENABLED.set(getApplicationContext(), isChecked);
 				break;
 			case R.id.equalizer_switch:
 				setEqualizerEnabled(isChecked);
-				putPreference(PREFERENCE_EQUALIZER_ENABLED, isChecked);
+				Preference.Bool.EQUALIZER_ENABLED.set(getApplicationContext(), isChecked);
 				break;
 		}
 	}
@@ -234,24 +223,5 @@ public class AudioPreferenceActivity extends AppCompatActivity implements Compou
 		}
 		container.setEnabled(enabled);
 	}
-
-	private void putPreference(@NonNull String key, boolean value){
-		PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit()
-				.putBoolean(key, value)
-				.apply();
-	}
-
-	private void putPreference(@NonNull String key, int value){
-		PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit()
-				.putInt(key, value)
-				.apply();
-	}
-
-	private boolean getPreference(@NonNull String key, boolean default_value){
-		return PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean(key, default_value);
-	}
-
-	private int getPreference(@NonNull String key, int default_value){
-		return PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getInt(key, default_value);
-	}
 }
+

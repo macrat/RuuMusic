@@ -59,7 +59,8 @@ public class RuuDirectory extends RuuFileBase{
 
 	@NonNull
 	public static RuuDirectory rootDirectory(@NonNull Context context) throws RuuFileBase.CanNotOpen{
-		return RuuDirectory.getInstance(context, getRootDirectory(context));
+		String root = Preference.Str.ROOT_DIRECTORY.get(context);
+		return RuuDirectory.getInstance(context, root == null ? "/" : root);
 	}
 
 	@Override

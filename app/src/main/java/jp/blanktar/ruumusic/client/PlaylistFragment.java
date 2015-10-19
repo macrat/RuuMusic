@@ -15,7 +15,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
-import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -29,6 +28,7 @@ import android.widget.Toast;
 
 import jp.blanktar.ruumusic.R;
 import jp.blanktar.ruumusic.service.RuuService;
+import jp.blanktar.ruumusic.util.Preference;
 import jp.blanktar.ruumusic.util.RuuDirectory;
 import jp.blanktar.ruumusic.util.RuuFile;
 import jp.blanktar.ruumusic.util.RuuFileBase;
@@ -64,8 +64,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			}
 		});
 
-		String currentPath = PreferenceManager.getDefaultSharedPreferences(getContext())
-				.getString("current_view_path", null);
+		String currentPath = Preference.Str.CURRENT_VIEW_PATH.get(getContext());
 		try{
 			if(currentPath != null){
 				changeDir(RuuDirectory.getInstance(getContext(), currentPath));
@@ -77,9 +76,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 				changeDir(RuuDirectory.rootDirectory(getContext()));
 			}catch(RuuFileBase.CanNotOpen e){
 				Toast.makeText(getActivity(), String.format(getString(R.string.cant_open_dir), e.path), Toast.LENGTH_LONG).show();
-				PreferenceManager.getDefaultSharedPreferences(getContext()).edit()
-						.remove("root_directory")
-						.apply();
+				Preference.Str.ROOT_DIRECTORY.remove(getContext());
 			}
 		}
 
@@ -91,9 +88,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 		super.onPause();
 
 		if(current != null){
-			PreferenceManager.getDefaultSharedPreferences(getContext()).edit()
-					.putString("current_view_path", current.path.getFullPath())
-					.apply();
+			Preference.Str.CURRENT_VIEW_PATH.set(getContext(), current.path.getFullPath());
 		}
 	}
 
@@ -258,7 +253,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			onClose();
 			return false;
 		}
-		
+
 		((MainActivity)getActivity()).searchView.clearFocus();
 
 		String[] queries = TextUtils.split(text.toLowerCase(), " \t");
@@ -407,7 +402,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			if(searchQuery != null){
 				return 2;
 			}
-	
+
 			if(getItem(position).isDirectory() && dirInfo != null && ((RuuDirectory)getItem(position)).contains(dirInfo.path)){
 				return 1;
 			}else{
