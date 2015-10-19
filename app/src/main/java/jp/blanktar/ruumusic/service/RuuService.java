@@ -531,7 +531,7 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 		}
 	}
 
-	private void pause(){
+	private void pauseTransient(){
 		if(status == Status.READY){
 			if(player.isPlaying()){
 				player.pause();
@@ -541,9 +541,12 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 			updateMediaMetadata();
 			saveStatus();
 			startDeathTimer();
-
-			((AudioManager)getSystemService(Context.AUDIO_SERVICE)).abandonAudioFocus(focusListener);
 		}
+	}
+
+	private void pause(){
+		pauseTransient();
+		((AudioManager)getSystemService(Context.AUDIO_SERVICE)).abandonAudioFocus(focusListener);
 	}
 
 	private void seek(@IntRange(from=0) int newtime){
@@ -719,10 +722,28 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 
 
 	private final AudioManager.OnAudioFocusChangeListener focusListener = new AudioManager.OnAudioFocusChangeListener(){
+		@Nullable private Integer volume = null;
+
 		@Override
 		public void onAudioFocusChange(int focusChange){
-			if(focusChange == AudioManager.AUDIOFOCUS_LOSS){
-				pause();
+			switch(focusChange){
+				case AudioManager.AUDIOFOCUS_GAIN:
+					if(volume != null){
+						((AudioManager)getSystemService(Context.AUDIO_SERVICE)).setStreamVolume(AudioManager.STREAM_MUSIC, volume, 0);
+						volume = null;
+					}
+					play();
+					break;
+				case AudioManager.AUDIOFOCUS_LOSS:
+					pause();
+					break;
+				case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
+					pauseTransient();
+					break;
+				case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
+					volume = ((AudioManager)getSystemService(Context.AUDIO_SERVICE)).getStreamVolume(AudioManager.STREAM_MUSIC);
+					((AudioManager)getSystemService(Context.AUDIO_SERVICE)).setStreamVolume(AudioManager.STREAM_MUSIC, volume/4, 0);
+					break;
 			}
 		}
 	};
