@@ -20,7 +20,7 @@ public abstract class RuuFileBase implements Comparable<RuuFileBase>{
 	RuuFileBase(@NonNull Context context, @NonNull String path) throws CanNotOpen{
 		try{
 			this.path = (new File(path)).getCanonicalFile();
-		}catch(IOException e){
+		}catch(IOException | NullPointerException e){
 			throw new CanNotOpen(path);
 		}
 		this.context = context;
