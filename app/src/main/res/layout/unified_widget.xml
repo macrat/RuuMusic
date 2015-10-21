@@ -1,0 +1,55 @@
+<RelativeLayout
+		xmlns:android="http://schemas.android.com/apk/res/android"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:padding="@dimen/widget_margin"
+		android:background="#aa444444"
+		android:id="@+id/widget_unified" >
+
+	<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:orientation="vertical"
+			android:gravity="center"
+			android:layout_toLeftOf="@+id/prev_button">
+		<TextView
+				android:id="@+id/music_name"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:gravity="center"
+				android:textSize="@dimen/unified_widget_music_name_size"
+				android:textStyle="bold" />
+
+		<TextView
+				android:id="@+id/music_path"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:gravity="center"
+				android:textSize="@dimen/unified_widget_music_path_size" />
+	</LinearLayout>
+
+	<ImageButton
+			android:layout_width="@dimen/unified_widget_skip_button_size"
+			android:layout_height="wrap_content"
+			android:src="@drawable/ic_prev"
+			android:id="@+id/prev_button"
+			android:layout_centerVertical="true"
+			android:layout_toLeftOf="@+id/play_button" />
+
+	<ImageButton
+			android:layout_width="@dimen/unified_widget_playpause_button_size"
+			android:layout_height="wrap_content"
+			android:src="@drawable/ic_play"
+			android:id="@+id/play_button"
+			android:layout_centerVertical="true"
+			android:layout_toLeftOf="@+id/next_button" />
+
+	<ImageButton
+			android:layout_width="@dimen/unified_widget_skip_button_size"
+			android:layout_height="wrap_content"
+			android:src="@drawable/ic_next"
+			android:id="@+id/next_button"
+			android:layout_centerVertical="true"
+			android:layout_alignParentRight="true" />
+</RelativeLayout>
+

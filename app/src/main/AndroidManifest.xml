@@ -48,6 +48,17 @@
             </intent-filter>
         </receiver>
 
+		<receiver android:name=".widget.UnifiedWidget" android:label="@string/unified_widget_name" >
+			<intent-filter>
+				<action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+				<action android:name="jp.blanktar.ruumusic.STATUS" />
+			</intent-filter>
+
+			<meta-data
+				android:name="android.appwidget.provider"
+				android:resource="@xml/unified_widget_info" />
+		</receiver>
+
         <receiver android:name=".widget.PlayPauseWidget" android:label="@string/playpause_widget_name">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />

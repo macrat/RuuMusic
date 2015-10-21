@@ -35,7 +35,7 @@ public class MusicNameWidget extends AppWidgetProvider{
 		));
 
 		if(musicName == null){
-			views.setTextViewText(R.id.widget_music_name, context.getString(R.string.musicname_widget_nodata));
+			views.setTextViewText(R.id.widget_music_name, context.getString(R.string.widget_nodata));
 		}else{
 			views.setTextViewText(R.id.widget_music_name, musicName);
 		}

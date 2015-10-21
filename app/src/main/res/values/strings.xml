@@ -2,6 +2,7 @@
 	<string name="app_name">RuuMusic</string>
 	<string name="title_activity_audio_preference">AudioPreference</string>
 
+	<string name="unified_widget_name">RuuMusic</string>
 	<string name="playpause_widget_name">RuuMusic | Play / Pause</string>
 	<string name="skipnext_widget_name">RuuMusic | Skip next</string>
 	<string name="skipprev_widget_name">RuuMusic | Skip prev</string>
@@ -15,10 +16,10 @@
 	<string name="menu_audio_preference">Audio preference</string>
 
 	<string name="upper_dir">upper directory</string>
-	
+
 	<string name="recursive">Playing under %s</string>
 	<string name="search_play">Playing search result: %s</string>
-	
+
 	<string name="out_of_root">`%s` is out of root directory</string>
 	<string name="cant_open_dir">Can\'t open directory `%s`</string>
 	<string name="failed_open_music">Failed loading music</string>
@@ -34,7 +35,7 @@
 	<string name="reverb_switch">Reverb</string>
 	<string name="loudness_switch">Loudness enhancer</string>
 	<string name="equalizer_switch">Equalizer</string>
-	
+
 	<string-array name="reverb_options">
 		<item>Large Hall</item>
 		<item>Medium Hall</item>
@@ -43,5 +44,5 @@
 		<item>Small Room</item>
 	</string-array>
 
-	<string name="musicname_widget_nodata">NoData</string>
+	<string name="widget_nodata">NO DATA</string>
 </resources>

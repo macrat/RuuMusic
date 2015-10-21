@@ -5,4 +5,4 @@
 				android:id="@+id/widget_music_name"
 				android:gravity="center"
 				android:textSize="@dimen/musicname_widget_text_size"
-				android:text="@string/musicname_widget_nodata" />
+				android:text="@string/widget_nodata" />
