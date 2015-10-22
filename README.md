@@ -24,7 +24,7 @@ You can install stable version from [google play](https://play.google.com/store/
 * Control by Notification area. (Android 4.1+)
 * Control by lock screen. (Android 4.0+)
 	Need change notification primary in android 5.0+.
-* Supported small widgets like play/pause or skip button.
+* Have some type widgets that include small widgets like play/pause or skip button.
 	You can use in combination.
 * Search musics/directories.
 	Can playing search results as playlist.
