@@ -173,6 +173,8 @@ public class MainActivity extends AppCompatActivity{
 					.putExtra("path", playlist.current.path.getFullPath()));
 
 			moveToPlayer();
+
+			return true;
 		}
 
 		if(id == R.id.action_search_play && playlist.current != null){
@@ -182,10 +184,14 @@ public class MainActivity extends AppCompatActivity{
 					.putExtra("query", playlist.searchQuery == null ? null : playlist.searchQuery));
 
 			moveToPlayer();
+
+			return true;
 		}
 
 		if(id == R.id.action_audio_preference){
 			startActivity(new Intent(getApplicationContext(), AudioPreferenceActivity.class));
+
+			return true;
 		}
 
 		return super.onOptionsItemSelected(item);
