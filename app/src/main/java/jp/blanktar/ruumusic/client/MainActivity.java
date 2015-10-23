@@ -104,12 +104,8 @@ public class MainActivity extends AppCompatActivity{
 	public void onSaveInstanceState(@NonNull Bundle state){
 		super.onSaveInstanceState(state);
 
-		if(player != null){
-			getSupportFragmentManager().putFragment(state, "player_fragment", player);
-		}
-		if(playlist != null){
-			getSupportFragmentManager().putFragment(state, "playlist_fragment", playlist);
-		}
+		getSupportFragmentManager().putFragment(state, "player_fragment", player);
+		getSupportFragmentManager().putFragment(state, "playlist_fragment", playlist);
 	}
 
 	@Override
@@ -125,6 +121,7 @@ public class MainActivity extends AppCompatActivity{
 	@Override
 	public void onResume(){
 		super.onResume();
+
 		RuuService.MediaButtonReceiver.onStartActivity(getApplicationContext());
 	}
 
@@ -133,7 +130,6 @@ public class MainActivity extends AppCompatActivity{
 		super.onPause();
 
 		RuuService.MediaButtonReceiver.onStopActivity(getApplicationContext());
-
 		Preference.Int.LAST_VIEW_PAGE.set(getApplicationContext(), getCurrentPage());
 	}
 
@@ -208,9 +204,7 @@ public class MainActivity extends AppCompatActivity{
 			}
 		}else if(playlist != null){
 			playlist.updateTitle(this);
-			if(menu != null){
-				playlist.updateMenu(this);
-			}
+			playlist.updateMenu(this);
 		}
 	}
 
@@ -232,18 +226,11 @@ public class MainActivity extends AppCompatActivity{
 		return viewPager.getCurrentItem();
 	}
 
-	@Override
-	public void onBackPressed(){
-		if(viewPager.getCurrentItem() == 0 || !playlist.onBackKey()){
-			super.onBackPressed();
-		}
-	}
-
     @Override
     public boolean onKeyLongPress(int keyCode, @Nullable KeyEvent event){
         if(keyCode == KeyEvent.KEYCODE_BACK){
-            super.onBackPressed();
-			return false;
+			finish();
+			return true;
         }
         return super.onKeyLongPress(keyCode, event);
     }
@@ -253,6 +240,10 @@ public class MainActivity extends AppCompatActivity{
 		if(keyCode == KeyEvent.KEYCODE_SEARCH){
 			viewPager.setCurrentItem(1);
 			searchView.setIconified(false);
+			return true;
+		}else if(keyCode == KeyEvent.KEYCODE_BACK && (viewPager.getCurrentItem() == 0 || !playlist.onBackKey())){
+			finish();
+			return true;
 		}
 		return super.onKeyUp(keyCode, event);
 	}
