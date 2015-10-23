@@ -3,7 +3,6 @@ package jp.blanktar.ruumusic.util;
 import java.io.File;
 
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.content.Context;
 
 
@@ -23,14 +22,14 @@ public class RuuFile extends RuuFileBase{
 		return path.getPath();
 	}
 
-	@Nullable
-	public String getRealPath(){
+	@NonNull
+	public String getRealPath() throws RuuFileBase.CanNotOpen{
 		for(String ext: getSupportedTypes()){
 			File file = new File(getFullPath() + ext);
 			if(file.isFile()){
 				return file.getPath();
 			}
 		}
-		return null;
+		throw new RuuFileBase.CanNotOpen(getFullPath());
 	}
 }

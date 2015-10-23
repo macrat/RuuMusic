@@ -173,10 +173,13 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 				player.reset();
 
 				if(status != Status.ERRORED && playlist != null){
-					String realName = playlist.getCurrent().getRealPath();
-
-					getBaseContext().sendBroadcast((new Intent(ACTION_FAILED_PLAY))
-							.putExtra("path", (realName == null ? playlist.getCurrent().getFullPath() : realName)));
+					try{
+						getBaseContext().sendBroadcast((new Intent(ACTION_FAILED_PLAY))
+								.putExtra("path", playlist.getCurrent().getRealPath()));
+					}catch(RuuFileBase.CanNotOpen p){
+						getBaseContext().sendBroadcast((new Intent(ACTION_FAILED_PLAY))
+								.putExtra("path", playlist.getCurrent().getFullPath()));
+					}
 					sendStatus();
 
 					if(!errorSE.isPlaying()){
@@ -518,16 +521,16 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 		status = fromLastest ? Status.LOADING_FROM_LASTEST : Status.LOADING;
 		player.reset();
 
-		String realName = playlist.getCurrent().getRealPath();
-		if(realName == null){
-			showToast(String.format(getString(R.string.music_not_found), playlist.getCurrent().getFullPath()));
-		}else{
+		try{
+			String realName = playlist.getCurrent().getRealPath();
 			try{
 				player.setDataSource(realName);
 				player.prepareAsync();
 			}catch(IOException e){
 				showToast(String.format(getString(R.string.failed_open_music), realName));
 			}
+		}catch(RuuFileBase.CanNotOpen e){
+			showToast(String.format(getString(R.string.music_not_found), playlist.getCurrent().getFullPath()));
 		}
 	}
 
