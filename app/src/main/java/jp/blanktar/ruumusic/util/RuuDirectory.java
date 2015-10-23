@@ -39,21 +39,29 @@ public class RuuDirectory extends RuuFileBase{
 	@Nullable private File[] files = null;
 
 
-	private RuuDirectory(@NonNull Context context, @NonNull String path) throws RuuFileBase.CanNotOpen{
+	private RuuDirectory(@NonNull Context context, @NonNull File path) throws RuuFileBase.CanNotOpen{
 		super(context, path);
 
 		files = this.path.listFiles();
 		if(files == null){
-			throw new CanNotOpen(path);
+			throw new CanNotOpen(path.getPath());
 		}
+	}
+
+	public static RuuDirectory getInstance(@NonNull Context context, @NonNull File path) throws RuuFileBase.CanNotOpen{
+		RuuDirectory result = cache.get(path.getPath());
+		if(result == null){
+			result = new RuuDirectory(context, path);
+		}
+		cache.put(result.getFullPath(), result);
+		return result;
 	}
 
 	public static RuuDirectory getInstance(@NonNull Context context, @NonNull String path) throws RuuFileBase.CanNotOpen{
 		RuuDirectory result = cache.get(path);
 		if(result == null){
-			result = new RuuDirectory(context, path);
+			result = getInstance(context, new File(path));
 		}
-		cache.put(path, result);
 		return result;
 	}
 
@@ -88,7 +96,7 @@ public class RuuDirectory extends RuuFileBase{
 
 		if(directoriesCache != null){
 			for(File file: directoriesCache){
-				result.add(RuuDirectory.getInstance(context, file.getPath()));
+				result.add(RuuDirectory.getInstance(context, file));
 			}
 		}else{
 			assert files != null;
@@ -99,7 +107,7 @@ public class RuuDirectory extends RuuFileBase{
 				if(file.getName().lastIndexOf(".") != 0){
 					RuuDirectory dir;
 					try{
-						dir = RuuDirectory.getInstance(context, file.getPath());
+						dir = RuuDirectory.getInstance(context, file);
 					}catch(RuuFileBase.CanNotOpen e){
 						continue;
 					}
@@ -127,7 +135,7 @@ public class RuuDirectory extends RuuFileBase{
 
 		if(musicsCache != null){
 			for(File file: musicsCache){
-				result.add(new RuuFile(context, file.getPath()));
+				result.add(new RuuFile(context, file));
 			}
 		}else{
 			assert files != null;
@@ -247,9 +255,9 @@ public class RuuDirectory extends RuuFileBase{
 				RuuFileBase ruuFile;
 				try{
 					if(file.isDirectory()){
-						ruuFile = RuuDirectory.getInstance(context, file.getPath());
+						ruuFile = RuuDirectory.getInstance(context, file);
 					}else{
-						ruuFile = new RuuFile(context, file.getPath());
+						ruuFile = new RuuFile(context, file);
 					}
 				}catch(RuuFile.CanNotOpen e){
 					continue;

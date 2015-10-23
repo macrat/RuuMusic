@@ -69,7 +69,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			if(currentPath != null){
 				changeDir(RuuDirectory.getInstance(getContext(), currentPath));
 			}else{
-				changeDir(RuuDirectory.getInstance(getContext(), Environment.getExternalStorageDirectory().getPath()));
+				changeDir(RuuDirectory.getInstance(getContext(), Environment.getExternalStorageDirectory()));
 			}
 		}catch(RuuFileBase.CanNotOpen err){
 			try{
