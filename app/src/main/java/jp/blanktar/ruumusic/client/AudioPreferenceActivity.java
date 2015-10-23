@@ -149,7 +149,7 @@ public class AudioPreferenceActivity extends AppCompatActivity implements Compou
 
 			SeekBar seekBar = (SeekBar)newview.findViewById(R.id.equalizer_bar);
 			seekBar.setMax(equalizer_max - equalizer_min);
-			seekBar.setProgress(Preference.IntArray.EQUALIZER_LEVEL.get(getApplicationContext(), i));
+			seekBar.setProgress(Preference.IntArray.EQUALIZER_LEVEL.get(getApplicationContext(), i) - equalizer_min);
 			seekBar.setOnSeekBarChangeListener((new SeekBar.OnSeekBarChangeListener(){
 				private int id;
 
