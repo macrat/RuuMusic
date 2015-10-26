@@ -82,7 +82,7 @@ public class UnifiedWidget extends AppWidgetProvider{
 					RuuFile file = new RuuFile(context, intent.getStringExtra("path"));
 					musicName = file.getName();
 					musicPath = file.getParent().getRuuPath();
-				}catch(RuuFileBase.CanNotOpen | RuuFileBase.OutOfRootDirectory e){
+				}catch(RuuFileBase.CanNotOpen | RuuFileBase.OutOfRootDirectory | NullPointerException e){
 					musicName = null;
 					musicPath = null;
 				}
