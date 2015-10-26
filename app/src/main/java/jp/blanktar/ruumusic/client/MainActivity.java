@@ -232,6 +232,10 @@ public class MainActivity extends AppCompatActivity{
 		return viewPager.getCurrentItem();
 	}
 
+	@Override
+	public void onBackPressed(){
+	}
+
     @Override
     public boolean onKeyLongPress(int keyCode, @Nullable KeyEvent event){
         if(keyCode == KeyEvent.KEYCODE_BACK){
