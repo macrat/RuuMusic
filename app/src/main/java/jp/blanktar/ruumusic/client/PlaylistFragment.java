@@ -180,7 +180,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			menu.findItem(R.id.action_set_root).setVisible(current != null && !rootDirectory.equals(current.path) && searchQuery == null);
 			menu.findItem(R.id.action_unset_root).setVisible(!rootDirectory.getFullPath().equals("/") && searchQuery == null);
 			menu.findItem(R.id.action_search_play).setVisible(searchQuery != null && adapter.musicNum > 0);
-			menu.findItem(R.id.action_recursive_play).setVisible(searchQuery == null && adapter.musicNum + adapter.directoryNum > 0);
+			menu.findItem(R.id.action_recursive_play).setVisible(searchQuery == null && adapter.getCount() > 1);
 			menu.findItem(R.id.menu_search).setVisible(true);
 			menu.findItem(R.id.action_audio_preference).setVisible(false);
 		}
@@ -295,6 +295,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			adapter.clear();
 		}
 
+		searchQuery = null;
 		updateMenu();
 
 		return false;
@@ -315,7 +316,6 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 	private class RuuAdapter extends ArrayAdapter<RuuFileBase>{
 		@Nullable private DirectoryInfo dirInfo;
 		int musicNum = 0;
-		int directoryNum = 0;
 
 		RuuAdapter(@NonNull Context context){
 			super(context, R.layout.list_item);
@@ -325,6 +325,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			clear();
 			searchQuery = null;
 			this.dirInfo = dirInfo;
+			musicNum = 0;
 
 			RuuDirectory rootDirectory = RuuDirectory.rootDirectory(getContext());
 			if(!rootDirectory.equals(dirInfo.path) && rootDirectory.contains(dirInfo.path)){
@@ -341,7 +342,6 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			}
 
 			List<RuuDirectory> directories = dirInfo.path.getDirectories();
-			directoryNum = directories.size();
 			for(RuuDirectory dir: directories){
 				add(dir);
 			}
@@ -350,6 +350,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			musicNum = musics.size();
 			for(RuuFile music: musics){
 				add(music);
+				musicNum++;
 			}
 
 			ListView listView = (ListView)getActivity().findViewById(R.id.playlist);
@@ -364,16 +365,11 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			}
 			clear();
 			musicNum = 0;
-			directoryNum = 0;
 
 			for(RuuFileBase result: results){
 				add(result);
-			}
 
-			for(RuuFileBase file: results){
-				if(file.isDirectory()){
-					directoryNum++;
-				}else{
+				if(!result.isDirectory()){
 					musicNum++;
 				}
 			}
