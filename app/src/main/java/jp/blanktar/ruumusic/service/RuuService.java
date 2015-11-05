@@ -725,16 +725,11 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 
 
 	private final AudioManager.OnAudioFocusChangeListener focusListener = new AudioManager.OnAudioFocusChangeListener(){
-		@Nullable private Integer volume = null;
-
 		@Override
 		public void onAudioFocusChange(int focusChange){
 			switch(focusChange){
 				case AudioManager.AUDIOFOCUS_GAIN:
-					if(volume != null){
-						((AudioManager)getSystemService(Context.AUDIO_SERVICE)).setStreamVolume(AudioManager.STREAM_MUSIC, volume, 0);
-						volume = null;
-					}
+					player.setVolume(1.0f, 1.0f);
 					play();
 					break;
 				case AudioManager.AUDIOFOCUS_LOSS:
@@ -744,8 +739,7 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 					pauseTransient();
 					break;
 				case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
-					volume = ((AudioManager)getSystemService(Context.AUDIO_SERVICE)).getStreamVolume(AudioManager.STREAM_MUSIC);
-					((AudioManager)getSystemService(Context.AUDIO_SERVICE)).setStreamVolume(AudioManager.STREAM_MUSIC, volume/4, 0);
+					player.setVolume(0.3f, 0.3f);
 					break;
 			}
 		}
