@@ -236,10 +236,10 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 							playlist = Playlist.getSearchResults(getApplicationContext(), intent.getStringExtra("path"), intent.getStringExtra("query"));
 						}
 					}catch(RuuFileBase.CanNotOpen e){
-						showToast(String.format(getString(R.string.cant_open_dir), intent.getStringExtra("path")));
+						showToast(String.format(getString(R.string.cant_open_dir), intent.getStringExtra("path")), true);
 						break;
 					}catch(Playlist.EmptyDirectory e){
-						showToast(String.format(getString(R.string.has_not_music), intent.getStringExtra("path")));
+						showToast(String.format(getString(R.string.has_not_music), intent.getStringExtra("path")), true);
 						break;
 					}
 					if(shuffleMode){
@@ -507,11 +507,11 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 				}
 			}
 		}catch(RuuFileBase.CanNotOpen e){
-			showToast(String.format(getString(R.string.cant_open_dir), e.path));
+			showToast(String.format(getString(R.string.cant_open_dir), e.path), true);
 		}catch(Playlist.EmptyDirectory e){
-			showToast(String.format(getString(R.string.has_not_music), path));
+			showToast(String.format(getString(R.string.has_not_music), path), true);
 		}catch(Playlist.NotFound e){
-			showToast(String.format(getString(R.string.music_not_found), path));
+			showToast(String.format(getString(R.string.music_not_found), path), true);
 		}
 	}
 
@@ -527,10 +527,10 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 				player.setDataSource(realName);
 				player.prepareAsync();
 			}catch(IOException e){
-				showToast(String.format(getString(R.string.failed_open_music), realName));
+				showToast(String.format(getString(R.string.failed_open_music), realName), true);
 			}
 		}catch(RuuFileBase.CanNotOpen e){
-			showToast(String.format(getString(R.string.music_not_found), playlist.getCurrent().getFullPath()));
+			showToast(String.format(getString(R.string.music_not_found), playlist.getCurrent().getFullPath()), true);
 		}
 	}
 
@@ -597,7 +597,7 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 					}
 					load(false);
 				}else{
-					showToast(getString(R.string.last_of_directory));
+					showToast(getString(R.string.last_of_directory), false);
 					if(!endOfListSE.isPlaying()){
 						endOfListSE.start();
 					}
@@ -623,7 +623,7 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 						}
 						load(false);
 					}else{
-						showToast(getString(R.string.first_of_directory));
+						showToast(getString(R.string.first_of_directory), false);
 						if(!endOfListSE.isPlaying()){
 							endOfListSE.start();
 						}
@@ -633,7 +633,7 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 		}
 	}
 
-	private void showToast(@NonNull final String message){
+	private void showToast(@NonNull final String message, final boolean show_long){
 		final Handler handler = new Handler();
 		(new Thread(new Runnable(){
 			@Override
@@ -641,7 +641,7 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 				handler.post(new Runnable(){
 					@Override
 					public void run(){
-						Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+						Toast.makeText(getApplicationContext(), message, show_long ? Toast.LENGTH_LONG : Toast.LENGTH_SHORT).show();
 					}
 				});
 			}
