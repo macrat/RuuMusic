@@ -123,8 +123,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 
 	@Override
 	public boolean onContextItemSelected(@NonNull MenuItem item){
-		AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
-		RuuFileBase file = adapter.getItem(info.position);
+		RuuFileBase file = adapter.getItem(((AdapterView.AdapterContextMenuInfo)item.getMenuInfo()).position);
 
 		switch(item.getItemId()){
 			case R.id.action_open_directory:
@@ -185,15 +184,9 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 	}
 
 	void changeDir(@NonNull RuuDirectory dir){
-		RuuDirectory rootDirectory;
 		try{
-			rootDirectory = RuuDirectory.rootDirectory(getContext());
-		}catch(RuuFileBase.CanNotOpen e){
-			Toast.makeText(getActivity(), String.format(getString(R.string.cant_open_dir), "root directory"), Toast.LENGTH_LONG).show();
-			return;
-		}
-
-		if(!rootDirectory.contains(dir)){
+			dir.getRuuPath();
+		}catch(RuuFileBase.OutOfRootDirectory e){
 			Toast.makeText(getActivity(), String.format(getString(R.string.out_of_root), dir.getFullPath()), Toast.LENGTH_LONG).show();
 			return;
 		}
@@ -246,7 +239,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 
 			menu.findItem(R.id.action_set_root).setVisible(current != null && !rootDirectory.equals(current.path) && searchQuery == null);
 			menu.findItem(R.id.action_unset_root).setVisible(!rootDirectory.getFullPath().equals("/") && searchQuery == null);
-			menu.findItem(R.id.action_search_play).setVisible(searchQuery != null && adapter.musicNum > 0);
+			menu.findItem(R.id.action_search_play).setVisible(searchQuery != null && adapter.hasMusic);
 			menu.findItem(R.id.action_recursive_play).setVisible(searchQuery == null && adapter.getCount() > 1);
 			menu.findItem(R.id.menu_search).setVisible(true);
 			menu.findItem(R.id.action_audio_preference).setVisible(false);
@@ -382,7 +375,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 	@UiThread
 	private class RuuAdapter extends ArrayAdapter<RuuFileBase>{
 		@Nullable private DirectoryInfo dirInfo;
-		int musicNum = 0;
+		boolean hasMusic = false;
 
 		RuuAdapter(@NonNull Context context){
 			super(context, R.layout.list_item);
@@ -392,7 +385,6 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			clear();
 			searchQuery = null;
 			this.dirInfo = dirInfo;
-			musicNum = 0;
 
 			RuuDirectory rootDirectory = RuuDirectory.rootDirectory(getContext());
 			if(!rootDirectory.equals(dirInfo.path) && rootDirectory.contains(dirInfo.path)){
@@ -408,16 +400,14 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 				}
 			}
 
-			List<RuuDirectory> directories = dirInfo.path.getDirectories();
-			for(RuuDirectory dir: directories){
+			for(RuuDirectory dir: dirInfo.path.getDirectories()){
 				add(dir);
 			}
 
-			List<RuuFile> musics = dirInfo.path.getMusics();
-			musicNum = musics.size();
-			for(RuuFile music: musics){
+			hasMusic = false;
+			for(RuuFile music: dirInfo.path.getMusics()){
 				add(music);
-				musicNum++;
+				hasMusic = true;
 			}
 
 			ListView listView = (ListView)getActivity().findViewById(R.id.playlist);
@@ -431,13 +421,13 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 				dirInfo.selection = ((ListView)getActivity().findViewById(R.id.playlist)).getFirstVisiblePosition();
 			}
 			clear();
-			musicNum = 0;
 
+			hasMusic = false;
 			for(RuuFileBase result: results){
 				add(result);
 
 				if(!result.isDirectory()){
-					musicNum++;
+					hasMusic = true;
 				}
 			}
 
@@ -508,4 +498,3 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 		}
 	}
 }
-
