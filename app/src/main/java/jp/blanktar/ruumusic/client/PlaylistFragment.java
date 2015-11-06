@@ -1,5 +1,6 @@
 package jp.blanktar.ruumusic.client;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -8,18 +9,22 @@ import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
-import android.support.v4.app.Fragment;
-import android.support.v7.widget.SearchView;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v4.app.Fragment;
+import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.MimeTypeMap;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -64,6 +69,8 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			}
 		});
 
+		registerForContextMenu(lv);
+
 		String currentPath = Preference.Str.CURRENT_VIEW_PATH.get(getContext());
 		try{
 			if(currentPath != null){
@@ -90,6 +97,65 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 		if(current != null){
 			Preference.Str.CURRENT_VIEW_PATH.set(getContext(), current.path.getFullPath());
 		}
+	}
+
+	@Override
+	public void onCreateContextMenu(ContextMenu menu, View view, ContextMenu.ContextMenuInfo info){
+		super.onCreateContextMenu(menu, view, info);
+		RuuFileBase file = adapter.getItem(((AdapterView.AdapterContextMenuInfo)info).position);
+
+		if(file.isDirectory()){
+			menu.setHeaderTitle(file.getName() + "/");
+			getActivity().getMenuInflater().inflate(R.menu.directory_context_menu, menu);
+		}else{
+			menu.setHeaderTitle(file.getName());
+			getActivity().getMenuInflater().inflate(R.menu.music_context_menu, menu);
+		}
+
+		try{
+			if(getActivity().getPackageManager().queryIntentActivities(getOpenFileIntent(file), 0).size() == 0){
+				menu.findItem(R.id.action_open_with_other_app).setVisible(false);
+			}
+		}catch(RuuFileBase.CanNotOpen e){
+			menu.findItem(R.id.action_open_with_other_app).setVisible(false);
+		}
+	}
+
+	@Override
+	public boolean onContextItemSelected(MenuItem item){
+		AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
+		RuuFileBase file = adapter.getItem(info.position);
+
+		switch(item.getItemId()){
+			case R.id.action_open_directory:
+				changeDir((RuuDirectory)file);
+				return true;
+			case R.id.action_open_music:
+				changeMusic((RuuFile)file);
+				return true;
+			case R.id.action_open_with_other_app:
+				try{
+					startActivity(getOpenFileIntent(file));
+				}catch(RuuFileBase.CanNotOpen e){
+					Toast.makeText(getActivity(), getString(R.string.music_not_found), Toast.LENGTH_LONG).show();
+				}
+				return true;
+			default:
+				return super.onContextItemSelected(item);
+		}
+	}
+
+	private Intent getOpenFileIntent(RuuFileBase ruufile) throws RuuFileBase.CanNotOpen{
+		File file;
+		String mimetype;
+		if(ruufile.isDirectory()){
+			file = ruufile.path;
+			mimetype = "text/directory";
+		}else{
+			file = new File(((RuuFile)ruufile).getRealPath());
+			mimetype = MimeTypeMap.getSingleton().getMimeTypeFromExtension(file.getName().substring(ruufile.getName().length()+1));
+		}
+		return (new Intent(Intent.ACTION_VIEW)).setDataAndType(Uri.fromFile(file), mimetype).putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
 	}
 
 	public void updateTitle(@NonNull Activity activity){

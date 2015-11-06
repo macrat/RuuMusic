@@ -14,6 +14,9 @@
 	<string name="menu_search">音楽を検索</string>
 	<string name="menu_search_play">検索結果を全て再生</string>
 	<string name="menu_audio_preference">音質の設定</string>
+	<string name="action_open_directory">開く</string>
+	<string name="action_open_music">再生する</string>
+	<string name="action_open_with_other_app">他のアプリで開く</string>
 
 	<string name="upper_dir">親ディレクトリ</string>
 
