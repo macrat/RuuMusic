@@ -462,16 +462,19 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 	private void play(){
 		if(playlist != null){
 			if(status == Status.READY){
-				((AudioManager)getSystemService(Context.AUDIO_SERVICE)).requestAudioFocus(focusListener, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
+				if(((AudioManager)getSystemService(Context.AUDIO_SERVICE)).requestAudioFocus(focusListener, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN)
+				== AudioManager.AUDIOFOCUS_REQUEST_GRANTED){
+					player.start();
+					sendStatus();
+					updatePlayingNotification();
+					updateMediaMetadata();
+					saveStatus();
+					stopDeathTimer();
 
-				player.start();
-				sendStatus();
-				updatePlayingNotification();
-				updateMediaMetadata();
-				saveStatus();
-				stopDeathTimer();
-
-				MediaButtonReceiver.onStartService(getApplicationContext());
+					MediaButtonReceiver.onStartService(getApplicationContext());
+				}else{
+					showToast(getString(R.string.audiofocus_denied), true);
+				}
 			}else if(status == Status.LOADING_FROM_LASTEST){
 				status = Status.LOADING;
 			}else{

@@ -33,4 +33,5 @@
 	<string name="first_of_directory">これが最初の曲です</string>
 	<string name="last_of_directory">これが最後の曲です</string>
 	<string name="has_not_music">`%s`以下には音楽がありません</string>
+	<string name="audiofocus_denied">オーディオフォーカスを取得できませんでした</string>
 </resources>
