@@ -100,7 +100,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 	}
 
 	@Override
-	public void onCreateContextMenu(ContextMenu menu, View view, ContextMenu.ContextMenuInfo info){
+	public void onCreateContextMenu(@NonNull ContextMenu menu, @NonNull View view, @NonNull ContextMenu.ContextMenuInfo info){
 		super.onCreateContextMenu(menu, view, info);
 		RuuFileBase file = adapter.getItem(((AdapterView.AdapterContextMenuInfo)info).position);
 
@@ -122,7 +122,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 	}
 
 	@Override
-	public boolean onContextItemSelected(MenuItem item){
+	public boolean onContextItemSelected(@NonNull MenuItem item){
 		AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
 		RuuFileBase file = adapter.getItem(info.position);
 
@@ -145,7 +145,8 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 		}
 	}
 
-	private Intent getOpenFileIntent(RuuFileBase ruufile) throws RuuFileBase.CanNotOpen{
+	@NonNull
+	private Intent getOpenFileIntent(@NonNull RuuFileBase ruufile) throws RuuFileBase.CanNotOpen{
 		File file;
 		String mimetype;
 		if(ruufile.isDirectory()){
