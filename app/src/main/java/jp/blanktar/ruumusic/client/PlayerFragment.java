@@ -8,7 +8,6 @@ import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.annotation.FloatRange;
 import android.support.annotation.UiThread;
-import android.support.v4.app.Fragment;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -17,6 +16,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -102,10 +102,9 @@ public class PlayerFragment extends Fragment{
 		view.findViewById(R.id.shuffleButton).setOnClickListener(new View.OnClickListener(){
 			@Override
 			public void onClick(@Nullable View view){
-				Intent intent = new Intent(getActivity(), RuuService.class);
-				intent.setAction(RuuService.ACTION_SHUFFLE);
-				intent.putExtra("mode", !shuffleMode);
-				getActivity().startService(intent);
+				getActivity().startService((new Intent(getActivity(), RuuService.class))
+						.setAction(RuuService.ACTION_SHUFFLE)
+						.putExtra("mode", !shuffleMode));
 			}
 		});
 
@@ -166,10 +165,9 @@ public class PlayerFragment extends Fragment{
 			public void onStopTrackingTouch(@Nullable SeekBar seekBar){
 				seeking = false;
 
-				Intent intent = new Intent(getActivity(), RuuService.class);
-				intent.setAction(RuuService.ACTION_SEEK);
-				intent.putExtra("newtime", progress);
-				getActivity().startService(intent);
+				getActivity().startService((new Intent(getActivity(), RuuService.class))
+						.setAction(RuuService.ACTION_SEEK)
+						.putExtra("newtime", progress));
 
 				if(needResume){
 					startRuuService(RuuService.ACTION_PLAY);
@@ -247,36 +245,22 @@ public class PlayerFragment extends Fragment{
 
 		searchQuery = intent.getStringExtra("searchQuery");
 
-		String searchPathStr = intent.getStringExtra("searchPath");
-		if(searchPathStr == null){
+		try{
+			searchPath = RuuDirectory.getInstance(getContext(), intent.getStringExtra("searchPath"));
+		}catch(RuuFileBase.CanNotOpen | NullPointerException e){
 			searchPath = null;
-		}else{
-			try{
-				searchPath = RuuDirectory.getInstance(getContext(), searchPathStr);
-			}catch(RuuFileBase.CanNotOpen e){
-				searchPath = null;
-			}
 		}
 
-		String recursivePathStr = intent.getStringExtra("recursivePath");
-		if(recursivePathStr == null){
+		try{
+			recursivePath = RuuDirectory.getInstance(getContext(), intent.getStringExtra("recursivePath"));
+		}catch(RuuFileBase.CanNotOpen | NullPointerException e){
 			recursivePath = null;
-		}else{
-			try{
-				recursivePath = RuuDirectory.getInstance(getContext(), recursivePathStr);
-			}catch(RuuFileBase.CanNotOpen e){
-				recursivePath = null;
-			}
 		}
 
 		View view = getView();
 		if(view != null){
-			ImageButton playButton = (ImageButton)view.findViewById(R.id.playButton);
-			if(playing){
-				playButton.setImageResource(R.drawable.ic_pause);
-			}else{
-				playButton.setImageResource(R.drawable.ic_play);
-			}
+			((ImageButton)view.findViewById(R.id.playButton))
+					.setImageResource(playing ? R.drawable.ic_pause : R.drawable.ic_play);
 
 			ImageButton repeatButton = (ImageButton)view.findViewById(R.id.repeatButton);
 			switch(repeatMode){
@@ -291,25 +275,16 @@ public class PlayerFragment extends Fragment{
 					break;
 			}
 
-			ImageButton shuffleButton = (ImageButton)view.findViewById(R.id.shuffleButton);
-			if(shuffleMode){
-				shuffleButton.setImageResource(R.drawable.ic_shuffle_on);
-			}else{
-				shuffleButton.setImageResource(R.drawable.ic_shuffle_off);
-			}
+			((ImageButton)view.findViewById(R.id.shuffleButton))
+					.setImageResource(shuffleMode ? R.drawable.ic_shuffle_on : R.drawable.ic_shuffle_off);
 
 			((SeekBar)view.findViewById(R.id.seekBar)).setMax(duration);
 		}
 
-		String path = intent.getStringExtra("path");
-		if(path == null){
+		try{
+			currentMusic = new RuuFile(getContext(), intent.getStringExtra("path"));
+		}catch(RuuFileBase.CanNotOpen | NullPointerException e){
 			currentMusic = null;
-		}else{
-			try{
-				currentMusic = new RuuFile(getContext(), path);
-			}catch(RuuFileBase.CanNotOpen e){
-				currentMusic = null;
-			}
 		}
 		updateRoot();
 	}
