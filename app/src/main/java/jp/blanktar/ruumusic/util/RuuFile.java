@@ -7,12 +7,12 @@ import android.content.Context;
 
 
 public class RuuFile extends RuuFileBase{
-	public RuuFile(@NonNull Context context, @NonNull File path) throws RuuFileBase.CanNotOpen{
+	public RuuFile(@NonNull Context context, @NonNull File path){
 		super(context, path);
 	}
 
-	public RuuFile(@NonNull Context context, @NonNull String path) throws RuuFileBase.CanNotOpen{
-		super(context, new File(path));
+	public RuuFile(@NonNull Context context, @NonNull String path){
+		this(context, new File(path));
 	}
 
 	@Override

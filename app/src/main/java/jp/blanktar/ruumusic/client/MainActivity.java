@@ -88,9 +88,6 @@ public class MainActivity extends AppCompatActivity{
 								.putExtra("path", file.getFullPath())
 				);
 				viewPager.setCurrentItem(0);
-			}catch(RuuFileBase.CanNotOpen e){
-				Toast.makeText(getApplicationContext(), getString(R.string.music_not_found), Toast.LENGTH_LONG).show();
-				viewPager.setCurrentItem(Preference.Int.LAST_VIEW_PAGE.get(getApplicationContext()));
 			}catch(RuuFileBase.OutOfRootDirectory e){
 				Toast.makeText(getApplicationContext(), String.format(getString(R.string.out_of_root), path), Toast.LENGTH_LONG).show();
 				viewPager.setCurrentItem(Preference.Int.LAST_VIEW_PAGE.get(getApplicationContext()));

@@ -1,7 +1,6 @@
 package jp.blanktar.ruumusic.util;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -17,12 +16,8 @@ public abstract class RuuFileBase implements Comparable<RuuFileBase>{
 	@NonNull public final File path;
 
 
-	RuuFileBase(@NonNull Context context, @NonNull File path) throws CanNotOpen{
-		try{
-			this.path = path.getCanonicalFile();
-		}catch(IOException e){
-			throw new CanNotOpen(path.getPath());
-		}
+	RuuFileBase(@NonNull Context context, @NonNull File path){
+		this.path = path;
 		this.context = context;
 	}
 
@@ -36,7 +31,7 @@ public abstract class RuuFileBase implements Comparable<RuuFileBase>{
 	}
 
 	@NonNull
-	public abstract String getFullPath();
+	protected abstract String getFullPath();
 
 	public abstract boolean isDirectory();
 
@@ -115,4 +110,3 @@ public abstract class RuuFileBase implements Comparable<RuuFileBase>{
 		}
 	}
 }
-

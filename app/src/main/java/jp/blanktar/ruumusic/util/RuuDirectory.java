@@ -42,8 +42,7 @@ public class RuuDirectory extends RuuFileBase{
 	private RuuDirectory(@NonNull Context context, @NonNull File path) throws RuuFileBase.CanNotOpen{
 		super(context, path);
 
-		files = this.path.listFiles();
-		if(files == null){
+		if(!path.isDirectory()){
 			throw new CanNotOpen(path.getPath());
 		}
 	}
@@ -99,12 +98,17 @@ public class RuuDirectory extends RuuFileBase{
 				result.add(RuuDirectory.getInstance(context, file));
 			}
 		}else{
-			assert files != null;
+			if(files == null){
+				files = path.listFiles();
+				if(files == null){
+					throw new RuuFileBase.CanNotOpen(getFullPath());
+				}
+			}
 
 			ArrayList<File> cacheTmp = new ArrayList<>();
 
 			for(File file: files){
-				if(file.getName().lastIndexOf(".") != 0){
+				if(!file.isHidden()){
 					RuuDirectory dir;
 					try{
 						dir = RuuDirectory.getInstance(context, file);
@@ -138,7 +142,12 @@ public class RuuDirectory extends RuuFileBase{
 				result.add(new RuuFile(context, file));
 			}
 		}else{
-			assert files != null;
+			if(files == null){
+				files = path.listFiles();
+				if(files == null){
+					throw new RuuFileBase.CanNotOpen(getFullPath());
+				}
+			}
 
 			ArrayList<File> cacheTmp = new ArrayList<>();
 
@@ -153,13 +162,9 @@ public class RuuDirectory extends RuuFileBase{
 				String name = path.substring(0, dotPos);
 				String ext = path.substring(dotPos);
 				if(!file.isDirectory() && !name.equals(before) && getSupportedTypes().contains(ext)){
-					try{
-						RuuFile music = new RuuFile(context, name);
-						result.add(music);
-						cacheTmp.add(music.path);
-					}catch(RuuFileBase.CanNotOpen e){
-						continue;
-					}
+					RuuFile music = new RuuFile(context, name);
+					result.add(music);
+					cacheTmp.add(music.path);
 					before = name;
 				}
 			}
@@ -271,4 +276,3 @@ public class RuuDirectory extends RuuFileBase{
 		return result;
 	}
 }
-
