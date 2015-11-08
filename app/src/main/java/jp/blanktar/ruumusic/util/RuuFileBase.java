@@ -75,8 +75,13 @@ public abstract class RuuFileBase implements Comparable<RuuFileBase>{
 	}
 
 	private int depth(){
-		String pathStr = getFullPath();
-		return pathStr.length() - pathStr.replaceAll("/", "").length();
+		int count = 0;
+		for(char x: getFullPath().toCharArray()){
+			if(x == '/'){
+				count++;
+			}
+		}
+		return count;
 	}
 
 	@Override
