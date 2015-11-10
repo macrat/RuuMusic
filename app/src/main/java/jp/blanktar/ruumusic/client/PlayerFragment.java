@@ -281,7 +281,9 @@ public class PlayerFragment extends Fragment{
 			((SeekBar)view.findViewById(R.id.seekBar)).setMax(duration);
 		}
 
-		currentMusic = new RuuFile(getContext(), intent.getStringExtra("path"));
+		if(intent.getStringExtra("path") != null){
+			currentMusic = new RuuFile(getContext(), intent.getStringExtra("path"));
+		}
 		updateRoot();
 	}
 
