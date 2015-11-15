@@ -49,11 +49,15 @@ public class Playlist{
 	}
 	
 	@NonNull
-	public static Playlist getByMusicPath(@NonNull Context context, @NonNull String path) throws RuuFileBase.CanNotOpen, EmptyDirectory{
+	public static Playlist getByMusicPath(@NonNull Context context, @NonNull String path) throws RuuFileBase.CanNotOpen, EmptyDirectory, NotFound{
 		RuuFile music = new RuuFile(context, path);
 		List<RuuFile> list = music.getParent().getMusics();
 		RuuFile[] playlist = list.toArray(new RuuFile[list.size()]);
-		return new Playlist(music.getParent(), playlist, Arrays.binarySearch(playlist, music), Type.SIMPLE, null);
+		int index = Arrays.binarySearch(playlist, music);
+		if(index < 0 || playlist.length <= index){
+			throw new NotFound();
+		}
+		return new Playlist(music.getParent(), playlist, index, Type.SIMPLE, null);
 	}
 
 	@NonNull
@@ -148,12 +152,12 @@ public class Playlist{
 	}
 
 
-	public class EndOfList extends Throwable{
+	public static class EndOfList extends Throwable{
 	}
 
-	public class NotFound extends Throwable{
+	public static class NotFound extends Throwable{
 	}
 
-	public class EmptyDirectory extends Throwable{
+	public static class EmptyDirectory extends Throwable{
 	}
 }
