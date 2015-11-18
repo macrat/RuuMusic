@@ -53,6 +53,15 @@ public class RuuDirectory extends RuuFileBase{
 	}
 
 	@NonNull
+	public static RuuDirectory rootCandidate(@NonNull Context context) throws RuuFileBase.NotFound{
+		RuuDirectory dir = RuuDirectory.getInstance(context, "/");
+		while(dir.getDirectories().size() + dir.getMusics().size() < 2){
+			dir = dir.getDirectories().get(0);
+		}
+		return dir;
+	}
+
+	@NonNull
 	private RuuDirectory findDir(@NonNull String path) throws RuuFileBase.NotFound{
 		assert path.startsWith("/") && path.endsWith("/");
 
