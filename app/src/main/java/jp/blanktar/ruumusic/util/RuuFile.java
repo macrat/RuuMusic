@@ -1,16 +1,26 @@
 package jp.blanktar.ruumusic.util;
 
+import java.io.File;
+
 import android.support.annotation.NonNull;
 import android.content.Context;
 
 
 public class RuuFile extends RuuFileBase{
-	private final String[] extensions;
+	private final String extension;
 
 
 	RuuFile(@NonNull Context context, @NonNull RuuDirectory parent, @NonNull String path, @NonNull String[] extensions){
 		super(context, parent, path);
-		this.extensions = extensions;
+
+		int max = 0;
+		String candidate = extensions[0];
+		for(String ext: extensions){
+			if(max < (new File(getFullPath() + ext)).length()){
+				candidate = ext;
+			}
+		}
+		this.extension = candidate;
 	}
 
 	@NonNull
@@ -32,7 +42,7 @@ public class RuuFile extends RuuFileBase{
 
 	@NonNull
 	public String getRealPath(){
-		return getFullPath() + extensions[0];
+		return getFullPath() + extension;
 	}
 
 	@Override
