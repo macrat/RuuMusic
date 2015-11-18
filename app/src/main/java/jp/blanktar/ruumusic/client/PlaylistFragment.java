@@ -149,7 +149,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 		File file;
 		String mimetype;
 		if(ruufile.isDirectory()){
-			file = ruufile.path;
+			file = new File(ruufile.getFullPath());
 			mimetype = "text/directory";
 		}else{
 			file = new File(((RuuFile)ruufile).getRealPath());

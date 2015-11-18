@@ -13,7 +13,7 @@ import android.os.Build;
 
 public abstract class RuuFileBase implements Comparable<RuuFileBase>{
 	@NonNull final Context context;
-	@NonNull public final File path;
+	@NonNull final File path;
 
 
 	RuuFileBase(@NonNull Context context, @NonNull File path){
@@ -31,7 +31,7 @@ public abstract class RuuFileBase implements Comparable<RuuFileBase>{
 	}
 
 	@NonNull
-	protected abstract String getFullPath();
+	public abstract String getFullPath();
 
 	public abstract boolean isDirectory();
 

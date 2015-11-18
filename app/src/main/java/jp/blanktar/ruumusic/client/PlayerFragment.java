@@ -117,7 +117,7 @@ public class PlayerFragment extends Fragment{
 						try{
 							main.moveToPlaylist(currentMusic.getParent());
 						}catch(RuuFileBase.CanNotOpen e){
-							Toast.makeText(getActivity(), String.format(getString(R.string.cant_open_dir), currentMusic.path.getParent()), Toast.LENGTH_LONG).show();
+							Toast.makeText(getActivity(), String.format(getString(R.string.cant_open_dir), e.path), Toast.LENGTH_LONG).show();
 						}
 					}
 				}
