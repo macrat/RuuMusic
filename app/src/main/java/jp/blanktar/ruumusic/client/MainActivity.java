@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity{
 
 		try{
 			RuuDirectory.rootDirectory(getApplicationContext());
-		}catch(RuuFileBase.CanNotOpen e){
+		}catch(RuuFileBase.NotFound e){
 			Preference.Str.ROOT_DIRECTORY.remove(getApplicationContext());
 		}
 
@@ -81,13 +81,16 @@ public class MainActivity extends AppCompatActivity{
 		}else if(Intent.ACTION_VIEW.equals(getIntent().getAction()) && getIntent().getData() != null){
 			String path = getIntent().getData().getPath();
 			try{
-				RuuFile file = new RuuFile(getApplicationContext(), path.substring(0, path.lastIndexOf(".")));
+				RuuFile file = RuuFile.getInstance(getApplicationContext(), path.substring(0, path.lastIndexOf(".")));
 				file.getRuuPath();
 				startService(new Intent(getApplicationContext(), RuuService.class)
 								.setAction(RuuService.ACTION_PLAY)
 								.putExtra("path", file.getFullPath())
 				);
 				viewPager.setCurrentItem(0);
+			}catch(RuuFileBase.NotFound e){
+				Toast.makeText(getApplicationContext(), getString(R.string.music_not_found), Toast.LENGTH_LONG).show();
+				viewPager.setCurrentItem(Preference.Int.LAST_VIEW_PAGE.get(getApplicationContext()));
 			}catch(RuuFileBase.OutOfRootDirectory e){
 				Toast.makeText(getApplicationContext(), String.format(getString(R.string.out_of_root), path), Toast.LENGTH_LONG).show();
 				viewPager.setCurrentItem(Preference.Int.LAST_VIEW_PAGE.get(getApplicationContext()));

@@ -79,10 +79,10 @@ public class UnifiedWidget extends AppWidgetProvider{
 				playing = intent.getBooleanExtra("playing", false);
 
 				try{
-					RuuFile file = new RuuFile(context, intent.getStringExtra("path"));
+					RuuFile file = RuuFile.getInstance(context, intent.getStringExtra("path"));
 					musicName = file.getName();
 					musicPath = file.getParent().getRuuPath();
-				}catch(RuuFileBase.CanNotOpen | RuuFileBase.OutOfRootDirectory | NullPointerException e){
+				}catch(RuuFileBase.NotFound | RuuFileBase.OutOfRootDirectory | NullPointerException e){
 					musicName = null;
 					musicPath = null;
 				}

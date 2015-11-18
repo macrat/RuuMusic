@@ -76,12 +76,12 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			if(currentPath != null){
 				changeDir(RuuDirectory.getInstance(getContext(), currentPath));
 			}else{
-				changeDir(RuuDirectory.getInstance(getContext(), Environment.getExternalStorageDirectory()));
+				changeDir(RuuDirectory.getInstance(getContext(), Environment.getExternalStorageDirectory().getPath()));
 			}
-		}catch(RuuFileBase.CanNotOpen err){
+		}catch(RuuFileBase.NotFound err){
 			try{
 				changeDir(RuuDirectory.rootDirectory(getContext()));
-			}catch(RuuFileBase.CanNotOpen e){
+			}catch(RuuFileBase.NotFound e){
 				Toast.makeText(getActivity(), String.format(getString(R.string.cant_open_dir), e.path), Toast.LENGTH_LONG).show();
 				Preference.Str.ROOT_DIRECTORY.remove(getContext());
 			}
@@ -112,11 +112,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			getActivity().getMenuInflater().inflate(R.menu.music_context_menu, menu);
 		}
 
-		try{
-			if(getActivity().getPackageManager().queryIntentActivities(getOpenFileIntent(file), 0).size() == 0){
-				menu.findItem(R.id.action_open_with_other_app).setVisible(false);
-			}
-		}catch(RuuFileBase.CanNotOpen e){
+		if(getActivity().getPackageManager().queryIntentActivities(getOpenFileIntent(file), 0).size() == 0){
 			menu.findItem(R.id.action_open_with_other_app).setVisible(false);
 		}
 	}
@@ -133,11 +129,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 				changeMusic((RuuFile)file);
 				return true;
 			case R.id.action_open_with_other_app:
-				try{
-					startActivity(getOpenFileIntent(file));
-				}catch(RuuFileBase.CanNotOpen e){
-					Toast.makeText(getActivity(), getString(R.string.music_not_found), Toast.LENGTH_LONG).show();
-				}
+				startActivity(getOpenFileIntent(file));
 				return true;
 			default:
 				return super.onContextItemSelected(item);
@@ -145,7 +137,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 	}
 
 	@NonNull
-	private Intent getOpenFileIntent(@NonNull RuuFileBase ruufile) throws RuuFileBase.CanNotOpen{
+	private Intent getOpenFileIntent(@NonNull RuuFileBase ruufile){
 		File file;
 		String mimetype;
 		if(ruufile.isDirectory()){
@@ -218,7 +210,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 
 		try{
 			adapter.setRuuFiles(current);
-		}catch(RuuFileBase.CanNotOpen e){
+		}catch(RuuFileBase.NotFound e){
 			Toast.makeText(getActivity(), String.format(getString(R.string.cant_open_dir), e.path), Toast.LENGTH_LONG).show();
 			return;
 		}
@@ -232,7 +224,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			RuuDirectory rootDirectory;
 			try{
 				rootDirectory = RuuDirectory.rootDirectory(getContext());
-			}catch(RuuFileBase.CanNotOpen e){
+			}catch(RuuFileBase.NotFound e){
 				Toast.makeText(getActivity(), String.format(getString(R.string.cant_open_dir), "root directory"), Toast.LENGTH_LONG).show();
 				return;
 			}
@@ -271,7 +263,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 		RuuDirectory root;
 		try{
 			root = RuuDirectory.rootDirectory(getContext());
-		}catch(RuuFileBase.CanNotOpen e){
+		}catch(RuuFileBase.NotFound e){
 			return false;
 		}
 
@@ -280,16 +272,12 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 		}else if(current.path.equals(root)){
 			return false;
 		}else{
-			for(int i=1;; i++){
-				try{
-					changeDir(current.path.getParent(i));
-					return true;
-				}catch(RuuFileBase.CanNotOpen e){
-					if(e.path == null){
-						return false;
-					}
-				}
+			try{
+				changeDir(current.path.getParent());
+			}catch(RuuFileBase.OutOfRootDirectory e){
+				return false;
 			}
+			return true;
 		}
 	}
 
@@ -319,23 +307,18 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 		String[] queries = TextUtils.split(text.toLowerCase(), " \t");
 
 		ArrayList<RuuFileBase> filtered = new ArrayList<>();
-		try{
-			for(RuuFileBase file: current.path.getAllRecursive()){
-				String name = file.getName().toLowerCase();
-				boolean isOk = true;
-				for(String query: queries){
-					if(!name.contains(query)){
-						isOk = false;
-						break;
-					}
-				}
-				if(isOk){
-					filtered.add(file);
+		for(RuuFileBase file: current.path.getAllRecursive()){
+			String name = file.getName().toLowerCase();
+			boolean isOk = true;
+			for(String query: queries){
+				if(!name.contains(query)){
+					isOk = false;
+					break;
 				}
 			}
-		}catch(RuuFileBase.CanNotOpen e){
-			Toast.makeText(getActivity(), String.format(getString(R.string.cant_open_dir), e.path), Toast.LENGTH_LONG).show();
-			return false;
+			if(isOk){
+				filtered.add(file);
+			}
 		}
 
 		adapter.setSearchResults(filtered);
@@ -350,7 +333,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 	public boolean onClose(){
 		try{
 			adapter.resumeFromSearch();
-		}catch(RuuFileBase.CanNotOpen e){
+		}catch(RuuFileBase.NotFound e){
 			Toast.makeText(getActivity(), String.format(getString(R.string.cant_open_dir), e.path), Toast.LENGTH_LONG).show();
 			adapter.clear();
 		}
@@ -381,22 +364,16 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			super(context, R.layout.list_item);
 		}
 
-		void setRuuFiles(@NonNull DirectoryInfo dirInfo) throws RuuFileBase.CanNotOpen{
+		void setRuuFiles(@NonNull DirectoryInfo dirInfo) throws RuuFileBase.NotFound{
 			clear();
 			searchQuery = null;
 			this.dirInfo = dirInfo;
 
 			RuuDirectory rootDirectory = RuuDirectory.rootDirectory(getContext());
 			if(!rootDirectory.equals(dirInfo.path) && rootDirectory.contains(dirInfo.path)){
-				for(int i=1; ; i++){
-					try{
-						add(dirInfo.path.getParent(i));
-						break;
-					}catch(RuuFileBase.CanNotOpen e){
-						if(e.path == null){
-							break;
-						}
-					}
+				try{
+					add(dirInfo.path.getParent());
+				}catch(RuuFileBase.OutOfRootDirectory e){
 				}
 			}
 
@@ -437,7 +414,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			}
 		}
 
-		void resumeFromSearch() throws RuuFileBase.CanNotOpen{
+		void resumeFromSearch() throws RuuFileBase.NotFound{
 			if(dirInfo != null){
 				clear();
 				setRuuFiles(dirInfo);
@@ -476,7 +453,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 				((TextView)convertView.findViewById(R.id.search_name)).setText(item.getName() + (item.isDirectory() ? "/" : ""));
 				try{
 					((TextView)convertView.findViewById(R.id.search_path)).setText(item.getParent().getRuuPath());
-				}catch(RuuFileBase.CanNotOpen | RuuFileBase.OutOfRootDirectory e){
+				}catch(RuuFileBase.OutOfRootDirectory e){
 					((TextView)convertView.findViewById(R.id.search_path)).setText("");
 				}
 			}else{

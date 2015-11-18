@@ -49,26 +49,26 @@ public class Playlist{
 	}
 	
 	@NonNull
-	public static Playlist getByMusicPath(@NonNull Context context, @NonNull String path) throws RuuFileBase.CanNotOpen, EmptyDirectory, NotFound{
-		RuuFile music = new RuuFile(context, path);
+	public static Playlist getByMusicPath(@NonNull Context context, @NonNull String path) throws RuuFileBase.NotFound, EmptyDirectory{
+		RuuFile music = RuuFile.getInstance(context, path);
 		List<RuuFile> list = music.getParent().getMusics();
 		RuuFile[] playlist = list.toArray(new RuuFile[list.size()]);
 		int index = Arrays.binarySearch(playlist, music);
 		if(index < 0 || playlist.length <= index){
-			throw new NotFound();
+			throw new RuuFileBase.NotFound(path);
 		}
 		return new Playlist(music.getParent(), playlist, index, Type.SIMPLE, null);
 	}
 
 	@NonNull
-	public static Playlist getRecursive(@NonNull Context context, @NonNull String path) throws RuuFileBase.CanNotOpen, EmptyDirectory{
+	public static Playlist getRecursive(@NonNull Context context, @NonNull String path) throws RuuFileBase.NotFound, EmptyDirectory{
 		RuuDirectory dir = RuuDirectory.getInstance(context, path);
 		List<RuuFile> list = dir.getMusicsRecursive();
 		return new Playlist(dir, list.toArray(new RuuFile[list.size()]), 0, Type.RECURSIVE, null);
 	}
 
 	@NonNull
-	public static Playlist getSearchResults(@NonNull Context context, @NonNull String path, @NonNull String query) throws RuuFileBase.CanNotOpen, EmptyDirectory{
+	public static Playlist getSearchResults(@NonNull Context context, @NonNull String path, @NonNull String query) throws RuuFileBase.NotFound, EmptyDirectory{
 		String[] queries = TextUtils.split(query.toLowerCase(), " \t");
 
 		RuuDirectory dir = RuuDirectory.getInstance(context, path);
