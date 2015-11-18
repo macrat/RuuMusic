@@ -34,6 +34,9 @@
 	<string name="last_of_directory">this is last</string>
 	<string name="has_not_music">`%s` has not music file</string>
 	<string name="audiofocus_denied">Failed to get audio focus</string>
+	<string name="empty_device_title">Music not found</string>
+	<string name="empty_device_message">Music not found in this device</string>
+	<string name="empty_device_button">OK</string>
 
 	<string name="bass_boost_switch">Bass boost</string>
 	<string name="reverb_switch">Reverb</string>

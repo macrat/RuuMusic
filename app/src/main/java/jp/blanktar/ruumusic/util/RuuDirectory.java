@@ -32,7 +32,9 @@ public class RuuDirectory extends RuuFileBase{
 			ArrayList<String> musics = new ArrayList<>();
 			Cursor cursor = context.getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, null, null, null, null);
 			assert cursor != null;
-			if(cursor.moveToFirst()){
+			if(!cursor.moveToFirst()){
+				throw new RuuFileBase.NotFound(path);
+			}else{
 				do{
 					musics.add(cursor.getString(cursor.getColumnIndex("_data")));
 				}while(cursor.moveToNext());
@@ -55,7 +57,7 @@ public class RuuDirectory extends RuuFileBase{
 	@NonNull
 	public static RuuDirectory rootCandidate(@NonNull Context context) throws RuuFileBase.NotFound{
 		RuuDirectory dir = RuuDirectory.getInstance(context, "/");
-		while(dir.getDirectories().size() + dir.getMusics().size() < 2){
+		while(dir.getDirectories().size() + dir.getMusics().size() < 2 && dir.getDirectories().size() > 0){
 			dir = dir.getDirectories().get(0);
 		}
 		return dir;

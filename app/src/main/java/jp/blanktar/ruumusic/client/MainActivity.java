@@ -4,15 +4,17 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.IntRange;
 import android.support.annotation.UiThread;
-import android.support.v4.view.MenuItemCompat;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.SearchView;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -48,6 +50,24 @@ public class MainActivity extends AppCompatActivity{
 			RuuDirectory.rootDirectory(getApplicationContext());
 		}catch(RuuFileBase.NotFound e){
 			Preference.Str.ROOT_DIRECTORY.remove(getApplicationContext());
+		}
+
+		try{
+			RuuDirectory.getInstance(getApplicationContext(), "/");
+		}catch(RuuFileBase.NotFound e){
+			(new AlertDialog.Builder(this))
+					.setTitle(getString(R.string.empty_device_title))
+					.setMessage(getString(R.string.empty_device_message))
+					.setPositiveButton(
+							getString(R.string.empty_device_button),
+							new DialogInterface.OnClickListener(){
+								@Override
+								public void onClick(DialogInterface dialog, int which){
+									finish();
+								}
+							}
+					)
+					.create().show();
 		}
 
 		viewPager = (ViewPager)findViewById(R.id.viewPager);
