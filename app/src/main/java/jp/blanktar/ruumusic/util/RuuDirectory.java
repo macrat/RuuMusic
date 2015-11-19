@@ -1,7 +1,6 @@
 package jp.blanktar.ruumusic.util;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import android.support.annotation.NonNull;
@@ -30,7 +29,7 @@ public class RuuDirectory extends RuuFileBase{
 
 		if(root == null){
 			ArrayList<String> musics = new ArrayList<>();
-			Cursor cursor = context.getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, null, null, null, null);
+			Cursor cursor = context.getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, new String[]{"_data"}, null, null, "lower(_data)");
 			assert cursor != null;
 			if(!cursor.moveToFirst()){
 				throw new RuuFileBase.NotFound(path);
@@ -41,7 +40,6 @@ public class RuuDirectory extends RuuFileBase{
 			}
 			cursor.close();
 			String[] array = musics.toArray(new String[musics.size()]);
-			Arrays.sort(array);
 			root = new RuuDirectory(context, null, "/", array);
 		}
 
