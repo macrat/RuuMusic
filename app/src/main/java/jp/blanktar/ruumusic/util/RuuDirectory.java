@@ -1,6 +1,7 @@
 package jp.blanktar.ruumusic.util;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import android.support.annotation.NonNull;
@@ -141,7 +142,7 @@ public class RuuDirectory extends RuuFileBase{
 				stack.clear();
 			}
 			target = next;
-			
+	
 			if(nextslash < 0){
 				isDir = false;
 				stack.add(ext);
@@ -158,9 +159,10 @@ public class RuuDirectory extends RuuFileBase{
 			}
 		}
 
-		childrenTemp = null
-		
-		;
+		childrenTemp = null;
+
+		Collections.sort(directories);
+		Collections.sort(musics);
 	}
 
 	@NonNull
