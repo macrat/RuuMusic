@@ -104,7 +104,7 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 		if(recursive != null){
 			try{
 				playlist = Playlist.getRecursive(getApplicationContext(), recursive);
-			}catch(RuuFileBase.CanNotOpen | Playlist.EmptyDirectory e){
+			}catch(RuuFileBase.NotFound | Playlist.EmptyDirectory e){
 				playlist = null;
 			}
 		}else{
@@ -113,7 +113,7 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 			if(searchQuery != null && searchPath != null){
 				try{
 					playlist = Playlist.getSearchResults(getApplicationContext(), searchPath, searchQuery);
-				}catch(RuuFileBase.CanNotOpen | Playlist.EmptyDirectory e){
+				}catch(RuuFileBase.NotFound | Playlist.EmptyDirectory e){
 					playlist = null;
 				}
 			}
@@ -123,7 +123,7 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 		if(last_play != null && !last_play.equals("")){
 			try{
 				if(playlist != null){
-					playlist.goMusic(new RuuFile(getApplicationContext(), last_play));
+					playlist.goMusic(RuuFile.getInstance(getApplicationContext(), last_play));
 				}else{
 					playlist = Playlist.getByMusicPath(getApplicationContext(), last_play);
 				}
@@ -131,7 +131,7 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 					playlist.shuffle(true);
 				}
 				load(true);
-			}catch(RuuFileBase.CanNotOpen | Playlist.NotFound | Playlist.EmptyDirectory e){
+			}catch(RuuFileBase.NotFound | Playlist.NotFound | Playlist.EmptyDirectory e){
 				playlist = null;
 			}
 		}else if(playlist != null && shuffleMode){
@@ -173,13 +173,8 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 				player.reset();
 
 				if(status != Status.ERRORED && playlist != null){
-					try{
-						getBaseContext().sendBroadcast((new Intent(ACTION_FAILED_PLAY))
-								.putExtra("path", playlist.getCurrent().getRealPath()));
-					}catch(RuuFileBase.CanNotOpen p){
-						getBaseContext().sendBroadcast((new Intent(ACTION_FAILED_PLAY))
-								.putExtra("path", playlist.getCurrent().getFullPath()));
-					}
+					getBaseContext().sendBroadcast((new Intent(ACTION_FAILED_PLAY))
+							.putExtra("path", playlist.getCurrent().getRealPath()));
 					sendStatus();
 
 					if(!errorSE.isPlaying()){
@@ -235,7 +230,7 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 						}else{
 							playlist = Playlist.getSearchResults(getApplicationContext(), intent.getStringExtra("path"), intent.getStringExtra("query"));
 						}
-					}catch(RuuFileBase.CanNotOpen e){
+					}catch(RuuFileBase.NotFound e){
 						showToast(String.format(getString(R.string.cant_open_dir), intent.getStringExtra("path")), true);
 						break;
 					}catch(Playlist.EmptyDirectory e){
@@ -434,7 +429,7 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 		RuuDirectory root;
 		try{
 			root = RuuDirectory.rootDirectory(getApplicationContext());
-		}catch(RuuFileBase.CanNotOpen e){
+		}catch(RuuFileBase.NotFound e){
 			root = null;
 		}
 
@@ -485,7 +480,7 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 
 	private void playByPath(@NonNull String path){
 		try{
-			RuuFile file = new RuuFile(getApplicationContext(), path);
+			RuuFile file = RuuFile.getInstance(getApplicationContext(), path);
 
 			if(playlist == null || playlist.type != Playlist.Type.SIMPLE || !playlist.path.equals(file.getParent())){
 				playlist = Playlist.getByMusicPath(getApplicationContext(), path);
@@ -509,7 +504,7 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 					load(false);
 				}
 			}
-		}catch(RuuFileBase.CanNotOpen e){
+		}catch(RuuFileBase.NotFound e){
 			showToast(String.format(getString(R.string.cant_open_dir), e.path), true);
 		}catch(Playlist.EmptyDirectory e){
 			showToast(String.format(getString(R.string.has_not_music), path), true);
@@ -524,16 +519,12 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 		status = fromLastest ? Status.LOADING_FROM_LASTEST : Status.LOADING;
 		player.reset();
 
+		String realName = playlist.getCurrent().getRealPath();
 		try{
-			String realName = playlist.getCurrent().getRealPath();
-			try{
-				player.setDataSource(realName);
-				player.prepareAsync();
-			}catch(IOException e){
-				showToast(String.format(getString(R.string.failed_open_music), realName), true);
-			}
-		}catch(RuuFileBase.CanNotOpen e){
-			showToast(String.format(getString(R.string.music_not_found), playlist.getCurrent().getFullPath()), true);
+			player.setDataSource(realName);
+			player.prepareAsync();
+		}catch(IOException e){
+			showToast(String.format(getString(R.string.failed_open_music), realName), true);
 		}
 	}
 

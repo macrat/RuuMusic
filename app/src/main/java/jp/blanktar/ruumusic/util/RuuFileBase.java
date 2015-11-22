@@ -1,37 +1,32 @@
 package jp.blanktar.ruumusic.util;
 
-import java.io.File;
-import java.util.Arrays;
-import java.util.List;
-
-import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.content.Context;
-import android.os.Build;
 
 
 public abstract class RuuFileBase implements Comparable<RuuFileBase>{
 	@NonNull final Context context;
-	@NonNull public final File path;
+	@NonNull final String path;
+	@NonNull final String name;
+	@Nullable final RuuDirectory parent;
 
 
-	RuuFileBase(@NonNull Context context, @NonNull File path){
-		this.path = path;
+	RuuFileBase(@NonNull Context context, @Nullable RuuDirectory parent, @NonNull String path){
+		int slashpos = path.lastIndexOf("/");
+		if(slashpos < 0){
+			this.path = "/";
+			this.name = "";
+		}else{
+			this.path = path.substring(0, slashpos+1);
+			this.name = path.substring(slashpos+1);
+		}
+		this.parent = parent;
 		this.context = context;
 	}
 
 	@NonNull
-	static List<String> getSupportedTypes(){
-		if(Build.VERSION.SDK_INT >= 12){
-			return Arrays.asList(".flac", ".aac", ".mp3", ".m4a", ".ogg", ".wav", ".3gp");
-		}else{
-			return Arrays.asList(".mp3", ".m4a", ".ogg", ".wav", ".3gp");
-		}
-	}
-
-	@NonNull
-	protected abstract String getFullPath();
+	public abstract String getFullPath();
 
 	public abstract boolean isDirectory();
 
@@ -49,29 +44,19 @@ public abstract class RuuFileBase implements Comparable<RuuFileBase>{
 
 	@NonNull
 	public String getName(){
-		return path.getName();
+		return name;
 	}
 
 	@NonNull
-	public RuuDirectory getParent(@IntRange(from=1) int nth) throws CanNotOpen{
-		assert nth >= 1;
-		File parent = path;
-		for(int i=0; i<nth; i++){
-			parent = parent.getParentFile();
-			if(parent == null){
-				throw new CanNotOpen(null);
-			}
+	public RuuDirectory getParent() throws OutOfRootDirectory{
+		if(parent == null){
+			throw new OutOfRootDirectory();
 		}
-		return RuuDirectory.getInstance(context, parent);
-	}
-
-	@NonNull
-	public RuuDirectory getParent() throws CanNotOpen{
-		return getParent(1);
+		return parent;
 	}
 
 	public boolean equals(@NonNull RuuFileBase file){
-		return isDirectory() == file.isDirectory() && path.equals(file.path);
+		return isDirectory() == file.isDirectory() && getFullPath().equals(file.getFullPath());
 	}
 
 	private int depth(){
@@ -100,17 +85,17 @@ public abstract class RuuFileBase implements Comparable<RuuFileBase>{
 				return depthDiff;
 			}
 		}
-		return path.compareTo(file.path);
+		return getFullPath().compareTo(file.getFullPath());
 	}
 
 
-	public class OutOfRootDirectory extends Throwable{
+	public static class OutOfRootDirectory extends Throwable{
 	}
 
-	public class CanNotOpen extends Throwable{
+	public static class NotFound extends Throwable{
 		final public String path;
 
-		public CanNotOpen(@Nullable String path){
+		public NotFound(@Nullable String path){
 			this.path = path;
 		}
 	}

@@ -23,7 +23,6 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import jp.blanktar.ruumusic.R;
 import jp.blanktar.ruumusic.service.RuuService;
@@ -114,11 +113,7 @@ public class PlayerFragment extends Fragment{
 				if(currentMusic != null){
 					MainActivity main = (MainActivity)getActivity();
 					if(main != null){
-						try{
-							main.moveToPlaylist(currentMusic.getParent());
-						}catch(RuuFileBase.CanNotOpen e){
-							Toast.makeText(getActivity(), String.format(getString(R.string.cant_open_dir), currentMusic.path.getParent()), Toast.LENGTH_LONG).show();
-						}
+						main.moveToPlaylist(currentMusic.getParent());
 					}
 				}
 			}
@@ -247,13 +242,13 @@ public class PlayerFragment extends Fragment{
 
 		try{
 			searchPath = RuuDirectory.getInstance(getContext(), intent.getStringExtra("searchPath"));
-		}catch(RuuFileBase.CanNotOpen | NullPointerException e){
+		}catch(RuuFileBase.NotFound | NullPointerException e){
 			searchPath = null;
 		}
 
 		try{
 			recursivePath = RuuDirectory.getInstance(getContext(), intent.getStringExtra("recursivePath"));
-		}catch(RuuFileBase.CanNotOpen | NullPointerException e){
+		}catch(RuuFileBase.NotFound | NullPointerException e){
 			recursivePath = null;
 		}
 
@@ -282,7 +277,10 @@ public class PlayerFragment extends Fragment{
 		}
 
 		if(intent.getStringExtra("path") != null){
-			currentMusic = new RuuFile(getContext(), intent.getStringExtra("path"));
+			try{
+				currentMusic = RuuFile.getInstance(getContext(), intent.getStringExtra("path"));
+			}catch(RuuFileBase.NotFound e){
+			}
 		}
 		updateRoot();
 	}
@@ -294,7 +292,7 @@ public class PlayerFragment extends Fragment{
 		if(currentMusic != null){
 			try{
 				path = currentMusic.getParent().getRuuPath();
-			}catch(RuuFileBase.CanNotOpen | RuuFileBase.OutOfRootDirectory e){
+			}catch(RuuFileBase.OutOfRootDirectory e){
 				path = "";
 			}
 			name = currentMusic.getName();

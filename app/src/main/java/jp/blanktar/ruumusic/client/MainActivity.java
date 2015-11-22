@@ -4,15 +4,17 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.IntRange;
 import android.support.annotation.UiThread;
-import android.support.v4.view.MenuItemCompat;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.SearchView;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -46,8 +48,26 @@ public class MainActivity extends AppCompatActivity{
 
 		try{
 			RuuDirectory.rootDirectory(getApplicationContext());
-		}catch(RuuFileBase.CanNotOpen e){
+		}catch(RuuFileBase.NotFound e){
 			Preference.Str.ROOT_DIRECTORY.remove(getApplicationContext());
+		}
+
+		try{
+			RuuDirectory.getInstance(getApplicationContext(), "/");
+		}catch(RuuFileBase.NotFound e){
+			(new AlertDialog.Builder(this))
+					.setTitle(getString(R.string.empty_device_title))
+					.setMessage(getString(R.string.empty_device_message))
+					.setPositiveButton(
+							getString(R.string.empty_device_button),
+							new DialogInterface.OnClickListener(){
+								@Override
+								public void onClick(DialogInterface dialog, int which){
+									finish();
+								}
+							}
+					)
+					.create().show();
 		}
 
 		viewPager = (ViewPager)findViewById(R.id.viewPager);
@@ -81,13 +101,16 @@ public class MainActivity extends AppCompatActivity{
 		}else if(Intent.ACTION_VIEW.equals(getIntent().getAction()) && getIntent().getData() != null){
 			String path = getIntent().getData().getPath();
 			try{
-				RuuFile file = new RuuFile(getApplicationContext(), path.substring(0, path.lastIndexOf(".")));
+				RuuFile file = RuuFile.getInstance(getApplicationContext(), path.substring(0, path.lastIndexOf(".")));
 				file.getRuuPath();
 				startService(new Intent(getApplicationContext(), RuuService.class)
 								.setAction(RuuService.ACTION_PLAY)
 								.putExtra("path", file.getFullPath())
 				);
 				viewPager.setCurrentItem(0);
+			}catch(RuuFileBase.NotFound e){
+				Toast.makeText(getApplicationContext(), getString(R.string.music_not_found), Toast.LENGTH_LONG).show();
+				viewPager.setCurrentItem(Preference.Int.LAST_VIEW_PAGE.get(getApplicationContext()));
 			}catch(RuuFileBase.OutOfRootDirectory e){
 				Toast.makeText(getApplicationContext(), String.format(getString(R.string.out_of_root), path), Toast.LENGTH_LONG).show();
 				viewPager.setCurrentItem(Preference.Int.LAST_VIEW_PAGE.get(getApplicationContext()));

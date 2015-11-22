@@ -34,4 +34,6 @@
 	<string name="last_of_directory">これが最後の曲です</string>
 	<string name="has_not_music">`%s`以下には音楽がありません</string>
 	<string name="audiofocus_denied">オーディオフォーカスを取得できませんでした</string>
+	<string name="empty_device_title">音楽が見つかりません</string>
+	<string name="empty_device_message">このデバイスには音楽がないようです</string>
 </resources>

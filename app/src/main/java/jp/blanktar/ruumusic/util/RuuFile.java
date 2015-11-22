@@ -7,12 +7,26 @@ import android.content.Context;
 
 
 public class RuuFile extends RuuFileBase{
-	public RuuFile(@NonNull Context context, @NonNull File path){
-		super(context, path);
+	private final String extension;
+
+
+	RuuFile(@NonNull Context context, @NonNull RuuDirectory parent, @NonNull String path, @NonNull String[] extensions){
+		super(context, parent, path);
+
+		int max = 0;
+		String candidate = extensions[0];
+		for(String ext: extensions){
+			if(max < (new File(getFullPath() + ext)).length()){
+				candidate = ext;
+			}
+		}
+		this.extension = candidate;
 	}
 
-	public RuuFile(@NonNull Context context, @NonNull String path){
-		this(context, new File(path));
+	@NonNull
+	public static RuuFile getInstance(@NonNull Context context, @NonNull String path) throws RuuFileBase.NotFound{
+		int slashpos = path.lastIndexOf("/");
+		return RuuDirectory.getInstance(context, path.substring(0, slashpos + 1)).findMusic(path.substring(slashpos + 1));
 	}
 
 	@Override
@@ -23,17 +37,19 @@ public class RuuFile extends RuuFileBase{
 	@Override
 	@NonNull
 	public String getFullPath(){
-		return path.getPath();
+		return path + name;
 	}
 
 	@NonNull
-	public String getRealPath() throws RuuFileBase.CanNotOpen{
-		for(String ext: getSupportedTypes()){
-			File file = new File(getFullPath() + ext);
-			if(file.isFile()){
-				return file.getPath();
-			}
-		}
-		throw new RuuFileBase.CanNotOpen(getFullPath());
+	public String getRealPath(){
+		return getFullPath() + extension;
+	}
+
+	@Override
+	@NonNull
+	public RuuDirectory getParent(){
+		assert parent != null;
+
+		return parent;
 	}
 }

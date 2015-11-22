@@ -1,73 +1,96 @@
 package jp.blanktar.ruumusic.util;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.List;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.content.Context;
+import android.database.Cursor;
+import android.provider.MediaStore;
 
 
 public class RuuDirectory extends RuuFileBase{
-	private final static LinkedHashMap<String, RuuDirectory> cache = new LinkedHashMap<String, RuuDirectory>(){
-		@Override
-		protected boolean removeEldestEntry(Map.Entry<String, RuuDirectory> eldest){
-			return size() > 128;
-		}
-	};
+	@Nullable private static RuuDirectory root;
 
-	private final static LinkedHashMap<String, ArrayList<RuuFile>> recursiveMusicsCache = new LinkedHashMap<String, ArrayList<RuuFile>>(){
-		@Override
-		protected boolean removeEldestEntry(Map.Entry<String, ArrayList<RuuFile>> eldest){
-			return size() > 3;
-		}
-	};
-
-	private final static LinkedHashMap<String, ArrayList<File>> recursiveAllCache = new LinkedHashMap<String, ArrayList<File>>(){
-		@Override
-		protected boolean removeEldestEntry(Map.Entry<String, ArrayList<File>> eldest){
-			return size() > 3;
-		}
-	};
-
-	@Nullable private File[] musicsCache = null;
-	@Nullable private File[] directoriesCache = null;
-	@Nullable private File[] files = null;
+	@Nullable private String[] childrenTemp;
+	@NonNull final private List<RuuDirectory> directories = new ArrayList<>();
+	@NonNull final private List<RuuFile> musics = new ArrayList<>();
 
 
-	private RuuDirectory(@NonNull Context context, @NonNull File path) throws RuuFileBase.CanNotOpen{
-		super(context, path);
+	private RuuDirectory(@NonNull Context context, @Nullable RuuDirectory parent, @NonNull String path, @Nullable String[] children){
+		super(context, parent, path);
 
-		if(!path.isDirectory()){
-			throw new CanNotOpen(path.getPath());
-		}
+		this.childrenTemp = children;
 	}
 
-	public static RuuDirectory getInstance(@NonNull Context context, @NonNull File path) throws RuuFileBase.CanNotOpen{
-		RuuDirectory result = cache.get(path.getPath());
-		if(result == null){
-			result = new RuuDirectory(context, path);
-		}
-		cache.put(result.getFullPath(), result);
-		return result;
-	}
+	public static RuuDirectory getInstance(@NonNull Context context, @NonNull String path) throws RuuFileBase.NotFound{
+		assert path.startsWith("/") && path.endsWith("/");
 
-	public static RuuDirectory getInstance(@NonNull Context context, @NonNull String path) throws RuuFileBase.CanNotOpen{
-		RuuDirectory result = cache.get(path);
-		if(result == null){
-			result = getInstance(context, new File(path));
+		if(root == null){
+			ArrayList<String> musics = new ArrayList<>();
+			Cursor cursor = context.getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, new String[]{"_data"}, null, null, "lower(_data)");
+			assert cursor != null;
+			if(!cursor.moveToFirst()){
+				throw new RuuFileBase.NotFound(path);
+			}else{
+				do{
+					musics.add(cursor.getString(cursor.getColumnIndex("_data")));
+				}while(cursor.moveToNext());
+			}
+			cursor.close();
+			String[] array = musics.toArray(new String[musics.size()]);
+			root = new RuuDirectory(context, null, "/", array);
 		}
-		return result;
+
+		return root.findDir(path);
 	}
 
 	@NonNull
-	public static RuuDirectory rootDirectory(@NonNull Context context) throws RuuFileBase.CanNotOpen{
+	public static RuuDirectory rootDirectory(@NonNull Context context) throws RuuFileBase.NotFound{
 		String root = Preference.Str.ROOT_DIRECTORY.get(context);
 		return RuuDirectory.getInstance(context, root == null ? "/" : root);
+	}
+
+	@NonNull
+	public static RuuDirectory rootCandidate(@NonNull Context context) throws RuuFileBase.NotFound{
+		RuuDirectory dir = RuuDirectory.getInstance(context, "/");
+		while(dir.getDirectories().size() + dir.getMusics().size() < 2 && dir.getDirectories().size() > 0){
+			dir = dir.getDirectories().get(0);
+		}
+		return dir;
+	}
+
+	@NonNull
+	private RuuDirectory findDir(@NonNull String path) throws RuuFileBase.NotFound{
+		assert path.startsWith("/") && path.endsWith("/");
+
+		if(getFullPath().equals(path)){
+			return this;
+		}
+
+		int pathlength = getFullPath().length();
+		int slashpos = path.indexOf("/", pathlength);
+		String target = path.substring(pathlength, slashpos);
+
+		for(RuuDirectory dir: getDirectories()){
+			if(target.equals(dir.getName())){
+				return dir.findDir(path);
+			}
+		}
+
+		throw new RuuFileBase.NotFound(path);
+	}
+
+	@NonNull
+	RuuFile findMusic(@NonNull String name) throws RuuFileBase.NotFound{
+		for(RuuFile music: getMusics()){
+			if(name.equals(music.getName())){
+				return music;
+			}
+		}
+		throw new RuuFileBase.NotFound(getFullPath() + name);
 	}
 
 	@Override
@@ -78,122 +101,94 @@ public class RuuDirectory extends RuuFileBase{
 	@Override
 	@NonNull
 	public String getFullPath(){
-		String result = path.getPath();
-		if(!result.endsWith("/")){
-			result += "/";
+		if(name.equals("")){
+			return path;
+		}else{
+			return path + name + "/";
 		}
-		return result;
 	}
 
 	public boolean contains(@NonNull RuuFileBase file){
 		return file.getFullPath().startsWith(getFullPath());
 	}
 
-	@NonNull
-	public ArrayList<RuuDirectory> getDirectories() throws RuuFileBase.CanNotOpen{
-		ArrayList<RuuDirectory> result = new ArrayList<>();
+	private void processChildren(){
+		assert childrenTemp != null;
+		assert musics.isEmpty() && directories.isEmpty();
 
-		if(directoriesCache != null){
-			for(File file: directoriesCache){
-				result.add(RuuDirectory.getInstance(context, file));
+		int pathlength = getFullPath().length();
+		String target = null;
+		ArrayList<String> stack = new ArrayList<>();
+		boolean isDir = false;
+		String next = null;
+		for(String child: childrenTemp){
+			int nextslash = child.indexOf("/", pathlength);
+			String ext = "";
+
+			if(nextslash < 0){
+				int dotpos = child.lastIndexOf(".");
+				next = child.substring(0, dotpos);
+				ext = child.substring(dotpos);
+			}else{
+				next = child.substring(0, nextslash);
 			}
-		}else{
-			if(files == null){
-				files = path.listFiles();
-				if(files == null){
-					throw new RuuFileBase.CanNotOpen(getFullPath());
+
+			if(target != null && !next.equals(target)){
+				if(isDir){
+					directories.add(new RuuDirectory(context, this, target, stack.toArray(new String[stack.size()])));
+				}else{
+					musics.add(new RuuFile(context, this, target, stack.toArray(new String[stack.size()])));
 				}
+				stack.clear();
 			}
-
-			ArrayList<File> cacheTmp = new ArrayList<>();
-
-			for(File file: files){
-				if(!file.isHidden()){
-					RuuDirectory dir;
-					try{
-						dir = RuuDirectory.getInstance(context, file);
-					}catch(RuuFileBase.CanNotOpen e){
-						continue;
-					}
-					result.add(dir);
-					cacheTmp.add(dir.path);
-				}
+			target = next;
+	
+			if(nextslash < 0){
+				isDir = false;
+				stack.add(ext);
+			}else{
+				isDir = true;
+				stack.add(child);
 			}
-
-			if(musicsCache != null){
-				files = null;
+		}
+		if(next != null){
+			if(isDir){
+				directories.add(new RuuDirectory(context, this, next, stack.toArray(new String[stack.size()])));
+			}else{
+				musics.add(new RuuFile(context, this, next, stack.toArray(new String[stack.size()])));
 			}
-
-			directoriesCache = cacheTmp.toArray(new File[cacheTmp.size()]);
-			Arrays.sort(directoriesCache);
-
-			Collections.sort(result);
 		}
 
-		return result;
+		childrenTemp = null;
+
+		Collections.sort(directories);
+		Collections.sort(musics);
 	}
 
 	@NonNull
-	public ArrayList<RuuFile> getMusics() throws RuuFileBase.CanNotOpen{
-		ArrayList<RuuFile> result = new ArrayList<>();
-
-		if(musicsCache != null){
-			for(File file: musicsCache){
-				result.add(new RuuFile(context, file));
-			}
-		}else{
-			if(files == null){
-				files = path.listFiles();
-				if(files == null){
-					throw new RuuFileBase.CanNotOpen(getFullPath());
-				}
-			}
-
-			ArrayList<File> cacheTmp = new ArrayList<>();
-
-			String before = "";
-			for(File file: files){
-				if(file.getName().lastIndexOf(".") <= 0){
-					continue;
-				}
-
-				String path = file.getPath();
-				int dotPos = path.lastIndexOf(".");
-				String name = path.substring(0, dotPos);
-				String ext = path.substring(dotPos);
-				if(!file.isDirectory() && !name.equals(before) && getSupportedTypes().contains(ext)){
-					RuuFile music = new RuuFile(context, name);
-					result.add(music);
-					cacheTmp.add(music.path);
-					before = name;
-				}
-			}
-
-			if(directoriesCache != null){
-				files = null;
-			}
-
-			musicsCache = cacheTmp.toArray(new File[cacheTmp.size()]);
-			Arrays.sort(musicsCache);
-
-			Collections.sort(result);
+	public List<RuuDirectory> getDirectories(){
+		if(childrenTemp != null){
+			processChildren();
 		}
 
-		return result;
+		return directories;
 	}
 
 	@NonNull
-	private ArrayList<RuuFile> getMusicsRecursiveWithoutCache() throws RuuFileBase.CanNotOpen{
+	public List<RuuFile> getMusics(){
+		if(childrenTemp != null){
+			processChildren();
+		}
+
+		return musics;
+	}
+
+	@NonNull
+	public List<RuuFile> getMusicsRecursive(){
 		ArrayList<RuuFile> list = new ArrayList<>();
 
 		for(RuuDirectory dir: getDirectories()){
-			ArrayList<RuuFile> files;
-			try{
-				files = dir.getMusicsRecursiveWithoutCache();
-			}catch(RuuFileBase.CanNotOpen e){
-				continue;
-			}
-			list.addAll(files);
+			list.addAll(dir.getMusicsRecursive());
 		}
 
 		list.addAll(getMusics());
@@ -202,31 +197,12 @@ public class RuuDirectory extends RuuFileBase{
 	}
 
 	@NonNull
-	public ArrayList<RuuFile> getMusicsRecursive() throws RuuFileBase.CanNotOpen{
-		ArrayList<RuuFile> list = recursiveMusicsCache.get(getFullPath());
-
-		if(list == null){
-			list = getMusicsRecursiveWithoutCache();
-		}
-
-		recursiveMusicsCache.put(getFullPath(), list);
-
-		return list;
-	}
-
-	@NonNull
-	private ArrayList<RuuDirectory> getDirectoriesWithoutCache() throws RuuFileBase.CanNotOpen{
+	private List<RuuDirectory> getDirectoriesRecursive(){
 		ArrayList<RuuDirectory> list = new ArrayList<>();
 
-		ArrayList<RuuDirectory> dirs = getDirectories();
+		List<RuuDirectory> dirs = getDirectories();
 		for(RuuDirectory dir: dirs){
-			ArrayList<RuuDirectory> ruuDirs;
-			try{
-				ruuDirs = dir.getDirectoriesWithoutCache();
-			}catch(RuuFileBase.CanNotOpen e){
-				continue;
-			}
-			list.addAll(ruuDirs);
+			list.addAll(dir.getDirectories());
 		}
 
 		list.addAll(dirs);
@@ -235,44 +211,11 @@ public class RuuDirectory extends RuuFileBase{
 	}
 
 	@NonNull
-	private ArrayList<RuuFileBase> getAllRecursiveWithoutCache() throws RuuFileBase.CanNotOpen{
+	public List<RuuFileBase> getAllRecursive(){
 		ArrayList<RuuFileBase> list = new ArrayList<>();
-		list.addAll(getDirectoriesWithoutCache());
+		list.addAll(getDirectoriesRecursive());
 		list.addAll(getMusicsRecursive());
 
 		return list;
-	}
-
-	@NonNull
-	public ArrayList<RuuFileBase> getAllRecursive() throws RuuFileBase.CanNotOpen{
-		ArrayList<File> list = recursiveAllCache.get(getFullPath());
-		ArrayList<RuuFileBase> result;
-
-		if(list == null){
-			result = getAllRecursiveWithoutCache();
-			list = new ArrayList<>();
-			for(RuuFileBase file: result){
-				list.add(file.path);
-			}
-		}else{
-			result = new ArrayList<>();
-			for(File file: list){
-				RuuFileBase ruuFile;
-				try{
-					if(file.isDirectory()){
-						ruuFile = RuuDirectory.getInstance(context, file);
-					}else{
-						ruuFile = new RuuFile(context, file);
-					}
-				}catch(RuuFile.CanNotOpen e){
-					continue;
-				}
-				result.add(ruuFile);
-			}
-		}
-
-		recursiveAllCache.put(getFullPath(), list);
-
-		return result;
 	}
 }
