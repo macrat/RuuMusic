@@ -284,6 +284,8 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 
 		PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).unregisterOnSharedPreferenceChangeListener(this);
 
+		((NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE)).cancel(1);
+
 		saveStatus();
 	}
 
@@ -381,7 +383,7 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 				.setContentTitle(playlist.getCurrent().getName())
 				.setContentText(parentPath)
 				.setContentIntent(contentIntent)
-				.setPriority(Notification.PRIORITY_MIN)
+				.setPriority(Notification.PRIORITY_LOW)
 				.setVisibility(Notification.VISIBILITY_PUBLIC)
 				.setCategory(Notification.CATEGORY_TRANSPORT)
 				.addAction(R.drawable.ic_prev_for_notif, "prev", prev_pi)
