@@ -1,24 +1,11 @@
 package jp.blanktar.ruumusic.util;
 
-import android.support.test.runner.AndroidJUnit4;
-import org.junit.runner.RunWith;
+import jp.blanktar.ruumusic.test.TestBase;
 import org.junit.Test;
-import org.junit.Before;
 import static org.junit.Assert.*;
 
-import android.support.test.InstrumentationRegistry;
-import android.content.Context;
 
-
-@RunWith(AndroidJUnit4.class)
-public class PreferenceTest{
-	Context context;
-	
-	@Before
-	public void before(){
-		context = InstrumentationRegistry.getTargetContext();
-	}
-
+public class PreferenceTest extends TestBase{
 	@Test
 	public void intSettings(){
 		Preference.Int.LAST_PLAY_POSITION.set(context, 10);

@@ -1,32 +1,23 @@
 package jp.blanktar.ruumusic.util;
 
-import android.content.Context;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.runner.AndroidJUnit4;
-
+import jp.blanktar.ruumusic.test.TestBase;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import static org.junit.Assert.*;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
-
-@RunWith(AndroidJUnit4.class)
-public class RuuFileTest{
-	Context context;
+public class RuuFileTest extends TestBase{
 	RuuDirectory parent;
 	RuuFile file;
 
 	@Before
-	public void before() throws InstantiationException, IllegalAccessException, InvocationTargetException{
+	public void setUp() throws InstantiationException, IllegalAccessException, InvocationTargetException{
 		Constructor<?> ruuDirectory = RuuDirectory.class.getDeclaredConstructors()[0];
 		ruuDirectory.setAccessible(true);
 
-		context = InstrumentationRegistry.getTargetContext();
 		parent = (RuuDirectory)ruuDirectory.newInstance(context, null, "/hoge/", null);
 		file = new RuuFile(context, parent, "/hoge/test", new String[]{".ext"});
 	}

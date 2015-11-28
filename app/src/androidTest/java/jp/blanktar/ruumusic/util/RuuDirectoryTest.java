@@ -1,34 +1,24 @@
 package jp.blanktar.ruumusic.util;
 
-import android.content.Context;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.runner.AndroidJUnit4;
-
+import jp.blanktar.ruumusic.test.TestBase;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import static org.junit.Assert.*;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
-
 import java.util.List;
 
 
-@RunWith(AndroidJUnit4.class)
-public class RuuDirectoryTest{
-	Context context;
-	RuuDirectory parent, dir;
+public class RuuDirectoryTest extends TestBase{
+	private RuuDirectory parent, dir;
 
 	@Before
-	public void before() throws InstantiationException, IllegalAccessException, InvocationTargetException{
+	public void setUp() throws InstantiationException, IllegalAccessException, InvocationTargetException{
 		Constructor<?> ruuDirectory = RuuDirectory.class.getDeclaredConstructors()[0];
 		ruuDirectory.setAccessible(true);
 
-		context = InstrumentationRegistry.getTargetContext();
 		parent = (RuuDirectory)ruuDirectory.newInstance(context, null, "/", null);
 		dir = (RuuDirectory)ruuDirectory.newInstance(context, parent, "/hoge", new String[]{"/hoge/dir/music.mp3", "/hoge/child.mp3"});
 	}
