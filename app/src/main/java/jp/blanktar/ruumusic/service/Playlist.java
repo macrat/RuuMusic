@@ -135,8 +135,8 @@ public class Playlist{
 		if(keepCurrent){
 			int pos = listTmp.indexOf(current);
 			if(pos >= 0){
-				playlist[0] = playlist[pos];
-				playlist[pos] = current;
+				playlist[pos] = playlist[0];
+				playlist[0] = current;
 			}
 		}
 		currentIndex = 0;
