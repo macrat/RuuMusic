@@ -49,6 +49,7 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 	public final static String ACTION_PLAY_RECURSIVE = "jp.blanktar.ruumusic.PLAY_RECURSIVE";
 	public final static String ACTION_PLAY_SEARCH = "jp.blanktar.ruumusic.PLAY_SEARCH";
 	public final static String ACTION_PAUSE = "jp.blanktar.ruumusic.PAUSE";
+	public final static String ACTION_PAUSE_TRANSIENT = "jp.blanktar.ruumusic.PAUSE_TRANSIENT";
 	public final static String ACTION_PLAY_PAUSE = "jp.blanktar.ruumusic.PLAY_PAUSE";
 	public final static String ACTION_NEXT = "jp.blanktar.ruumusic.NEXT";
 	public final static String ACTION_PREV = "jp.blanktar.ruumusic.PREV";
@@ -244,6 +245,9 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 					break;
 				case ACTION_PAUSE:
 					pause();
+					break;
+				case ACTION_PAUSE_TRANSIENT:
+					pauseTransient();
 					break;
 				case ACTION_PLAY_PAUSE:
 					if(player.isPlaying()){
@@ -536,9 +540,6 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 				player.pause();
 			}
 			sendStatus();
-			removePlayingNotification();
-			updateMediaMetadata();
-			saveStatus();
 			startDeathTimer();
 		}
 	}
@@ -546,6 +547,9 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 	private void pause(){
 		pauseTransient();
 		((AudioManager)getSystemService(Context.AUDIO_SERVICE)).abandonAudioFocus(focusListener);
+		removePlayingNotification();
+		updateMediaMetadata();
+		saveStatus();
 	}
 
 	private void seek(@IntRange(from=0) int newtime){

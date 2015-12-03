@@ -153,7 +153,7 @@ public class PlayerFragment extends Fragment{
 			public void onStartTrackingTouch(@Nullable SeekBar seekBar){
 				seeking = true;
 				needResume = playing;
-				startRuuService(RuuService.ACTION_PAUSE);
+				startRuuService(RuuService.ACTION_PAUSE_TRANSIENT);
 			}
 
 			@Override
