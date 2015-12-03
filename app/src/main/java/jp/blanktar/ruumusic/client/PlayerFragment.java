@@ -280,6 +280,7 @@ public class PlayerFragment extends Fragment{
 			try{
 				currentMusic = RuuFile.getInstance(getContext(), intent.getStringExtra("path"));
 			}catch(RuuFileBase.NotFound e){
+				currentMusic = null;
 			}
 		}
 		updateRoot();
