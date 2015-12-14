@@ -161,7 +161,6 @@ public class RuuDirectory extends RuuFileBase{
 
 		childrenTemp = null;
 
-		Collections.sort(directories);
 		Collections.sort(musics);
 	}
 
