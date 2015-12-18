@@ -6,8 +6,6 @@ import android.support.annotation.Nullable;
 import android.support.annotation.IntRange;
 import android.preference.PreferenceManager;
 import android.content.Context;
-import android.media.MediaPlayer;
-import android.media.audiofx.Equalizer;
 
 
 public class Preference{
@@ -105,19 +103,11 @@ public class Preference{
 
 	public static class IntArray{
 		public static class EQUALIZER_LEVEL{
-			private final static String key = AUDIO_PREFIX + "equalizer_level_";
-			private static Integer defaultValue = null;
+			@NonNull private final static String key = AUDIO_PREFIX + "equalizer_level_";
 
 			@CheckResult
 			public static int get(@NonNull Context context, @IntRange(from=0) int index){
-				if(defaultValue == null){
-					MediaPlayer mp = new MediaPlayer();
-					Equalizer equalizer = new Equalizer(0, mp.getAudioSessionId());
-					defaultValue = (equalizer.getBandLevelRange()[0] + equalizer.getBandLevelRange()[1])/2;
-					equalizer.release();
-					mp.release();
-				}
-				return PreferenceManager.getDefaultSharedPreferences(context).getInt(key + index, defaultValue);
+				return PreferenceManager.getDefaultSharedPreferences(context).getInt(key + index, 0);
 			}
 
 			public static void set(@NonNull Context context, @IntRange(from=0) int index, int value){

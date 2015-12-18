@@ -57,6 +57,8 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 	public final static String ACTION_REPEAT = "jp.blanktar.ruumusic.REPEAT";
 	public final static String ACTION_SHUFFLE = "jp.blanktar.ruumusic.SHUFFLE";
 	public final static String ACTION_PING = "jp.blanktar.ruumusic.PING";
+	public final static String ACTION_REQUEST_EFFECT_INFO = "jp.blanktar.ruumusic.REQUEST_EFFECT_INFO";
+	public final static String ACTION_EFFECT_INFO = "jp.blanktar.ruumusic.EFFECT_INFO";
 	public final static String ACTION_STATUS = "jp.blanktar.ruumusic.STATUS";
 	public final static String ACTION_FAILED_PLAY = "jp.blanktar.ruumusic.FAILED_PLAY";
 	public final static String ACTION_NOT_FOUND = "jp.blanktar.ruumusic.NOT_FOUND";
@@ -274,6 +276,9 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 				case ACTION_PREV:
 					prev();
 					break;
+				case ACTION_REQUEST_EFFECT_INFO:
+					sendEffectInfo();
+					break;
 			}
 		}
 		return START_NOT_STICKY;
@@ -325,6 +330,35 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 		}
 
 		getBaseContext().sendBroadcast(sendIntent);
+	}
+
+	private void sendEffectInfo(){
+		Equalizer eq = equalizer;
+		boolean have_to_release = eq == null;
+		if(have_to_release){
+			try{
+				eq = new Equalizer(0, player.getAudioSessionId());
+			}catch(UnsupportedOperationException e){
+				return;
+			}
+		}
+
+		Intent intent = new Intent(ACTION_EFFECT_INFO);
+
+		intent.putExtra("equalizer_min", eq.getBandLevelRange()[0]);
+		intent.putExtra("equalizer_max", eq.getBandLevelRange()[1]);
+
+		int[] freqs = new int[eq.getNumberOfBands()];
+		for(short i=0; i<freqs.length; i++){
+			freqs[i] = eq.getCenterFreq(i);
+		}
+		intent.putExtra("equalizer_freqs", freqs);
+
+		if(have_to_release){
+			eq.release();
+		}
+
+		getBaseContext().sendBroadcast(intent);
 	}
 
 	private void saveStatus(){
@@ -677,46 +711,66 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 
 	private void updateAudioEffect(){
 		if(Preference.Bool.BASSBOOST_ENABLED.get(getApplicationContext())){
-			if(bassBoost == null){
-				bassBoost = new BassBoost(0, player.getAudioSessionId());
+			try{
+				if(bassBoost == null){
+					bassBoost = new BassBoost(0, player.getAudioSessionId());
+				}
+				bassBoost.setStrength((short)Preference.Int.BASSBOOST_LEVEL.get(getApplicationContext()));
+				bassBoost.setEnabled(true);
+			}catch(UnsupportedOperationException e){
+				showToast(getString(R.string.audioeffect_cant_enable), true);
+				Preference.Bool.BASSBOOST_ENABLED.set(getApplicationContext(), false);
 			}
-			bassBoost.setStrength((short)Preference.Int.BASSBOOST_LEVEL.get(getApplicationContext()));
-			bassBoost.setEnabled(true);
 		}else if(bassBoost != null){
 			bassBoost.release();
 			bassBoost = null;
 		}
 
 		if(Preference.Bool.REVERB_ENABLED.get(getApplicationContext())){
-			if(presetReverb == null){
-				presetReverb = new PresetReverb(0, player.getAudioSessionId());
+			try{
+				if(presetReverb == null){
+					presetReverb = new PresetReverb(0, player.getAudioSessionId());
+				}
+				presetReverb.setPreset((short)Preference.Int.REVERB_TYPE.get(getApplicationContext()));
+				presetReverb.setEnabled(true);
+			}catch(UnsupportedOperationException e){
+				showToast(getString(R.string.audioeffect_cant_enable), true);
+				Preference.Bool.REVERB_ENABLED.set(getApplicationContext(), false);
 			}
-			presetReverb.setPreset((short)Preference.Int.REVERB_TYPE.get(getApplicationContext()));
-			presetReverb.setEnabled(true);
 		}else if(presetReverb != null){
 			presetReverb.release();
 			presetReverb = null;
 		}
 
 		if(Build.VERSION.SDK_INT >= 19 && Preference.Bool.LOUDNESS_ENABLED.get(getApplicationContext())){
-			if(loudnessEnhancer == null){
-				loudnessEnhancer = new LoudnessEnhancer(player.getAudioSessionId());
+			try{
+				if(loudnessEnhancer == null){
+					loudnessEnhancer = new LoudnessEnhancer(player.getAudioSessionId());
+				}
+				loudnessEnhancer.setTargetGain(Preference.Int.LOUDNESS_LEVEL.get(getApplicationContext()));
+				loudnessEnhancer.setEnabled(true);
+			}catch(UnsupportedOperationException e){
+				showToast(getString(R.string.audioeffect_cant_enable), true);
+				Preference.Bool.LOUDNESS_ENABLED.set(getApplicationContext(), false);
 			}
-			loudnessEnhancer.setTargetGain(Preference.Int.LOUDNESS_LEVEL.get(getApplicationContext()));
-			loudnessEnhancer.setEnabled(true);
 		}else if(loudnessEnhancer != null){
 			loudnessEnhancer.release();
 			loudnessEnhancer = null;
 		}
 
 		if(Preference.Bool.EQUALIZER_ENABLED.get(getApplicationContext())){
-			if(equalizer == null){
-				equalizer = new Equalizer(0, player.getAudioSessionId());
+			try{
+				if(equalizer == null){
+					equalizer = new Equalizer(0, player.getAudioSessionId());
+				}
+				for(short i=0; i<equalizer.getNumberOfBands(); i++){
+					equalizer.setBandLevel(i, (short)Preference.IntArray.EQUALIZER_LEVEL.get(getApplicationContext(), i));
+				}
+				equalizer.setEnabled(true);
+			}catch(UnsupportedOperationException e){
+				showToast(getString(R.string.audioeffect_cant_enable), true);
+				Preference.Bool.EQUALIZER_ENABLED.set(getApplicationContext(), false);
 			}
-			for(short i=0; i<equalizer.getNumberOfBands(); i++){
-				equalizer.setBandLevel(i, (short)Preference.IntArray.EQUALIZER_LEVEL.get(getApplicationContext(), i));
-			}
-			equalizer.setEnabled(true);
 		}else if(equalizer != null){
 			equalizer.release();
 			equalizer = null;

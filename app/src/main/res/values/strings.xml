@@ -51,5 +51,7 @@
 		<item>Small Room</item>
 	</string-array>
 
+	<string name="audioeffect_cant_enable">Audio effect can\'t enable. Maybe, other audio effect app is running.</string>
+
 	<string name="widget_nodata">NO DATA</string>
 </resources>
