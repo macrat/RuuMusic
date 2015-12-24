@@ -211,7 +211,7 @@ public class AudioPreferenceActivity extends AppCompatActivity implements Compou
 		((SwitchCompat)findViewById(R.id.equalizer_switch)).setChecked(enabled);
 
 		((Spinner)findViewById(R.id.equalizer_spinner)).setSelection(Preference.Int.EQUALIZER_PRESET.get(getApplicationContext()) + 1);
-		((Spinner)findViewById(R.id.equalizer_spinner)).setEnabled(enabled);
+		findViewById(R.id.equalizer_spinner).setEnabled(enabled);
 
 		ViewGroup container = (ViewGroup)findViewById(R.id.equalizer_container);
 		for(int i=0; i<container.getChildCount(); i++){
@@ -228,7 +228,7 @@ public class AudioPreferenceActivity extends AppCompatActivity implements Compou
 	private void setEqualizerInfo(@NonNull Intent intent){
 		findViewById(R.id.equalizer_switch).setEnabled(true);
 
-		ArrayAdapter adapter = new ArrayAdapter(this, R.layout.spinner_item);
+		ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.spinner_item);
 		adapter.add("Custom");
 		for(String name: intent.getStringArrayExtra("equalizer_presets")){
 			adapter.add(name);
