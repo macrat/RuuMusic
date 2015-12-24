@@ -96,8 +96,8 @@ public class AudioPreferenceActivity extends AppCompatActivity implements Compou
 	}
 
 	private void initReverb(){
-		ArrayAdapter adapter = ArrayAdapter.createFromResource(this, R.array.reverb_options, android.R.layout.simple_spinner_item);
-		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		ArrayAdapter adapter = ArrayAdapter.createFromResource(this, R.array.reverb_options, R.layout.spinner_item);
+		adapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
 
 		((SwitchCompat)findViewById(R.id.reverb_switch)).setOnCheckedChangeListener(this);
 
