@@ -17,7 +17,8 @@ public class Preference{
 		BASSBOOST_LEVEL(AUDIO_PREFIX + "bassboost_level", 0),
 		REVERB_TYPE(AUDIO_PREFIX + "reverb_type", 0),
 		LOUDNESS_LEVEL(AUDIO_PREFIX + "loudness_level", 0),
-		LAST_VIEW_PAGE("last_view_page", 1);
+		LAST_VIEW_PAGE("last_view_page", 1),
+		EQUALIZER_PRESET(AUDIO_PREFIX + "equalizer_preset", -1);
 
 
 		private final int defaultValue;

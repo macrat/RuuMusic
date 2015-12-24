@@ -100,6 +100,13 @@
 				android:id="@+id/equalizer_switch"
 				android:textSize="@dimen/preference_text_size" />
 
+			<Spinner
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_gravity="right"
+				android:id="@+id/equalizer_spinner"
+				android:layout_marginBottom="15dp" />
+
 			<TableLayout
 				android:layout_width="match_parent"
 				android:layout_height="match_parent"

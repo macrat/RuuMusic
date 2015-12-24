@@ -210,6 +210,9 @@ public class AudioPreferenceActivity extends AppCompatActivity implements Compou
 
 		((SwitchCompat)findViewById(R.id.equalizer_switch)).setChecked(enabled);
 
+		((Spinner)findViewById(R.id.equalizer_spinner)).setSelection(Preference.Int.EQUALIZER_PRESET.get(getApplicationContext()) + 1);
+		((Spinner)findViewById(R.id.equalizer_spinner)).setEnabled(enabled);
+
 		ViewGroup container = (ViewGroup)findViewById(R.id.equalizer_container);
 		for(int i=0; i<container.getChildCount(); i++){
 			ViewGroup row = (ViewGroup)container.getChildAt(i);
@@ -225,13 +228,32 @@ public class AudioPreferenceActivity extends AppCompatActivity implements Compou
 	private void setEqualizerInfo(@NonNull Intent intent){
 		findViewById(R.id.equalizer_switch).setEnabled(true);
 
+		ArrayAdapter adapter = new ArrayAdapter(this, R.layout.spinner_item);
+		adapter.add("Custom");
+		for(String name: intent.getStringArrayExtra("equalizer_presets")){
+			adapter.add(name);
+		}
+		Spinner spinner = (Spinner)findViewById(R.id.equalizer_spinner);
+		spinner.setAdapter(adapter);
+		adapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
+		spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
+			@Override
+			public void onItemSelected(@Nullable AdapterView<?> parent, @Nullable View view, int position, long id){
+				Preference.Int.EQUALIZER_PRESET.set(getApplicationContext(), position - 1);
+			}
+
+			@Override
+			public void onNothingSelected(@Nullable AdapterView<?> parent){
+			}
+		});
+
 		equalizer_min = intent.getShortExtra("equalizer_min", (short)0);
 		final int equalizer_max = intent.getShortExtra("equalizer_max", (short)0);
-		final int[] freqs = intent.getIntArrayExtra("equalizer_freqs");
-		for(short i=0; i<freqs.length; i++){
+		final short bands = intent.getShortExtra("equalizer_bands", (short)0);
+		for(short i=0; i<bands; i++){
 			ViewGroup table = (ViewGroup)getLayoutInflater().inflate(R.layout.equalizer_preference_row, (ViewGroup)findViewById(R.id.equalizer_container));
 			ViewGroup newview = (ViewGroup)table.getChildAt(table.getChildCount()-1);
-			((TextView)newview.findViewById(R.id.equalizer_freq)).setText(freqs[i]/1000 + "Hz");
+			((TextView)newview.findViewById(R.id.equalizer_freq)).setText(Preference.IntArray.EQUALIZER_LEVEL.get(getApplicationContext(), i)/1000 + "Hz");
 
 			SeekBar seekBar = (SeekBar)newview.findViewById(R.id.equalizer_bar);
 			seekBar.setMax(equalizer_max - equalizer_min);
@@ -240,6 +262,9 @@ public class AudioPreferenceActivity extends AppCompatActivity implements Compou
 
 				@Override
 				public void onProgressChanged(@Nullable SeekBar seekBar, int progress, boolean fromUser){
+					if(fromUser){
+						Preference.Int.EQUALIZER_PRESET.set(getApplicationContext(), -1);
+					}
 					Preference.IntArray.EQUALIZER_LEVEL.set(getApplicationContext(), id, progress + equalizer_min);
 				}
 

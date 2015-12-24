@@ -347,12 +347,13 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 
 		intent.putExtra("equalizer_min", eq.getBandLevelRange()[0]);
 		intent.putExtra("equalizer_max", eq.getBandLevelRange()[1]);
+		intent.putExtra("equalizer_bands", eq.getNumberOfBands());
 
-		int[] freqs = new int[eq.getNumberOfBands()];
-		for(short i=0; i<freqs.length; i++){
-			freqs[i] = eq.getCenterFreq(i);
+		String[] presets = new String[eq.getNumberOfPresets()];
+		for(short i=0; i<eq.getNumberOfPresets(); i++){
+			presets[i] = eq.getPresetName(i);
 		}
-		intent.putExtra("equalizer_freqs", freqs);
+		intent.putExtra("equalizer_presets", presets);
 
 		if(have_to_release){
 			eq.release();
@@ -763,8 +764,17 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 				if(equalizer == null){
 					equalizer = new Equalizer(0, player.getAudioSessionId());
 				}
-				for(short i=0; i<equalizer.getNumberOfBands(); i++){
-					equalizer.setBandLevel(i, (short)Preference.IntArray.EQUALIZER_LEVEL.get(getApplicationContext(), i));
+				short preset = (short)Preference.Int.EQUALIZER_PRESET.get(getApplicationContext());
+				if(preset < 0){
+					for(short i=0; i<equalizer.getNumberOfBands(); i++){
+						equalizer.setBandLevel(i, (short)Preference.IntArray.EQUALIZER_LEVEL.get(getApplicationContext(), i));
+					}
+				}else{
+					equalizer.usePreset(preset);
+					short[] levels = equalizer.getProperties().bandLevels;
+					for(short i=0; i<levels.length; i++){
+						Preference.IntArray.EQUALIZER_LEVEL.set(getApplicationContext(), i, levels[i]);
+					}
 				}
 				equalizer.setEnabled(true);
 			}catch(UnsupportedOperationException e){
