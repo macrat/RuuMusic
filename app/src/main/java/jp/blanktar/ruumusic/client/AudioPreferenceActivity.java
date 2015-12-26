@@ -249,11 +249,11 @@ public class AudioPreferenceActivity extends AppCompatActivity implements Compou
 
 		equalizer_min = intent.getShortExtra("equalizer_min", (short)0);
 		final int equalizer_max = intent.getShortExtra("equalizer_max", (short)0);
-		final short bands = intent.getShortExtra("equalizer_bands", (short)0);
-		for(short i=0; i<bands; i++){
+		final int[] freqs = intent.getIntArrayExtra("equalizer_freqs");
+		for(int i=0; i<freqs.length; i++){
 			ViewGroup table = (ViewGroup)getLayoutInflater().inflate(R.layout.equalizer_preference_row, (ViewGroup)findViewById(R.id.equalizer_container));
 			ViewGroup newview = (ViewGroup)table.getChildAt(table.getChildCount()-1);
-			((TextView)newview.findViewById(R.id.equalizer_freq)).setText(Preference.IntArray.EQUALIZER_LEVEL.get(getApplicationContext(), i)/1000 + "Hz");
+			((TextView)newview.findViewById(R.id.equalizer_freq)).setText(freqs[i]/1000 + "Hz");
 
 			SeekBar seekBar = (SeekBar)newview.findViewById(R.id.equalizer_bar);
 			seekBar.setMax(equalizer_max - equalizer_min);

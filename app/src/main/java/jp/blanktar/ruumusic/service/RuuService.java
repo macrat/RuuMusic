@@ -347,7 +347,12 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 
 		intent.putExtra("equalizer_min", eq.getBandLevelRange()[0]);
 		intent.putExtra("equalizer_max", eq.getBandLevelRange()[1]);
-		intent.putExtra("equalizer_bands", eq.getNumberOfBands());
+
+		int[] freqs = new int[eq.getNumberOfBands()];
+		for(short i=0; i<freqs.length; i++){
+			freqs[i] = eq.getCenterFreq(i);
+		}
+		intent.putExtra("equalizer_freqs", freqs);
 
 		String[] presets = new String[eq.getNumberOfPresets()];
 		for(short i=0; i<eq.getNumberOfPresets(); i++){
