@@ -5,6 +5,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.IntRange;
 import android.support.annotation.UiThread;
 import android.app.AlertDialog;
+import android.app.SearchManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.AudioManager;
@@ -96,27 +97,37 @@ public class MainActivity extends AppCompatActivity{
 			}
 		});
 
-		if(ACTION_OPEN_PLAYER.equals(getIntent().getAction())){
-			viewPager.setCurrentItem(0);
-		}else if(Intent.ACTION_VIEW.equals(getIntent().getAction()) && getIntent().getData() != null){
-			String path = getIntent().getData().getPath();
-			try{
-				RuuFile file = RuuFile.getInstance(getApplicationContext(), path.substring(0, path.lastIndexOf(".")));
-				file.getRuuPath();
-				startService(new Intent(getApplicationContext(), RuuService.class)
-								.setAction(RuuService.ACTION_PLAY)
-								.putExtra("path", file.getFullPath())
-				);
+		switch(getIntent().getAction()){
+			case ACTION_OPEN_PLAYER:
 				viewPager.setCurrentItem(0);
-			}catch(RuuFileBase.NotFound e){
-				Toast.makeText(getApplicationContext(), getString(R.string.music_not_found), Toast.LENGTH_LONG).show();
+				break;
+			case Intent.ACTION_SEARCH:
+				viewPager.setCurrentItem(1);
+				Preference.Str.CURRENT_VIEW_PATH.set(getApplicationContext(), Preference.Str.ROOT_DIRECTORY.get(getApplicationContext()));
+				Preference.Str.LAST_SEARCH_QUERY.set(getApplicationContext(), getIntent().getStringExtra(SearchManager.QUERY));
+				break;
+			case Intent.ACTION_VIEW:
+				if(getIntent().getData() != null){
+					String path = getIntent().getData().getPath();
+					try{
+						RuuFile file = RuuFile.getInstance(getApplicationContext(), path.substring(0, path.lastIndexOf(".")));
+						file.getRuuPath();
+						startService(new Intent(getApplicationContext(), RuuService.class)
+										.setAction(RuuService.ACTION_PLAY)
+										.putExtra("path", file.getFullPath())
+						);
+						viewPager.setCurrentItem(0);
+					}catch(RuuFileBase.NotFound e){
+						Toast.makeText(getApplicationContext(), getString(R.string.music_not_found), Toast.LENGTH_LONG).show();
+						viewPager.setCurrentItem(Preference.Int.LAST_VIEW_PAGE.get(getApplicationContext()));
+					}catch(RuuFileBase.OutOfRootDirectory e){
+						Toast.makeText(getApplicationContext(), String.format(getString(R.string.out_of_root), path), Toast.LENGTH_LONG).show();
+						viewPager.setCurrentItem(Preference.Int.LAST_VIEW_PAGE.get(getApplicationContext()));
+					}
+					break;
+				}
+			default:
 				viewPager.setCurrentItem(Preference.Int.LAST_VIEW_PAGE.get(getApplicationContext()));
-			}catch(RuuFileBase.OutOfRootDirectory e){
-				Toast.makeText(getApplicationContext(), String.format(getString(R.string.out_of_root), path), Toast.LENGTH_LONG).show();
-				viewPager.setCurrentItem(Preference.Int.LAST_VIEW_PAGE.get(getApplicationContext()));
-			}
-		}else{
-			viewPager.setCurrentItem(Preference.Int.LAST_VIEW_PAGE.get(getApplicationContext()));
 		}
 	}
 

@@ -8,6 +8,9 @@
 	<string name="skipprev_widget_name">RuuMusic | Skip prev</string>
 	<string name="musicname_widget_name">RuuMusic | Music name</string>
 
+	<string name="search_hint">Search music</string>
+	<string name="search_description">Search music with RuuMusic</string>
+
 	<string name="action_set_root">Set here as root directory</string>
 	<string name="action_unset_root">Unset root directory</string>
 	<string name="action_recursive_play">Play under here</string>
