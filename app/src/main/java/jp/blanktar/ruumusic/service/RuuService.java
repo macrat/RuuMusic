@@ -716,6 +716,13 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 	}
 
 	private void updateAudioEffect(){
+		updateBassBoost();
+		updateReverb();
+		updateLoudnessEnhancer();
+		updateEqualizer();
+	}
+
+	private void updateBassBoost(){
 		if(Preference.Bool.BASSBOOST_ENABLED.get(getApplicationContext())){
 			try{
 				if(bassBoost == null){
@@ -731,7 +738,9 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 			bassBoost.release();
 			bassBoost = null;
 		}
+	}
 
+	private void updateReverb(){
 		if(Preference.Bool.REVERB_ENABLED.get(getApplicationContext())){
 			try{
 				if(presetReverb == null){
@@ -747,8 +756,14 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 			presetReverb.release();
 			presetReverb = null;
 		}
+	}
 
-		if(Build.VERSION.SDK_INT >= 19 && Preference.Bool.LOUDNESS_ENABLED.get(getApplicationContext())){
+	private void updateLoudnessEnhancer(){
+		if(Build.VERSION.SDK_INT < 19){
+			return;
+		}
+
+		if(Preference.Bool.LOUDNESS_ENABLED.get(getApplicationContext())){
 			try{
 				if(loudnessEnhancer == null){
 					loudnessEnhancer = new LoudnessEnhancer(player.getAudioSessionId());
@@ -763,7 +778,9 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 			loudnessEnhancer.release();
 			loudnessEnhancer = null;
 		}
+	}
 
+	private void updateEqualizer(){
 		if(Preference.Bool.EQUALIZER_ENABLED.get(getApplicationContext())){
 			try{
 				if(equalizer == null){
