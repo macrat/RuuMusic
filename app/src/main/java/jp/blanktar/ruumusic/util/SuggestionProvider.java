@@ -39,32 +39,16 @@ public class SuggestionProvider extends ContentProvider{
 
 		String[] queries = TextUtils.split(selectionArgs[0].toLowerCase(), "\\s");
 
-		MatrixCursor result = new MatrixCursor(new String[]{
-			"_id",
-			SearchManager.SUGGEST_COLUMN_TEXT_1,
-			SearchManager.SUGGEST_COLUMN_TEXT_2,
-			SearchManager.SUGGEST_COLUMN_INTENT_DATA,
-		});
-
-		int count = 0;
+		RuuCursor result = new RuuCursor();
 		for(RuuFile music: rootDir.getMusicsRecursive()){
-			if(!isMatch(music, queries)){
-				continue;
+			if(isMatch(music, queries)){
+				try{
+					result.addRuuFile(music);
+				}catch(RuuDirectory.OutOfRootDirectory e){
+					continue;
+				}
 			}
-
-			try{
-				result.addRow(new Object[]{
-						count,
-						music.getName(),
-						music.getRuuPath(),
-						(new Uri.Builder()).scheme("file").path(music.getRealPath()).toString()
-				});
-			}catch(RuuDirectory.OutOfRootDirectory e){
-				continue;
-			}
-			count++;
 		}
-
 		return result;
 	}
 
@@ -82,5 +66,30 @@ public class SuggestionProvider extends ContentProvider{
 
 	public String getType(@NonNull Uri uri){
 		return null;
+	}
+
+
+	private class RuuCursor extends MatrixCursor{
+		private int count = 0;
+	
+
+		private RuuCursor(){
+			super(new String[]{
+				"_id",
+				SearchManager.SUGGEST_COLUMN_TEXT_1,
+				SearchManager.SUGGEST_COLUMN_TEXT_2,
+				SearchManager.SUGGEST_COLUMN_INTENT_DATA,
+			});
+		}
+
+		private void addRuuFile(@NonNull RuuFile music) throws RuuDirectory.OutOfRootDirectory{
+			addRow(new Object[]{
+				count,
+				music.getName(),
+				music.getRuuPath(),
+				(new Uri.Builder()).scheme("file").path(music.getRealPath()).toString()
+			});
+			count++;
+		}
 	}
 }
