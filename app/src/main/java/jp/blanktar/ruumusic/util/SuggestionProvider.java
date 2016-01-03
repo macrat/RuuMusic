@@ -86,7 +86,7 @@ public class SuggestionProvider extends ContentProvider{
 			addRow(new Object[]{
 				count,
 				music.getName(),
-				music.getRuuPath(),
+				music.getParent().getRuuPath(),
 				(new Uri.Builder()).scheme("file").path(music.getRealPath()).toString()
 			});
 			count++;
