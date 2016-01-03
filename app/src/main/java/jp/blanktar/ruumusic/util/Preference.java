@@ -50,7 +50,8 @@ public class Preference{
 		SEARCH_QUERY("search_query", null),
 		LAST_PLAY_MUSIC("last_play_music", null),
 		ROOT_DIRECTORY("root_directory", null),
-		CURRENT_VIEW_PATH("current_view_path", null);
+		CURRENT_VIEW_PATH("current_view_path", null),
+		LAST_SEARCH_QUERY("last_search_query", null) ;
 
 
 		@Nullable private final String defaultValue;

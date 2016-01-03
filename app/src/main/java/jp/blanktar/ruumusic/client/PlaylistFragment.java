@@ -74,6 +74,11 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 		try{
 			if(currentPath != null){
 				changeDir(RuuDirectory.getInstance(getContext(), currentPath));
+
+				searchQuery = Preference.Str.LAST_SEARCH_QUERY.get(getContext());
+				if(searchQuery != null){
+					onQueryTextSubmit(searchQuery);
+				}
 			}else{
 				changeDir(RuuDirectory.rootCandidate(getContext()));
 			}
@@ -95,6 +100,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 
 		if(current != null){
 			Preference.Str.CURRENT_VIEW_PATH.set(getContext(), current.path.getFullPath());
+			Preference.Str.LAST_SEARCH_QUERY.set(getContext(), searchQuery);
 		}
 	}
 
@@ -301,7 +307,10 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			return false;
 		}
 
-		((MainActivity)getActivity()).searchView.clearFocus();
+		SearchView sv = ((MainActivity)getActivity()).searchView;
+		if(sv != null){
+			sv.clearFocus();
+		}
 
 		String[] queries = TextUtils.split(text.toLowerCase(), " \t");
 
@@ -338,6 +347,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 		}
 
 		searchQuery = null;
+		Preference.Str.LAST_SEARCH_QUERY.remove(getContext());
 		updateMenu();
 
 		return false;
@@ -393,8 +403,9 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 		}
 
 		void setSearchResults(@NonNull List<RuuFileBase> results){
-			if(dirInfo != null){
+			try{
 				dirInfo.selection = ((ListView)getActivity().findViewById(R.id.playlist)).getFirstVisiblePosition();
+			}catch(NullPointerException e){
 			}
 			clear();
 

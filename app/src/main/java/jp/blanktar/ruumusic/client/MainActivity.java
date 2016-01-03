@@ -167,6 +167,13 @@ public class MainActivity extends AppCompatActivity{
 		searchView.setOnQueryTextListener(playlist);
 		searchView.setOnCloseListener(playlist);
 
+		String query = Preference.Str.LAST_SEARCH_QUERY.get(getApplicationContext());
+		if(query != null){
+			searchView.setIconified(false);
+			searchView.setQuery(query, true);
+			menu.findItem(R.id.menu_search).setVisible(viewPager.getCurrentItem() == 1);
+		}
+
 		return super.onCreateOptionsMenu(menu);
 	}
 
