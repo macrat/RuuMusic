@@ -733,6 +733,9 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 			}catch(UnsupportedOperationException e){
 				showToast(getString(R.string.audioeffect_cant_enable), true);
 				Preference.Bool.BASSBOOST_ENABLED.set(getApplicationContext(), false);
+			}catch(RuntimeException e){
+				showToast(String.format(getString(R.string.audioeffect_failed_enable), "bass boost"), true);
+				Preference.Bool.EQUALIZER_ENABLED.set(getApplicationContext(), false);
 			}
 		}else if(bassBoost != null){
 			bassBoost.release();
@@ -751,6 +754,9 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 			}catch(UnsupportedOperationException e){
 				showToast(getString(R.string.audioeffect_cant_enable), true);
 				Preference.Bool.REVERB_ENABLED.set(getApplicationContext(), false);
+			}catch(RuntimeException e){
+				showToast(String.format(getString(R.string.audioeffect_failed_enable), "reverb"), true);
+				Preference.Bool.EQUALIZER_ENABLED.set(getApplicationContext(), false);
 			}
 		}else if(presetReverb != null){
 			presetReverb.release();
@@ -773,6 +779,9 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 			}catch(UnsupportedOperationException e){
 				showToast(getString(R.string.audioeffect_cant_enable), true);
 				Preference.Bool.LOUDNESS_ENABLED.set(getApplicationContext(), false);
+			}catch(RuntimeException e){
+				showToast(String.format(getString(R.string.audioeffect_failed_enable), "loudness enhancer"), true);
+				Preference.Bool.EQUALIZER_ENABLED.set(getApplicationContext(), false);
 			}
 		}else if(loudnessEnhancer != null){
 			loudnessEnhancer.release();
@@ -801,6 +810,9 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 				equalizer.setEnabled(true);
 			}catch(UnsupportedOperationException e){
 				showToast(getString(R.string.audioeffect_cant_enable), true);
+				Preference.Bool.EQUALIZER_ENABLED.set(getApplicationContext(), false);
+			}catch(RuntimeException e){
+				showToast(String.format(getString(R.string.audioeffect_failed_enable), "equalizer"), true);
 				Preference.Bool.EQUALIZER_ENABLED.set(getApplicationContext(), false);
 			}
 		}else if(equalizer != null){

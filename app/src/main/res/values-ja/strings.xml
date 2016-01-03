@@ -52,6 +52,7 @@
 	</string-array>
 
 	<string name="audioeffect_cant_enable">オーディオエフェクトを有効にすることが出来ませんでした。他のエフェクトアプリが起動しているようです。</string>
+	<string name="audioeffect_failed_enable">%sの有効化に失敗しました</string>
 
 	<string name="widget_nodata">NO DATA</string>
 </resources>
