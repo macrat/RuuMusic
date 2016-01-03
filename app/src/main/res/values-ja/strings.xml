@@ -9,7 +9,7 @@
 	<string name="musicname_widget_name">RuuMusic | 曲名</string>
 
 	<string name="search_hint">音楽を検索</string>
-	<string name="search_description">RuuMusicで音楽を検索</string>
+	<string name="search_description">音楽を検索</string>
 
 	<string name="action_set_root">このディレクトリをルートに設定</string>
 	<string name="action_unset_root">ルートディレクトリの設定を解除</string>
