@@ -8,6 +8,6 @@
 		android:includeInGlobalSearch="true"
 		android:voiceSearchMode="showVoiceSearchButton|launchRecognizer"
 		android:searchSuggestAuthority="suggestionProvider"
-		android:searchSuggestSelection=" _data MATCH ? "
+		android:searchSuggestSelection=" ? "
 		android:searchSuggestIntentAction="android.intent.action.VIEW"
 		/>
