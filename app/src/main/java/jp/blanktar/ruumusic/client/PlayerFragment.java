@@ -9,6 +9,7 @@ import android.support.annotation.StringRes;
 import android.support.annotation.FloatRange;
 import android.support.annotation.UiThread;
 import android.app.AlertDialog;
+import android.app.SearchManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -17,7 +18,9 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -107,6 +110,7 @@ public class PlayerFragment extends Fragment{
 			}
 		});
 
+		registerForContextMenu(view.findViewById(R.id.musicPath));
 		view.findViewById(R.id.musicPath).setOnClickListener(new View.OnClickListener(){
 			@Override
 			public void onClick(@Nullable View view){
@@ -118,6 +122,8 @@ public class PlayerFragment extends Fragment{
 				}
 			}
 		});
+
+		registerForContextMenu(view.findViewById(R.id.musicName));
 
 		view.findViewById(R.id.status_indicator).setOnClickListener(new View.OnClickListener(){
 			@Override
@@ -210,6 +216,50 @@ public class PlayerFragment extends Fragment{
 
 		if(updateProgressTimer != null){
 			updateProgressTimer.cancel();
+		}
+	}
+
+	@Override
+	public void onCreateContextMenu(@NonNull ContextMenu menu, @NonNull View view, @NonNull ContextMenu.ContextMenuInfo info){
+		super.onCreateContextMenu(menu, view, info);
+
+
+		switch(view.getId()){
+			case R.id.musicPath:
+				menu.setHeaderTitle(currentMusic.getParent().getName());
+				getActivity().getMenuInflater().inflate(R.menu.directory_context_menu, menu);
+				menu.findItem(R.id.action_open_dir_with_other_app).setVisible(
+					getActivity().getPackageManager().queryIntentActivities(currentMusic.getParent().toIntent(), 0).size() > 0
+				);
+				break;
+			case R.id.musicName:
+				menu.setHeaderTitle(currentMusic.getName());
+				getActivity().getMenuInflater().inflate(R.menu.music_context_menu, menu);
+				menu.findItem(R.id.action_open_music).setVisible(false);
+				menu.findItem(R.id.action_open_music_with_other_app).setVisible(
+					getActivity().getPackageManager().queryIntentActivities(currentMusic.toIntent(), 0).size() > 0
+				);
+				break;
+		}
+	}
+
+	@Override
+	public boolean onContextItemSelected(@NonNull MenuItem item){
+		switch(item.getItemId()){
+			case R.id.action_open_directory:
+				((MainActivity)getActivity()).moveToPlaylist(currentMusic.getParent());
+				return true;
+			case R.id.action_open_dir_with_other_app:
+				startActivity(currentMusic.getParent().toIntent());
+				return true;
+			case R.id.action_open_music_with_other_app:
+				startActivity(currentMusic.toIntent());
+				return true;
+			case R.id.action_web_search:
+				startActivity((new Intent(Intent.ACTION_WEB_SEARCH)).putExtra(SearchManager.QUERY, currentMusic.getName()));
+				return true;
+			default:
+				return super.onContextItemSelected(item);
 		}
 	}
 

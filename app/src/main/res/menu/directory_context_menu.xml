@@ -4,7 +4,7 @@
 	<item android:id="@+id/action_open_directory"
 		android:title="@string/action_open_directory" />
 
-	<item android:id="@+id/action_open_with_other_app"
+	<item android:id="@+id/action_open_dir_with_other_app"
 		  android:title="@string/action_open_with_other_app" />
 
 	<item android:id="@+id/action_web_search"

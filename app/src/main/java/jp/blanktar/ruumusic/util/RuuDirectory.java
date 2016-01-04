@@ -7,7 +7,9 @@ import java.util.List;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.provider.MediaStore;
 
 
@@ -106,6 +108,13 @@ public class RuuDirectory extends RuuFileBase{
 		}else{
 			return path + name + "/";
 		}
+	}
+
+	@Override
+	@NonNull
+	public Intent toIntent(){
+		Uri uri = (new Uri.Builder()).scheme("file").path(getFullPath()).build();
+		return (new Intent(Intent.ACTION_VIEW)).setDataAndType(uri, "text/directory").putExtra(Intent.EXTRA_STREAM, uri);
 	}
 
 	public boolean contains(@NonNull RuuFileBase file){

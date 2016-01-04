@@ -4,6 +4,9 @@ import java.io.File;
 
 import android.support.annotation.NonNull;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
+import android.webkit.MimeTypeMap;
 
 
 public class RuuFile extends RuuFileBase{
@@ -51,5 +54,15 @@ public class RuuFile extends RuuFileBase{
 		assert parent != null;
 
 		return parent;
+	}
+
+	@Override
+	@NonNull
+	public Intent toIntent(){
+		Uri uri = (new Uri.Builder()).scheme("file").path(getRealPath()).build();
+		return (new Intent(Intent.ACTION_VIEW)).setDataAndType(
+			uri,
+			MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension.substring(1))
+		).putExtra(Intent.EXTRA_STREAM, uri);
 	}
 }

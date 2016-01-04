@@ -1,6 +1,5 @@
 package jp.blanktar.ruumusic.client;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -13,7 +12,6 @@ import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.SearchView;
@@ -24,7 +22,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.MimeTypeMap;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -109,17 +106,16 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 	public void onCreateContextMenu(@NonNull ContextMenu menu, @NonNull View view, @NonNull ContextMenu.ContextMenuInfo info){
 		super.onCreateContextMenu(menu, view, info);
 		RuuFileBase file = adapter.getItem(((AdapterView.AdapterContextMenuInfo)info).position);
+		boolean openable = getActivity().getPackageManager().queryIntentActivities(file.toIntent(), 0).size() > 0;
 
 		if(file.isDirectory()){
 			menu.setHeaderTitle(file.getName() + "/");
 			getActivity().getMenuInflater().inflate(R.menu.directory_context_menu, menu);
+			menu.findItem(R.id.action_open_dir_with_other_app).setVisible(openable);
 		}else{
 			menu.setHeaderTitle(file.getName());
 			getActivity().getMenuInflater().inflate(R.menu.music_context_menu, menu);
-		}
-
-		if(getActivity().getPackageManager().queryIntentActivities(getOpenFileIntent(file), 0).size() == 0){
-			menu.findItem(R.id.action_open_with_other_app).setVisible(false);
+			menu.findItem(R.id.action_open_music_with_other_app).setVisible(openable);
 		}
 	}
 
@@ -134,8 +130,9 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			case R.id.action_open_music:
 				changeMusic((RuuFile)file);
 				return true;
-			case R.id.action_open_with_other_app:
-				startActivity(getOpenFileIntent(file));
+			case R.id.action_open_dir_with_other_app:
+			case R.id.action_open_music_with_other_app:
+				startActivity(file.toIntent());
 				return true;
 			case R.id.action_web_search:
 				startActivity((new Intent(Intent.ACTION_WEB_SEARCH)).putExtra(SearchManager.QUERY, file.getName()));
@@ -143,20 +140,6 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			default:
 				return super.onContextItemSelected(item);
 		}
-	}
-
-	@NonNull
-	private Intent getOpenFileIntent(@NonNull RuuFileBase ruufile){
-		File file;
-		String mimetype;
-		if(ruufile.isDirectory()){
-			file = new File(ruufile.getFullPath());
-			mimetype = "text/directory";
-		}else{
-			file = new File(((RuuFile)ruufile).getRealPath());
-			mimetype = MimeTypeMap.getSingleton().getMimeTypeFromExtension(file.getName().substring(ruufile.getName().length()+1));
-		}
-		return (new Intent(Intent.ACTION_VIEW)).setDataAndType(Uri.fromFile(file), mimetype).putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
 	}
 
 	public void updateTitle(@NonNull Activity activity){
