@@ -7,6 +7,6 @@
 	<item android:id="@+id/action_open_music_with_other_app"
 		  android:title="@string/action_open_with_other_app" />
 
-	<item android:id="@+id/action_web_search"
+	<item android:id="@+id/action_web_search_music"
 		  android:title="@string/action_web_search" />
 </menu>

@@ -134,7 +134,8 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			case R.id.action_open_music_with_other_app:
 				startActivity(file.toIntent());
 				return true;
-			case R.id.action_web_search:
+			case R.id.action_web_search_dir:
+			case R.id.action_web_search_music:
 				startActivity((new Intent(Intent.ACTION_WEB_SEARCH)).putExtra(SearchManager.QUERY, file.getName()));
 				return true;
 			default:

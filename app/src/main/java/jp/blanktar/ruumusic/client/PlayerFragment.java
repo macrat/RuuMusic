@@ -226,7 +226,7 @@ public class PlayerFragment extends Fragment{
 
 		switch(view.getId()){
 			case R.id.musicPath:
-				menu.setHeaderTitle(currentMusic.getParent().getName());
+				menu.setHeaderTitle(currentMusic.getParent().getName() + "/");
 				getActivity().getMenuInflater().inflate(R.menu.directory_context_menu, menu);
 				menu.findItem(R.id.action_open_dir_with_other_app).setVisible(
 					getActivity().getPackageManager().queryIntentActivities(currentMusic.getParent().toIntent(), 0).size() > 0
@@ -255,7 +255,10 @@ public class PlayerFragment extends Fragment{
 			case R.id.action_open_music_with_other_app:
 				startActivity(currentMusic.toIntent());
 				return true;
-			case R.id.action_web_search:
+			case R.id.action_web_search_dir:
+				startActivity((new Intent(Intent.ACTION_WEB_SEARCH)).putExtra(SearchManager.QUERY, currentMusic.getParent().getName()));
+				return true;
+			case R.id.action_web_search_music:
 				startActivity((new Intent(Intent.ACTION_WEB_SEARCH)).putExtra(SearchManager.QUERY, currentMusic.getName()));
 				return true;
 			default:
