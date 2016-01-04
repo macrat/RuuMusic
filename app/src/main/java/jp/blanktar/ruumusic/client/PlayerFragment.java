@@ -125,6 +125,7 @@ public class PlayerFragment extends Fragment{
 
 		registerForContextMenu(view.findViewById(R.id.musicName));
 
+		registerForContextMenu(view.findViewById(R.id.status_indicator));
 		view.findViewById(R.id.status_indicator).setOnClickListener(new View.OnClickListener(){
 			@Override
 			public void onClick(@Nullable View view){
@@ -223,7 +224,6 @@ public class PlayerFragment extends Fragment{
 	public void onCreateContextMenu(@NonNull ContextMenu menu, @NonNull View view, @NonNull ContextMenu.ContextMenuInfo info){
 		super.onCreateContextMenu(menu, view, info);
 
-
 		switch(view.getId()){
 			case R.id.musicPath:
 				menu.setHeaderTitle(currentMusic.getParent().getName() + "/");
@@ -240,6 +240,15 @@ public class PlayerFragment extends Fragment{
 					getActivity().getPackageManager().queryIntentActivities(currentMusic.toIntent(), 0).size() > 0
 				);
 				break;
+			case R.id.status_indicator:
+				if(recursivePath != null){
+					menu.setHeaderTitle(recursivePath.getName() + "/");
+					getActivity().getMenuInflater().inflate(R.menu.indicator_recursive_context_menu, menu);
+					menu.findItem(R.id.action_open_recursive_with_other_app).setVisible(
+						getActivity().getPackageManager().queryIntentActivities(recursivePath.toIntent(), 0).size() > 0
+					);
+				}
+				break;
 		}
 	}
 
@@ -249,17 +258,26 @@ public class PlayerFragment extends Fragment{
 			case R.id.action_open_directory:
 				((MainActivity)getActivity()).moveToPlaylist(currentMusic.getParent());
 				return true;
+			case R.id.action_open_recursive:
+				((MainActivity)getActivity()).moveToPlaylist(recursivePath);
+				return true;
 			case R.id.action_open_dir_with_other_app:
 				startActivity(currentMusic.getParent().toIntent());
 				return true;
 			case R.id.action_open_music_with_other_app:
 				startActivity(currentMusic.toIntent());
 				return true;
+			case R.id.action_open_recursive_with_other_app:
+				startActivity(recursivePath.toIntent());
+				return true;
 			case R.id.action_web_search_dir:
 				startActivity((new Intent(Intent.ACTION_WEB_SEARCH)).putExtra(SearchManager.QUERY, currentMusic.getParent().getName()));
 				return true;
 			case R.id.action_web_search_music:
 				startActivity((new Intent(Intent.ACTION_WEB_SEARCH)).putExtra(SearchManager.QUERY, currentMusic.getName()));
+				return true;
+			case R.id.action_web_search_recursive:
+				startActivity((new Intent(Intent.ACTION_WEB_SEARCH)).putExtra(SearchManager.QUERY, recursivePath.getName()));
 				return true;
 			default:
 				return super.onContextItemSelected(item);
