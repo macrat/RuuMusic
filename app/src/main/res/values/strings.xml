@@ -19,6 +19,7 @@
 	<string name="menu_audio_preference">Audio preference</string>
 	<string name="action_open_directory">Open</string>
 	<string name="action_open_music">Play</string>
+	<string name="action_open_search">Search</string>
 	<string name="action_open_with_other_app">Open with other application</string>
 	<string name="action_web_search">Web search</string>
 

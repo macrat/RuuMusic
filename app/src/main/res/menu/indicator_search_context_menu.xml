@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+	<item android:id="@+id/action_open_search"
+		  android:title="@string/action_open_search" />
+
+	<item android:id="@+id/action_web_search_search"
+		  android:title="@string/action_web_search" />
+</menu>

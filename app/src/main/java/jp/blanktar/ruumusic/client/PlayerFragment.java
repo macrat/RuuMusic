@@ -247,6 +247,9 @@ public class PlayerFragment extends Fragment{
 					menu.findItem(R.id.action_open_recursive_with_other_app).setVisible(
 						getActivity().getPackageManager().queryIntentActivities(recursivePath.toIntent(), 0).size() > 0
 					);
+				}else if(searchQuery != null){
+					menu.setHeaderTitle(searchQuery);
+					getActivity().getMenuInflater().inflate(R.menu.indicator_search_context_menu, menu);
 				}
 				break;
 		}
@@ -260,6 +263,9 @@ public class PlayerFragment extends Fragment{
 				return true;
 			case R.id.action_open_recursive:
 				((MainActivity)getActivity()).moveToPlaylist(recursivePath);
+				return true;
+			case R.id.action_open_search:
+				((MainActivity)getActivity()).moveToPlaylistSearch(searchPath, searchQuery);
 				return true;
 			case R.id.action_open_dir_with_other_app:
 				startActivity(currentMusic.getParent().toIntent());
@@ -278,6 +284,9 @@ public class PlayerFragment extends Fragment{
 				return true;
 			case R.id.action_web_search_recursive:
 				startActivity((new Intent(Intent.ACTION_WEB_SEARCH)).putExtra(SearchManager.QUERY, recursivePath.getName()));
+				return true;
+			case R.id.action_web_search_search:
+				startActivity((new Intent(Intent.ACTION_WEB_SEARCH)).putExtra(SearchManager.QUERY, searchQuery));
 				return true;
 			default:
 				return super.onContextItemSelected(item);
