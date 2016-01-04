@@ -20,6 +20,7 @@
 	<string name="action_open_directory">Open</string>
 	<string name="action_open_music">Play</string>
 	<string name="action_open_with_other_app">Open with other application</string>
+	<string name="action_web_search">Web search</string>
 
 	<string name="upper_dir">upper directory</string>
 

@@ -10,6 +10,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 import android.app.Activity;
+import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -135,6 +136,9 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 				return true;
 			case R.id.action_open_with_other_app:
 				startActivity(getOpenFileIntent(file));
+				return true;
+			case R.id.action_web_search:
+				startActivity((new Intent(Intent.ACTION_WEB_SEARCH)).putExtra(SearchManager.QUERY, file.getName()));
 				return true;
 			default:
 				return super.onContextItemSelected(item);
