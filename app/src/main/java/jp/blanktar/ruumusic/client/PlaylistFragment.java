@@ -364,11 +364,11 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 						filtered.add(file);
 					}
 				}
-				searchQuery = text;
 
 				handler.post(new Runnable(){
 					@Override
 					public void run(){
+						searchQuery = text;
 						adapter.setSearchResults(filtered);
 					}
 				});
