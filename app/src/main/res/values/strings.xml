@@ -42,6 +42,8 @@
 	<string name="empty_device_title">Music not found</string>
 	<string name="empty_device_message">Music not found in this device</string>
 	<string name="empty_device_button">OK</string>
+	<string name="empty_list">No such music or directory</string>
+	<string name="loading_list">loading...</string>
 
 	<string name="bass_boost_switch">Bass boost</string>
 	<string name="reverb_switch">Reverb</string>

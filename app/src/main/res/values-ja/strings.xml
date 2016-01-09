@@ -42,6 +42,8 @@
 	<string name="empty_device_title">音楽が見つかりません</string>
 	<string name="empty_device_message">このデバイスには音楽がないようです</string>
 	<string name="empty_device_button">OK</string>
+	<string name="empty_list">見つかりませんでした</string>
+	<string name="loading_list">読み込み中...</string>
 
 	<string name="bass_boost_switch">Bass boost</string>
 	<string name="reverb_switch">Reverb</string>

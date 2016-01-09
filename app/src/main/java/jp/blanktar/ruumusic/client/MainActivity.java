@@ -165,6 +165,11 @@ public class MainActivity extends AppCompatActivity{
 	}
 
 	@Override
+	public void onWindowFocusChanged(boolean hasFocus){
+		playlist.updateStatus();
+	}
+
+	@Override
 	public boolean onCreateOptionsMenu(@NonNull Menu menu){
 		getMenuInflater().inflate(R.menu.menu_main, menu);
 		this.menu = menu;

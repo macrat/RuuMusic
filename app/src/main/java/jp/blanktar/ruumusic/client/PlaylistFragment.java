@@ -40,6 +40,8 @@ import jp.blanktar.ruumusic.util.RuuFileBase;
 public class PlaylistFragment extends Fragment implements SearchView.OnQueryTextListener, SearchView.OnCloseListener{
 	private RuuAdapter adapter;
 	private final Stack<DirectoryInfo> directoryCache = new Stack<>();
+	@NonNull private ListStatus status = ListStatus.LOADING;
+
 	@Nullable DirectoryInfo current;
 	@Nullable public String searchQuery = null;
 
@@ -166,6 +168,33 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 		if(current != null){
 			changeDir(current.path);
 		}
+	}
+
+	private void updateStatus(@NonNull ListStatus status){
+		this.status = status;
+		try{
+			switch(status){
+				case LOADING:
+					((TextView)getActivity().findViewById(R.id.playlist_message)).setText(R.string.empty_list);
+					getActivity().findViewById(R.id.playlist_message).setVisibility(View.VISIBLE);
+					getActivity().findViewById(R.id.playlist).setVisibility(View.GONE);
+					break;
+				case EMPTY:
+					((TextView)getActivity().findViewById(R.id.playlist_message)).setText(R.string.empty_list);
+					getActivity().findViewById(R.id.playlist_message).setVisibility(View.VISIBLE);
+					getActivity().findViewById(R.id.playlist).setVisibility(View.GONE);
+					break;
+				case SHOWN:
+					getActivity().findViewById(R.id.playlist).setVisibility(View.VISIBLE);
+					getActivity().findViewById(R.id.playlist_message).setVisibility(View.GONE);
+					break;
+			}
+		}catch(NullPointerException e){
+		}
+	}
+
+	public void updateStatus(){
+		updateStatus(status);
 	}
 
 	void changeDir(@NonNull RuuDirectory dir){
@@ -343,6 +372,13 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 	}
 
 
+	enum ListStatus{
+		LOADING,
+		EMPTY,
+		SHOWN
+	}
+
+
 	class DirectoryInfo{
 		public final RuuDirectory path;
 		public int selection = 0;
@@ -389,6 +425,8 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			if(listView != null){
 				listView.setSelection(dirInfo.selection);
 			}
+
+			updateStatus(ListStatus.SHOWN);
 		}
 
 		void setSearchResults(@NonNull List<RuuFileBase> results){
@@ -397,6 +435,11 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			}catch(NullPointerException e){
 			}
 			clear();
+
+			if(results.size() == 0){
+				updateStatus(ListStatus.EMPTY);
+				return;
+			}
 
 			hasMusic = false;
 			for(RuuFileBase result: results){
@@ -411,6 +454,8 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			if(listView != null){
 				listView.setSelection(0);
 			}
+
+			updateStatus(ListStatus.SHOWN);
 		}
 
 		void resumeFromSearch() throws RuuFileBase.NotFound{
