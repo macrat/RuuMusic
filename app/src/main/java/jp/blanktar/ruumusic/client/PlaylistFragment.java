@@ -13,6 +13,7 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
@@ -175,7 +176,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 		try{
 			switch(status){
 				case LOADING:
-					((TextView)getActivity().findViewById(R.id.playlist_message)).setText(R.string.empty_list);
+					((TextView)getActivity().findViewById(R.id.playlist_message)).setText(R.string.loading_list);
 					getActivity().findViewById(R.id.playlist_message).setVisibility(View.VISIBLE);
 					getActivity().findViewById(R.id.playlist).setVisibility(View.GONE);
 					break;
@@ -316,7 +317,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 	}
 
 	@Override
-	public boolean onQueryTextSubmit(@NonNull String text){
+	public boolean onQueryTextSubmit(@NonNull final String text){
 		if(current == null){
 			return false;
 		}
@@ -330,27 +331,39 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			sv.clearFocus();
 		}
 
-		String[] queries = TextUtils.split(text.toLowerCase(), " \t");
+		updateStatus(ListStatus.LOADING);
+		
+		final Handler handler = new Handler();
+		(new Thread(new Runnable(){
+			@Override
+			public void run(){
+				final String[] queries = TextUtils.split(text.toLowerCase(), " \t");
 
-		ArrayList<RuuFileBase> filtered = new ArrayList<>();
-		for(RuuFileBase file: current.path.getAllRecursive()){
-			String name = file.getName().toLowerCase();
-			boolean isOk = true;
-			for(String query: queries){
-				if(!name.contains(query)){
-					isOk = false;
-					break;
+				final ArrayList<RuuFileBase> filtered = new ArrayList<>();
+				for(RuuFileBase file: current.path.getAllRecursive()){
+					String name = file.getName().toLowerCase();
+					boolean isOk = true;
+					for(String query: queries){
+						if(!name.contains(query)){
+							isOk = false;
+							break;
+						}
+					}
+					if(isOk){
+						filtered.add(file);
+					}
 				}
-			}
-			if(isOk){
-				filtered.add(file);
-			}
-		}
+				searchQuery = text;
 
-		adapter.setSearchResults(filtered);
-		searchQuery = text;
-
-		updateMenu();
+				handler.post(new Runnable(){
+					@Override
+					public void run(){
+						adapter.setSearchResults(filtered);
+						updateMenu();
+					}
+				});
+			}
+		})).start();
 
 		return false;
 	}
@@ -398,10 +411,12 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			super(context, R.layout.list_item);
 		}
 
-		void setRuuFiles(@NonNull DirectoryInfo dirInfo) throws RuuFileBase.NotFound{
-			clear();
+		void setRuuFiles(@NonNull final DirectoryInfo dirInfo) throws RuuFileBase.NotFound{
 			searchQuery = null;
 			this.dirInfo = dirInfo;
+	
+			updateStatus(ListStatus.LOADING);
+			clear();
 
 			RuuDirectory rootDirectory = RuuDirectory.rootDirectory(getContext());
 			if(!rootDirectory.equals(dirInfo.path) && rootDirectory.contains(dirInfo.path)){
@@ -411,30 +426,43 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 				}
 			}
 
-			for(RuuDirectory dir: dirInfo.path.getDirectories()){
-				add(dir);
-			}
+			final Handler handler = new Handler();
+			(new Thread(new Runnable(){
+				@Override
+				public void run(){
+					handler.post(new Runnable(){
+						@Override
+						public void run(){
+							for(RuuDirectory dir: dirInfo.path.getDirectories()){
+								add(dir);
+							}
 
-			hasMusic = false;
-			for(RuuFile music: dirInfo.path.getMusics()){
-				add(music);
-				hasMusic = true;
-			}
+							hasMusic = false;
+							for(RuuFile music: dirInfo.path.getMusics()){
+								add(music);
+								hasMusic = true;
+							}
 
-			ListView listView = (ListView)getActivity().findViewById(R.id.playlist);
-			if(listView != null){
-				listView.setSelection(dirInfo.selection);
-			}
+							ListView listView = (ListView)getActivity().findViewById(R.id.playlist);
+							if(listView != null){
+								listView.setSelection(dirInfo.selection);
+							}
 
-			updateStatus(ListStatus.SHOWN);
+							updateStatus(ListStatus.SHOWN);
+						}
+					});
+				}
+			})).start();
 		}
 
-		void setSearchResults(@NonNull List<RuuFileBase> results){
+		void setSearchResults(@NonNull final List<RuuFileBase> results){
+			updateStatus(ListStatus.LOADING);
+			clear();
+
 			try{
 				dirInfo.selection = ((ListView)getActivity().findViewById(R.id.playlist)).getFirstVisiblePosition();
 			}catch(NullPointerException e){
 			}
-			clear();
 
 			if(results.size() == 0){
 				updateStatus(ListStatus.EMPTY);
