@@ -142,7 +142,7 @@ public class RuuDirectory extends RuuFileBase{
 				next = child.substring(0, nextslash);
 			}
 
-			if(target != null && !next.equals(target)){
+			if(target != null && (!next.equals(target) || nextslash >= 0 != isDir)){
 				if(isDir){
 					directories.add(new RuuDirectory(context, this, target, stack.toArray(new String[stack.size()])));
 				}else{
