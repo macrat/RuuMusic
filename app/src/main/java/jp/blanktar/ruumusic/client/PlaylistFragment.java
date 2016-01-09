@@ -177,13 +177,9 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			switch(status){
 				case LOADING:
 					((TextView)getActivity().findViewById(R.id.playlist_message)).setText(R.string.loading_list);
-					getActivity().findViewById(R.id.playlist_message).setVisibility(View.VISIBLE);
-					getActivity().findViewById(R.id.playlist).setVisibility(View.GONE);
 					break;
 				case EMPTY:
 					((TextView)getActivity().findViewById(R.id.playlist_message)).setText(R.string.empty_list);
-					getActivity().findViewById(R.id.playlist_message).setVisibility(View.VISIBLE);
-					getActivity().findViewById(R.id.playlist).setVisibility(View.GONE);
 					break;
 				case SHOWN:
 					getActivity().findViewById(R.id.playlist).setVisibility(View.VISIBLE);
@@ -191,6 +187,24 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 					break;
 			}
 		}catch(NullPointerException e){
+		}
+
+		if(status != ListStatus.SHOWN){
+			final Handler handler = new Handler();
+			(new Handler()).postDelayed(new Runnable(){
+				@Override
+				public void run(){
+					if(PlaylistFragment.this.status != ListStatus.SHOWN){
+						handler.post(new Runnable(){
+							@Override
+							public void run(){
+								getActivity().findViewById(R.id.playlist_message).setVisibility(View.VISIBLE);
+								getActivity().findViewById(R.id.playlist).setVisibility(View.GONE);
+							}
+						});
+					}
+				}
+			}, 100);
 		}
 	}
 
@@ -231,12 +245,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			updateTitle();
 		}
 
-		try{
-			adapter.setRuuFiles(current);
-		}catch(RuuFileBase.NotFound e){
-			Toast.makeText(getActivity(), String.format(getString(R.string.cant_open_dir), e.path), Toast.LENGTH_LONG).show();
-			return;
-		}
+		adapter.setRuuFiles(current);
 	}
 
 	public void updateMenu(@NonNull MainActivity activity){
@@ -412,20 +421,11 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			super(context, R.layout.list_item);
 		}
 
-		void setRuuFiles(@NonNull final DirectoryInfo dirInfo) throws RuuFileBase.NotFound{
+		void setRuuFiles(@NonNull final DirectoryInfo dirInfo){
 			searchQuery = null;
 			this.dirInfo = dirInfo;
 	
 			updateStatus(ListStatus.LOADING);
-			clear();
-
-			RuuDirectory rootDirectory = RuuDirectory.rootDirectory(getContext());
-			if(!rootDirectory.equals(dirInfo.path) && rootDirectory.contains(dirInfo.path)){
-				try{
-					add(dirInfo.path.getParent());
-				}catch(RuuFileBase.OutOfRootDirectory e){
-				}
-			}
 
 			final Handler handler = new Handler();
 			(new Thread(new Runnable(){
@@ -434,6 +434,19 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 					handler.post(new Runnable(){
 						@Override
 						public void run(){
+							clear();
+
+							try{
+								RuuDirectory rootDirectory = RuuDirectory.rootDirectory(getContext());
+								if(!rootDirectory.equals(dirInfo.path) && rootDirectory.contains(dirInfo.path)){
+									try{
+										add(dirInfo.path.getParent());
+									}catch(RuuFileBase.OutOfRootDirectory e){
+									}
+								}
+							}catch(RuuFileBase.NotFound e){
+							}
+
 							for(RuuDirectory dir: dirInfo.path.getDirectories()){
 								add(dir);
 							}
@@ -459,12 +472,13 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 
 		void setSearchResults(@NonNull final List<RuuFileBase> results){
 			updateStatus(ListStatus.LOADING);
-			clear();
 
 			try{
 				dirInfo.selection = ((ListView)getActivity().findViewById(R.id.playlist)).getFirstVisiblePosition();
 			}catch(NullPointerException e){
 			}
+
+			clear();
 
 			if(results.size() == 0){
 				updateStatus(ListStatus.EMPTY);
