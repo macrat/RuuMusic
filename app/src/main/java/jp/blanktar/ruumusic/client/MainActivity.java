@@ -99,10 +99,10 @@ public class MainActivity extends AppCompatActivity{
 
 		switch(getIntent().getAction()){
 			case ACTION_OPEN_PLAYER:
-				viewPager.setCurrentItem(0);
+				moveToPlayer();
 				break;
 			case Intent.ACTION_SEARCH:
-				viewPager.setCurrentItem(1);
+				moveToPlaylist();
 				Preference.Str.CURRENT_VIEW_PATH.set(getApplicationContext(), Preference.Str.ROOT_DIRECTORY.get(getApplicationContext()));
 				Preference.Str.LAST_SEARCH_QUERY.set(getApplicationContext(), getIntent().getStringExtra(SearchManager.QUERY));
 				break;
@@ -116,7 +116,7 @@ public class MainActivity extends AppCompatActivity{
 										.setAction(RuuService.ACTION_PLAY)
 										.putExtra("path", file.getFullPath())
 						);
-						viewPager.setCurrentItem(0);
+						moveToPlayer();
 					}catch(RuuFileBase.NotFound e){
 						Toast.makeText(getApplicationContext(), getString(R.string.music_not_found), Toast.LENGTH_LONG).show();
 						viewPager.setCurrentItem(Preference.Int.LAST_VIEW_PAGE.get(getApplicationContext()));
@@ -161,7 +161,7 @@ public class MainActivity extends AppCompatActivity{
 		super.onPause();
 
 		RuuService.MediaButtonReceiver.onStopActivity(getApplicationContext());
-		Preference.Int.LAST_VIEW_PAGE.set(getApplicationContext(), getCurrentPage());
+		Preference.Int.LAST_VIEW_PAGE.set(getApplicationContext(), getCurrentPage().ordinal());
 	}
 
 	@Override
@@ -241,7 +241,7 @@ public class MainActivity extends AppCompatActivity{
 	}
 
 	private void updateTitleAndMenu(){
-		if(getCurrentPage() == 0){
+		if(getCurrentPage() == Page.PLAYER){
 			setTitle(R.string.app_name);
 			if(menu != null){
 				menu.findItem(R.id.action_unset_root).setVisible(false);
@@ -261,18 +261,22 @@ public class MainActivity extends AppCompatActivity{
 		viewPager.setCurrentItem(0);
 	}
 
+	public void moveToPlaylist(){
+		viewPager.setCurrentItem(1);
+	}
+
 	public void moveToPlaylist(@NonNull RuuDirectory path){
 		playlist.changeDir(path);
-		viewPager.setCurrentItem(1);
+		moveToPlaylist();
 	}
 
 	public void moveToPlaylistSearch(@NonNull RuuDirectory path, @NonNull String query){
 		playlist.setSearchQuery(path, query);
-		viewPager.setCurrentItem(1);
+		moveToPlaylist();
 	}
 
-	public int getCurrentPage(){
-		return viewPager.getCurrentItem();
+	public Page getCurrentPage(){
+		return Page.values()[viewPager.getCurrentItem()];
 	}
 
 	@Override
@@ -291,7 +295,7 @@ public class MainActivity extends AppCompatActivity{
 	@Override
 	public boolean onKeyUp(int keyCode, @NonNull KeyEvent event){
 		if(keyCode == KeyEvent.KEYCODE_SEARCH){
-			viewPager.setCurrentItem(1);
+			moveToPlaylist();
 			searchView.setIconified(false);
 			return true;
 		}else if(keyCode == KeyEvent.KEYCODE_BACK && (viewPager.getCurrentItem() == 0 || !playlist.onBackKey())){
@@ -299,6 +303,12 @@ public class MainActivity extends AppCompatActivity{
 			return true;
 		}
 		return super.onKeyUp(keyCode, event);
+	}
+
+
+	enum Page{
+		PLAYER,
+		PLAYLIST
 	}
 }
 

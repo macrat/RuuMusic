@@ -227,7 +227,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			current = new DirectoryInfo(dir);
 		}
 
-		if(((MainActivity)getActivity()).getCurrentPage() == 1){
+		if(((MainActivity)getActivity()).getCurrentPage() == MainActivity.Page.PLAYLIST){
 			updateTitle();
 		}
 
@@ -237,11 +237,13 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			Toast.makeText(getActivity(), String.format(getString(R.string.cant_open_dir), e.path), Toast.LENGTH_LONG).show();
 			return;
 		}
-
-		updateMenu();
 	}
 
 	public void updateMenu(@NonNull MainActivity activity){
+		if(activity.getCurrentPage() != MainActivity.Page.PLAYLIST){
+			return;
+		}
+
 		Menu menu = activity.menu;
 		if(menu != null){
 			RuuDirectory rootDirectory;
@@ -359,7 +361,6 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 					@Override
 					public void run(){
 						adapter.setSearchResults(filtered);
-						updateMenu();
 					}
 				});
 			}
@@ -449,6 +450,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 							}
 
 							updateStatus(ListStatus.SHOWN);
+							updateMenu();
 						}
 					});
 				}
@@ -484,6 +486,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			}
 
 			updateStatus(ListStatus.SHOWN);
+			updateMenu();
 		}
 
 		void resumeFromSearch() throws RuuFileBase.NotFound{
