@@ -298,8 +298,8 @@ public class MainActivity extends AppCompatActivity{
 			moveToPlaylist();
 			searchView.setIconified(false);
 			return true;
-		}else if(keyCode == KeyEvent.KEYCODE_BACK && (viewPager.getCurrentItem() == 0 || !playlist.onBackKey())){
-			finish();
+		}else if(keyCode == KeyEvent.KEYCODE_BACK && (event.isCanceled() || getCurrentPage() != Page.PLAYLIST || !playlist.onBackKey())){
+			super.onBackPressed();
 			return true;
 		}
 		return super.onKeyUp(keyCode, event);
