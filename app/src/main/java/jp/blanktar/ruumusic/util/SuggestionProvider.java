@@ -26,7 +26,7 @@ public class SuggestionProvider extends ContentProvider{
 	}
 
 	public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String sortOrder){
-		if(selectionArgs == null || selectionArgs.length <= 0 || TextUtils.isEmpty(selectionArgs[0])){
+		if(selectionArgs == null || selectionArgs.length <= 0 || TextUtils.isEmpty(selectionArgs[0]) || getContext() == null){
 			return null;
 		}
 
@@ -45,7 +45,6 @@ public class SuggestionProvider extends ContentProvider{
 				try{
 					result.addRuuFile(music);
 				}catch(RuuDirectory.OutOfRootDirectory e){
-					continue;
 				}
 			}
 		}

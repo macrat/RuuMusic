@@ -66,7 +66,7 @@ public class RuuDirectory extends RuuFileBase{
 
 	@NonNull
 	private RuuDirectory findDir(@NonNull String path) throws RuuFileBase.NotFound{
-		assert path.startsWith("/") && path.endsWith("/");
+		assert path != null && path.startsWith("/") && path.endsWith("/");
 
 		if(getFullPath().equals(path)){
 			return this;
@@ -131,6 +131,9 @@ public class RuuDirectory extends RuuFileBase{
 		boolean isDir = false;
 		String next = null;
 		for(String child: childrenTemp){
+			if(child == null){
+				continue;
+			}
 			int nextslash = child.indexOf("/", pathlength);
 			String ext = "";
 

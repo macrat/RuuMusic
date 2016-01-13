@@ -10,8 +10,8 @@ import java.lang.reflect.InvocationTargetException;
 
 
 public class RuuFileTest extends TestBase{
-	RuuDirectory parent;
-	RuuFile file;
+	private RuuDirectory parent;
+	private RuuFile file;
 
 	@Before
 	public void setUp() throws InstantiationException, IllegalAccessException, InvocationTargetException{

@@ -187,6 +187,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 					break;
 			}
 		}catch(NullPointerException e){
+			return;
 		}
 
 		if(status != ListStatus.SHOWN){
@@ -380,12 +381,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 
 	@Override
 	public boolean onClose(){
-		try{
-			adapter.resumeFromSearch();
-		}catch(RuuFileBase.NotFound e){
-			Toast.makeText(getActivity(), String.format(getString(R.string.cant_open_dir), e.path), Toast.LENGTH_LONG).show();
-			adapter.clear();
-		}
+		adapter.resumeFromSearch();
 
 		searchQuery = null;
 		Preference.Str.LAST_SEARCH_QUERY.remove(getContext());
@@ -439,12 +435,9 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 							try{
 								RuuDirectory rootDirectory = RuuDirectory.rootDirectory(getContext());
 								if(!rootDirectory.equals(dirInfo.path) && rootDirectory.contains(dirInfo.path)){
-									try{
-										add(dirInfo.path.getParent());
-									}catch(RuuFileBase.OutOfRootDirectory e){
-									}
+									add(dirInfo.path.getParent());
 								}
-							}catch(RuuFileBase.NotFound e){
+							}catch(RuuFileBase.NotFound | RuuFileBase.OutOfRootDirectory e){
 							}
 
 							for(RuuDirectory dir: dirInfo.path.getDirectories()){
@@ -473,9 +466,8 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 		void setSearchResults(@NonNull final List<RuuFileBase> results){
 			updateStatus(ListStatus.LOADING);
 
-			try{
+			if(dirInfo != null && getActivity() != null && getActivity().findViewById(R.id.playlist) != null){
 				dirInfo.selection = ((ListView)getActivity().findViewById(R.id.playlist)).getFirstVisiblePosition();
-			}catch(NullPointerException e){
 			}
 
 			clear();
@@ -503,7 +495,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			updateMenu();
 		}
 
-		void resumeFromSearch() throws RuuFileBase.NotFound{
+		void resumeFromSearch(){
 			if(dirInfo != null){
 				clear();
 				setRuuFiles(dirInfo);

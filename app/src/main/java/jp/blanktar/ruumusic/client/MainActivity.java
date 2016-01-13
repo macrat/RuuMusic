@@ -261,7 +261,7 @@ public class MainActivity extends AppCompatActivity{
 		viewPager.setCurrentItem(0);
 	}
 
-	public void moveToPlaylist(){
+	private void moveToPlaylist(){
 		viewPager.setCurrentItem(1);
 	}
 

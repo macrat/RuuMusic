@@ -2,7 +2,6 @@ package jp.blanktar.ruumusic.test;
 
 import android.support.test.runner.AndroidJUnit4;
 import org.junit.Before;
-import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import android.content.Context;

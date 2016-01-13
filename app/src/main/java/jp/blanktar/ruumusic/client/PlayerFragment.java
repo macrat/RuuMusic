@@ -224,6 +224,10 @@ public class PlayerFragment extends Fragment{
 	public void onCreateContextMenu(@NonNull ContextMenu menu, @NonNull View view, @NonNull ContextMenu.ContextMenuInfo info){
 		super.onCreateContextMenu(menu, view, info);
 
+		if(currentMusic == null){
+			return;
+		}
+
 		switch(view.getId()){
 			case R.id.musicPath:
 				menu.setHeaderTitle(currentMusic.getParent().getName() + "/");
@@ -259,33 +263,43 @@ public class PlayerFragment extends Fragment{
 	public boolean onContextItemSelected(@NonNull MenuItem item){
 		switch(item.getItemId()){
 			case R.id.action_open_directory:
+				assert currentMusic != null;
 				((MainActivity)getActivity()).moveToPlaylist(currentMusic.getParent());
 				return true;
 			case R.id.action_open_recursive:
+				assert recursivePath != null;
 				((MainActivity)getActivity()).moveToPlaylist(recursivePath);
 				return true;
 			case R.id.action_open_search:
+				assert searchPath != null && searchQuery != null;
 				((MainActivity)getActivity()).moveToPlaylistSearch(searchPath, searchQuery);
 				return true;
 			case R.id.action_open_dir_with_other_app:
+				assert currentMusic != null;
 				startActivity(currentMusic.getParent().toIntent());
 				return true;
 			case R.id.action_open_music_with_other_app:
+				assert currentMusic != null;
 				startActivity(currentMusic.toIntent());
 				return true;
 			case R.id.action_open_recursive_with_other_app:
+				assert recursivePath != null;
 				startActivity(recursivePath.toIntent());
 				return true;
 			case R.id.action_web_search_dir:
+				assert currentMusic != null;
 				startActivity((new Intent(Intent.ACTION_WEB_SEARCH)).putExtra(SearchManager.QUERY, currentMusic.getParent().getName()));
 				return true;
 			case R.id.action_web_search_music:
+				assert currentMusic != null;
 				startActivity((new Intent(Intent.ACTION_WEB_SEARCH)).putExtra(SearchManager.QUERY, currentMusic.getName()));
 				return true;
 			case R.id.action_web_search_recursive:
+				assert recursivePath != null;
 				startActivity((new Intent(Intent.ACTION_WEB_SEARCH)).putExtra(SearchManager.QUERY, recursivePath.getName()));
 				return true;
 			case R.id.action_web_search_search:
+				assert searchQuery != null;
 				startActivity((new Intent(Intent.ACTION_WEB_SEARCH)).putExtra(SearchManager.QUERY, searchQuery));
 				return true;
 			default:
@@ -356,9 +370,10 @@ public class PlayerFragment extends Fragment{
 			((SeekBar)view.findViewById(R.id.seekBar)).setMax(duration);
 		}
 
-		if(intent.getStringExtra("path") != null){
+		String path = intent.getStringExtra("path");
+		if(path != null){
 			try{
-				currentMusic = RuuFile.getInstance(getContext(), intent.getStringExtra("path"));
+				currentMusic = RuuFile.getInstance(getContext(), path);
 			}catch(RuuFileBase.NotFound e){
 				currentMusic = null;
 			}
