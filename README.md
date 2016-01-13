@@ -20,6 +20,7 @@ You can install stable version from [google play](https://play.google.com/store/
 * Play recursive under one directory.
 * If there is multiple extension music files, RuuMusic will use most better one.
 	User not have to care extension.
+* Supported global search. (before Android 4.4)
 * Control by bluetooth receiver.
 * Control by Notification area. (Android 4.1+)
 * Control by lock screen. (Android 4.0+)
