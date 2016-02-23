@@ -415,7 +415,7 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 
 		String parentPath;
 		try{
-			parentPath = playlist.path.getRuuPath();
+			parentPath = playlist.getCurrent().getParent().getRuuPath();
 		}catch(RuuFileBase.OutOfRootDirectory e){
 			parentPath = "";
 		}
