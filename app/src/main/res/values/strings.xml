@@ -1,6 +1,6 @@
 <resources>
 	<string name="app_name">RuuMusic</string>
-	<string name="title_activity_audio_preference">AudioPreference</string>
+	<string name="title_activity_preference">Audio preference</string>
 
 	<string name="unified_widget_name">RuuMusic</string>
 	<string name="playpause_widget_name">RuuMusic | Play / Pause</string>
@@ -16,7 +16,7 @@
 	<string name="action_recursive_play">Play under here</string>
 	<string name="menu_search">Search music</string>
 	<string name="menu_search_play">Play search results</string>
-	<string name="menu_audio_preference">Audio preference</string>
+	<string name="menu_preference">Audio preference</string>
 	<string name="action_open_directory">Open</string>
 	<string name="action_open_music">Play</string>
 	<string name="action_open_search">Search</string>

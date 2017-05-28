@@ -30,8 +30,8 @@
 		  app:showAsAction="ifRoom"/>
 
 	<item
-		android:id="@+id/action_audio_preference"
+		android:id="@+id/action_preference"
 		android:icon="@drawable/ic_preference"
-		android:title="@string/menu_audio_preference"
+		android:title="@string/menu_preference"
 		app:showAsAction="ifRoom"/>
 </menu>

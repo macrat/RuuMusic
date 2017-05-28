@@ -20,11 +20,11 @@ import jp.blanktar.ruumusic.R;
 import jp.blanktar.ruumusic.util.Preference;
 
 
-public class AudioPreferenceActivityTest extends TestBase{
-	private AudioPreferenceActivity activity;
+public class PreferenceActivityTest extends TestBase{
+	private PreferenceActivity activity;
 	
     @Rule
-    public ActivityTestRule<AudioPreferenceActivity> activityRule = new ActivityTestRule<>(AudioPreferenceActivity.class);
+    public ActivityTestRule<PreferenceActivity> activityRule = new ActivityTestRule<>(PreferenceActivity.class);
 
 	@Before
 	public void setUp(){

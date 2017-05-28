@@ -27,14 +27,14 @@ import jp.blanktar.ruumusic.util.Preference;
 import jp.blanktar.ruumusic.service.RuuService;
 
 
-public class AudioPreferenceActivity extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener, SharedPreferences.OnSharedPreferenceChangeListener{
+public class PreferenceActivity extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener, SharedPreferences.OnSharedPreferenceChangeListener{
 	private int equalizer_min;
 
 
 	@Override
 	protected void onCreate(@Nullable Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_audio_preference);
+		setContentView(R.layout.activity_preference);
 		if(getSupportActionBar() != null){
 			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		}

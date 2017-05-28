@@ -231,8 +231,8 @@ public class MainActivity extends AppCompatActivity{
 			return true;
 		}
 
-		if(id == R.id.action_audio_preference){
-			startActivity(new Intent(getApplicationContext(), AudioPreferenceActivity.class));
+		if(id == R.id.action_preference){
+			startActivity(new Intent(getApplicationContext(), PreferenceActivity.class));
 
 			return true;
 		}
@@ -249,7 +249,7 @@ public class MainActivity extends AppCompatActivity{
 				menu.findItem(R.id.action_recursive_play).setVisible(false);
 				menu.findItem(R.id.menu_search).setVisible(false);
 				menu.findItem(R.id.action_search_play).setVisible(false);
-				menu.findItem(R.id.action_audio_preference).setVisible(true);
+				menu.findItem(R.id.action_preference).setVisible(true);
 			}
 		}else if(playlist != null){
 			playlist.updateTitle(this);
