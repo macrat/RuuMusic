@@ -16,6 +16,7 @@ import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
+import android.support.v7.widget.Toolbar;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -46,6 +47,9 @@ public class MainActivity extends AppCompatActivity{
 	protected void onCreate(@Nullable Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+
+		Toolbar toolbar = (Toolbar)findViewById(R.id.toolbar);
+		setSupportActionBar(toolbar);
 
 		preference = new Preference(getApplicationContext());
 
