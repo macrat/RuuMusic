@@ -8,51 +8,59 @@ import static org.junit.Assert.*;
 public class PreferenceTest extends TestBase{
 	@Test
 	public void intSettings(){
-		Preference.Int.LAST_PLAY_POSITION.set(context, 10);
-		assertEquals(Preference.Int.LAST_PLAY_POSITION.get(context), 10);
+		Preference preference = new Preference(context);
 
-		Preference.Int.LAST_PLAY_POSITION.remove(context);
-		assertEquals(Preference.Int.LAST_PLAY_POSITION.get(context), 0);
+		preference.LastPlayPosition.set(10);
+		assertEquals(preference.LastPlayPosition.get().intValue(), 10);
 
-		Preference.Int.LAST_VIEW_PAGE.remove(context);
-		assertEquals(Preference.Int.LAST_VIEW_PAGE.get(context), 1);
+		preference.LastPlayPosition.remove();
+		assertEquals(preference.LastPlayPosition.get().intValue(), 0);
+
+		preference.LastViewPage.remove();
+		assertEquals(preference.LastViewPage.get().intValue(), 1);
 	}
 
 	@Test
 	public void strSettings(){
-		Preference.Str.REPEAT_MODE.set(context, "loop");
-		assertEquals(Preference.Str.REPEAT_MODE.get(context), "loop");
+		Preference preference = new Preference(context);
 
-		Preference.Str.REPEAT_MODE.remove(context);
-		assertEquals(Preference.Str.REPEAT_MODE.get(context), "off");
+		preference.RepeatMode.set("loop");
+		assertEquals(preference.RepeatMode.get(), "loop");
 
-		Preference.Str.RECURSIVE_PATH.set(context, "test");
-		assertEquals(Preference.Str.RECURSIVE_PATH.get(context), "test");
+		preference.RepeatMode.remove();
+		assertEquals(preference.RepeatMode.get(), "off");
 
-		Preference.Str.RECURSIVE_PATH.set(context, null);
-		assertEquals(Preference.Str.RECURSIVE_PATH.get(context), null);
+		preference.RecursivePath.set("test");
+		assertEquals(preference.RecursivePath.get(), "test");
 
-		Preference.Str.RECURSIVE_PATH.remove(context);
-		assertEquals(Preference.Str.RECURSIVE_PATH.get(context), null);
+		preference.RecursivePath.set(null);
+		assertEquals(preference.RecursivePath.get(), null);
+
+		preference.RecursivePath.remove();
+		assertEquals(preference.RecursivePath.get(), null);
 	}
 
 	@Test
 	public void boolSettings(){
-		Preference.Bool.SHUFFLE_MODE.set(context, false);
-		assertEquals(Preference.Bool.SHUFFLE_MODE.get(context), false);
+		Preference preference = new Preference(context);
 
-		Preference.Bool.SHUFFLE_MODE.set(context, true);
-		assertEquals(Preference.Bool.SHUFFLE_MODE.get(context), true);
+		preference.ShuffleMode.set(false);
+		assertEquals(preference.ShuffleMode.get(), false);
+
+		preference.ShuffleMode.set(true);
+		assertEquals(preference.ShuffleMode.get(), true);
 	}
 	
 	@Test
 	public void IntArraySettings(){
-		Preference.IntArray.EQUALIZER_LEVEL.set(context, 0, 10);
-		Preference.IntArray.EQUALIZER_LEVEL.set(context, 1, 20);
-		Preference.IntArray.EQUALIZER_LEVEL.set(context, 2, -1);
+		Preference preference = new Preference(context);
 
-		assertEquals(Preference.IntArray.EQUALIZER_LEVEL.get(context, 0), 10);
-		assertEquals(Preference.IntArray.EQUALIZER_LEVEL.get(context, 1), 20);
-		assertEquals(Preference.IntArray.EQUALIZER_LEVEL.get(context, 2), -1);
+		preference.EqualizerLevel.set(0, 10);
+		preference.EqualizerLevel.set(1, 20);
+		preference.EqualizerLevel.set(2, -1);
+
+		assertEquals(preference.EqualizerLevel.get(0), 10);
+		assertEquals(preference.EqualizerLevel.get(1), 20);
+		assertEquals(preference.EqualizerLevel.get(2), -1);
 	}
 }

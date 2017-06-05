@@ -33,6 +33,8 @@ import jp.blanktar.ruumusic.util.RuuFileBase;
 public class MainActivity extends AppCompatActivity{
 	public final static String ACTION_OPEN_PLAYER = "jp.blanktar.ruumusic.OPEN_PLAYER";
 
+	private Preference preference;
+
 	private ViewPager viewPager;
 	private PlayerFragment player;
 	private PlaylistFragment playlist;
@@ -45,12 +47,14 @@ public class MainActivity extends AppCompatActivity{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
+		preference = new Preference(getApplicationContext());
+
 		setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
 		try{
 			RuuDirectory.rootDirectory(getApplicationContext());
 		}catch(RuuFileBase.NotFound e){
-			Preference.Str.ROOT_DIRECTORY.remove(getApplicationContext());
+			preference.RootDirectory.remove();
 		}
 
 		try{
@@ -103,8 +107,8 @@ public class MainActivity extends AppCompatActivity{
 				break;
 			case Intent.ACTION_SEARCH:
 				moveToPlaylist();
-				Preference.Str.CURRENT_VIEW_PATH.set(getApplicationContext(), Preference.Str.ROOT_DIRECTORY.get(getApplicationContext()));
-				Preference.Str.LAST_SEARCH_QUERY.set(getApplicationContext(), getIntent().getStringExtra(SearchManager.QUERY));
+				preference.CurrentViewPath.set(preference.RootDirectory.get());
+				preference.LastSearchQuery.set(getIntent().getStringExtra(SearchManager.QUERY));
 				break;
 			case Intent.ACTION_VIEW:
 				if(getIntent().getData() != null){
@@ -119,15 +123,15 @@ public class MainActivity extends AppCompatActivity{
 						moveToPlayer();
 					}catch(RuuFileBase.NotFound e){
 						Toast.makeText(getApplicationContext(), getString(R.string.music_not_found), Toast.LENGTH_LONG).show();
-						viewPager.setCurrentItem(Preference.Int.LAST_VIEW_PAGE.get(getApplicationContext()));
+						viewPager.setCurrentItem(preference.LastViewPage.get());
 					}catch(RuuFileBase.OutOfRootDirectory e){
 						Toast.makeText(getApplicationContext(), String.format(getString(R.string.out_of_root), path), Toast.LENGTH_LONG).show();
-						viewPager.setCurrentItem(Preference.Int.LAST_VIEW_PAGE.get(getApplicationContext()));
+						viewPager.setCurrentItem(preference.LastViewPage.get());
 					}
 					break;
 				}
 			default:
-				viewPager.setCurrentItem(Preference.Int.LAST_VIEW_PAGE.get(getApplicationContext()));
+				viewPager.setCurrentItem(preference.LastViewPage.get());
 		}
 	}
 
@@ -161,7 +165,7 @@ public class MainActivity extends AppCompatActivity{
 		super.onPause();
 
 		RuuService.MediaButtonReceiver.onStopActivity(getApplicationContext());
-		Preference.Int.LAST_VIEW_PAGE.set(getApplicationContext(), getCurrentPage().ordinal());
+		preference.LastViewPage.set(getCurrentPage().ordinal());
 	}
 
 	@Override
@@ -183,7 +187,7 @@ public class MainActivity extends AppCompatActivity{
 		searchView.setOnQueryTextListener(playlist);
 		searchView.setOnCloseListener(playlist);
 
-		String query = Preference.Str.LAST_SEARCH_QUERY.get(getApplicationContext());
+		String query = preference.LastSearchQuery.get();
 		if(query != null){
 			searchView.setIconified(false);
 			searchView.setQuery(query, true);
@@ -202,7 +206,7 @@ public class MainActivity extends AppCompatActivity{
 			if(id == R.id.action_set_root){
 				rootPath = playlist.current.path.getFullPath();
 			}
-			Preference.Str.ROOT_DIRECTORY.set(getApplicationContext(), rootPath);
+			preference.RootDirectory.set(rootPath);
 
 			playlist.updateRoot();
 			player.updateRoot();

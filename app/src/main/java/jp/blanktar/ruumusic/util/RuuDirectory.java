@@ -51,7 +51,7 @@ public class RuuDirectory extends RuuFileBase{
 
 	@NonNull
 	public static RuuDirectory rootDirectory(@NonNull Context context) throws RuuFileBase.NotFound{
-		String root = Preference.Str.ROOT_DIRECTORY.get(context);
+		String root = new Preference(context).RootDirectory.get();
 		return RuuDirectory.getInstance(context, root == null ? "/" : root);
 	}
 

@@ -33,7 +33,7 @@ public abstract class RuuFileBase implements Comparable<RuuFileBase>{
 
 	@NonNull
 	public String getRuuPath() throws OutOfRootDirectory{
-		String root = Preference.Str.ROOT_DIRECTORY.get(context);
+		String root = new Preference(context).RootDirectory.get();
 		if(root == null){
 			root = "/";
 		}

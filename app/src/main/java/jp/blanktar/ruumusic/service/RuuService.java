@@ -76,6 +76,7 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 	private MediaPlayer errorSE;
 	@Nullable private Timer deathTimer;
 	@Nullable private static RemoteControlClient remoteControlClient;
+	@Nullable private Preference preference;
 
 	@Nullable private Playlist playlist;
 
@@ -99,11 +100,12 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 	public void onCreate(){
 		endOfListSE = MediaPlayer.create(getApplicationContext(), R.raw.eol);
 		errorSE = MediaPlayer.create(getApplicationContext(), R.raw.err);
+		preference = new Preference(getApplicationContext());
 
-		repeatMode = Preference.Str.REPEAT_MODE.get(getApplicationContext());
-		shuffleMode = Preference.Bool.SHUFFLE_MODE.get(getApplicationContext());
+		repeatMode = preference.RepeatMode.get();
+		shuffleMode = preference.ShuffleMode.get();
 
-		String recursive = Preference.Str.RECURSIVE_PATH.get(getApplicationContext());
+		String recursive = preference.RecursivePath.get();
 		if(recursive != null){
 			try{
 				playlist = Playlist.getRecursive(getApplicationContext(), recursive);
@@ -111,8 +113,8 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 				playlist = null;
 			}
 		}else{
-			String searchQuery = Preference.Str.SEARCH_QUERY.get(getApplicationContext());
-			String searchPath = Preference.Str.SEARCH_PATH.get(getApplicationContext());
+			String searchQuery = preference.SearchQuery.get();
+			String searchPath = preference.SearchPath.get();
 			if(searchQuery != null && searchPath != null){
 				try{
 					playlist = Playlist.getSearchResults(getApplicationContext(), searchPath, searchQuery);
@@ -122,7 +124,7 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 			}
 		}
 
-		String last_play = Preference.Str.LAST_PLAY_MUSIC.get(getApplicationContext());
+		String last_play = preference.LastPlayMusic.get();
 		if(last_play != null && !last_play.equals("")){
 			try{
 				if(playlist != null){
@@ -197,7 +199,7 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 			public void onPrepared(@NonNull MediaPlayer mp){
 				if(status == Status.LOADING_FROM_LASTEST){
 					status = Status.READY;
-					player.seekTo(Preference.Int.LAST_PLAY_POSITION.get(getApplicationContext()));
+					player.seekTo(preference.LastPlayPosition.get());
 					sendStatus();
 				}else{
 					status = Status.READY;
@@ -299,8 +301,8 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 	}
 
 	@Override
-	public void onSharedPreferenceChanged(@NonNull SharedPreferences preference, @NonNull String key){
-		if(key.startsWith(Preference.AUDIO_PREFIX)){
+	public void onSharedPreferenceChanged(@NonNull SharedPreferences p, @NonNull String key){
+		if(key.startsWith(preference.AudioPrefix)){
 			updateAudioEffect();
 		}else if(key.equals("root_directory")){
 			updateRoot();
@@ -369,29 +371,31 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 
 	private void saveStatus(){
 		if(playlist != null){
-			Preference.Str.LAST_PLAY_MUSIC.set(getApplicationContext(), playlist.getCurrent().getFullPath());
-			Preference.Int.LAST_PLAY_POSITION.set(getApplicationContext(), player.getCurrentPosition());
+			preference.LastPlayMusic.set(playlist.getCurrent().getFullPath());
+			preference.LastPlayPosition.set(player.getCurrentPosition());
 
 			if(playlist.type == Playlist.Type.RECURSIVE){
-				Preference.Str.RECURSIVE_PATH.set(getApplicationContext(), playlist.path.getFullPath());
+				preference.RecursivePath.set(playlist.path.getFullPath());
 			}else{
-				Preference.Str.RECURSIVE_PATH.remove(getApplicationContext());
+				preference.RecursivePath.remove();
 			}
 
 			if(playlist.type == Playlist.Type.SEARCH){
-				Preference.Str.SEARCH_PATH.set(getApplicationContext(), playlist.path.getFullPath());
-				Preference.Str.SEARCH_QUERY.set(getApplicationContext(), playlist.query);
+				preference.SearchPath.set(playlist.path.getFullPath());
+				preference.SearchQuery.set(playlist.query);
 			}else{
-				Preference.Str.SEARCH_PATH.remove(getApplicationContext());
-				Preference.Str.SEARCH_QUERY.remove(getApplicationContext());
+				preference.SearchPath.remove();
+				preference.SearchQuery.remove();
 			}
 		}
 	}
 
 	private void removeSavedStatus(){
-		Preference.Str.LAST_PLAY_MUSIC.remove(getApplicationContext());
-		Preference.Int.LAST_PLAY_POSITION.remove(getApplicationContext());
-		Preference.Str.RECURSIVE_PATH.remove(getApplicationContext());
+		preference.LastPlayMusic.remove();
+		preference.LastPlayPosition.remove();
+		preference.RecursivePath.remove();
+		preference.SearchPath.remove();
+		preference.SearchQuery.remove();
 	}
 
 	@NonNull
@@ -604,7 +608,7 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 			repeatMode = mode;
 			sendStatus();
 
-			Preference.Str.REPEAT_MODE.set(getApplicationContext(), repeatMode);
+			preference.RepeatMode.set(repeatMode);
 		}
 	}
 
@@ -620,7 +624,7 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 		shuffleMode = mode;
 		sendStatus();
 
-		Preference.Bool.SHUFFLE_MODE.set(getApplicationContext(), shuffleMode);
+		preference.ShuffleMode.set(shuffleMode);
 	}
 
 	private void next(){
@@ -723,19 +727,19 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 	}
 
 	private void updateBassBoost(){
-		if(Preference.Bool.BASSBOOST_ENABLED.get(getApplicationContext())){
+		if(preference.BassBoostEnabled.get()){
 			try{
 				if(bassBoost == null){
 					bassBoost = new BassBoost(0, player.getAudioSessionId());
 				}
-				bassBoost.setStrength((short)Preference.Int.BASSBOOST_LEVEL.get(getApplicationContext()));
+				bassBoost.setStrength(preference.BassBoostLevel.get());
 				bassBoost.setEnabled(true);
 			}catch(UnsupportedOperationException e){
 				showToast(getString(R.string.audioeffect_cant_enable), true);
-				Preference.Bool.BASSBOOST_ENABLED.set(getApplicationContext(), false);
+				preference.BassBoostEnabled.set(false);
 			}catch(RuntimeException e){
 				showToast(String.format(getString(R.string.audioeffect_failed_enable), "bass boost"), true);
-				Preference.Bool.EQUALIZER_ENABLED.set(getApplicationContext(), false);
+				preference.BassBoostEnabled.set(false);
 			}
 		}else if(bassBoost != null){
 			bassBoost.release();
@@ -744,19 +748,19 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 	}
 
 	private void updateReverb(){
-		if(Preference.Bool.REVERB_ENABLED.get(getApplicationContext())){
+		if(preference.ReverbEnabled.get()){
 			try{
 				if(presetReverb == null){
 					presetReverb = new PresetReverb(0, player.getAudioSessionId());
 				}
-				presetReverb.setPreset((short)Preference.Int.REVERB_TYPE.get(getApplicationContext()));
+				presetReverb.setPreset(preference.ReverbType.get());
 				presetReverb.setEnabled(true);
 			}catch(UnsupportedOperationException e){
 				showToast(getString(R.string.audioeffect_cant_enable), true);
-				Preference.Bool.REVERB_ENABLED.set(getApplicationContext(), false);
+				preference.ReverbEnabled.set(false);
 			}catch(RuntimeException e){
 				showToast(String.format(getString(R.string.audioeffect_failed_enable), "reverb"), true);
-				Preference.Bool.EQUALIZER_ENABLED.set(getApplicationContext(), false);
+				preference.ReverbEnabled.set(false);
 			}
 		}else if(presetReverb != null){
 			presetReverb.release();
@@ -769,19 +773,19 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 			return;
 		}
 
-		if(Preference.Bool.LOUDNESS_ENABLED.get(getApplicationContext())){
+		if(preference.LoudnessEnabled.get()){
 			try{
 				if(loudnessEnhancer == null){
 					loudnessEnhancer = new LoudnessEnhancer(player.getAudioSessionId());
 				}
-				loudnessEnhancer.setTargetGain(Preference.Int.LOUDNESS_LEVEL.get(getApplicationContext()));
+				loudnessEnhancer.setTargetGain(preference.LoudnessLevel.get());
 				loudnessEnhancer.setEnabled(true);
 			}catch(UnsupportedOperationException e){
 				showToast(getString(R.string.audioeffect_cant_enable), true);
-				Preference.Bool.LOUDNESS_ENABLED.set(getApplicationContext(), false);
+				preference.LoudnessEnabled.set(false);
 			}catch(RuntimeException e){
 				showToast(String.format(getString(R.string.audioeffect_failed_enable), "loudness enhancer"), true);
-				Preference.Bool.EQUALIZER_ENABLED.set(getApplicationContext(), false);
+				preference.LoudnessEnabled.set(false);
 			}
 		}else if(loudnessEnhancer != null){
 			loudnessEnhancer.release();
@@ -790,30 +794,30 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 	}
 
 	private void updateEqualizer(){
-		if(Preference.Bool.EQUALIZER_ENABLED.get(getApplicationContext())){
+		if(preference.EqualizerEnabled.get()){
 			try{
 				if(equalizer == null){
 					equalizer = new Equalizer(0, player.getAudioSessionId());
 				}
-				short preset = (short)Preference.Int.EQUALIZER_PRESET.get(getApplicationContext());
+				short preset = preference.EqualizerPreset.get();
 				if(preset < 0){
 					for(short i=0; i<equalizer.getNumberOfBands(); i++){
-						equalizer.setBandLevel(i, (short)Preference.IntArray.EQUALIZER_LEVEL.get(getApplicationContext(), i));
+						equalizer.setBandLevel(i, (short)preference.EqualizerLevel.get(i));
 					}
 				}else{
 					equalizer.usePreset(preset);
 					short[] levels = equalizer.getProperties().bandLevels;
 					for(short i=0; i<levels.length; i++){
-						Preference.IntArray.EQUALIZER_LEVEL.set(getApplicationContext(), i, levels[i]);
+						preference.EqualizerLevel.set(i, levels[i]);
 					}
 				}
 				equalizer.setEnabled(true);
 			}catch(UnsupportedOperationException e){
 				showToast(getString(R.string.audioeffect_cant_enable), true);
-				Preference.Bool.EQUALIZER_ENABLED.set(getApplicationContext(), false);
+				preference.EqualizerEnabled.set(false);
 			}catch(RuntimeException e){
 				showToast(String.format(getString(R.string.audioeffect_failed_enable), "equalizer"), true);
-				Preference.Bool.EQUALIZER_ENABLED.set(getApplicationContext(), false);
+				preference.EqualizerEnabled.set(false);
 			}
 		}else if(equalizer != null){
 			equalizer.release();

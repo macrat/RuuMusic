@@ -39,6 +39,8 @@ import jp.blanktar.ruumusic.util.RuuFileBase;
 
 @UiThread
 public class PlaylistFragment extends Fragment implements SearchView.OnQueryTextListener, SearchView.OnCloseListener{
+	private Preference preference;
+
 	private RuuAdapter adapter;
 	private final Stack<DirectoryInfo> directoryCache = new Stack<>();
 	@NonNull private ListStatus status = ListStatus.LOADING;
@@ -51,6 +53,8 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 	@NonNull
 	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState){
 		View view = inflater.inflate(R.layout.fragment_playlist, container, false);
+
+		preference = new Preference(view.getContext());
 
 		adapter = new RuuAdapter(view.getContext());
 
@@ -71,12 +75,12 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 
 		registerForContextMenu(lv);
 
-		String currentPath = Preference.Str.CURRENT_VIEW_PATH.get(getContext());
+		String currentPath = preference.CurrentViewPath.get();
 		try{
 			if(currentPath != null){
 				changeDir(RuuDirectory.getInstance(getContext(), currentPath));
 
-				searchQuery = Preference.Str.LAST_SEARCH_QUERY.get(getContext());
+				searchQuery = preference.LastSearchQuery.get();
 				if(searchQuery != null){
 					onQueryTextSubmit(searchQuery);
 				}
@@ -88,7 +92,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 				changeDir(RuuDirectory.rootDirectory(getContext()));
 			}catch(RuuFileBase.NotFound e){
 				Toast.makeText(getActivity(), String.format(getString(R.string.cant_open_dir), e.path), Toast.LENGTH_LONG).show();
-				Preference.Str.ROOT_DIRECTORY.remove(getContext());
+				preference.RootDirectory.remove();
 			}
 		}
 
@@ -100,8 +104,8 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 		super.onPause();
 
 		if(current != null){
-			Preference.Str.CURRENT_VIEW_PATH.set(getContext(), current.path.getFullPath());
-			Preference.Str.LAST_SEARCH_QUERY.set(getContext(), searchQuery);
+			preference.CurrentViewPath.set(current.path.getFullPath());
+			preference.LastSearchQuery.set(searchQuery);
 		}
 	}
 
@@ -384,7 +388,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 		adapter.resumeFromSearch();
 
 		searchQuery = null;
-		Preference.Str.LAST_SEARCH_QUERY.remove(getContext());
+		preference.LastSearchQuery.remove();
 		updateMenu();
 
 		return false;

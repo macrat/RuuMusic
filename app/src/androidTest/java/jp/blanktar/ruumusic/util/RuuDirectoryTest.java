@@ -13,6 +13,7 @@ import java.util.List;
 
 public class RuuDirectoryTest extends TestBase{
 	private RuuDirectory parent, dir;
+	private Preference preference;
 
 	@Before
 	public void setUp() throws InstantiationException, IllegalAccessException, InvocationTargetException{
@@ -21,6 +22,8 @@ public class RuuDirectoryTest extends TestBase{
 
 		parent = (RuuDirectory)ruuDirectory.newInstance(context, null, "/", null);
 		dir = (RuuDirectory)ruuDirectory.newInstance(context, parent, "/hoge", new String[]{"/hoge/dir/music.mp3", "/hoge/child.mp3"});
+		
+		preference = new Preference(context);
 	}
 
 	@Test
@@ -35,13 +38,13 @@ public class RuuDirectoryTest extends TestBase{
 
 	@Test
 	public void getRuuPath() throws RuuFileBase.OutOfRootDirectory{
-		Preference.Str.ROOT_DIRECTORY.set(context, "/hoge/");
+		preference.RootDirectory.set("/hoge/");
 		assertEquals(dir.getRuuPath(), "/");
 	}
 
 	@Test(expected = RuuFileBase.OutOfRootDirectory.class)
 	public void outOfRoot() throws RuuFileBase.OutOfRootDirectory{
-		Preference.Str.ROOT_DIRECTORY.set(context, "/out/");
+		preference.RootDirectory.set("/out/");
 		dir.getRuuPath();
 	}
 

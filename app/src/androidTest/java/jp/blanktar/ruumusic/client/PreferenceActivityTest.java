@@ -22,6 +22,7 @@ import jp.blanktar.ruumusic.util.Preference;
 
 public class PreferenceActivityTest extends TestBase{
 	private PreferenceActivity activity;
+	private Preference preference;
 	
     @Rule
     public ActivityTestRule<PreferenceActivity> activityRule = new ActivityTestRule<>(PreferenceActivity.class);
@@ -29,17 +30,18 @@ public class PreferenceActivityTest extends TestBase{
 	@Before
 	public void setUp(){
 		activity = activityRule.getActivity();
+		preference = new Preference(context);
 
-		if(Preference.Bool.BASSBOOST_ENABLED.get(context)){
+		if(preference.BassBoostEnabled.get()){
 			onView(withId(R.id.bass_boost_switch)).perform(click());
 		}
-		if(Preference.Bool.REVERB_ENABLED.get(context)){
+		if(preference.ReverbEnabled.get()){
 			onView(withId(R.id.reverb_switch)).perform(click());
 		}
-		if(Preference.Bool.LOUDNESS_ENABLED.get(context)){
+		if(preference.LoudnessEnabled.get()){
 			onView(withId(R.id.loudness_switch)).perform(click());
 		}
-		if(Preference.Bool.EQUALIZER_ENABLED.get(context)){
+		if(preference.EqualizerEnabled.get()){
 			onView(withId(R.id.equalizer_switch)).perform(click());
 		}
 	}
@@ -47,38 +49,38 @@ public class PreferenceActivityTest extends TestBase{
 	@Test
 	public void enable_disable(){
 		onView(withId(R.id.bass_boost_switch)).perform(click());
-		assertTrue(Preference.Bool.BASSBOOST_ENABLED.get(context));
+		assertTrue(preference.BassBoostEnabled.get());
 		assertTrue(activity.findViewById(R.id.bass_boost_level).isEnabled());
 
 		onView(withId(R.id.bass_boost_switch)).perform(click());
-		assertFalse(Preference.Bool.BASSBOOST_ENABLED.get(context));
+		assertFalse(preference.BassBoostEnabled.get());
 		assertFalse(activity.findViewById(R.id.bass_boost_level).isEnabled());
 
 
 		onView(withId(R.id.reverb_switch)).perform(click());
-		assertTrue(Preference.Bool.REVERB_ENABLED.get(context));
+		assertTrue(preference.ReverbEnabled.get());
 		assertTrue(activity.findViewById(R.id.reverb_spinner).isEnabled());
 
 		onView(withId(R.id.reverb_switch)).perform(click());
-		assertFalse(Preference.Bool.REVERB_ENABLED.get(context));
+		assertFalse(preference.ReverbEnabled.get());
 		assertFalse(activity.findViewById(R.id.reverb_spinner).isEnabled());
 
 
 		onView(withId(R.id.loudness_switch)).perform(click());
-		assertTrue(Preference.Bool.LOUDNESS_ENABLED.get(context));
+		assertTrue(preference.LoudnessEnabled.get());
 		assertTrue(activity.findViewById(R.id.loudness_level).isEnabled());
 
 		onView(withId(R.id.loudness_switch)).perform(click());
-		assertFalse(Preference.Bool.LOUDNESS_ENABLED.get(context));
+		assertFalse(preference.LoudnessEnabled.get());
 		assertFalse(activity.findViewById(R.id.loudness_level).isEnabled());
 
 
 		onView(withId(R.id.equalizer_switch)).perform(click());
-		assertTrue(Preference.Bool.EQUALIZER_ENABLED.get(context));
+		assertTrue(preference.EqualizerEnabled.get());
 		assertTrue(activity.findViewById(R.id.equalizer_container).isEnabled());
 
 		onView(withId(R.id.equalizer_switch)).perform(click());
-		assertFalse(Preference.Bool.EQUALIZER_ENABLED.get(context));
+		assertFalse(preference.EqualizerEnabled.get());
 		assertFalse(activity.findViewById(R.id.equalizer_container).isEnabled());
 	}
 
@@ -88,22 +90,22 @@ public class PreferenceActivityTest extends TestBase{
 
 		onView(withId(R.id.reverb_spinner)).perform(click());
 		onData(allOf(is("Large Hall"))).perform(click());
-		assertEquals(Preference.Int.REVERB_TYPE.get(context), PresetReverb.PRESET_LARGEHALL);
+		assertEquals(preference.ReverbType.get().shortValue(), PresetReverb.PRESET_LARGEHALL);
 
 		onView(withId(R.id.reverb_spinner)).perform(click());
 		onData(allOf(is("Medium Hall"))).perform(click());
-		assertEquals(Preference.Int.REVERB_TYPE.get(context), PresetReverb.PRESET_MEDIUMHALL);
+		assertEquals(preference.ReverbType.get().shortValue(), PresetReverb.PRESET_MEDIUMHALL);
 
 		onView(withId(R.id.reverb_spinner)).perform(click());
 		onData(allOf(is("Large Room"))).perform(click());
-		assertEquals(Preference.Int.REVERB_TYPE.get(context), PresetReverb.PRESET_LARGEROOM);
+		assertEquals(preference.ReverbType.get().shortValue(), PresetReverb.PRESET_LARGEROOM);
 
 		onView(withId(R.id.reverb_spinner)).perform(click());
 		onData(allOf(is("Medium Room"))).perform(click());
-		assertEquals(Preference.Int.REVERB_TYPE.get(context), PresetReverb.PRESET_MEDIUMROOM);
+		assertEquals(preference.ReverbType.get().shortValue(), PresetReverb.PRESET_MEDIUMROOM);
 
 		onView(withId(R.id.reverb_spinner)).perform(click());
 		onData(allOf(is("Small Room"))).perform(click());
-		assertEquals(Preference.Int.REVERB_TYPE.get(context), PresetReverb.PRESET_SMALLROOM);
+		assertEquals(preference.ReverbType.get().shortValue(), PresetReverb.PRESET_SMALLROOM);
 	}
 }

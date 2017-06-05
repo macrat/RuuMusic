@@ -12,6 +12,7 @@ import java.lang.reflect.InvocationTargetException;
 public class RuuFileTest extends TestBase{
 	private RuuDirectory parent;
 	private RuuFile file;
+	private Preference preference;
 
 	@Before
 	public void setUp() throws InstantiationException, IllegalAccessException, InvocationTargetException{
@@ -20,6 +21,8 @@ public class RuuFileTest extends TestBase{
 
 		parent = (RuuDirectory)ruuDirectory.newInstance(context, null, "/hoge/", null);
 		file = new RuuFile(context, parent, "/hoge/test", new String[]{".ext"});
+
+		preference = new Preference(context);
 	}
 
 	@Test
@@ -34,13 +37,13 @@ public class RuuFileTest extends TestBase{
 
 	@Test
 	public void getRuuPath() throws RuuFileBase.OutOfRootDirectory{
-		Preference.Str.ROOT_DIRECTORY.set(context, "/hoge/");
+		preference.RootDirectory.set("/hoge/");
 		assertEquals(file.getRuuPath(), "/test");
 	}
 
 	@Test(expected = RuuFileBase.OutOfRootDirectory.class)
 	public void outOfRoot() throws RuuFileBase.OutOfRootDirectory{
-		Preference.Str.ROOT_DIRECTORY.set(context, "/out/");
+		preference.RootDirectory.set("/out/");
 		file.getRuuPath();
 	}
 
