@@ -29,6 +29,7 @@ import android.widget.TextView;
 
 import jp.blanktar.ruumusic.R;
 import jp.blanktar.ruumusic.service.RuuService;
+import jp.blanktar.ruumusic.util.RepeatModeType;
 import jp.blanktar.ruumusic.util.RuuDirectory;
 import jp.blanktar.ruumusic.util.RuuFile;
 import jp.blanktar.ruumusic.util.RuuFileBase;
@@ -46,7 +47,7 @@ public class PlayerFragment extends Fragment{
 	private int current = -1;
 
 	private boolean playing = false;
-	@NonNull private String repeatMode = "off";
+	@NonNull private RepeatModeType repeatMode = RepeatModeType.OFF;
 	private boolean shuffleMode = false;
 	private boolean seeking = false;
 
@@ -82,22 +83,9 @@ public class PlayerFragment extends Fragment{
 		view.findViewById(R.id.repeatButton).setOnClickListener(new View.OnClickListener(){
 			@Override
 			public void onClick(@Nullable View view){
-				Intent intent = new Intent(getActivity(), RuuService.class);
-				intent.setAction(RuuService.ACTION_REPEAT);
-
-				switch(repeatMode){
-					case "loop":
-						intent.putExtra("mode", "one");
-						break;
-					case "one":
-						intent.putExtra("mode", "off");
-						break;
-					default:
-						intent.putExtra("mode", "loop");
-						break;
-				}
-	
-				getActivity().startService(intent);
+				getActivity().startService((new Intent(getActivity(), RuuService.class))
+					.setAction(RuuService.ACTION_REPEAT)
+					.putExtra("mode", repeatMode.getNext().name()));
 			}
 		});
 
@@ -329,8 +317,13 @@ public class PlayerFragment extends Fragment{
 		duration = intent.getIntExtra("duration", -1);
 		basetime = intent.getLongExtra("basetime", -1);
 		current = intent.getIntExtra("current", -1);
-		repeatMode = intent.getStringExtra("repeat");
 		shuffleMode = intent.getBooleanExtra("shuffle", false);
+
+		try{
+			repeatMode = RepeatModeType.valueOf(intent.getStringExtra("repeat"));
+		}catch(NullPointerException | IllegalArgumentException e){
+			repeatMode = RepeatModeType.OFF;
+		}
 
 		searchQuery = intent.getStringExtra("searchQuery");
 
@@ -353,13 +346,13 @@ public class PlayerFragment extends Fragment{
 
 			ImageButton repeatButton = (ImageButton)view.findViewById(R.id.repeatButton);
 			switch(repeatMode){
-				case "loop":
+				case LOOP:
 					repeatButton.setImageResource(R.drawable.ic_repeat_all);
 					break;
-				case "one":
+				case SINGLE:
 					repeatButton.setImageResource(R.drawable.ic_repeat_one);
 					break;
-				default:
+				case OFF:
 					repeatButton.setImageResource(R.drawable.ic_repeat_off);
 					break;
 			}

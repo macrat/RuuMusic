@@ -38,6 +38,7 @@ import android.widget.Toast;
 import jp.blanktar.ruumusic.R;
 import jp.blanktar.ruumusic.client.MainActivity;
 import jp.blanktar.ruumusic.util.Preference;
+import jp.blanktar.ruumusic.util.RepeatModeType;
 import jp.blanktar.ruumusic.util.RuuDirectory;
 import jp.blanktar.ruumusic.util.RuuFile;
 import jp.blanktar.ruumusic.util.RuuFileBase;
@@ -80,7 +81,7 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 
 	@Nullable private Playlist playlist;
 
-	@NonNull private String repeatMode = "off";
+	@NonNull private RepeatModeType repeatMode = RepeatModeType.OFF;
 	private boolean shuffleMode = false;
 	@NonNull private Status status = Status.INITIAL;
 
@@ -314,7 +315,7 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 
 		sendIntent.setAction(ACTION_STATUS);
 
-		sendIntent.putExtra("repeat", repeatMode);
+		sendIntent.putExtra("repeat", repeatMode.name());
 		sendIntent.putExtra("shuffle", shuffleMode);
 
 		if(playlist != null){
@@ -604,11 +605,13 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 	}
 
 	private void setRepeatMode(@NonNull String mode){
-		if(mode.equals("off") || mode.equals("loop") || mode.equals("one")){
-			repeatMode = mode;
+		try{
+			repeatMode = RepeatModeType.valueOf(mode);
 			sendStatus();
 
 			preference.RepeatMode.set(repeatMode);
+		}catch(IllegalArgumentException e) {
+			return;
 		}
 	}
 

@@ -24,12 +24,6 @@ public class PreferenceTest extends TestBase{
 	public void strSettings(){
 		Preference preference = new Preference(context);
 
-		preference.RepeatMode.set("loop");
-		assertEquals(preference.RepeatMode.get(), "loop");
-
-		preference.RepeatMode.remove();
-		assertEquals(preference.RepeatMode.get(), "off");
-
 		preference.RecursivePath.set("test");
 		assertEquals(preference.RecursivePath.get(), "test");
 
@@ -38,6 +32,17 @@ public class PreferenceTest extends TestBase{
 
 		preference.RecursivePath.remove();
 		assertEquals(preference.RecursivePath.get(), null);
+	}
+
+	@Test
+	public void enumSettings(){
+		Preference preference = new Preference(context);
+
+		preference.RepeatMode.set(RepeatModeType.SINGLE);
+		assertEquals(preference.RepeatMode.get(), RepeatModeType.SINGLE);
+
+		preference.RepeatMode.remove();
+		assertEquals(preference.RepeatMode.get(), RepeatModeType.OFF);
 	}
 
 	@Test

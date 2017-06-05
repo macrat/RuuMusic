@@ -5,6 +5,15 @@ import android.content.SharedPreferences
 import android.content.Context
 
 
+enum class RepeatModeType {
+    OFF { override val next get() = LOOP },
+    LOOP { override val next get() = SINGLE },
+    SINGLE { override val next get() = OFF };
+
+    abstract val next: RepeatModeType;
+}
+
+
 class Preference(val context: Context) {
     @JvmField val AudioPrefix = "audio_"
 
@@ -27,7 +36,7 @@ class Preference(val context: Context) {
     @JvmField val LastViewPage = IntPreferenceHandler(context, "last_view_page", 1)
 
     // player state
-    @JvmField val RepeatMode = StringPreferenceHandler(context, "repeat_mode", default = "off")
+    @JvmField val RepeatMode = EnumPreferenceHandler<RepeatModeType>(context, "repeat_mode", RepeatModeType.OFF, {x -> RepeatModeType.valueOf(x)})
     @JvmField val ShuffleMode = BooleanPreferenceHandler(context, "shuffle_mode")
     @JvmField val RecursivePath = StringPreferenceHandler(context, "recursive_path")
     @JvmField val SearchQuery = StringPreferenceHandler(context, "search_query")
@@ -127,6 +136,20 @@ class Preference(val context: Context) {
 
         override fun set(value: String?) {
             sharedPreferences.edit().putString(key, value).apply()
+        }
+    }
+
+    class EnumPreferenceHandler<T: Enum<T>>(override val context: Context, override val key: String, override val default: T, val asEnum: (String) -> T) : PreferenceHandler<T> {
+        override fun get(): T {
+            try {
+                return asEnum(sharedPreferences.getString(key, ""))
+            } catch(e: IllegalArgumentException) {
+                return default
+            }
+        }
+
+        override fun set(value: T) {
+            sharedPreferences.edit().putString(key, value.name).apply()
         }
     }
 }
