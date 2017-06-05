@@ -1,6 +1,9 @@
 <resources>
 	<string name="app_name">RuuMusic</string>
-	<string name="title_activity_preference">Audio preference</string>
+	<string name="title_activity_preference">Preference</string>
+	<string name="title_sound_preference">Sound</string>
+	<string name="title_player_preference">Player</string>
+	<string name="title_widget_preference">Widget</string>
 
 	<string name="unified_widget_name">RuuMusic</string>
 	<string name="playpause_widget_name">RuuMusic | Play / Pause</string>
@@ -62,4 +65,7 @@
 	<string name="audioeffect_failed_enable">Failed enable %s</string>
 
 	<string name="widget_nodata">NO DATA</string>
+
+	<!-- TODO: Remove or change this placeholder text -->
+	<string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

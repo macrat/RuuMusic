@@ -1,132 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout
+<android.support.design.widget.CoordinatorLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	android:orientation="vertical"
 	tools:context="jp.blanktar.ruumusic.PreferenceActivity">
 
-	<android.support.v7.widget.Toolbar
-		android:id="@+id/toolbar"
+	<android.support.design.widget.AppBarLayout
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:background="?attr/colorPrimary"
-		android:minHeight="?attr/actionBarSize"
-		android:theme="?attr/actionBarTheme" />
+		android:layout_height="wrap_content">
 
-	<ScrollView
-		android:layout_width="match_parent"
-		android:layout_height="match_parent">
-
-		<LinearLayout
+		<android.support.v7.widget.Toolbar
+			android:id="@+id/toolbar"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:paddingLeft="@dimen/activity_horizontal_margin"
-			android:paddingRight="@dimen/activity_horizontal_margin"
-			android:paddingTop="@dimen/activity_vertical_margin"
-			android:paddingBottom="@dimen/activity_vertical_margin"
-			android:divider="@drawable/preference_divider"
-			android:orientation="vertical"
-			android:showDividers="middle">
+			app:layout_scrollFlags="scroll|enterAlways"
+			android:background="?attr/colorPrimary"
+			android:minHeight="?attr/actionBarSize"
+			android:theme="?attr/actionBarTheme" />
 
-			<LinearLayout
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:orientation="vertical"
-				android:paddingBottom="10dp">
+		<android.support.design.widget.TabLayout
+			android:id="@+id/tablayout"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:background="?attr/colorPrimary" />
+	</android.support.design.widget.AppBarLayout>
 
-				<android.support.v7.widget.SwitchCompat
-					android:id="@+id/bass_boost_switch"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:layout_marginBottom="5dp"
-					android:text="@string/bass_boost_switch"
-					android:textSize="@dimen/preference_text_size" />
-
-				<SeekBar
-					android:id="@+id/bass_boost_level"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:layout_gravity="right"
-					android:max="1000" />
-			</LinearLayout>
-
-			<LinearLayout
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:orientation="vertical"
-				android:paddingBottom="10dp"
-				android:paddingTop="10dp">
-
-				<android.support.v7.widget.SwitchCompat
-					android:id="@+id/reverb_switch"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:layout_marginBottom="5dp"
-					android:text="@string/reverb_switch"
-					android:textSize="@dimen/preference_text_size" />
-
-				<Spinner
-					android:id="@+id/reverb_spinner"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:layout_gravity="right" />
-			</LinearLayout>
-
-			<LinearLayout
-				android:id="@+id/loudness_wrapper"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:orientation="vertical"
-				android:paddingBottom="10dp"
-				android:paddingTop="10dp">
-
-				<android.support.v7.widget.SwitchCompat
-					android:id="@+id/loudness_switch"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:layout_marginBottom="5dp"
-					android:text="@string/loudness_switch"
-					android:textSize="@dimen/preference_text_size" />
-
-				<SeekBar
-					android:id="@+id/loudness_level"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:layout_gravity="right"
-					android:max="5000" />
-			</LinearLayout>
-
-			<LinearLayout
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:orientation="vertical"
-				android:paddingTop="10dp">
-
-				<android.support.v7.widget.SwitchCompat
-					android:id="@+id/equalizer_switch"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:layout_marginBottom="5dp"
-					android:text="@string/equalizer_switch"
-					android:textSize="@dimen/preference_text_size" />
-
-				<Spinner
-					android:id="@+id/equalizer_spinner"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:layout_gravity="right"
-					android:layout_marginBottom="15dp" />
-
-				<TableLayout
-					android:id="@+id/equalizer_container"
-					android:layout_width="match_parent"
-					android:layout_height="match_parent"
-					android:layout_gravity="right"
-					android:stretchColumns="1" />
-			</LinearLayout>
-		</LinearLayout>
-	</ScrollView>
-</LinearLayout>
+	<android.support.v4.view.ViewPager
+		android:id="@+id/viewpager"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+</android.support.design.widget.CoordinatorLayout>

@@ -1,6 +1,9 @@
 <resources>
 	<string name="app_name">RuuMusic</string>
-	<string name="title_activity_preference">音質の設定</string>
+	<string name="title_activity_preference">設定</string>
+	<string name="title_sound_preference">音質</string>
+	<string name="title_player_preference">プレイヤー</string>
+	<string name="title_widget_preference">ウィジェット</string>
 
 	<string name="unified_widget_name">RuuMusic</string>
 	<string name="playpause_widget_name">RuuMusic | 再生/停止</string>
