@@ -49,24 +49,58 @@ class Preference(val context: Context) {
     @JvmField val LastSearchQuery = StringPreferenceHandler(context, "last_search_query")
 
 
-    interface PreferenceHandler<T> {
-        val context: Context
-        val key: String
-        val default: T
+    val listeners = mutableSetOf<PreferenceHandler<*>>()
+
+    fun unsetAllListeners() {
+        while (!listeners.isEmpty()) {
+            try {
+                val x = listeners.first()
+                x.unsetOnChangeListener()
+                listeners.remove(x)
+            } catch(e: NoSuchElementException) {
+                break
+            }
+        }
+    }
+
+    abstract inner class PreferenceHandler<T>(val context: Context, val key: String, val default: T) : SharedPreferences.OnSharedPreferenceChangeListener {
+        var receiver: (() -> Unit)? = null
 
         val sharedPreferences: SharedPreferences
             get() = PreferenceManager.getDefaultSharedPreferences(context)
 
-        fun get(): T
-        fun set(value: T)
+        abstract fun get(): T
+        abstract fun set(value: T)
 
-        fun remove() {
+        open fun remove() {
             sharedPreferences.edit().remove(key).apply()
+        }
+
+        override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
+            if (receiver != null && key == this.key) {
+                receiver!!()
+            }
+        }
+
+        fun setOnChangeListener(listener: () -> Unit) {
+            if (receiver != null) {
+                unsetOnChangeListener()
+            }
+            receiver = listener
+
+            listeners.add(this)
+            sharedPreferences.registerOnSharedPreferenceChangeListener(this)
+        }
+
+        fun unsetOnChangeListener() {
+            sharedPreferences.unregisterOnSharedPreferenceChangeListener(this)
+            listeners.remove(this)
+            receiver = null
         }
     }
 
 
-    class IntPreferenceHandler(override val context: Context, override val key: String, override val default: Int = 0) : PreferenceHandler<Int> {
+    inner class IntPreferenceHandler(context: Context, key: String, default: Int = 0) : PreferenceHandler<Int>(context, key, default) {
         override fun get() = sharedPreferences.getInt(key, default)
 
         override fun set(value: Int) {
@@ -75,7 +109,7 @@ class Preference(val context: Context) {
     }
 
 
-    class ShortPreferenceHandler(override val context: Context, override val key: String, override val default: Short = 0) : PreferenceHandler<Short> {
+    inner class ShortPreferenceHandler(context: Context, key: String, default: Short = 0) : PreferenceHandler<Short>(context, key, default) {
         override fun get() = sharedPreferences.getInt(key, default.toInt()).toShort()
 
         override fun set(value: Short) {
@@ -84,8 +118,7 @@ class Preference(val context: Context) {
     }
 
 
-    class IntListPreferenceHandler(override val context: Context, override val key: String, val defaultInt: Int = 0) : PreferenceHandler<List<Int>> {
-        override val default = listOf<Int>()
+    inner class IntListPreferenceHandler(context: Context, key: String, val defaultInt: Int = 0) : PreferenceHandler<List<Int>>(context, key, listOf<Int>()) {
         private fun keyOf(index: Int) = "%s_%d".format(key, index)
 
         fun get(index: Int) = sharedPreferences.getInt(keyOf(index), defaultInt)
@@ -122,7 +155,7 @@ class Preference(val context: Context) {
     }
 
 
-    class BooleanPreferenceHandler(override val context: Context, override val key: String, override val default: Boolean = false) : PreferenceHandler<Boolean> {
+    inner class BooleanPreferenceHandler(context: Context, key: String, default: Boolean = false) : PreferenceHandler<Boolean>(context, key, default) {
         override fun get() = sharedPreferences.getBoolean(key, default)
 
         override fun set(value: Boolean) {
@@ -131,7 +164,7 @@ class Preference(val context: Context) {
     }
 
 
-    class StringPreferenceHandler(override val context: Context, override val key: String, override val default: String? = null) : PreferenceHandler<String?> {
+    inner class StringPreferenceHandler(context: Context, key: String, default: String? = null) : PreferenceHandler<String?>(context, key, default) {
         override fun get() = sharedPreferences.getString(key, default)
 
         override fun set(value: String?) {
@@ -139,7 +172,7 @@ class Preference(val context: Context) {
         }
     }
 
-    class EnumPreferenceHandler<T: Enum<T>>(override val context: Context, override val key: String, override val default: T, val asEnum: (String) -> T) : PreferenceHandler<T> {
+    inner class EnumPreferenceHandler<T: Enum<T>>(context: Context, key: String, default: T, val asEnum: (String) -> T) : PreferenceHandler<T>(context, key, default) {
         override fun get(): T {
             try {
                 return asEnum(sharedPreferences.getString(key, ""))
@@ -153,4 +186,3 @@ class Preference(val context: Context) {
         }
     }
 }
-
