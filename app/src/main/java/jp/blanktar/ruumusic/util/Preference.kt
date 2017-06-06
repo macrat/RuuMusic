@@ -76,7 +76,7 @@ class Preference(val context: Context) {
             sharedPreferences.edit().remove(key).apply()
         }
 
-        override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
+        open override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
             if (receiver != null && key == this.key) {
                 receiver!!()
             }
@@ -150,6 +150,12 @@ class Preference(val context: Context) {
             while (sharedPreferences.contains(keyOf(index))) {
                 sharedPreferences.edit().remove(keyOf(index)).apply()
                 index++
+            }
+        }
+
+        override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
+            if (receiver != null && key.startsWith(this.key + "_")) {
+                receiver!!()
             }
         }
     }
