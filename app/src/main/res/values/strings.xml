@@ -19,7 +19,7 @@
 	<string name="action_recursive_play">Play under here</string>
 	<string name="menu_search">Search music</string>
 	<string name="menu_search_play">Play search results</string>
-	<string name="menu_preference">Audio preference</string>
+	<string name="menu_preference">Preference</string>
 	<string name="action_open_directory">Open</string>
 	<string name="action_open_music">Play</string>
 	<string name="action_open_search">Search</string>

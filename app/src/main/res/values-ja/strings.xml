@@ -19,7 +19,7 @@
 	<string name="action_recursive_play">このディレクトリ以下を再生</string>
 	<string name="menu_search">音楽を検索</string>
 	<string name="menu_search_play">検索結果を全て再生</string>
-	<string name="menu_preference">音質の設定</string>
+	<string name="menu_preference">設定</string>
 	<string name="action_open_directory">開く</string>
 	<string name="action_open_music">再生する</string>
 	<string name="action_open_search">検索する</string>

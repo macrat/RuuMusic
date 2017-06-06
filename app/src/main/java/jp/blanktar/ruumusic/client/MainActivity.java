@@ -257,7 +257,6 @@ public class MainActivity extends AppCompatActivity{
 				menu.findItem(R.id.action_recursive_play).setVisible(false);
 				menu.findItem(R.id.menu_search).setVisible(false);
 				menu.findItem(R.id.action_search_play).setVisible(false);
-				menu.findItem(R.id.action_preference).setVisible(true);
 			}
 		}else if(playlist != null){
 			playlist.updateTitle(this);

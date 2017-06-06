@@ -274,7 +274,6 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			menu.findItem(R.id.action_search_play).setEnabled(adapter.hasMusic);
 			menu.findItem(R.id.action_recursive_play).setVisible(searchQuery == null && adapter.getCount() > 0);
 			menu.findItem(R.id.menu_search).setVisible(true);
-			menu.findItem(R.id.action_preference).setVisible(false);
 		}
 	}
 
