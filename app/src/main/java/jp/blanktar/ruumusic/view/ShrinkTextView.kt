@@ -40,6 +40,8 @@ class ShrinkTextView(context: Context, val attrs: AttributeSet) : TextView(conte
             updateTextSize()
         }
 
+    var resizingEnabled = true
+
     fun calcTextWidth(size: Float): Float {
         val p = Paint()
         p.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, size, getResources().getDisplayMetrics()))
@@ -47,6 +49,11 @@ class ShrinkTextView(context: Context, val attrs: AttributeSet) : TextView(conte
     }
 
     fun updateTextSize() {
+        if (!resizingEnabled) {
+            setTextSize(maxTextSize)
+            return
+        }
+
         var temp = maxTextSize
 
         while (measuredWidth < calcTextWidth(temp) && temp > firstLineMinTextSize) {

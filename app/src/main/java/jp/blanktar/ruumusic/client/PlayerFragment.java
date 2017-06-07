@@ -174,13 +174,21 @@ public class PlayerFragment extends Fragment{
 	public void onResume(){
 		super.onResume();
 
-		float pathSize = new Preference(getContext()).PlayerMusicPathSize.get().floatValue();
-		((ShrinkTextView)getView().findViewById(R.id.musicPath)).setMaxTextSize(pathSize);
-		((ShrinkTextView)getView().findViewById(R.id.musicPath)).setMinTextSize(pathSize / 2);
+		Preference pref = new Preference(getContext());
 
-		float nameSize = new Preference(getContext()).PlayerMusicNameSize.get().floatValue();
-		((ShrinkTextView)getView().findViewById(R.id.musicName)).setMaxTextSize(nameSize);
-		((ShrinkTextView)getView().findViewById(R.id.musicName)).setMinTextSize(nameSize / 2);
+		ShrinkTextView musicPath = (ShrinkTextView)getView().findViewById(R.id.musicPath);
+		float pathSize = pref.PlayerMusicPathSize.get().floatValue();
+
+		musicPath.setMaxTextSize(pathSize);
+		musicPath.setMinTextSize(pathSize / 2);
+		musicPath.setResizingEnabled(pref.PlayerAutoShrinkEnabled.get());
+
+		ShrinkTextView musicName = (ShrinkTextView)getView().findViewById(R.id.musicName);
+		float nameSize = pref.PlayerMusicNameSize.get().floatValue();
+
+		musicName.setMaxTextSize(nameSize);
+		musicName.setMinTextSize(nameSize / 2);
+		musicName.setResizingEnabled(pref.PlayerAutoShrinkEnabled.get());
 
 		startRuuService(RuuService.ACTION_PING);
 

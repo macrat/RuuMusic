@@ -63,6 +63,7 @@
 		<item>Small Room</item>
 	</string-array>
 
+	<string name="player_auto_shrink">Auto resizing</string>
 	<string name="player_music_path_size_label">Directory name size</string>
 	<string name="player_music_path_size_sample">/path/to/music/</string>
 	<string name="player_music_name_size_label">Music name size</string>

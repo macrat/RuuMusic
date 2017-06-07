@@ -63,6 +63,7 @@
 		<item>Small Room</item>
 	</string-array>
 
+	<string name="player_auto_shrink">サイズを自動調節する</string>
 	<string name="player_music_path_size_label">ディレクトリ名のサイズ</string>
 	<string name="player_music_name_size_label">曲名のサイズ</string>
 
