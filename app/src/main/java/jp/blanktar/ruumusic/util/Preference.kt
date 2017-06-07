@@ -10,7 +10,7 @@ enum class RepeatModeType {
     LOOP { override val next get() = SINGLE },
     SINGLE { override val next get() = OFF };
 
-    abstract val next: RepeatModeType;
+    abstract val next: RepeatModeType
 }
 
 
@@ -33,17 +33,17 @@ class Preference(val context: Context) {
     @JvmField val EqualizerLevel = IntListPreferenceHandler(AudioPrefix + "equalizer_level")
 
     // player preference
-    @JvmField val PlayerAutoShrinkEnabled = BooleanPreferenceHandler("player_auto_shrink_enabled", true)
-    @JvmField val PlayerMusicPathSize = IntPreferenceHandler("player_music_path_size", 20)
-    @JvmField val PlayerMusicNameSize = IntPreferenceHandler("player_music_name_size", 40)
+    @JvmField val PlayerAutoShrinkEnabled = BooleanPreferenceHandler("player_auto_shrink_enabled", default = true)
+    @JvmField val PlayerMusicPathSize = IntPreferenceHandler("player_music_path_size", default = 20)
+    @JvmField val PlayerMusicNameSize = IntPreferenceHandler("player_music_name_size", default = 40)
 
     // widget preference
-    @JvmField val UnifiedWidgetMusicPathSize = IntPreferenceHandler("widget_unified_music_path_size", 14)
-    @JvmField val UnifiedWidgetMusicNameSize = IntPreferenceHandler("widget_unified_music_name_size", 18)
-    @JvmField val MusicNameWidgetNameSize = IntPreferenceHandler("widget_musicname_music_name_size", 20)
+    @JvmField val UnifiedWidgetMusicPathSize = IntPreferenceHandler("widget_unified_music_path_size", default = 14)
+    @JvmField val UnifiedWidgetMusicNameSize = IntPreferenceHandler("widget_unified_music_name_size", default = 18)
+    @JvmField val MusicNameWidgetNameSize = IntPreferenceHandler("widget_musicname_music_name_size", default = 20)
 
     // client state
-    @JvmField val LastViewPage = IntPreferenceHandler("last_view_page", 1)
+    @JvmField val LastViewPage = IntPreferenceHandler("last_view_page", default = 1)
 
     // player state
     @JvmField val RepeatMode = EnumPreferenceHandler<RepeatModeType>("repeat_mode", RepeatModeType.OFF, {x -> RepeatModeType.valueOf(x)})
@@ -72,6 +72,7 @@ class Preference(val context: Context) {
             }
         }
     }
+
 
     abstract inner class PreferenceHandler<T>(val key: String, val default: T) : SharedPreferences.OnSharedPreferenceChangeListener {
         var receiver: (() -> Unit)? = null
@@ -129,7 +130,7 @@ class Preference(val context: Context) {
 
 
     inner class IntListPreferenceHandler(key: String, val defaultInt: Int = 0) : PreferenceHandler<List<Int>>(key, listOf<Int>()) {
-        private fun keyOf(index: Int) = "%s_%d".format(key, index)
+        private fun keyOf(index: Int) = "${key}_${index}"
 
         fun get(index: Int) = sharedPreferences.getInt(keyOf(index), defaultInt)
 
@@ -164,7 +165,7 @@ class Preference(val context: Context) {
         }
 
         override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
-            if (receiver != null && key.startsWith(this.key + "_")) {
+            if (receiver != null && key.startsWith("${this.key}_")) {
                 receiver!!()
             }
         }
@@ -187,6 +188,7 @@ class Preference(val context: Context) {
             sharedPreferences.edit().putString(key, value).apply()
         }
     }
+
 
     inner class EnumPreferenceHandler<T: Enum<T>>(key: String, default: T, val asEnum: (String) -> T) : PreferenceHandler<T>(key, default) {
         override fun get(): T {
