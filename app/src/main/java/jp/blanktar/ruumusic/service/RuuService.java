@@ -148,7 +148,7 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 		player.setOnCompletionListener(new MediaPlayer.OnCompletionListener(){
 			@Override
 			public void onCompletion(@Nullable MediaPlayer mp){
-				if(repeatMode.equals("one")){
+				if(repeatMode.equals(RepeatModeType.SINGLE)){
 					player.pause();
 					play();
 				}else{
@@ -156,7 +156,7 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 						playlist.goNext();
 						load(false);
 					}catch(Playlist.EndOfList e){
-						if(repeatMode.equals("off")){
+						if(repeatMode.equals(RepeatModeType.OFF)){
 							player.pause();
 							player.seekTo(0);
 							pause();
@@ -636,7 +636,7 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 				playlist.goNext();
 				load(false);
 			}catch(Playlist.EndOfList e){
-				if(repeatMode.equals("loop")){
+				if(repeatMode.equals(RepeatModeType.LOOP)){
 					if(shuffleMode){
 						playlist.shuffle(false);
 					}else{
@@ -662,7 +662,7 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 					playlist.goPrev();
 					load(false);
 				}catch(Playlist.EndOfList e){
-					if(repeatMode.equals("loop")){
+					if(repeatMode.equals(RepeatModeType.LOOP)){
 						if(shuffleMode){
 							playlist.shuffle(false);
 						}else{
