@@ -61,6 +61,13 @@
 		<item>Small Room</item>
 	</string-array>
 
+	<string name="player_music_path_size_label">ディレクトリ名のサイズ</string>
+	<string name="player_music_name_size_label">曲名のサイズ</string>
+
+	<string name="unified_path_size_label">普通のウィジェット: ディレクトリ名のサイズ</string>
+	<string name="unified_name_size_label">普通のウィジェット: 曲名のサイズ</string>
+	<string name="musicname_name_size_label">曲名だけのウィジェット: 曲名のサイズ</string>
+
 	<string name="audioeffect_cant_enable">オーディオエフェクトを有効にすることが出来ませんでした。他のエフェクトアプリが起動しているようです。</string>
 	<string name="audioeffect_failed_enable">%sの有効化に失敗しました</string>
 

@@ -29,7 +29,7 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:textSize="@dimen/preference_text_size"
-				android:text="Unified widget: Directory path size" />
+				android:text="@string/unified_path_size_label" />
 
 			<SeekBar
 				android:id="@+id/unified_path_size_seekbar"
@@ -41,7 +41,7 @@
 				android:id="@+id/unified_path_size_sample"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:text="/path/to/music/"
+				android:text="@string/unified_path_size_sample"
 				android:gravity="center" />
 		</LinearLayout>
 
@@ -54,7 +54,7 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:textSize="@dimen/preference_text_size"
-				android:text="Unified widget: Music name size" />
+				android:text="@string/unified_name_size_label" />
 
 			<SeekBar
 				android:id="@+id/unified_name_size_seekbar"
@@ -66,7 +66,7 @@
 				android:id="@+id/unified_name_size_sample"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:text="music name"
+				android:text="@string/unified_name_size_sample"
 				android:gravity="center" />
 		</LinearLayout>
 
@@ -79,7 +79,7 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:textSize="@dimen/preference_text_size"
-				android:text="Music name widget: Music name size" />
+				android:text="@string/musicname_name_size_label" />
 
 			<SeekBar
 				android:id="@+id/musicname_name_size_seekbar"
@@ -91,7 +91,7 @@
 				android:id="@+id/musicname_name_size_sample"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:text="music name"
+				android:text="@string/musicname_name_size_sample"
 				android:gravity="center" />
 		</LinearLayout>
 	</LinearLayout>
