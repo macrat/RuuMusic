@@ -1,5 +1,6 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
 				xmlns:tools="http://schemas.android.com/tools"
+				xmlns:blanktar="http://ruumusic.blanktar.jp/view"
 				android:layout_width="match_parent"
 				android:layout_height="match_parent"
 				android:paddingLeft="@dimen/activity_horizontal_margin"
@@ -55,16 +56,18 @@
 		android:layout_centerVertical="true"
 		android:layout_centerHorizontal="true"/>
 	
-	<TextView
+	<jp.blanktar.ruumusic.view.ShrinkTextView
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
+		blanktar:secondLine="true"
 		android:gravity="center"
 		android:id="@+id/musicPath"
 		android:layout_above="@+id/musicName"/>
 	
-	<TextView
+	<jp.blanktar.ruumusic.view.ShrinkTextView
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
+		blanktar:secondLine="true"
 		android:gravity="center"
 		android:id="@+id/musicName"
 		android:layout_above="@+id/seekBar"/>

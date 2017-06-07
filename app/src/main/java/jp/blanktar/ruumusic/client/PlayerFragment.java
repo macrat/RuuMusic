@@ -34,6 +34,7 @@ import jp.blanktar.ruumusic.util.RepeatModeType;
 import jp.blanktar.ruumusic.util.RuuDirectory;
 import jp.blanktar.ruumusic.util.RuuFile;
 import jp.blanktar.ruumusic.util.RuuFileBase;
+import jp.blanktar.ruumusic.view.ShrinkTextView;
 
 
 @UiThread
@@ -173,8 +174,13 @@ public class PlayerFragment extends Fragment{
 	public void onResume(){
 		super.onResume();
 
-		((TextView)getView().findViewById(R.id.musicPath)).setTextSize(new Preference(getContext()).PlayerMusicPathSize.get());
-		((TextView)getView().findViewById(R.id.musicName)).setTextSize(new Preference(getContext()).PlayerMusicNameSize.get());
+		float pathSize = new Preference(getContext()).PlayerMusicPathSize.get().floatValue();
+		((ShrinkTextView)getView().findViewById(R.id.musicPath)).setMaxTextSize(pathSize);
+		((ShrinkTextView)getView().findViewById(R.id.musicPath)).setMinTextSize(pathSize / 2);
+
+		float nameSize = new Preference(getContext()).PlayerMusicNameSize.get().floatValue();
+		((ShrinkTextView)getView().findViewById(R.id.musicName)).setMaxTextSize(nameSize);
+		((ShrinkTextView)getView().findViewById(R.id.musicName)).setMinTextSize(nameSize / 2);
 
 		startRuuService(RuuService.ACTION_PING);
 
@@ -393,8 +399,8 @@ public class PlayerFragment extends Fragment{
 
 		View view = getView();
 		if(view != null){
-			((TextView)view.findViewById(R.id.musicPath)).setText(path);
-			((TextView)view.findViewById(R.id.musicName)).setText(name);
+			((ShrinkTextView)view.findViewById(R.id.musicPath)).setText(path);
+			((ShrinkTextView)view.findViewById(R.id.musicName)).setText(name);
 
 			if(recursivePath != null){
 				try{
