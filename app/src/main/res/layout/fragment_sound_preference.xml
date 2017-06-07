@@ -24,7 +24,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:orientation="vertical"
-			android:paddingBottom="10dp">
+			android:paddingBottom="@dimen/preference_margin">
 
 			<android.support.v7.widget.SwitchCompat
 				android:id="@+id/bass_boost_switch"
@@ -46,8 +46,8 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:orientation="vertical"
-			android:paddingBottom="10dp"
-			android:paddingTop="10dp">
+			android:paddingBottom="@dimen/preference_margin"
+			android:paddingTop="@dimen/preference_margin">
 
 			<android.support.v7.widget.SwitchCompat
 				android:id="@+id/reverb_switch"
@@ -69,8 +69,8 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:orientation="vertical"
-			android:paddingBottom="10dp"
-			android:paddingTop="10dp">
+			android:paddingBottom="@dimen/preference_margin"
+			android:paddingTop="@dimen/preference_margin">
 
 			<android.support.v7.widget.SwitchCompat
 				android:id="@+id/loudness_switch"
@@ -92,7 +92,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:orientation="vertical"
-			android:paddingTop="10dp">
+			android:paddingTop="@dimen/preference_margin">
 
 			<android.support.v7.widget.SwitchCompat
 				android:id="@+id/equalizer_switch"
