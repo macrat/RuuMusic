@@ -42,11 +42,11 @@ public class MusicNameWidget extends AppWidgetProvider{
 			views.setTextViewText(R.id.widget_music_name, musicName);
 		}
 
+		views.setFloat(R.id.widget_music_name, "setTextSize", new Preference(context).MusicNameWidgetNameSize.get());
+
 		for(int id: appWidgetIds){
 			appWidgetManager.updateAppWidget(id, views);
 		}
-
-		views.setFloat(R.id.widget_music_name, "setTextSize", new Preference(context).MusicNameWidgetNameSize.get());
 	}
 
 	@Override
