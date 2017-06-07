@@ -17,15 +17,13 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:gravity="center"
-				android:textSize="@dimen/unified_widget_music_name_size"
 				android:textStyle="bold" />
 
 		<TextView
 				android:id="@+id/music_path"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:gravity="center"
-				android:textSize="@dimen/unified_widget_music_path_size" />
+				android:gravity="center" />
 	</LinearLayout>
 
 	<ImageButton

@@ -74,7 +74,7 @@ fun <T> bindSpinnerPreference(spinner: Spinner, pref: Preference.PreferenceHandl
     spinner.setSelection(values.indexOf(pref.get()))
 
     spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-        override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long){
+        override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long){
             pref.set(values[position])
         }
 

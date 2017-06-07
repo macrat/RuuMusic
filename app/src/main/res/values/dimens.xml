@@ -19,9 +19,6 @@
 	<dimen name="preference_spinner_text_size">18sp</dimen>
 	<dimen name="preference_spinner_dropdown_text_size">22sp</dimen>
 
-	<dimen name="musicname_widget_text_size">20sp</dimen>
-	<dimen name="unified_widget_music_name_size">20sp</dimen>
-	<dimen name="unified_widget_music_path_size">16sp</dimen>
 	<dimen name="unified_widget_skip_button_size">45dp</dimen>
 	<dimen name="unified_widget_playpause_button_size">50dp</dimen>
 </resources>

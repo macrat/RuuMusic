@@ -36,6 +36,11 @@ class Preference(val context: Context) {
     @JvmField val PlayerMusicPathSize = IntPreferenceHandler("player_music_path_size", 20)
     @JvmField val PlayerMusicNameSize = IntPreferenceHandler("player_music_name_size", 40)
 
+    // widget preference
+    @JvmField val UnifiedWidgetMusicPathSize = IntPreferenceHandler("widget_unified_music_path_size", 14)
+    @JvmField val UnifiedWidgetMusicNameSize = IntPreferenceHandler("widget_unified_music_name_size", 18)
+    @JvmField val MusicNameWidgetNameSize = IntPreferenceHandler("widget_musicname_music_name_size", 20)
+
     // client state
     @JvmField val LastViewPage = IntPreferenceHandler("last_view_page", 1)
 

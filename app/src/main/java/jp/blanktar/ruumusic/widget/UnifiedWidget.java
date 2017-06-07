@@ -9,10 +9,12 @@ import android.appwidget.AppWidgetProvider;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.util.TypedValue;
 import android.widget.RemoteViews;
 
 import jp.blanktar.ruumusic.R;
 import jp.blanktar.ruumusic.service.RuuService;
+import jp.blanktar.ruumusic.util.Preference;
 import jp.blanktar.ruumusic.util.RuuFile;
 import jp.blanktar.ruumusic.util.RuuFileBase;
 import jp.blanktar.ruumusic.client.MainActivity;
@@ -61,6 +63,9 @@ public class UnifiedWidget extends AppWidgetProvider{
 
 		views.setTextViewText(R.id.music_name, musicName != null ? musicName : context.getString(R.string.widget_nodata));
 		views.setTextViewText(R.id.music_path, musicPath != null ? musicPath : "");
+
+		views.setTextViewTextSize(R.id.music_path, TypedValue.COMPLEX_UNIT_SP, new Preference(context).UnifiedWidgetMusicPathSize.get());
+		views.setTextViewTextSize(R.id.music_name, TypedValue.COMPLEX_UNIT_SP, new Preference(context).UnifiedWidgetMusicNameSize.get());
 
 		for(int id: appWidgetIds){
 			appWidgetManager.updateAppWidget(id, views);
