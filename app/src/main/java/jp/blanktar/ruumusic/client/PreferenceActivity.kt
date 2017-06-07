@@ -6,9 +6,77 @@ import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentPagerAdapter
 import android.support.v4.view.ViewPager
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.SwitchCompat
 import android.support.v7.widget.Toolbar
+import android.view.View
+import android.widget.AdapterView
+import android.widget.SeekBar
+import android.widget.Spinner
 
 import jp.blanktar.ruumusic.R
+import jp.blanktar.ruumusic.util.Preference
+
+
+fun bindPreferenceOnOff(switch: SwitchCompat, pref: Preference.BooleanPreferenceHandler, receiver: (Boolean) -> Unit) {
+    receiver(pref.get())
+    switch.setChecked(pref.get())
+
+    switch.setOnCheckedChangeListener { _, checked -> pref.set(checked) }
+    pref.setOnChangeListener { receiver(pref.get()) }
+}
+
+
+fun bindSeekBarPreference(bar: SeekBar, pref: Preference.IntPreferenceHandler) {
+    bar.progress = pref.get()
+
+    bar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+        override fun onProgressChanged(bar: SeekBar?, progress: Int, fromUser: Boolean) {
+            pref.set(progress)
+        }
+
+        override fun onStartTrackingTouch(p0: SeekBar?) {}
+        override fun onStopTrackingTouch(p0: SeekBar?) {}
+    })
+
+    pref.setOnChangeListener {
+        bar.progress = pref.get()
+    }
+}
+
+
+fun bindSeekBarPreference(bar: SeekBar, pref: Preference.ShortPreferenceHandler) {
+    bar.progress = pref.get().toInt()
+
+    bar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+        override fun onProgressChanged(bar: SeekBar?, progress: Int, fromUser: Boolean) {
+            pref.set(progress.toShort())
+        }
+
+        override fun onStartTrackingTouch(p0: SeekBar?) {}
+        override fun onStopTrackingTouch(p0: SeekBar?) {}
+    })
+
+    pref.setOnChangeListener {
+        bar.progress = pref.get().toInt()
+    }
+}
+
+
+fun <T> bindSpinnerPreference(spinner: Spinner, pref: Preference.PreferenceHandler<T>, values: List<out T>) {
+    spinner.setSelection(values.indexOf(pref.get()))
+
+    spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long){
+            pref.set(values[position])
+        }
+
+        override fun onNothingSelected(parent: AdapterView<*>) {}
+    }
+
+    pref.setOnChangeListener {
+        spinner.setSelection(values.indexOf(pref.get()))
+    }
+}
 
 
 class PreferenceActivity : AppCompatActivity() {
@@ -16,8 +84,7 @@ class PreferenceActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_preference)
 
-        val toolbar = findViewById(R.id.toolbar) as Toolbar
-        setSupportActionBar(toolbar)
+        setSupportActionBar(findViewById(R.id.toolbar) as Toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         val viewPager = findViewById(R.id.viewpager) as ViewPager
@@ -44,4 +111,3 @@ class PreferenceActivity : AppCompatActivity() {
         (findViewById(R.id.tablayout) as TabLayout).setupWithViewPager(viewPager)
     }
 }
-

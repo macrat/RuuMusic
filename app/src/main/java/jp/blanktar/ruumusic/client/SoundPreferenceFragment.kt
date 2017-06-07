@@ -24,68 +24,6 @@ import jp.blanktar.ruumusic.util.Preference
 import jp.blanktar.ruumusic.service.RuuService
 
 
-fun bindSwitch(switch: SwitchCompat, pref: Preference.BooleanPreferenceHandler, receiver: (Boolean) -> Unit) {
-    receiver(pref.get())
-    switch.setChecked(pref.get())
-
-    switch.setOnCheckedChangeListener { _, checked -> pref.set(checked) }
-    pref.setOnChangeListener { receiver(pref.get()) }
-}
-
-
-fun bindSeekBar(bar: SeekBar, pref: Preference.IntPreferenceHandler) {
-    bar.progress = pref.get()
-
-    bar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-        override fun onProgressChanged(bar: SeekBar?, progress: Int, fromUser: Boolean) {
-            pref.set(progress)
-        }
-
-        override fun onStartTrackingTouch(p0: SeekBar?) {}
-        override fun onStopTrackingTouch(p0: SeekBar?) {}
-    })
-
-    pref.setOnChangeListener {
-        bar.progress = pref.get()
-    }
-}
-
-
-fun bindSeekBar(bar: SeekBar, pref: Preference.ShortPreferenceHandler) {
-    bar.progress = pref.get().toInt()
-
-    bar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-        override fun onProgressChanged(bar: SeekBar?, progress: Int, fromUser: Boolean) {
-            pref.set(progress.toShort())
-        }
-
-        override fun onStartTrackingTouch(p0: SeekBar?) {}
-        override fun onStopTrackingTouch(p0: SeekBar?) {}
-    })
-
-    pref.setOnChangeListener {
-        bar.progress = pref.get().toInt()
-    }
-}
-
-
-fun <T> bindSpinner(spinner: Spinner, pref: Preference.PreferenceHandler<T>, values: List<T>) {
-    spinner.setSelection(values.indexOf(pref.get()))
-
-    spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-        override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long){
-            pref.set(values[position])
-        }
-
-        override fun onNothingSelected(parent: AdapterView<*>) {}
-    }
-
-    pref.setOnChangeListener {
-        spinner.setSelection(values.indexOf(pref.get()))
-    }
-}
-
-
 class SoundPreferenceFragment : Fragment() {
     var preference: Preference? = null
 
@@ -116,14 +54,14 @@ class SoundPreferenceFragment : Fragment() {
     }
 
     private fun setupBassBoost(view: View) {
-        bindSwitch(view.findViewById(R.id.bass_boost_switch) as SwitchCompat, preference!!.BassBoostEnabled) {
+        bindPreferenceOnOff(view.findViewById(R.id.bass_boost_switch) as SwitchCompat, preference!!.BassBoostEnabled) {
             e -> view.findViewById(R.id.bass_boost_level).setEnabled(e)
         }
-        bindSeekBar(view.findViewById(R.id.bass_boost_level) as SeekBar, preference!!.BassBoostLevel)
+        bindSeekBarPreference(view.findViewById(R.id.bass_boost_level) as SeekBar, preference!!.BassBoostLevel)
     }
 
     private fun setupReverb(view: View) {
-        bindSwitch(view.findViewById(R.id.reverb_switch) as SwitchCompat, preference!!.ReverbEnabled) {
+        bindPreferenceOnOff(view.findViewById(R.id.reverb_switch) as SwitchCompat, preference!!.ReverbEnabled) {
             e -> view.findViewById(R.id.reverb_spinner).setEnabled(e)
         }
 
@@ -133,7 +71,7 @@ class SoundPreferenceFragment : Fragment() {
         val spinner = view.findViewById(R.id.reverb_spinner) as Spinner
         spinner.adapter = adapter
 
-        bindSpinner(spinner, preference!!.ReverbType, listOf(PresetReverb.PRESET_LARGEHALL,
+        bindSpinnerPreference(spinner, preference!!.ReverbType, listOf(PresetReverb.PRESET_LARGEHALL,
                                                              PresetReverb.PRESET_MEDIUMHALL,
                                                              PresetReverb.PRESET_LARGEROOM,
                                                              PresetReverb.PRESET_MEDIUMROOM,
@@ -146,10 +84,10 @@ class SoundPreferenceFragment : Fragment() {
             return
         }
 
-        bindSwitch(view.findViewById(R.id.loudness_switch) as SwitchCompat, preference!!.LoudnessEnabled) {
+        bindPreferenceOnOff(view.findViewById(R.id.loudness_switch) as SwitchCompat, preference!!.LoudnessEnabled) {
             e -> view.findViewById(R.id.loudness_level).setEnabled(e)
         }
-        bindSeekBar(view.findViewById(R.id.loudness_level) as SeekBar, preference!!.LoudnessLevel)
+        bindSeekBarPreference(view.findViewById(R.id.loudness_level) as SeekBar, preference!!.LoudnessLevel)
     }
 
     private fun setupEqualizer(view: View, presets: Array<String>, min: Int, max: Int, freqs: IntArray) {
@@ -175,7 +113,7 @@ class SoundPreferenceFragment : Fragment() {
             spinner.setSelection(preference!!.EqualizerPreset.get() + 1)
         }
 
-        var texts = mutableListOf<TextView>()
+        val texts = mutableListOf<TextView>()
         val bars = mutableListOf<SeekBar>()
 
         for (i in 0..(freqs.size-1)) {
@@ -210,7 +148,7 @@ class SoundPreferenceFragment : Fragment() {
             }
         }
 
-        bindSwitch(view.findViewById(R.id.equalizer_switch) as SwitchCompat, preference!!.EqualizerEnabled) { e ->
+        bindPreferenceOnOff(view.findViewById(R.id.equalizer_switch) as SwitchCompat, preference!!.EqualizerEnabled) { e ->
             view.findViewById(R.id.equalizer_spinner).setEnabled(e)
 
             texts.forEach { x -> x.setEnabled(e) }
