@@ -36,7 +36,7 @@
 				android:id="@+id/unified_path_size_seekbar"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:max="30" />
+				android:max="40" />
 
 			<TextView
 				android:id="@+id/unified_path_size_sample"
@@ -63,7 +63,7 @@
 				android:id="@+id/unified_name_size_seekbar"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:max="30" />
+				android:max="40" />
 
 			<TextView
 				android:id="@+id/unified_name_size_sample"
