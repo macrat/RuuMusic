@@ -46,7 +46,7 @@ public class MusicNameWidget extends AppWidgetProvider{
 			appWidgetManager.updateAppWidget(id, views);
 		}
 
-		views.setTextViewTextSize(R.id.music_name, TypedValue.COMPLEX_UNIT_SP, new Preference(context).MusicNameWidgetNameSize.get());
+		views.setFloat(R.id.widget_music_name, "setTextSize", new Preference(context).MusicNameWidgetNameSize.get());
 	}
 
 	@Override

@@ -64,8 +64,8 @@ public class UnifiedWidget extends AppWidgetProvider{
 		views.setTextViewText(R.id.music_name, musicName != null ? musicName : context.getString(R.string.widget_nodata));
 		views.setTextViewText(R.id.music_path, musicPath != null ? musicPath : "");
 
-		views.setTextViewTextSize(R.id.music_path, TypedValue.COMPLEX_UNIT_SP, new Preference(context).UnifiedWidgetMusicPathSize.get());
-		views.setTextViewTextSize(R.id.music_name, TypedValue.COMPLEX_UNIT_SP, new Preference(context).UnifiedWidgetMusicNameSize.get());
+		views.setFloat(R.id.music_path, "setTextSize", new Preference(context).UnifiedWidgetMusicPathSize.get());
+		views.setFloat(R.id.music_name, "setTextSize", new Preference(context).UnifiedWidgetMusicNameSize.get());
 
 		for(int id: appWidgetIds){
 			appWidgetManager.updateAppWidget(id, views);
