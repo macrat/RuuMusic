@@ -26,12 +26,16 @@ fun bindPreferenceOnOff(switch: SwitchCompat, pref: Preference.BooleanPreference
 }
 
 
-fun bindSeekBarPreference(bar: SeekBar, pref: Preference.IntPreferenceHandler) {
+fun bindSeekBarPreference(bar: SeekBar, pref: Preference.IntPreferenceHandler, callback: ((Int) -> Unit)? = null) {
     bar.progress = pref.get()
+
+    callback?.invoke(pref.get())
 
     bar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
         override fun onProgressChanged(bar: SeekBar?, progress: Int, fromUser: Boolean) {
             pref.set(progress)
+
+            callback?.invoke(progress)
         }
 
         override fun onStartTrackingTouch(p0: SeekBar?) {}
@@ -44,12 +48,16 @@ fun bindSeekBarPreference(bar: SeekBar, pref: Preference.IntPreferenceHandler) {
 }
 
 
-fun bindSeekBarPreference(bar: SeekBar, pref: Preference.ShortPreferenceHandler) {
+fun bindSeekBarPreference(bar: SeekBar, pref: Preference.ShortPreferenceHandler, callback: ((Short) -> Unit)? = null) {
     bar.progress = pref.get().toInt()
+
+    callback?.invoke(pref.get())
 
     bar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
         override fun onProgressChanged(bar: SeekBar?, progress: Int, fromUser: Boolean) {
             pref.set(progress.toShort())
+
+            callback?.invoke(progress.toShort())
         }
 
         override fun onStartTrackingTouch(p0: SeekBar?) {}
@@ -62,7 +70,7 @@ fun bindSeekBarPreference(bar: SeekBar, pref: Preference.ShortPreferenceHandler)
 }
 
 
-fun <T> bindSpinnerPreference(spinner: Spinner, pref: Preference.PreferenceHandler<T>, values: List<out T>) {
+fun <T> bindSpinnerPreference(spinner: Spinner, pref: Preference.PreferenceHandler<T>, values: List<T>) {
     spinner.setSelection(values.indexOf(pref.get()))
 
     spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {

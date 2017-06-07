@@ -29,6 +29,7 @@ import android.widget.TextView;
 
 import jp.blanktar.ruumusic.R;
 import jp.blanktar.ruumusic.service.RuuService;
+import jp.blanktar.ruumusic.util.Preference;
 import jp.blanktar.ruumusic.util.RepeatModeType;
 import jp.blanktar.ruumusic.util.RuuDirectory;
 import jp.blanktar.ruumusic.util.RuuFile;
@@ -171,6 +172,9 @@ public class PlayerFragment extends Fragment{
 	@Override
 	public void onResume(){
 		super.onResume();
+
+		((TextView)getView().findViewById(R.id.musicPath)).setTextSize(new Preference(getContext()).PlayerMusicPathSize.get());
+		((TextView)getView().findViewById(R.id.musicName)).setTextSize(new Preference(getContext()).PlayerMusicNameSize.get());
 
 		startRuuService(RuuService.ACTION_PING);
 

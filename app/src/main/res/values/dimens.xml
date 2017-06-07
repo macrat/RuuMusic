@@ -11,8 +11,6 @@
 	<dimen name="skip_button_size">60dp</dimen>
 	<dimen name="mode_button_size">50dp</dimen>
 
-	<dimen name="music_path_size">20sp</dimen>
-	<dimen name="music_name_size">40sp</dimen>
 	<dimen name="progress_size">23sp</dimen>
 
 	<dimen name="status_indicator_size">18sp</dimen>

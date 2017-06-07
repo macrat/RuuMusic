@@ -1,4 +1,3 @@
 <resources>
-	<dimen name="music_name_size">50sp</dimen>
 	<dimen name="progress_size">30sp</dimen>
 </resources>

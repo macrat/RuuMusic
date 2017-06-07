@@ -19,10 +19,55 @@
 		android:orientation="vertical"
 		android:divider="@drawable/preference_divider"
 		android:showDividers="middle">
-		
-		<TextView
+
+		<LinearLayout
 			android:layout_width="match_parent"
-			android:layout_height="match_parent"
-			android:text="player preference is not implemented yet" />
+			android:layout_height="wrap_content"
+			android:orientation="vertical">
+
+			<TextView
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:textSize="@dimen/preference_text_size"
+				android:text="Directory name size" />
+
+			<SeekBar
+				android:id="@+id/music_path_size_seekbar"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:max="40" />
+
+			<TextView
+				android:id="@+id/music_path_size_sample"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:text="/path/to/music/"
+				android:gravity="center" />
+		</LinearLayout>
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="vertical">
+
+			<TextView
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:textSize="@dimen/preference_text_size"
+				android:text="Music name size" />
+
+			<SeekBar
+				android:id="@+id/music_name_size_seekbar"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:max="60" />
+
+			<TextView
+				android:id="@+id/music_name_size_sample"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:text="music name"
+				android:gravity="center" />
+		</LinearLayout>
 	</LinearLayout>
 </android.support.v4.widget.NestedScrollView>
