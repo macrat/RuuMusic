@@ -48,6 +48,8 @@
 	<string name="empty_list">No such music or directory</string>
 	<string name="loading_list">loading...</string>
 
+	<string name="preference_reset_button">RESET</string>
+
 	<string name="bass_boost_switch">Bass boost</string>
 	<string name="reverb_switch">Reverb</string>
 	<string name="loudness_switch">Loudness enhancer</string>

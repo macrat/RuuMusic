@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.SeekBar
 import android.widget.TextView
 
@@ -27,6 +28,11 @@ class PlayerPreferenceFragment : Fragment() {
 
         bindSeekBarPreference(view.findViewById(R.id.music_name_size_seekbar) as SeekBar, preference!!.PlayerMusicNameSize) {
             size -> (view.findViewById(R.id.music_name_size_sample) as TextView).setTextSize(size.toFloat())
+        }
+
+        (view.findViewById(R.id.reset) as Button).setOnClickListener {
+            preference!!.PlayerMusicPathSize.remove()
+            preference!!.PlayerMusicNameSize.remove()
         }
 
         return view

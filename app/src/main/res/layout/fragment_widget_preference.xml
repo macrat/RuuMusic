@@ -98,6 +98,18 @@
 				android:text="@string/musicname_name_size_sample"
 				android:gravity="center" />
 		</LinearLayout>
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:gravity="right">
+
+			<Button
+				android:id="@+id/reset"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/preference_reset_button" />
+		</LinearLayout>
 	</LinearLayout>
 </android.support.v4.widget.NestedScrollView>
 

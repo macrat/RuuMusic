@@ -48,6 +48,8 @@
 	<string name="empty_list">見つかりませんでした</string>
 	<string name="loading_list">読み込み中...</string>
 
+	<string name="preference_reset_button">リセット</string>
+
 	<string name="bass_boost_switch">Bass boost</string>
 	<string name="reverb_switch">Reverb</string>
 	<string name="loudness_switch">Loudness enhancer</string>
