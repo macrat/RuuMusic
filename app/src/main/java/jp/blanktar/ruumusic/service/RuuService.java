@@ -23,10 +23,6 @@ import android.media.AudioManager;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.media.RemoteControlClient;
-import android.media.audiofx.BassBoost;
-import android.media.audiofx.Equalizer;
-import android.media.audiofx.LoudnessEnhancer;
-import android.media.audiofx.PresetReverb;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
@@ -85,10 +81,7 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 	private boolean shuffleMode = false;
 	@NonNull private Status status = Status.INITIAL;
 
-	@Nullable private BassBoost bassBoost = null;
-	@Nullable private PresetReverb presetReverb = null;
-	@Nullable private LoudnessEnhancer loudnessEnhancer = null;
-	@Nullable private Equalizer equalizer = null;
+	@Nullable private EffectManager effectManager = null;
 
 
 	@Override
@@ -209,7 +202,7 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 			}
 		});
 
-		updateAudioEffect();
+		effectManager = new EffectManager(player, getApplicationContext());
 		PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).registerOnSharedPreferenceChangeListener(this);
 		registerReceiver(broadcastReceiver, new IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY));
 
@@ -298,14 +291,14 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 
 		((NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE)).cancel(1);
 
+		effectManager.release();
+
 		saveStatus();
 	}
 
 	@Override
 	public void onSharedPreferenceChanged(@NonNull SharedPreferences p, @NonNull String key){
-		if(key.startsWith(preference.AudioPrefix)){
-			updateAudioEffect();
-		}else if(key.equals("root_directory")){
+		if(key.equals("root_directory")){
 			updateRoot();
 		}
 	}
@@ -336,38 +329,7 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 	}
 
 	private void sendEffectInfo(){
-		Equalizer eq = equalizer;
-		boolean have_to_release = eq == null;
-		if(have_to_release){
-			try{
-				eq = new Equalizer(0, player.getAudioSessionId());
-			}catch(UnsupportedOperationException e){
-				return;
-			}
-		}
-
-		Intent intent = new Intent(ACTION_EFFECT_INFO);
-
-		intent.putExtra("equalizer_min", eq.getBandLevelRange()[0]);
-		intent.putExtra("equalizer_max", eq.getBandLevelRange()[1]);
-
-		int[] freqs = new int[eq.getNumberOfBands()];
-		for(short i=0; i<freqs.length; i++){
-			freqs[i] = eq.getCenterFreq(i);
-		}
-		intent.putExtra("equalizer_freqs", freqs);
-
-		String[] presets = new String[eq.getNumberOfPresets()];
-		for(short i=0; i<eq.getNumberOfPresets(); i++){
-			presets[i] = eq.getPresetName(i);
-		}
-		intent.putExtra("equalizer_presets", presets);
-
-		if(have_to_release){
-			eq.release();
-		}
-
-		getBaseContext().sendBroadcast(intent);
+		getBaseContext().sendBroadcast(effectManager.getEqualizerInfo().toIntent());
 	}
 
 	private void saveStatus(){
@@ -719,112 +681,6 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 		if(deathTimer != null){
 			deathTimer.cancel();
 			deathTimer = null;
-		}
-	}
-
-	private void updateAudioEffect(){
-		updateBassBoost();
-		updateReverb();
-		updateLoudnessEnhancer();
-		updateEqualizer();
-	}
-
-	private void updateBassBoost(){
-		if(preference.BassBoostEnabled.get()){
-			try{
-				if(bassBoost == null){
-					bassBoost = new BassBoost(0, player.getAudioSessionId());
-				}
-				bassBoost.setStrength(preference.BassBoostLevel.get());
-				bassBoost.setEnabled(true);
-			}catch(UnsupportedOperationException e){
-				showToast(getString(R.string.audioeffect_cant_enable), true);
-				preference.BassBoostEnabled.set(false);
-			}catch(RuntimeException e){
-				showToast(String.format(getString(R.string.audioeffect_failed_enable), "bass boost"), true);
-				preference.BassBoostEnabled.set(false);
-			}
-		}else if(bassBoost != null){
-			bassBoost.release();
-			bassBoost = null;
-		}
-	}
-
-	private void updateReverb(){
-		if(preference.ReverbEnabled.get()){
-			try{
-				if(presetReverb == null){
-					presetReverb = new PresetReverb(0, player.getAudioSessionId());
-				}
-				presetReverb.setPreset(preference.ReverbType.get());
-				presetReverb.setEnabled(true);
-			}catch(UnsupportedOperationException e){
-				showToast(getString(R.string.audioeffect_cant_enable), true);
-				preference.ReverbEnabled.set(false);
-			}catch(RuntimeException e){
-				showToast(String.format(getString(R.string.audioeffect_failed_enable), "reverb"), true);
-				preference.ReverbEnabled.set(false);
-			}
-		}else if(presetReverb != null){
-			presetReverb.release();
-			presetReverb = null;
-		}
-	}
-
-	private void updateLoudnessEnhancer(){
-		if(Build.VERSION.SDK_INT < 19){
-			return;
-		}
-
-		if(preference.LoudnessEnabled.get()){
-			try{
-				if(loudnessEnhancer == null){
-					loudnessEnhancer = new LoudnessEnhancer(player.getAudioSessionId());
-				}
-				loudnessEnhancer.setTargetGain(preference.LoudnessLevel.get());
-				loudnessEnhancer.setEnabled(true);
-			}catch(UnsupportedOperationException e){
-				showToast(getString(R.string.audioeffect_cant_enable), true);
-				preference.LoudnessEnabled.set(false);
-			}catch(RuntimeException e){
-				showToast(String.format(getString(R.string.audioeffect_failed_enable), "loudness enhancer"), true);
-				preference.LoudnessEnabled.set(false);
-			}
-		}else if(loudnessEnhancer != null){
-			loudnessEnhancer.release();
-			loudnessEnhancer = null;
-		}
-	}
-
-	private void updateEqualizer(){
-		if(preference.EqualizerEnabled.get()){
-			try{
-				if(equalizer == null){
-					equalizer = new Equalizer(0, player.getAudioSessionId());
-				}
-				short preset = preference.EqualizerPreset.get();
-				if(preset < 0){
-					for(short i=0; i<equalizer.getNumberOfBands(); i++){
-						equalizer.setBandLevel(i, (short)preference.EqualizerLevel.get(i));
-					}
-				}else{
-					equalizer.usePreset(preset);
-					short[] levels = equalizer.getProperties().bandLevels;
-					for(short i=0; i<levels.length; i++){
-						preference.EqualizerLevel.set(i, levels[i]);
-					}
-				}
-				equalizer.setEnabled(true);
-			}catch(UnsupportedOperationException e){
-				showToast(getString(R.string.audioeffect_cant_enable), true);
-				preference.EqualizerEnabled.set(false);
-			}catch(RuntimeException e){
-				showToast(String.format(getString(R.string.audioeffect_failed_enable), "equalizer"), true);
-				preference.EqualizerEnabled.set(false);
-			}
-		}else if(equalizer != null){
-			equalizer.release();
-			equalizer = null;
 		}
 	}
 
