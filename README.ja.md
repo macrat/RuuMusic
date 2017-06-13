@@ -30,6 +30,3 @@ RuuMusic
 	検索結果をプレイリストとして再生することも出来ます。
 * 音質の設定が出来ます。
 	低音ブースト、リバーブ、イコライザー、ラウドネスエンハンサー（Android 4.4以上）など。
-
-## Author / License
-[MIT License](http://opensource.org/licenses/mit-license.php) (c)2015 MacRat

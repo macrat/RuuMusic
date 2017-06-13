@@ -30,6 +30,3 @@ You can install stable version from [google play](https://play.google.com/store/
 	Can playing search results as playlist.
 * Supported audio preference.
 	Supported bass boost, reverb, equalizer, and loudness enhancer(Android 4.4+).
-
-## Author / License
-[MIT License](http://opensource.org/licenses/mit-license.php) (c)2015 MacRat
