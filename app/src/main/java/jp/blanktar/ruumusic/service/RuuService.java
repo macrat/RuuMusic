@@ -240,6 +240,26 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 			public void onSeekTo(long pos){
 				seek((int)pos);
 			}
+
+			@Override
+			public void onSetRepeatMode(int repeatMode){
+				switch(repeatMode){
+					case PlaybackStateCompat.REPEAT_MODE_NONE:
+						setRepeatMode(RepeatModeType.OFF);
+						break;
+					case PlaybackStateCompat.REPEAT_MODE_ONE:
+						setRepeatMode(RepeatModeType.SINGLE);
+						break;
+					case PlaybackStateCompat.REPEAT_MODE_ALL:
+						setRepeatMode(RepeatModeType.LOOP);
+						break;
+				}
+			}
+
+			@Override
+			public void onSetShuffleModeEnabled(boolean shuffleMode){
+				setShuffleMode(shuffleMode);
+			}
 		});
 
 		effectManager = new EffectManager(player, getApplicationContext());
@@ -487,6 +507,8 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 						| PlaybackStateCompat.ACTION_PLAY_PAUSE
 						| PlaybackStateCompat.ACTION_SKIP_TO_NEXT
 						| PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
+						| PlaybackStateCompat.ACTION_SET_REPEAT_MODE
+						| PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE_ENABLED
 				).build());
 	}
 
@@ -617,12 +639,28 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 		}
 	}
 
+	private void setRepeatMode(@NonNull RepeatModeType mode){
+		repeatMode = mode;
+
+		switch(mode){
+			case OFF:
+				mediaSession.setRepeatMode(PlaybackStateCompat.REPEAT_MODE_NONE);
+				break;
+			case SINGLE:
+				mediaSession.setRepeatMode(PlaybackStateCompat.REPEAT_MODE_ONE);
+				break;
+			case LOOP:
+				mediaSession.setRepeatMode(PlaybackStateCompat.REPEAT_MODE_ALL);
+				break;
+		}
+
+		sendStatus();
+		preference.RepeatMode.set(repeatMode);
+	}
+
 	private void setRepeatMode(@NonNull String mode){
 		try{
-			repeatMode = RepeatModeType.valueOf(mode);
-			sendStatus();
-
-			preference.RepeatMode.set(repeatMode);
+			setRepeatMode(RepeatModeType.valueOf(mode));
 		}catch(IllegalArgumentException e) {
 			return;
 		}
@@ -639,6 +677,7 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 
 		shuffleMode = mode;
 		sendStatus();
+		mediaSession.setShuffleModeEnabled(mode);
 
 		preference.ShuffleMode.set(shuffleMode);
 	}
