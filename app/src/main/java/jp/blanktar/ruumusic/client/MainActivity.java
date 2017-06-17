@@ -158,17 +158,9 @@ public class MainActivity extends AppCompatActivity{
 	}
 
 	@Override
-	public void onResume(){
-		super.onResume();
-
-		RuuService.MediaButtonReceiver.onStartActivity(getApplicationContext());
-	}
-
-	@Override
 	public void onPause(){
 		super.onPause();
 
-		RuuService.MediaButtonReceiver.onStopActivity(getApplicationContext());
 		preference.LastViewPage.set(getCurrentPage().ordinal());
 	}
 

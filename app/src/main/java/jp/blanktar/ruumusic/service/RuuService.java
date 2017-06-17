@@ -7,7 +7,6 @@ import java.util.TimerTask;
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.annotation.UiThread;
 import android.support.annotation.WorkerThread;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -20,14 +19,15 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.media.AudioManager;
-import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
-import android.media.RemoteControlClient;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
-import android.support.v4.app.NotificationCompat;
+import android.support.v7.app.NotificationCompat;
+import android.support.v4.media.MediaMetadataCompat;
+import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.KeyEvent;
 import android.widget.Toast;
 
@@ -72,7 +72,7 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 	private MediaPlayer endOfListSE;
 	private MediaPlayer errorSE;
 	@Nullable private Timer deathTimer;
-	@Nullable private static RemoteControlClient remoteControlClient;
+	@Nullable private static MediaSessionCompat mediaSession;
 	@Nullable private Preference preference;
 
 	@Nullable private Playlist playlist;
@@ -202,6 +202,11 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 			}
 		});
 
+		ComponentName componentName = new ComponentName(getApplicationContext().getPackageName(), MediaButtonReceiver.class.getName());
+		mediaSession = new MediaSessionCompat(getApplicationContext(), "RuuMusicService", componentName, null);
+		mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
+		mediaSession.setActive(true);
+
 		effectManager = new EffectManager(player, getApplicationContext());
 		PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).registerOnSharedPreferenceChangeListener(this);
 		registerReceiver(broadcastReceiver, new IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY));
@@ -285,13 +290,12 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 		removePlayingNotification();
 		unregisterReceiver(broadcastReceiver);
 
-		MediaButtonReceiver.onStopService(getApplicationContext());
-
 		PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).unregisterOnSharedPreferenceChangeListener(this);
 
 		((NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE)).cancel(1);
 
 		effectManager.release();
+		mediaSession.release();
 
 		saveStatus();
 	}
@@ -389,7 +393,6 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 
 		return new NotificationCompat.Builder(getApplicationContext())
 				.setSmallIcon(R.drawable.ic_play_notification)
-				.setColor(0xff333333)
 				.setTicker(playlist.getCurrent().getName())
 				.setContentTitle(playlist.getCurrent().getName())
 				.setContentText(parentPath)
@@ -400,6 +403,9 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 				.addAction(R.drawable.ic_prev_for_notif, "prev", prev_pi)
 				.addAction(playpause_icon, playpause_text, playpause_pi)
 				.addAction(R.drawable.ic_next_for_notif, "next", next_pi)
+				.setStyle(new NotificationCompat.MediaStyle()
+						.setMediaSession(mediaSession.getSessionToken())
+						.setShowActionsInCompactView(0, 1, 2))
 				.build();
 	}
 
@@ -420,22 +426,33 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 	}
 
 	private void updateMediaMetadata(){
-		assert playlist != null;
-
-		if(remoteControlClient != null && Build.VERSION.SDK_INT >= 14){
-			String pathStr;
-			try{
-				pathStr = playlist.path.getRuuPath();
-			}catch(RuuFileBase.OutOfRootDirectory e){
-				pathStr = "";
-			}
-			remoteControlClient.editMetadata(true)
-					.putString(MediaMetadataRetriever.METADATA_KEY_TITLE, playlist.getCurrent().getName())
-					.putLong(MediaMetadataRetriever.METADATA_KEY_DURATION, player.getDuration())
-					.putString(MediaMetadataRetriever.METADATA_KEY_ALBUM, pathStr)
-					.apply();
-			remoteControlClient.setPlaybackState(player.isPlaying() ? RemoteControlClient.PLAYSTATE_PLAYING : RemoteControlClient.PLAYSTATE_PAUSED);
+		if(playlist == null){
+			return;
 		}
+		
+		String parentPath;
+		try{
+			parentPath = playlist.getCurrent().getParent().getRuuPath();
+		}catch(RuuFileBase.OutOfRootDirectory e){
+			parentPath = "";
+		}
+
+		mediaSession.setMetadata(new MediaMetadataCompat.Builder()
+				.putString(MediaMetadataCompat.METADATA_KEY_ALBUM, parentPath)
+				.putString(MediaMetadataCompat.METADATA_KEY_TITLE, playlist.getCurrent().getName())
+				.putLong(MediaMetadataCompat.METADATA_KEY_DURATION, player.getDuration())
+				.build());
+
+		mediaSession.setPlaybackState(new PlaybackStateCompat.Builder()
+				.setState(player.isPlaying() ? PlaybackStateCompat.STATE_PLAYING : PlaybackStateCompat.STATE_PAUSED,
+						PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN,
+						1.0f)
+				.setActions(PlaybackStateCompat.ACTION_PLAY
+						| PlaybackStateCompat.ACTION_PAUSE
+						| PlaybackStateCompat.ACTION_PLAY_PAUSE
+						| PlaybackStateCompat.ACTION_SKIP_TO_NEXT
+						| PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
+				).build());
 	}
 
 	private void updateRoot(){
@@ -461,10 +478,11 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 			removeSavedStatus();
 		}else if(player.isPlaying()){
 			updatePlayingNotification();
-			updateMediaMetadata();
 		}else{
 			((NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE)).cancel(1);
 		}
+
+		updateMediaMetadata();
 	}
 
 	private void play(){
@@ -478,8 +496,6 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 					updateMediaMetadata();
 					saveStatus();
 					stopDeathTimer();
-
-					MediaButtonReceiver.onStartService(getApplicationContext());
 				}else{
 					showToast(getString(R.string.audiofocus_denied), true);
 				}
@@ -743,11 +759,6 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 
 
 	public static class MediaButtonReceiver extends BroadcastReceiver{
-		@Nullable private static ComponentName componentName;
-		private static boolean serviceRunning = false;
-		private static boolean activityRunning = false;
-
-
 		@Override
 		@WorkerThread
 		public void onReceive(@NonNull Context context, @NonNull Intent intent){
@@ -780,63 +791,6 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 		@WorkerThread
 		private void sendIntent(@NonNull Context context, @NonNull String event){
 			context.startService((new Intent(context, RuuService.class)).setAction(event));
-		}
-
-		private static void registation(@NonNull Context context){
-			if(componentName == null){
-				AudioManager audioManager = (AudioManager)context.getSystemService(Context.AUDIO_SERVICE);
-				componentName = new ComponentName(context.getPackageName(), MediaButtonReceiver.class.getName());
-				audioManager.registerMediaButtonEventReceiver(componentName);
-
-				if(Build.VERSION.SDK_INT >= 14 && remoteControlClient == null){
-					Intent mediaButtonIntent = new Intent(Intent.ACTION_MEDIA_BUTTON);
-					mediaButtonIntent.setComponent(componentName);
-					remoteControlClient = new RemoteControlClient(PendingIntent.getBroadcast(context, 0, mediaButtonIntent, 0));
-					remoteControlClient.setTransportControlFlags(
-							RemoteControlClient.FLAG_KEY_MEDIA_PLAY |
-							RemoteControlClient.FLAG_KEY_MEDIA_PAUSE |
-							RemoteControlClient.FLAG_KEY_MEDIA_NEXT |
-							RemoteControlClient.FLAG_KEY_MEDIA_PREVIOUS);
-					audioManager.registerRemoteControlClient(remoteControlClient);
-				}
-			}
-		}
-
-		@WorkerThread
-		public static void onStartService(@NonNull Context context){
-			serviceRunning = true;
-			registation(context);
-		}
-
-		@UiThread
-		public static void onStartActivity(@NonNull Context context){
-			activityRunning = true;
-			registation(context);
-		}
-
-		private static void unregistation(@NonNull Context context){
-			if(componentName != null && !serviceRunning && !activityRunning){
-				AudioManager audioManager = (AudioManager)context.getSystemService(Context.AUDIO_SERVICE);
-				audioManager.unregisterMediaButtonEventReceiver(componentName);
-				componentName = null;
-
-				if(remoteControlClient != null && Build.VERSION.SDK_INT >= 14){
-					audioManager.unregisterRemoteControlClient(remoteControlClient);
-					remoteControlClient = null;
-				}
-			}
-		}
-
-		@WorkerThread
-		public static void onStopService(@NonNull Context context){
-			serviceRunning = false;
-			unregistation(context);
-		}
-
-		@UiThread
-		public static void onStopActivity(@NonNull Context context){
-			activityRunning = false;
-			unregistation(context);
 		}
 	}
 }
