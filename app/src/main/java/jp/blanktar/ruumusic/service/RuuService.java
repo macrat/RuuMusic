@@ -203,9 +203,44 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 		});
 
 		ComponentName componentName = new ComponentName(getApplicationContext().getPackageName(), MediaButtonReceiver.class.getName());
-		mediaSession = new MediaSessionCompat(getApplicationContext(), "RuuMusicService", componentName, null);
+		Intent mediaButtonIntent = new Intent(Intent.ACTION_MEDIA_BUTTON);
+		mediaButtonIntent.setComponent(componentName);
+
+		mediaSession = new MediaSessionCompat(getApplicationContext(), "RuuMusicService", componentName, PendingIntent.getBroadcast(getApplicationContext(), 0, mediaButtonIntent, 0));
 		mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
 		mediaSession.setActive(true);
+
+		mediaSession.setCallback(new MediaSessionCompat.Callback(){
+			@Override
+			public void onPlay(){
+				play();
+			}
+
+			@Override
+			public void onPause(){
+				pause();
+			}
+
+			@Override
+			public void onStop(){
+				pause();
+			}
+
+			@Override
+			public void onSkipToNext(){
+				next();
+			}
+
+			@Override
+			public void onSkipToPrevious(){
+				prev();
+			}
+
+			@Override
+			public void onSeekTo(long pos){
+				seek((int)pos);
+			}
+		});
 
 		effectManager = new EffectManager(player, getApplicationContext());
 		PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).registerOnSharedPreferenceChangeListener(this);
@@ -429,7 +464,7 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 		if(playlist == null){
 			return;
 		}
-		
+
 		String parentPath;
 		try{
 			parentPath = playlist.getCurrent().getParent().getRuuPath();
@@ -762,6 +797,7 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 		@Override
 		@WorkerThread
 		public void onReceive(@NonNull Context context, @NonNull Intent intent){
+			android.util.Log.d("RuuMusic intent", "" + intent);
 			if(intent.getAction().equals(Intent.ACTION_MEDIA_BUTTON)){
 				KeyEvent keyEvent = intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
 				if(keyEvent.getAction() != KeyEvent.ACTION_UP){
