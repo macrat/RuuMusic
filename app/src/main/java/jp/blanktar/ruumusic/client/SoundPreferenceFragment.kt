@@ -1,10 +1,6 @@
 package jp.blanktar.ruumusic.client
 
 
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
 import android.media.audiofx.PresetReverb
 import android.os.Build
 import android.os.Bundle
@@ -20,24 +16,33 @@ import android.widget.Spinner
 import android.widget.TextView
 
 import jp.blanktar.ruumusic.R
+import jp.blanktar.ruumusic.service.EqualizerInfo
 import jp.blanktar.ruumusic.util.Preference
-import jp.blanktar.ruumusic.service.RuuService
+import jp.blanktar.ruumusic.util.RuuClient
+import jp.blanktar.ruumusic.util.RuuClientEventListener
 
 
 class SoundPreferenceFragment : Fragment() {
     var preference: Preference? = null
+    var client: RuuClient? = null
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater!!.inflate(R.layout.fragment_sound_preference, container, false)
 
-        preference = Preference(getContext())
+        preference = Preference(context)
+        client = RuuClient(context)
 
         setupBassBoost(view)
         setupReverb(view)
         setupLoudness(view)
 
-        getContext().registerReceiver(broadcastReceiver, IntentFilter(RuuService.ACTION_EFFECT_INFO))
-        getContext().startService(Intent(getContext(), RuuService::class.java).setAction(RuuService.ACTION_REQUEST_EFFECT_INFO))
+        client!!.requestEffectInfo()
+        client!!.eventListener = object : RuuClientEventListener() {
+            override fun onEffectInfo(equalizer: EqualizerInfo) {
+                view.findViewById(R.id.equalizer_switch).setEnabled(true)
+                setupEqualizer(view, equalizer)
+            }
+        }
 
         view.findViewById(R.id.equalizer_switch).setEnabled(false)
         (view.findViewById(R.id.equalizer_switch) as SwitchCompat).setChecked(preference!!.EqualizerEnabled.get())
@@ -49,8 +54,8 @@ class SoundPreferenceFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
 
-        getContext().unregisterReceiver(broadcastReceiver)
         preference?.unsetAllListeners()
+        client?.release()
     }
 
     private fun setupBassBoost(view: View) {
@@ -90,10 +95,10 @@ class SoundPreferenceFragment : Fragment() {
         bindSeekBarPreference(view.findViewById(R.id.loudness_level) as SeekBar, preference!!.LoudnessLevel)
     }
 
-    private fun setupEqualizer(view: View, presets: Array<String>, min: Int, max: Int, freqs: IntArray) {
+    private fun setupEqualizer(view: View, info: EqualizerInfo) {
         val adapter = ArrayAdapter<String>(getContext(), R.layout.spinner_item)
         adapter.add("Custom")
-        presets.forEach { x -> adapter.add(x) }
+        info.presets.forEach { x -> adapter.add(x) }
         adapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
 
         val spinner = view.findViewById(R.id.equalizer_spinner) as Spinner
@@ -116,23 +121,23 @@ class SoundPreferenceFragment : Fragment() {
         val texts = mutableListOf<TextView>()
         val bars = mutableListOf<SeekBar>()
 
-        for (i in 0..(freqs.size-1)) {
+        for (i in 0..(info.freqs.size-1)) {
             val table = getLayoutInflater(null).inflate(R.layout.equalizer_preference_row, view.findViewById(R.id.equalizer_container) as ViewGroup) as ViewGroup
             val row = table.getChildAt(table.getChildCount() - 1) as ViewGroup
 
-            (row.findViewById(R.id.equalizer_freq) as TextView).setText("${freqs[i]/1000}Hz");
+            (row.findViewById(R.id.equalizer_freq) as TextView).setText("${info.freqs[i]/1000}Hz")
             texts.add(row.findViewById(R.id.equalizer_freq) as TextView)
 
             val seekBar = row.findViewById(R.id.equalizer_bar) as SeekBar
-            seekBar.setMax(max - min)
-            seekBar.setProgress(preference!!.EqualizerLevel.get(i) - min)
+            seekBar.setMax(info.max - info.min)
+            seekBar.setProgress(preference!!.EqualizerLevel.get(i) - info.min)
 
             seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
                 override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean){
                     if (fromUser) {
                         preference!!.EqualizerPreset.set((-1).toShort())
                     }
-                    preference!!.EqualizerLevel.set(i, progress + min);
+                    preference!!.EqualizerLevel.set(i, progress + info.min)
                 }
 
                 override fun onStartTrackingTouch(seekBar: SeekBar) {}
@@ -144,7 +149,7 @@ class SoundPreferenceFragment : Fragment() {
 
         preference!!.EqualizerLevel.setOnChangeListener {
             bars.zip(preference!!.EqualizerLevel.get()).forEach {
-                x -> x.first.setProgress(x.second - min)
+                (bar, center) -> bar.setProgress(center - info.min)
             }
         }
 
@@ -153,25 +158,6 @@ class SoundPreferenceFragment : Fragment() {
 
             texts.forEach { x -> x.setEnabled(e) }
             bars.forEach { x -> x.setEnabled(e) }
-        }
-    }
-
-    private fun setEqualizerInfo(intent: Intent) {
-        view!!.findViewById(R.id.equalizer_switch).setEnabled(true)
-
-        setupEqualizer(view!!,
-                       intent.getStringArrayExtra("equalizer_presets"),
-                       intent.getShortExtra("equalizer_min", 0.toShort()).toInt(),
-                       intent.getShortExtra("equalizer_max", 0.toShort()).toInt(),
-                       intent.getIntArrayExtra("equalizer_freqs"))
-    }
-
-
-    private val broadcastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            if (RuuService.ACTION_EFFECT_INFO == intent.action) {
-                setEqualizerInfo(intent)
-            }
         }
     }
 }

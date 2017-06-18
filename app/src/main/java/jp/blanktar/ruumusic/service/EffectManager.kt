@@ -16,7 +16,7 @@ import jp.blanktar.ruumusic.R
 import jp.blanktar.ruumusic.util.Preference
 
 
-class EqualizerInfo {
+class EqualizerInfo() {
     var min: Short = 0
     var max: Short = 0
     
@@ -33,6 +33,13 @@ class EqualizerInfo {
         intent.putExtra("equalizer_presets", presets)
 
         return intent
+    }
+
+    constructor(intent: Intent) : this() {
+        min = intent.getShortExtra("equalizer_min", 0)
+        max = intent.getShortExtra("equalizer_max", 0)
+        freqs = intent.getIntArrayExtra("equalizer_freqs")
+        presets = intent.getStringArrayExtra("equalizer_presets")
     }
 }
 
