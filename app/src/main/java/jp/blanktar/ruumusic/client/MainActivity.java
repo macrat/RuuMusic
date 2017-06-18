@@ -23,11 +23,11 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import jp.blanktar.ruumusic.R;
-import jp.blanktar.ruumusic.service.RuuService;
 import jp.blanktar.ruumusic.util.Preference;
 import jp.blanktar.ruumusic.util.RuuDirectory;
 import jp.blanktar.ruumusic.util.RuuFile;
 import jp.blanktar.ruumusic.util.RuuFileBase;
+import jp.blanktar.ruumusic.util.RuuClient;
 
 
 @UiThread
@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity{
 	public final static String ACTION_OPEN_PLAYER = "jp.blanktar.ruumusic.OPEN_PLAYER";
 
 	private Preference preference;
+	private RuuClient client;
 
 	private ViewPager viewPager;
 	private PlayerFragment player;
@@ -52,6 +53,7 @@ public class MainActivity extends AppCompatActivity{
 		setSupportActionBar(toolbar);
 
 		preference = new Preference(getApplicationContext());
+		client = new RuuClient(getApplicationContext());
 
 		setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
@@ -120,10 +122,7 @@ public class MainActivity extends AppCompatActivity{
 					try{
 						RuuFile file = RuuFile.getInstance(getApplicationContext(), path.substring(0, path.lastIndexOf(".")));
 						file.getRuuPath();
-						startService(new Intent(getApplicationContext(), RuuService.class)
-										.setAction(RuuService.ACTION_PLAY)
-										.putExtra("path", file.getFullPath())
-						);
+						client.play(file);
 						moveToPlayer();
 					}catch(RuuFileBase.NotFound e){
 						Toast.makeText(getApplicationContext(), getString(R.string.music_not_found), Toast.LENGTH_LONG).show();
@@ -137,6 +136,12 @@ public class MainActivity extends AppCompatActivity{
 			default:
 				viewPager.setCurrentItem(preference.LastViewPage.get());
 		}
+	}
+
+	@Override
+	public void onDestroy(){
+		client.release();
+		super.onDestroy();
 	}
 
 	@Override
@@ -211,9 +216,7 @@ public class MainActivity extends AppCompatActivity{
 		}
 
 		if(id == R.id.action_recursive_play && playlist.current != null){
-			startService((new Intent(getApplicationContext(), RuuService.class))
-					.setAction(RuuService.ACTION_PLAY_RECURSIVE)
-					.putExtra("path", playlist.current.path.getFullPath()));
+			client.playRecursive(playlist.current.path);
 
 			moveToPlayer();
 
@@ -221,10 +224,7 @@ public class MainActivity extends AppCompatActivity{
 		}
 
 		if(id == R.id.action_search_play && playlist.current != null){
-			startService((new Intent(getApplicationContext(), RuuService.class))
-					.setAction(RuuService.ACTION_PLAY_SEARCH)
-					.putExtra("path", playlist.current.path.getFullPath())
-					.putExtra("query", playlist.searchQuery == null ? null : playlist.searchQuery));
+			client.playSearch(playlist.current.path, playlist.searchQuery);
 
 			moveToPlayer();
 

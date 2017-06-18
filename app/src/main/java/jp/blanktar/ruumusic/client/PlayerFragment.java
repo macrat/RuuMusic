@@ -10,11 +10,8 @@ import android.support.annotation.FloatRange;
 import android.support.annotation.UiThread;
 import android.app.AlertDialog;
 import android.app.SearchManager;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -28,29 +25,18 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import jp.blanktar.ruumusic.R;
-import jp.blanktar.ruumusic.service.RuuService;
 import jp.blanktar.ruumusic.util.Preference;
-import jp.blanktar.ruumusic.util.RepeatModeType;
-import jp.blanktar.ruumusic.util.RuuDirectory;
-import jp.blanktar.ruumusic.util.RuuFile;
+import jp.blanktar.ruumusic.util.RuuClient;
+import jp.blanktar.ruumusic.util.RuuClientEventListener;
+import jp.blanktar.ruumusic.util.PlayingStatus;
 import jp.blanktar.ruumusic.util.RuuFileBase;
 import jp.blanktar.ruumusic.view.ShrinkTextView;
 
 
 @UiThread
 public class PlayerFragment extends Fragment{
-	@Nullable private RuuFile currentMusic;
-	@Nullable private String searchQuery = null;
-	@Nullable private RuuDirectory searchPath = null;
-	@Nullable private RuuDirectory recursivePath = null;
+	private RuuClient client;
 
-	private int duration = -1;
-	private long basetime = -1;
-	private int current = -1;
-
-	private boolean playing = false;
-	@NonNull private RepeatModeType repeatMode = RepeatModeType.OFF;
-	private boolean shuffleMode = false;
 	private boolean seeking = false;
 
 	@Nullable private Timer updateProgressTimer;
@@ -61,42 +47,44 @@ public class PlayerFragment extends Fragment{
 	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState){
 		View view = inflater.inflate(R.layout.fragment_player, container, false);
 
+		client = new RuuClient(getContext());
+
 		view.findViewById(R.id.playButton).setOnClickListener(new View.OnClickListener(){
 			@Override
 			public void onClick(@Nullable View view){
-				startRuuService(playing ? RuuService.ACTION_PAUSE : RuuService.ACTION_PLAY);
+				if (client.status.playing) {
+					client.pause();
+				} else {
+					client.play();
+				}
 			}
 		});
 
 		view.findViewById(R.id.nextButton).setOnClickListener(new View.OnClickListener(){
 			@Override
 			public void onClick(@Nullable View view){
-				startRuuService(RuuService.ACTION_NEXT);
+				client.next();
 			}
 		});
 
 		view.findViewById(R.id.prevButton).setOnClickListener(new View.OnClickListener(){
 			@Override
 			public void onClick(@Nullable View view){
-				startRuuService(RuuService.ACTION_PREV);
+				client.prev();
 			}
 		});
 
 		view.findViewById(R.id.repeatButton).setOnClickListener(new View.OnClickListener(){
 			@Override
 			public void onClick(@Nullable View view){
-				getActivity().startService((new Intent(getActivity(), RuuService.class))
-					.setAction(RuuService.ACTION_REPEAT)
-					.putExtra("mode", repeatMode.getNext().name()));
+				client.repeat(client.status.repeatMode.getNext());
 			}
 		});
 
 		view.findViewById(R.id.shuffleButton).setOnClickListener(new View.OnClickListener(){
 			@Override
 			public void onClick(@Nullable View view){
-				getActivity().startService((new Intent(getActivity(), RuuService.class))
-						.setAction(RuuService.ACTION_SHUFFLE)
-						.putExtra("mode", !shuffleMode));
+				client.shuffle(!client.status.shuffleMode);
 			}
 		});
 
@@ -104,10 +92,10 @@ public class PlayerFragment extends Fragment{
 		view.findViewById(R.id.musicPath).setOnClickListener(new View.OnClickListener(){
 			@Override
 			public void onClick(@Nullable View view){
-				if(currentMusic != null){
+				if(client.status.currentMusic != null){
 					MainActivity main = (MainActivity)getActivity();
 					if(main != null){
-						main.moveToPlaylist(currentMusic.getParent());
+						main.moveToPlaylist(client.status.currentMusic.getParent());
 					}
 				}
 			}
@@ -119,16 +107,16 @@ public class PlayerFragment extends Fragment{
 		view.findViewById(R.id.status_indicator).setOnClickListener(new View.OnClickListener(){
 			@Override
 			public void onClick(@Nullable View view){
-				if(recursivePath != null){
+				if(client.status.recursivePath != null){
 					MainActivity main = (MainActivity)getActivity();
 					if(main != null){
-						main.moveToPlaylist(recursivePath);
+						main.moveToPlaylist(client.status.recursivePath);
 					}
 				}
-				if(searchPath != null && searchQuery != null){
+				if(client.status.searchPath != null && client.status.searchQuery != null){
 					MainActivity main = (MainActivity)getActivity();
 					if(main != null){
-						main.moveToPlaylistSearch(searchPath, searchQuery);
+						main.moveToPlaylistSearch(client.status.searchPath, client.status.searchQuery);
 					}
 				}
 			}
@@ -149,21 +137,60 @@ public class PlayerFragment extends Fragment{
 			@Override
 			public void onStartTrackingTouch(@Nullable SeekBar seekBar){
 				seeking = true;
-				needResume = playing;
-				startRuuService(RuuService.ACTION_PAUSE_TRANSIENT);
+				needResume = client.status.playing;
+				client.pauseTransient();
 			}
 
 			@Override
 			public void onStopTrackingTouch(@Nullable SeekBar seekBar){
 				seeking = false;
 
-				getActivity().startService((new Intent(getActivity(), RuuService.class))
-						.setAction(RuuService.ACTION_SEEK)
-						.putExtra("newtime", progress));
+				client.seek(progress);
 
 				if(needResume){
-					startRuuService(RuuService.ACTION_PLAY);
+					client.play();
 				}
+			}
+		});
+
+		client.setEventListener(new RuuClientEventListener(){
+			@Override
+			public void onFailedPlay(@NonNull String path) {
+				noticeFailedPlay(R.string.failed_play, path);
+			}
+
+			@Override
+			public void onMusicNotFound(@NonNull String path) {
+				noticeFailedPlay(R.string.music_not_found, path);
+			}
+
+			@Override
+			public void onUpdatedStatus(@NonNull PlayingStatus status) {
+				View view = getView();
+				if(view != null){
+					((ImageButton)view.findViewById(R.id.playButton))
+							.setImageResource(client.status.playing ? R.drawable.ic_pause : R.drawable.ic_play);
+
+					ImageButton repeatButton = (ImageButton)view.findViewById(R.id.repeatButton);
+					switch(client.status.repeatMode){
+						case LOOP:
+							repeatButton.setImageResource(R.drawable.ic_repeat_all);
+							break;
+						case SINGLE:
+							repeatButton.setImageResource(R.drawable.ic_repeat_one);
+							break;
+						case OFF:
+							repeatButton.setImageResource(R.drawable.ic_repeat_off);
+							break;
+					}
+
+					((ImageButton)view.findViewById(R.id.shuffleButton))
+							.setImageResource(client.status.shuffleMode ? R.drawable.ic_shuffle_on : R.drawable.ic_shuffle_off);
+
+					((SeekBar)view.findViewById(R.id.seekBar)).setMax((int)client.status.duration);
+				}
+
+				updateRoot();
 			}
 		});
 
@@ -190,13 +217,7 @@ public class PlayerFragment extends Fragment{
 		musicName.setMinTextSize(nameSize / 2);
 		musicName.setResizingEnabled(pref.PlayerAutoShrinkEnabled.get());
 
-		startRuuService(RuuService.ACTION_PING);
-
-		IntentFilter intentFilter = new IntentFilter();
-		intentFilter.addAction(RuuService.ACTION_STATUS);
-		intentFilter.addAction(RuuService.ACTION_FAILED_PLAY);
-		intentFilter.addAction(RuuService.ACTION_NOT_FOUND);
-		getActivity().registerReceiver(receiver, intentFilter);
+		client.ping();
 
 		final Handler handler = new Handler();
 		updateProgressTimer = new Timer(true);
@@ -219,8 +240,6 @@ public class PlayerFragment extends Fragment{
 	public void onPause(){
 		super.onPause();
 
-		getActivity().unregisterReceiver(receiver);
-
 		if(updateProgressTimer != null){
 			updateProgressTimer.cancel();
 		}
@@ -230,35 +249,35 @@ public class PlayerFragment extends Fragment{
 	public void onCreateContextMenu(@NonNull ContextMenu menu, @NonNull View view, @NonNull ContextMenu.ContextMenuInfo info){
 		super.onCreateContextMenu(menu, view, info);
 
-		if(currentMusic == null){
+		if(client.status.currentMusic == null){
 			return;
 		}
 
 		switch(view.getId()){
 			case R.id.musicPath:
-				menu.setHeaderTitle(currentMusic.getParent().getName() + "/");
+				menu.setHeaderTitle(client.status.currentMusic.getParent().getName() + "/");
 				getActivity().getMenuInflater().inflate(R.menu.directory_context_menu, menu);
 				menu.findItem(R.id.action_open_dir_with_other_app).setVisible(
-					getActivity().getPackageManager().queryIntentActivities(currentMusic.getParent().toIntent(), 0).size() > 0
+					getActivity().getPackageManager().queryIntentActivities(client.status.currentMusic.getParent().toIntent(), 0).size() > 0
 				);
 				break;
 			case R.id.musicName:
-				menu.setHeaderTitle(currentMusic.getName());
+				menu.setHeaderTitle(client.status.currentMusic.getName());
 				getActivity().getMenuInflater().inflate(R.menu.music_context_menu, menu);
 				menu.findItem(R.id.action_open_music).setVisible(false);
 				menu.findItem(R.id.action_open_music_with_other_app).setVisible(
-					getActivity().getPackageManager().queryIntentActivities(currentMusic.toIntent(), 0).size() > 0
+					getActivity().getPackageManager().queryIntentActivities(client.status.currentMusic.toIntent(), 0).size() > 0
 				);
 				break;
 			case R.id.status_indicator:
-				if(recursivePath != null){
-					menu.setHeaderTitle(recursivePath.getName() + "/");
+				if(client.status.recursivePath != null){
+					menu.setHeaderTitle(client.status.recursivePath.getName() + "/");
 					getActivity().getMenuInflater().inflate(R.menu.indicator_recursive_context_menu, menu);
 					menu.findItem(R.id.action_open_recursive_with_other_app).setVisible(
-						getActivity().getPackageManager().queryIntentActivities(recursivePath.toIntent(), 0).size() > 0
+						getActivity().getPackageManager().queryIntentActivities(client.status.recursivePath.toIntent(), 0).size() > 0
 					);
-				}else if(searchQuery != null){
-					menu.setHeaderTitle(searchQuery);
+				}else if(client.status.searchQuery != null){
+					menu.setHeaderTitle(client.status.searchQuery);
 					getActivity().getMenuInflater().inflate(R.menu.indicator_search_context_menu, menu);
 				}
 				break;
@@ -269,140 +288,61 @@ public class PlayerFragment extends Fragment{
 	public boolean onContextItemSelected(@NonNull MenuItem item){
 		switch(item.getItemId()){
 			case R.id.action_open_directory:
-				assert currentMusic != null;
-				((MainActivity)getActivity()).moveToPlaylist(currentMusic.getParent());
+				assert client.status.currentMusic != null;
+				((MainActivity)getActivity()).moveToPlaylist(client.status.currentMusic.getParent());
 				return true;
 			case R.id.action_open_recursive:
-				assert recursivePath != null;
-				((MainActivity)getActivity()).moveToPlaylist(recursivePath);
+				assert client.status.recursivePath != null;
+				((MainActivity)getActivity()).moveToPlaylist(client.status.recursivePath);
 				return true;
 			case R.id.action_open_search:
-				assert searchPath != null && searchQuery != null;
-				((MainActivity)getActivity()).moveToPlaylistSearch(searchPath, searchQuery);
+				assert client.status.searchPath != null && client.status.searchQuery != null;
+				((MainActivity)getActivity()).moveToPlaylistSearch(client.status.searchPath, client.status.searchQuery);
 				return true;
 			case R.id.action_open_dir_with_other_app:
-				assert currentMusic != null;
-				startActivity(currentMusic.getParent().toIntent());
+				assert client.status.currentMusic != null;
+				startActivity(client.status.currentMusic.getParent().toIntent());
 				return true;
 			case R.id.action_open_music_with_other_app:
-				assert currentMusic != null;
-				startActivity(currentMusic.toIntent());
+				assert client.status.currentMusic != null;
+				startActivity(client.status.currentMusic.toIntent());
 				return true;
 			case R.id.action_open_recursive_with_other_app:
-				assert recursivePath != null;
-				startActivity(recursivePath.toIntent());
+				assert client.status.recursivePath != null;
+				startActivity(client.status.recursivePath.toIntent());
 				return true;
 			case R.id.action_web_search_dir:
-				assert currentMusic != null;
-				startActivity((new Intent(Intent.ACTION_WEB_SEARCH)).putExtra(SearchManager.QUERY, currentMusic.getParent().getName()));
+				assert client.status.currentMusic != null;
+				startActivity((new Intent(Intent.ACTION_WEB_SEARCH)).putExtra(SearchManager.QUERY, client.status.currentMusic.getParent().getName()));
 				return true;
 			case R.id.action_web_search_music:
-				assert currentMusic != null;
-				startActivity((new Intent(Intent.ACTION_WEB_SEARCH)).putExtra(SearchManager.QUERY, currentMusic.getName()));
+				assert client.status.currentMusic != null;
+				startActivity((new Intent(Intent.ACTION_WEB_SEARCH)).putExtra(SearchManager.QUERY, client.status.currentMusic.getName()));
 				return true;
 			case R.id.action_web_search_recursive:
-				assert recursivePath != null;
-				startActivity((new Intent(Intent.ACTION_WEB_SEARCH)).putExtra(SearchManager.QUERY, recursivePath.getName()));
+				assert client.status.recursivePath != null;
+				startActivity((new Intent(Intent.ACTION_WEB_SEARCH)).putExtra(SearchManager.QUERY, client.status.recursivePath.getName()));
 				return true;
 			case R.id.action_web_search_search:
-				assert searchQuery != null;
-				startActivity((new Intent(Intent.ACTION_WEB_SEARCH)).putExtra(SearchManager.QUERY, searchQuery));
+				assert client.status.searchQuery != null;
+				startActivity((new Intent(Intent.ACTION_WEB_SEARCH)).putExtra(SearchManager.QUERY, client.status.searchQuery));
 				return true;
 			default:
 				return super.onContextItemSelected(item);
 		}
 	}
 
-	final private BroadcastReceiver receiver = new BroadcastReceiver(){
-		@Override
-		public void onReceive(@Nullable Context context, @NonNull Intent intent){
-			switch(intent.getAction()){
-				case RuuService.ACTION_FAILED_PLAY:
-					onFailPlay(R.string.failed_play, intent.getStringExtra("path"));
-					break;
-				case RuuService.ACTION_NOT_FOUND:
-					onFailPlay(R.string.music_not_found, intent.getStringExtra("path"));
-					break;
-				case RuuService.ACTION_STATUS:
-					onReceiveStatus(intent);
-					break;
-			}
-		}
-	};
-
-	private void onReceiveStatus(@NonNull Intent intent){
-		playing = intent.getBooleanExtra("playing", false);
-		duration = intent.getIntExtra("duration", -1);
-		basetime = intent.getLongExtra("basetime", -1);
-		current = intent.getIntExtra("current", -1);
-		shuffleMode = intent.getBooleanExtra("shuffle", false);
-
-		try{
-			repeatMode = RepeatModeType.valueOf(intent.getStringExtra("repeat"));
-		}catch(NullPointerException | IllegalArgumentException e){
-			repeatMode = RepeatModeType.OFF;
-		}
-
-		searchQuery = intent.getStringExtra("searchQuery");
-
-		try{
-			searchPath = RuuDirectory.getInstance(getContext(), intent.getStringExtra("searchPath"));
-		}catch(RuuFileBase.NotFound | NullPointerException e){
-			searchPath = null;
-		}
-
-		try{
-			recursivePath = RuuDirectory.getInstance(getContext(), intent.getStringExtra("recursivePath"));
-		}catch(RuuFileBase.NotFound | NullPointerException e){
-			recursivePath = null;
-		}
-
-		View view = getView();
-		if(view != null){
-			((ImageButton)view.findViewById(R.id.playButton))
-					.setImageResource(playing ? R.drawable.ic_pause : R.drawable.ic_play);
-
-			ImageButton repeatButton = (ImageButton)view.findViewById(R.id.repeatButton);
-			switch(repeatMode){
-				case LOOP:
-					repeatButton.setImageResource(R.drawable.ic_repeat_all);
-					break;
-				case SINGLE:
-					repeatButton.setImageResource(R.drawable.ic_repeat_one);
-					break;
-				case OFF:
-					repeatButton.setImageResource(R.drawable.ic_repeat_off);
-					break;
-			}
-
-			((ImageButton)view.findViewById(R.id.shuffleButton))
-					.setImageResource(shuffleMode ? R.drawable.ic_shuffle_on : R.drawable.ic_shuffle_off);
-
-			((SeekBar)view.findViewById(R.id.seekBar)).setMax(duration);
-		}
-
-		String path = intent.getStringExtra("path");
-		if(path != null){
-			try{
-				currentMusic = RuuFile.getInstance(getContext(), path);
-			}catch(RuuFileBase.NotFound e){
-				currentMusic = null;
-			}
-		}
-		updateRoot();
-	}
-
 	void updateRoot(){
 		String path = "";
 		String name = "";
 
-		if(currentMusic != null){
+		if(client.status.currentMusic != null){
 			try{
-				path = currentMusic.getParent().getRuuPath();
+				path = client.status.currentMusic.getParent().getRuuPath();
 			}catch(RuuFileBase.OutOfRootDirectory e){
 				path = "";
 			}
-			name = currentMusic.getName();
+			name = client.status.currentMusic.getName();
 		}
 
 		View view = getView();
@@ -410,14 +350,14 @@ public class PlayerFragment extends Fragment{
 			((ShrinkTextView)view.findViewById(R.id.musicPath)).setText(path);
 			((ShrinkTextView)view.findViewById(R.id.musicName)).setText(name);
 
-			if(recursivePath != null){
+			if(client.status.recursivePath != null){
 				try{
-					((TextView)view.findViewById(R.id.status_indicator)).setText(String.format(getString(R.string.recursive), recursivePath.getRuuPath()));
+					((TextView)view.findViewById(R.id.status_indicator)).setText(String.format(getString(R.string.recursive), client.status.recursivePath.getRuuPath()));
 				}catch(RuuFileBase.OutOfRootDirectory e){
 					((TextView)view.findViewById(R.id.status_indicator)).setText("");
 				}
-			}else if(searchQuery != null && !searchQuery.equals("")){
-				((TextView)view.findViewById(R.id.status_indicator)).setText(String.format(getString(R.string.search_play), searchQuery));
+			}else if(client.status.searchQuery != null && !client.status.searchQuery.equals("")){
+				((TextView)view.findViewById(R.id.status_indicator)).setText(String.format(getString(R.string.search_play), client.status.searchQuery));
 			}else{
 				((TextView)view.findViewById(R.id.status_indicator)).setText("");
 			}
@@ -425,7 +365,7 @@ public class PlayerFragment extends Fragment{
 	}
 
 	@NonNull
-	private String msec2str(@FloatRange(from = 0) long msec){
+	private String msec2str(long msec){
 		return ((int)Math.floor(msec / 1000 / 60)) + ":" + String.format("%02d", Math.round(msec / 1000) % 60);
 	}
 
@@ -441,33 +381,19 @@ public class PlayerFragment extends Fragment{
 		TextView text = (TextView)getView().findViewById(R.id.progress);
 		SeekBar bar = (SeekBar)getView().findViewById(R.id.seekBar);
 
-		String currentStr = "-";
+		String currentStr;
 		if(time >= 0){
 			currentStr = msec2str(time);
 			bar.setProgress(time);
-		}else if(playing && basetime >= 0){
-			if(duration >= 0){
-				currentStr = msec2str(Math.min(duration, System.currentTimeMillis() - basetime));
-			}else{
-				currentStr = msec2str(System.currentTimeMillis() - basetime);
-			}
-			bar.setProgress((int)(System.currentTimeMillis() - basetime));
-		}else if(!playing && current >= 0){
-			currentStr = msec2str(current);
-			bar.setProgress(current);
 		}else{
-			bar.setProgress(0);
+			currentStr = client.status.getCurrentTimeStr();
+			bar.setProgress((int)(client.status.getCurrentTime()));
 		}
 
-		String durationStr = "-";
-		if(duration >= 0){
-			durationStr = msec2str(duration);
-		}
-
-		text.setText(currentStr + " / " + durationStr);
+		text.setText(currentStr + " / " + client.status.getDurationStr());
 	}
 
-	private void onFailPlay(@StringRes final int messageId, @NonNull final String path){
+	private void noticeFailedPlay(@StringRes final int messageId, @NonNull final String path){
 		((ImageButton)getActivity().findViewById(R.id.playButton)).setImageResource(R.drawable.ic_play);
 
 		(new AlertDialog.Builder(getActivity()))
@@ -478,7 +404,7 @@ public class PlayerFragment extends Fragment{
 						new DialogInterface.OnClickListener(){
 							@Override
 							public void onClick(DialogInterface dialog, int which){
-								startRuuService(RuuService.ACTION_NEXT);
+								client.next();
 							}
 						}
 				)
@@ -490,11 +416,5 @@ public class PlayerFragment extends Fragment{
 						}
 				)
 				.create().show();
-	}
-
-	private void startRuuService(@NonNull String action){
-		Intent intent = new Intent(getActivity(), RuuService.class);
-		intent.setAction(action);
-		getActivity().startService(intent);
 	}
 }

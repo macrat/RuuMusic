@@ -379,8 +379,8 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 
 		if(status == Status.READY){
 			sendIntent.putExtra("playing", player.isPlaying());
-			sendIntent.putExtra("duration", player.getDuration());
-			sendIntent.putExtra("current", player.getCurrentPosition());
+			sendIntent.putExtra("duration", (long)player.getDuration());
+			sendIntent.putExtra("current", (long)player.getCurrentPosition());
 			sendIntent.putExtra("basetime", System.currentTimeMillis() - player.getCurrentPosition());
 		}
 
@@ -836,7 +836,6 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 		@Override
 		@WorkerThread
 		public void onReceive(@NonNull Context context, @NonNull Intent intent){
-			android.util.Log.d("RuuMusic intent", "" + intent);
 			if(intent.getAction().equals(Intent.ACTION_MEDIA_BUTTON)){
 				KeyEvent keyEvent = intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
 				if(keyEvent.getAction() != KeyEvent.ACTION_UP){

@@ -30,8 +30,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import jp.blanktar.ruumusic.R;
-import jp.blanktar.ruumusic.service.RuuService;
 import jp.blanktar.ruumusic.util.Preference;
+import jp.blanktar.ruumusic.util.RuuClient;
 import jp.blanktar.ruumusic.util.RuuDirectory;
 import jp.blanktar.ruumusic.util.RuuFile;
 import jp.blanktar.ruumusic.util.RuuFileBase;
@@ -40,6 +40,7 @@ import jp.blanktar.ruumusic.util.RuuFileBase;
 @UiThread
 public class PlaylistFragment extends Fragment implements SearchView.OnQueryTextListener, SearchView.OnCloseListener{
 	private Preference preference;
+	private RuuClient client;
 
 	private RuuAdapter adapter;
 	private final Stack<DirectoryInfo> directoryCache = new Stack<>();
@@ -55,6 +56,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 		View view = inflater.inflate(R.layout.fragment_playlist, container, false);
 
 		preference = new Preference(view.getContext());
+		client = new RuuClient(getContext());
 
 		adapter = new RuuAdapter(view.getContext());
 
@@ -97,6 +99,12 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 		}
 
 		return view;
+	}
+
+	@Override
+	public void onDestroy(){
+		client.release();
+		super.onDestroy();
 	}
 
 	@Override
@@ -282,11 +290,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 	}
 
 	private void changeMusic(@NonNull RuuFile file){
-		Intent intent = new Intent(getActivity(), RuuService.class);
-		intent.setAction(RuuService.ACTION_PLAY);
-		intent.putExtra("path", file.getFullPath());
-		getActivity().startService(intent);
-
+		client.play(file);
 		((MainActivity)getActivity()).moveToPlayer();
 	}
 
