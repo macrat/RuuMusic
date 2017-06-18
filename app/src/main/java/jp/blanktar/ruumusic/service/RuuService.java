@@ -54,8 +54,8 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 	public final static String ACTION_REPEAT = "jp.blanktar.ruumusic.REPEAT";
 	public final static String ACTION_SHUFFLE = "jp.blanktar.ruumusic.SHUFFLE";
 	public final static String ACTION_PING = "jp.blanktar.ruumusic.PING";
-	public final static String ACTION_REQUEST_EFFECT_INFO = "jp.blanktar.ruumusic.REQUEST_EFFECT_INFO";
-	public final static String ACTION_EFFECT_INFO = "jp.blanktar.ruumusic.EFFECT_INFO";
+	public final static String ACTION_REQUEST_EQUALIZER_INFO = "jp.blanktar.ruumusic.REQUEST_EQUALIZER_INFO";
+	public final static String ACTION_EQUALIZER_INFO = "jp.blanktar.ruumusic.EQUALIZER_INFO";
 	public final static String ACTION_STATUS = "jp.blanktar.ruumusic.STATUS";
 	public final static String ACTION_FAILED_PLAY = "jp.blanktar.ruumusic.FAILED_PLAY";
 	public final static String ACTION_NOT_FOUND = "jp.blanktar.ruumusic.NOT_FOUND";
@@ -332,8 +332,8 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 				case ACTION_PREV:
 					prev();
 					break;
-				case ACTION_REQUEST_EFFECT_INFO:
-					sendEffectInfo();
+				case ACTION_REQUEST_EQUALIZER_INFO:
+					sendEqualizerInfo();
 					break;
 			}
 		}
@@ -387,7 +387,7 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 		getBaseContext().sendBroadcast(sendIntent);
 	}
 
-	private void sendEffectInfo(){
+	private void sendEqualizerInfo(){
 		getBaseContext().sendBroadcast(effectManager.getEqualizerInfo().toIntent());
 	}
 

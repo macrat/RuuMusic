@@ -36,11 +36,11 @@ class SoundPreferenceFragment : Fragment() {
         setupReverb(view)
         setupLoudness(view)
 
-        client!!.requestEffectInfo()
+        client!!.requestEqualizerInfo()
         client!!.eventListener = object : RuuClientEventListener() {
-            override fun onEffectInfo(equalizer: EqualizerInfo) {
+            override fun onEqualizerInfo(info: EqualizerInfo) {
                 view.findViewById(R.id.equalizer_switch).setEnabled(true)
-                setupEqualizer(view, equalizer)
+                setupEqualizer(view, info)
             }
         }
 

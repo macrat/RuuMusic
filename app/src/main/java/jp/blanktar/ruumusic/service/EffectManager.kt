@@ -25,7 +25,7 @@ class EqualizerInfo() {
 
 
     fun toIntent(): Intent {
-        val intent = Intent(RuuService.ACTION_EFFECT_INFO)
+        val intent = Intent(RuuService.ACTION_EQUALIZER_INFO)
 
         intent.putExtra("equalizer_min", min)
         intent.putExtra("equalizer_max", max)

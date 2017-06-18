@@ -11,7 +11,7 @@ import jp.blanktar.ruumusic.service.EqualizerInfo
 
 open class RuuClientEventListener {
     open fun onUpdatedStatus(status: PlayingStatus) {}
-    open fun onEffectInfo(equalizer: EqualizerInfo) {}
+    open fun onEqualizerInfo(info: EqualizerInfo) {}
     open fun onFailedPlay(path: String) {}
     open fun onMusicNotFound(path: String) {}
 }
@@ -24,7 +24,7 @@ class RuuClient(val context: Context) {
         override fun onReceive(context: Context, intent: Intent) {
             when (intent.action) {
                 RuuService.ACTION_STATUS -> onReceiveStatus(intent)
-                RuuService.ACTION_EFFECT_INFO -> eventListener?.onEffectInfo(EqualizerInfo(intent))
+                RuuService.ACTION_EQUALIZER_INFO -> eventListener?.onEqualizerInfo(EqualizerInfo(intent))
                 RuuService.ACTION_FAILED_PLAY -> eventListener?.onFailedPlay(intent.getStringExtra("path"))
                 RuuService.ACTION_NOT_FOUND -> eventListener?.onMusicNotFound(intent.getStringExtra("path"))
             }
@@ -44,7 +44,7 @@ class RuuClient(val context: Context) {
             if (listener != null && field == null) {
                 val intentFilter = IntentFilter()
                 intentFilter.addAction(RuuService.ACTION_STATUS)
-                intentFilter.addAction(RuuService.ACTION_EFFECT_INFO)
+                intentFilter.addAction(RuuService.ACTION_EQUALIZER_INFO)
                 intentFilter.addAction(RuuService.ACTION_FAILED_PLAY)
                 intentFilter.addAction(RuuService.ACTION_NOT_FOUND)
                 context.registerReceiver(receiver, intentFilter)
@@ -109,8 +109,8 @@ class RuuClient(val context: Context) {
         send(intent(RuuService.ACTION_PING))
     }
 
-    fun requestEffectInfo() {
-        send(intent(RuuService.ACTION_REQUEST_EFFECT_INFO))
+    fun requestEqualizerInfo() {
+        send(intent(RuuService.ACTION_REQUEST_EQUALIZER_INFO))
     }
 
     fun onReceiveStatus(intent: Intent) {
