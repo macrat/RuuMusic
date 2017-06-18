@@ -6,7 +6,6 @@ import java.util.TimerTask;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
-import android.support.annotation.FloatRange;
 import android.support.annotation.UiThread;
 import android.app.AlertDialog;
 import android.app.SearchManager;
@@ -26,8 +25,6 @@ import android.widget.TextView;
 
 import jp.blanktar.ruumusic.R;
 import jp.blanktar.ruumusic.util.Preference;
-import jp.blanktar.ruumusic.util.RuuClient;
-import jp.blanktar.ruumusic.util.RuuClientEventListener;
 import jp.blanktar.ruumusic.util.PlayingStatus;
 import jp.blanktar.ruumusic.util.RuuFileBase;
 import jp.blanktar.ruumusic.view.ShrinkTextView;

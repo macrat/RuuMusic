@@ -1,4 +1,4 @@
-package jp.blanktar.ruumusic.util
+package jp.blanktar.ruumusic.client
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -7,6 +7,10 @@ import android.content.IntentFilter
 
 import jp.blanktar.ruumusic.service.RuuService
 import jp.blanktar.ruumusic.service.EqualizerInfo
+import jp.blanktar.ruumusic.util.PlayingStatus
+import jp.blanktar.ruumusic.util.RepeatModeType
+import jp.blanktar.ruumusic.util.RuuDirectory
+import jp.blanktar.ruumusic.util.RuuFile
 
 
 open class RuuClientEventListener {

@@ -18,8 +18,6 @@ import android.widget.TextView
 import jp.blanktar.ruumusic.R
 import jp.blanktar.ruumusic.service.EqualizerInfo
 import jp.blanktar.ruumusic.util.Preference
-import jp.blanktar.ruumusic.util.RuuClient
-import jp.blanktar.ruumusic.util.RuuClientEventListener
 
 
 class SoundPreferenceFragment : Fragment() {

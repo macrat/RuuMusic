@@ -31,7 +31,6 @@ import android.widget.Toast;
 
 import jp.blanktar.ruumusic.R;
 import jp.blanktar.ruumusic.util.Preference;
-import jp.blanktar.ruumusic.util.RuuClient;
 import jp.blanktar.ruumusic.util.RuuDirectory;
 import jp.blanktar.ruumusic.util.RuuFile;
 import jp.blanktar.ruumusic.util.RuuFileBase;

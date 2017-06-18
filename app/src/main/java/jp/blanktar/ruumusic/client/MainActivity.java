@@ -27,7 +27,6 @@ import jp.blanktar.ruumusic.util.Preference;
 import jp.blanktar.ruumusic.util.RuuDirectory;
 import jp.blanktar.ruumusic.util.RuuFile;
 import jp.blanktar.ruumusic.util.RuuFileBase;
-import jp.blanktar.ruumusic.util.RuuClient;
 
 
 @UiThread
