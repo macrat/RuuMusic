@@ -503,9 +503,7 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 	}
 
 	private void updatePlayingNotification(){
-		if(player.isPlaying()){
-			startForeground(1, makeNotification());
-		}
+		startForeground(1, makeNotification());
 	}
 
 	private void removePlayingNotification(){
