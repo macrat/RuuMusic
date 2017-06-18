@@ -1,4 +1,4 @@
-package jp.blanktar.ruumusic.client;
+package jp.blanktar.ruumusic.client.main;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -24,6 +24,8 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import jp.blanktar.ruumusic.R;
+import jp.blanktar.ruumusic.client.RuuClient;
+import jp.blanktar.ruumusic.client.RuuClientEventListener;
 import jp.blanktar.ruumusic.util.Preference;
 import jp.blanktar.ruumusic.util.PlayingStatus;
 import jp.blanktar.ruumusic.util.RuuFileBase;

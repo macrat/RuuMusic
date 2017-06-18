@@ -1,5 +1,6 @@
 package jp.blanktar.ruumusic.client;
 
+import jp.blanktar.ruumusic.client.preference.PreferenceActivity;
 import jp.blanktar.ruumusic.test.TestBase;
 import org.junit.Before;
 import org.junit.Rule;

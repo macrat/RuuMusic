@@ -11,11 +11,10 @@ import android.appwidget.AppWidgetProvider;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.util.TypedValue;
 import android.widget.RemoteViews;
 
 import jp.blanktar.ruumusic.R;
-import jp.blanktar.ruumusic.client.MainActivity;
+import jp.blanktar.ruumusic.client.main.MainActivity;
 import jp.blanktar.ruumusic.service.RuuService;
 import jp.blanktar.ruumusic.util.Preference;
 

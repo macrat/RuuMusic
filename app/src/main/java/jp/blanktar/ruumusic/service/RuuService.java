@@ -32,7 +32,7 @@ import android.view.KeyEvent;
 import android.widget.Toast;
 
 import jp.blanktar.ruumusic.R;
-import jp.blanktar.ruumusic.client.MainActivity;
+import jp.blanktar.ruumusic.client.main.MainActivity;
 import jp.blanktar.ruumusic.util.Preference;
 import jp.blanktar.ruumusic.util.RepeatModeType;
 import jp.blanktar.ruumusic.util.RuuDirectory;

@@ -1,4 +1,4 @@
-package jp.blanktar.ruumusic.client
+package jp.blanktar.ruumusic.client.preference
 
 
 import android.os.Bundle

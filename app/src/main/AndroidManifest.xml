@@ -15,7 +15,7 @@
 			android:authorities="suggestionProvider"
 			android:syncable="false" />
         <activity
-            android:name=".client.MainActivity"
+            android:name=".client.main.MainActivity"
             android:label="@string/app_name"
             android:launchMode="singleTask" >
             <intent-filter>
@@ -36,12 +36,12 @@
 			<meta-data android:resource="@xml/searchable" android:name="android.app.searchable" />
         </activity>
         <activity
-            android:name=".client.PreferenceActivity"
+            android:name=".client.preference.PreferenceActivity"
             android:label="@string/title_activity_preference"
-            android:parentActivityName=".client.MainActivity" >
+            android:parentActivityName=".client.main.MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="jp.blanktar.ruumusic.client.MainActivity" />
+                android:value="jp.blanktar.ruumusic.client.main.MainActivity" />
         </activity>
 
         <service
