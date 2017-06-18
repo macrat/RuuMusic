@@ -445,6 +445,31 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 		PendingIntent prev_pi = PendingIntent.getService(getApplicationContext(), 0, (new Intent(getApplicationContext(), RuuService.class)).setAction(ACTION_PREV), 0);
 		PendingIntent next_pi = PendingIntent.getService(getApplicationContext(), 0, (new Intent(getApplicationContext(), RuuService.class)).setAction(ACTION_NEXT), 0);
 
+		int shuffle_icon = shuffleMode ? R.drawable.ic_shuffle_on : R.drawable.ic_shuffle_off;
+		PendingIntent shuffle_pi = PendingIntent.getService(
+				getApplicationContext(),
+				0,
+				(new Intent(getApplicationContext(), RuuService.class)).setAction(ACTION_SHUFFLE).putExtra("mode", !shuffleMode),
+				PendingIntent.FLAG_CANCEL_CURRENT);
+
+		int repeat_icon = R.drawable.ic_repeat_off;
+		switch(repeatMode){
+			case OFF:
+				repeat_icon = R.drawable.ic_repeat_off;
+				break;
+			case SINGLE:
+				repeat_icon = R.drawable.ic_repeat_one;
+				break;
+			case LOOP:
+				repeat_icon = R.drawable.ic_repeat_all;
+				break;
+		}
+		PendingIntent repeat_pi = PendingIntent.getService(
+				getApplicationContext(),
+				0,
+				(new Intent(getApplicationContext(), RuuService.class)).setAction(ACTION_REPEAT).putExtra("mode", repeatMode.getNext().name()),
+				PendingIntent.FLAG_CANCEL_CURRENT);
+
 		Intent intent = new Intent(getApplicationContext(), MainActivity.class);
 		intent.setAction(MainActivity.ACTION_OPEN_PLAYER);
 		PendingIntent contentIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
@@ -465,12 +490,14 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 				.setPriority(Notification.PRIORITY_LOW)
 				.setVisibility(Notification.VISIBILITY_PUBLIC)
 				.setCategory(Notification.CATEGORY_TRANSPORT)
+				.addAction(shuffle_icon, "shuffle", shuffle_pi)
 				.addAction(R.drawable.ic_prev_for_notif, "prev", prev_pi)
 				.addAction(playpause_icon, playpause_text, playpause_pi)
 				.addAction(R.drawable.ic_next_for_notif, "next", next_pi)
+				.addAction(repeat_icon, "repeat", repeat_pi)
 				.setStyle(new NotificationCompat.MediaStyle()
 						.setMediaSession(mediaSession.getSessionToken())
-						.setShowActionsInCompactView(0, 1, 2))
+						.setShowActionsInCompactView(1, 2, 3))
 				.build();
 	}
 
@@ -670,6 +697,7 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 		}
 
 		sendStatus();
+		updatePlayingNotification();
 		preference.RepeatMode.set(repeatMode);
 	}
 
@@ -692,6 +720,7 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 
 		shuffleMode = mode;
 		sendStatus();
+		updatePlayingNotification();
 		mediaSession.setShuffleModeEnabled(mode);
 
 		preference.ShuffleMode.set(shuffleMode);
