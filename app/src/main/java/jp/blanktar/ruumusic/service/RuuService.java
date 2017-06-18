@@ -18,6 +18,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.graphics.BitmapFactory;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Build;
@@ -533,6 +534,7 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 				.putString(MediaMetadataCompat.METADATA_KEY_ALBUM, parentPath)
 				.putString(MediaMetadataCompat.METADATA_KEY_TITLE, playlist.getCurrent().getName())
 				.putLong(MediaMetadataCompat.METADATA_KEY_DURATION, player.getDuration())
+				.putBitmap(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON, BitmapFactory.decodeResource(getResources(), R.drawable.display_icon))
 				.build());
 
 		mediaSession.setPlaybackState(new PlaybackStateCompat.Builder()
