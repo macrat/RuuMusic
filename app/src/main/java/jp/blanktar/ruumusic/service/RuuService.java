@@ -546,8 +546,6 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 						| PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
 						| PlaybackStateCompat.ACTION_SET_REPEAT_MODE
 						| PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE_ENABLED
-						| PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID
-						| PlaybackStateCompat.ACTION_PLAY_FROM_URI
 				).build());
 
 		mediaSession.setQueue(playlist.getMediaSessionQueue());
