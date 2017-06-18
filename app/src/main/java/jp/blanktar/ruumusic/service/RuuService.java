@@ -24,10 +24,10 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
-import android.support.v7.app.NotificationCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
+import android.support.v7.app.NotificationCompat;
 import android.view.KeyEvent;
 import android.widget.Toast;
 
@@ -213,6 +213,16 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 		mediaSession.setCallback(new MediaSessionCompat.Callback(){
 			@Override
 			public void onPlay(){
+				play();
+			}
+
+			@Override
+			public void onSkipToQueueItem(long id){
+				try{
+					playlist.goQueueIndex(id);
+				}catch(IndexOutOfBoundsException e){
+				}
+				load(false);
 				play();
 			}
 
@@ -509,7 +519,12 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 						| PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
 						| PlaybackStateCompat.ACTION_SET_REPEAT_MODE
 						| PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE_ENABLED
+						| PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID
+						| PlaybackStateCompat.ACTION_PLAY_FROM_URI
 				).build());
+
+		mediaSession.setQueue(playlist.getMediaSessionQueue());
+		mediaSession.setQueueTitle(playlist.title);
 	}
 
 	private void updateRoot(){

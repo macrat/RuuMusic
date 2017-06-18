@@ -112,9 +112,14 @@ public class RuuDirectory extends RuuFileBase{
 
 	@Override
 	@NonNull
+	public Uri toUri(){
+		return (new Uri.Builder()).scheme("file").path(getFullPath()).build();
+	}
+
+	@Override
+	@NonNull
 	public Intent toIntent(){
-		Uri uri = (new Uri.Builder()).scheme("file").path(getFullPath()).build();
-		return (new Intent(Intent.ACTION_VIEW)).setDataAndType(uri, "text/directory").putExtra(Intent.EXTRA_STREAM, uri);
+		return (new Intent(Intent.ACTION_VIEW)).setDataAndType(toUri(), "text/directory").putExtra(Intent.EXTRA_STREAM, toUri());
 	}
 
 	public boolean contains(@NonNull RuuFileBase file){

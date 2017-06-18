@@ -10,8 +10,12 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.WorkerThread;
 import android.content.Context;
+import android.support.v4.media.MediaDescriptionCompat;
+import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v4.media.session.MediaSessionCompat;
 import android.text.TextUtils;
 
+import jp.blanktar.ruumusic.R;
 import jp.blanktar.ruumusic.util.RuuDirectory;
 import jp.blanktar.ruumusic.util.RuuFile;
 import jp.blanktar.ruumusic.util.RuuFileBase;
@@ -28,6 +32,7 @@ public class Playlist{
 	@NonNull public final Type type;
 	@NonNull public final RuuDirectory path;
 	@Nullable public final String query;
+	@NonNull public String title;
 
 	@NonNull private RuuFile[] playlist;
 	@NonNull private final RuuFile[] playlistSorted;
@@ -35,7 +40,7 @@ public class Playlist{
 	private boolean sorted = true;
 
 
-	private Playlist(@NonNull RuuDirectory path, @NonNull RuuFile[] playlist, @IntRange(from=0) int currentIndex, @NonNull Type type, @Nullable String query) throws EmptyDirectory{
+	private Playlist(@NonNull Context context, @NonNull RuuDirectory path, @NonNull RuuFile[] playlist, @IntRange(from=0) int currentIndex, @NonNull Type type, @Nullable String query) throws EmptyDirectory{
 		if(playlist.length <= 0){
 			throw new EmptyDirectory();
 		}
@@ -46,8 +51,24 @@ public class Playlist{
 		this.currentIndex = currentIndex;
 		this.type = type;
 		this.query = query;
+
+		title = "";
+		try{
+			switch(type){
+				case SIMPLE:
+					title = path.getRuuPath();
+					break;
+				case RECURSIVE:
+					title = String.format(context.getString(R.string.recursive), path.getRuuPath());
+					break;
+				case SEARCH:
+					title = String.format(context.getString(R.string.search_play), query);
+					break;
+			}
+		}catch(RuuFileBase.OutOfRootDirectory e){
+		}
 	}
-	
+
 	@NonNull
 	public static Playlist getByMusicPath(@NonNull Context context, @NonNull String path) throws RuuFileBase.NotFound, EmptyDirectory{
 		RuuFile music = RuuFile.getInstance(context, path);
@@ -57,14 +78,14 @@ public class Playlist{
 		if(index < 0 || playlist.length <= index){
 			throw new RuuFileBase.NotFound(path);
 		}
-		return new Playlist(music.getParent(), playlist, index, Type.SIMPLE, null);
+		return new Playlist(context, music.getParent(), playlist, index, Type.SIMPLE, null);
 	}
 
 	@NonNull
 	public static Playlist getRecursive(@NonNull Context context, @NonNull String path) throws RuuFileBase.NotFound, EmptyDirectory{
 		RuuDirectory dir = RuuDirectory.getInstance(context, path);
 		List<RuuFile> list = dir.getMusicsRecursive();
-		return new Playlist(dir, list.toArray(new RuuFile[list.size()]), 0, Type.RECURSIVE, null);
+		return new Playlist(context, dir, list.toArray(new RuuFile[list.size()]), 0, Type.RECURSIVE, null);
 	}
 
 	@NonNull
@@ -82,7 +103,7 @@ public class Playlist{
 				}
 			}
 		}
-		return new Playlist(dir, list.toArray(new RuuFile[list.size()]), 0, Type.SEARCH, query);
+		return new Playlist(context, dir, list.toArray(new RuuFile[list.size()]), 0, Type.SEARCH, query);
 	}
 
 
@@ -123,6 +144,17 @@ public class Playlist{
 		throw new NotFound();
 	}
 
+	public void goQueueIndex(long id){
+		if(sorted){
+			if(id < 0 || playlist.length <= id){
+				throw new IndexOutOfBoundsException();
+			}
+			currentIndex = (int)id;
+		}else{
+			currentIndex = Arrays.asList(playlist).indexOf(playlistSorted[(int)id]);
+		}
+	}
+
 	public void shuffle(boolean keepCurrent){
 		RuuFile current = getCurrent();
 
@@ -149,6 +181,28 @@ public class Playlist{
 			playlist = playlistSorted;
 			sorted = true;
 		}
+	}
+
+	public List<MediaSessionCompat.QueueItem> getMediaSessionQueue() {
+		List<MediaSessionCompat.QueueItem> queue = new ArrayList<>();
+
+		for(int i=0; i<playlistSorted.length; i++){
+			MediaDescriptionCompat.Builder description = new MediaDescriptionCompat.Builder()
+					.setTitle(playlistSorted[i].getName())
+					.setMediaId(playlistSorted[i].getFullPath())
+					.setMediaUri(playlistSorted[i].toUri());
+
+			if(type != Type.SIMPLE){
+				try{
+					description.setSubtitle(playlistSorted[i].getRuuPath());
+				}catch(RuuFileBase.OutOfRootDirectory e){
+				}
+			}
+
+			queue.add(new MediaSessionCompat.QueueItem(description.build(), i));
+		}
+
+		return queue;
 	}
 
 

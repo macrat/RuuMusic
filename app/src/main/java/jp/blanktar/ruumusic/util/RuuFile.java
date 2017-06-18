@@ -58,11 +58,16 @@ public class RuuFile extends RuuFileBase{
 
 	@Override
 	@NonNull
+	public Uri toUri(){
+		return (new Uri.Builder()).scheme("file").path(getRealPath()).build();
+	}
+
+	@Override
+	@NonNull
 	public Intent toIntent(){
-		Uri uri = (new Uri.Builder()).scheme("file").path(getRealPath()).build();
 		return (new Intent(Intent.ACTION_VIEW)).setDataAndType(
-			uri,
+			toUri(),
 			MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension.substring(1))
-		).putExtra(Intent.EXTRA_STREAM, uri);
+		).putExtra(Intent.EXTRA_STREAM, toUri());
 	}
 }

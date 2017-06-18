@@ -4,6 +4,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 
 
 public abstract class RuuFileBase implements Comparable<RuuFileBase>{
@@ -55,6 +56,9 @@ public abstract class RuuFileBase implements Comparable<RuuFileBase>{
 		}
 		return parent;
 	}
+
+	@NonNull
+	abstract public Uri toUri();
 
 	@NonNull
 	abstract public Intent toIntent();
