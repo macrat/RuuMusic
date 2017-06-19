@@ -14,6 +14,8 @@ You can install stable version from [google play](https://play.google.com/store/
 ![player view](screenshots/for-readme/play.png)
 ![selecting view](screenshots/for-readme/playlists.png)
 
+![Android Auto](screenshots/for-readme/auto.png)
+
 ## Features
 * Selecting music by simple filer.
 	RuuMusic doesn't use metadata.
@@ -24,6 +26,8 @@ You can install stable version from [google play](https://play.google.com/store/
 * Control by bluetooth receiver.
 * Control by Notification area. (Android 4.1+)
 * Control by lock screen. (Android 4.0+)
+* Control by Android Wear.
+* Control by Android Auto.
 * Have some type widgets that include small widgets like play/pause or skip button.
 	You can use in combination.
 * Search musics/directories.
