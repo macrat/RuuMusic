@@ -190,7 +190,7 @@ public class Playlist{
 
 			if(type != Type.SIMPLE){
 				try{
-					description.setSubtitle(playlistSorted[i].getRuuPath());
+					description.setSubtitle(playlistSorted[i].getParent().getRuuPath());
 				}catch(RuuFileBase.OutOfRootDirectory e){
 				}
 			}

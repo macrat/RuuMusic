@@ -12,6 +12,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
+import android.support.v4.media.MediaDescriptionCompat;
 import android.text.TextUtils;
 
 
@@ -281,7 +282,13 @@ public class RuuDirectory extends RuuFileBase{
 	@Override
 	@NonNull
 	public MediaItem toMediaItem(){
-		return new MediaItem(toMediaDescription(), MediaItem.FLAG_BROWSABLE);
+		return new MediaItem(
+				new MediaDescriptionCompat.Builder()
+						.setTitle(getName() + "/")
+						.setMediaUri(toUri())
+						.setMediaId(getFullPath())
+						.build(),
+				MediaItem.FLAG_BROWSABLE);
 	}
 
 	@NonNull

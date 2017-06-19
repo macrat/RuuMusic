@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
-import android.support.v4.media.MediaDescriptionCompat;
 
 
 public abstract class RuuFileBase implements Comparable<RuuFileBase>{
@@ -96,22 +95,6 @@ public abstract class RuuFileBase implements Comparable<RuuFileBase>{
 			}
 		}
 		return getFullPath().compareTo(file.getFullPath());
-	}
-
-	@NonNull
-	public MediaDescriptionCompat toMediaDescription(){
-		String subtitle = "";
-		try{
-			subtitle = getRuuPath();
-		}catch(OutOfRootDirectory e){
-		}
-
-		return new MediaDescriptionCompat.Builder()
-				.setTitle(getName())
-				.setSubtitle(subtitle)
-				.setMediaUri(toUri())
-				.setMediaId(getFullPath())
-				.build();
 	}
 
 	@NonNull

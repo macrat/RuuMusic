@@ -6,8 +6,9 @@ import android.support.annotation.NonNull;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.webkit.MimeTypeMap;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
+import android.support.v4.media.MediaDescriptionCompat;
+import android.webkit.MimeTypeMap;
 
 
 public class RuuFile extends RuuFileBase{
@@ -75,6 +76,12 @@ public class RuuFile extends RuuFileBase{
 	@Override
 	@NonNull
 	public MediaItem toMediaItem(){
-		return new MediaItem(toMediaDescription(), MediaItem.FLAG_PLAYABLE);
+		return new MediaItem(
+				new MediaDescriptionCompat.Builder()
+					.setTitle(getName())
+					.setMediaUri(toUri())
+					.setMediaId(getFullPath())
+					.build(),
+				MediaItem.FLAG_PLAYABLE);
 	}
 }
