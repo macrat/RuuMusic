@@ -197,6 +197,12 @@ public class PlayerFragment extends Fragment{
 	}
 
 	@Override
+	public void onDestroy(){
+		client.release();
+		super.onDestroy();
+	}
+
+	@Override
 	public void onResume(){
 		super.onResume();
 
