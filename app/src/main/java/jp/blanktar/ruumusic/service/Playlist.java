@@ -89,21 +89,17 @@ public class Playlist{
 	}
 
 	@NonNull
-	public static Playlist getSearchResults(@NonNull Context context, @NonNull String path, @NonNull String query) throws RuuFileBase.NotFound, EmptyDirectory{
-		String[] queries = TextUtils.split(query.toLowerCase(), " \t");
-
-		RuuDirectory dir = RuuDirectory.getInstance(context, path);
-		List<RuuFile> list = dir.getMusicsRecursive();
-		for(RuuFile file: new ArrayList<>(list)){
-			String name = file.getName().toLowerCase();
-			for(String qs: queries){
-				if(!name.contains(qs)){
-					list.remove(file);
-					break;
-				}
+	public static Playlist getSearchResults(@NonNull Context context, @NonNull RuuDirectory dir, @NonNull String query) throws RuuFileBase.NotFound, EmptyDirectory{
+		ArrayList<RuuFile> result = new ArrayList<>();
+		for(RuuFileBase found: dir.search(query)){
+			if(!found.isDirectory()){
+				result.add((RuuFile)found);
+			}else{
+				result.addAll(((RuuDirectory)found).getMusicsRecursive());
 			}
 		}
-		return new Playlist(context, dir, list.toArray(new RuuFile[list.size()]), 0, Type.SEARCH, query);
+
+		return new Playlist(context, dir, result.toArray(new RuuFile[result.size()]), 0, Type.SEARCH, query);
 	}
 
 

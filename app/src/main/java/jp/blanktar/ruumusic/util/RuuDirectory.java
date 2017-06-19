@@ -19,6 +19,7 @@ public class RuuDirectory extends RuuFileBase{
 	@Nullable private static RuuDirectory root;
 
 	@Nullable private String[] childrenTemp;
+	private boolean childrenProceed = false;
 	@NonNull final private List<RuuDirectory> directories = new ArrayList<>();
 	@NonNull final private List<RuuFile> musics = new ArrayList<>();
 
@@ -49,6 +50,14 @@ public class RuuDirectory extends RuuFileBase{
 		}
 
 		return root.findDir(path);
+	}
+
+	public static RuuDirectory getInstanceFromFullPath(@NonNull Context context, @NonNull String path) throws RuuFileBase.NotFound, RuuFileBase.OutOfRootDirectory{
+		String root = rootDirectory(context).getFullPath();
+		if(!path.startsWith(root)){
+			throw new RuuFileBase.OutOfRootDirectory();
+		}
+		return getInstance(context, root);
 	}
 
 	@NonNull
@@ -99,9 +108,14 @@ public class RuuDirectory extends RuuFileBase{
 
 	@NonNull
 	public List<RuuFileBase> search(@NonNull String query){
+		final ArrayList<RuuFileBase> filtered = new ArrayList<>();
+
+		if(TextUtils.isEmpty(query)){
+			return filtered;
+		}
+
 		final String[] queries = TextUtils.split(query.toLowerCase(), " \t");
 
-		final ArrayList<RuuFileBase> filtered = new ArrayList<>();
 		for(RuuFileBase file: getAllRecursive()){
 			String name = file.getName().toLowerCase();
 			boolean isOk = true;
@@ -153,6 +167,11 @@ public class RuuDirectory extends RuuFileBase{
 	private void processChildren(){
 		assert childrenTemp != null;
 		assert musics.isEmpty() && directories.isEmpty();
+
+		if(childrenProceed){
+			return;
+		}
+		childrenProceed = true;
 
 		int pathlength = getFullPath().length();
 		String target = null;

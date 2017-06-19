@@ -113,8 +113,8 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 			String searchPath = preference.SearchPath.get();
 			if(searchQuery != null && searchPath != null){
 				try{
-					playlist = Playlist.getSearchResults(getApplicationContext(), searchPath, searchQuery);
-				}catch(RuuFileBase.NotFound | Playlist.EmptyDirectory e){
+					playlist = Playlist.getSearchResults(getApplicationContext(), RuuDirectory.getInstanceFromFullPath(getApplicationContext(), searchPath), searchQuery);
+				}catch(RuuFileBase.NotFound | RuuFileBase.OutOfRootDirectory | Playlist.EmptyDirectory e){
 					playlist = null;
 				}
 			}
@@ -232,13 +232,7 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 
 			@Override
 			public void onPlayFromSearch(String query, Bundle extras){
-				String path;
-				try{
-					path = extras.getCharSequence("path").toString();
-				}catch(NullPointerException e){
-					path = preference.RootDirectory.get();
-				}
-				playBySearch(path, query);
+				playBySearch(extras.getCharSequence("path", preference.RootDirectory.get()).toString(), query);
 			}
 
 			@Override
@@ -670,7 +664,9 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 	
 	private void playBySearch(String path, String query){
 		try{
-			playlist = Playlist.getSearchResults(getApplicationContext(), path, query);
+			playlist = Playlist.getSearchResults(getApplicationContext(), RuuDirectory.getInstanceFromFullPath(getApplicationContext(), path), query);
+		}catch(RuuFileBase.OutOfRootDirectory e){
+			showToast(String.format(getString(R.string.out_of_root), path), true);
 		}catch(RuuFileBase.NotFound e){
 			showToast(String.format(getString(R.string.cant_open_dir), path), true);
 			return;
