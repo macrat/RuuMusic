@@ -51,6 +51,10 @@ class RuuClient(val context: Context) {
                 intentFilter.addAction(RuuService.ACTION_EQUALIZER_INFO)
                 intentFilter.addAction(RuuService.ACTION_FAILED_PLAY)
                 intentFilter.addAction(RuuService.ACTION_NOT_FOUND)
+                try {
+                    context.unregisterReceiver(receiver)
+                } catch (e: IllegalArgumentException) {
+                }
                 context.registerReceiver(receiver, intentFilter)
             }
             if (listener == null && field != null) {

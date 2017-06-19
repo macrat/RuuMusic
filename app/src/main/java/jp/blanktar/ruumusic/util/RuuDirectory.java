@@ -11,6 +11,8 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.support.v4.media.MediaBrowserCompat.MediaItem;
+import android.text.TextUtils;
 
 
 public class RuuDirectory extends RuuFileBase{
@@ -93,6 +95,28 @@ public class RuuDirectory extends RuuFileBase{
 			}
 		}
 		throw new RuuFileBase.NotFound(getFullPath() + name);
+	}
+
+	@NonNull
+	public List<RuuFileBase> search(@NonNull String query){
+		final String[] queries = TextUtils.split(query.toLowerCase(), " \t");
+
+		final ArrayList<RuuFileBase> filtered = new ArrayList<>();
+		for(RuuFileBase file: getAllRecursive()){
+			String name = file.getName().toLowerCase();
+			boolean isOk = true;
+			for(String q: queries){
+				if(!name.contains(q)){
+					isOk = false;
+					break;
+				}
+			}
+			if(isOk){
+				filtered.add(file);
+			}
+		}
+
+		return filtered;
 	}
 
 	@Override
@@ -231,6 +255,26 @@ public class RuuDirectory extends RuuFileBase{
 		ArrayList<RuuFileBase> list = new ArrayList<>();
 		list.addAll(getDirectoriesRecursive());
 		list.addAll(getMusicsRecursive());
+
+		return list;
+	}
+
+	@Override
+	@NonNull
+	public MediaItem toMediaItem(){
+		return new MediaItem(toMediaDescription(), MediaItem.FLAG_BROWSABLE);
+	}
+
+	@NonNull
+	public List<MediaItem> getMediaItemList(){
+		ArrayList<MediaItem> list = new ArrayList<>();
+
+		for(RuuDirectory d: getDirectories()){
+			list.add(d.toMediaItem());
+		}
+		for(RuuFile f: getMusics()){
+			list.add(f.toMediaItem());
+		}
 
 		return list;
 	}

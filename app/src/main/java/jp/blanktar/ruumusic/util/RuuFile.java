@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.webkit.MimeTypeMap;
+import android.support.v4.media.MediaBrowserCompat.MediaItem;
 
 
 public class RuuFile extends RuuFileBase{
@@ -69,5 +70,11 @@ public class RuuFile extends RuuFileBase{
 			toUri(),
 			MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension.substring(1))
 		).putExtra(Intent.EXTRA_STREAM, toUri());
+	}
+
+	@Override
+	@NonNull
+	public MediaItem toMediaItem(){
+		return new MediaItem(toMediaDescription(), MediaItem.FLAG_PLAYABLE);
 	}
 }

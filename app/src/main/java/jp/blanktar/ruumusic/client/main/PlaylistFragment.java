@@ -356,22 +356,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 		(new Thread(new Runnable(){
 			@Override
 			public void run(){
-				final String[] queries = TextUtils.split(text.toLowerCase(), " \t");
-
-				final ArrayList<RuuFileBase> filtered = new ArrayList<>();
-				for(RuuFileBase file: current.path.getAllRecursive()){
-					String name = file.getName().toLowerCase();
-					boolean isOk = true;
-					for(String query: queries){
-						if(!name.contains(query)){
-							isOk = false;
-							break;
-						}
-					}
-					if(isOk){
-						filtered.add(file);
-					}
-				}
+				final List<RuuFileBase> filtered = current.path.search(text);
 
 				handler.post(new Runnable(){
 					@Override

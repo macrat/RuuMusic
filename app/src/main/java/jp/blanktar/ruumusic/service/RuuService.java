@@ -1,6 +1,8 @@
 package jp.blanktar.ruumusic.service;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -11,7 +13,6 @@ import android.support.annotation.WorkerThread;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -21,10 +22,14 @@ import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.support.v4.media.MediaBrowserCompat.MediaItem;
+import android.support.v4.media.MediaBrowserServiceCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
@@ -42,7 +47,7 @@ import jp.blanktar.ruumusic.util.RuuFileBase;
 
 
 @WorkerThread
-public class RuuService extends Service implements SharedPreferences.OnSharedPreferenceChangeListener{
+public class RuuService extends MediaBrowserServiceCompat implements SharedPreferences.OnSharedPreferenceChangeListener{
 	public final static String ACTION_PLAY = "jp.blanktar.ruumusic.PLAY";
 	public final static String ACTION_PLAY_RECURSIVE = "jp.blanktar.ruumusic.PLAY_RECURSIVE";
 	public final static String ACTION_PLAY_SEARCH = "jp.blanktar.ruumusic.PLAY_SEARCH";
@@ -86,13 +91,9 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 
 
 	@Override
-	@Nullable
-	public IBinder onBind(@Nullable Intent intent){
-		throw null;
-	}
-
-	@Override
 	public void onCreate(){
+		super.onCreate();
+
 		endOfListSE = MediaPlayer.create(getApplicationContext(), R.raw.eol);
 		errorSE = MediaPlayer.create(getApplicationContext(), R.raw.err);
 		preference = new Preference(getApplicationContext());
@@ -211,10 +212,33 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 		mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
 		mediaSession.setActive(true);
 
+		setSessionToken(mediaSession.getSessionToken());
+
 		mediaSession.setCallback(new MediaSessionCompat.Callback(){
 			@Override
 			public void onPlay(){
 				play();
+			}
+
+			@Override
+			public void onPlayFromMediaId(String mediaId, Bundle extras){
+				playByPath(mediaId);
+			}
+
+			@Override
+			public void onPlayFromUri(Uri uri, Bundle extras){
+				playByPath(uri.getPath());
+			}
+
+			@Override
+			public void onPlayFromSearch(String query, Bundle extras){
+				String path;
+				try{
+					path = extras.getCharSequence("path").toString();
+				}catch(NullPointerException e){
+					path = preference.RootDirectory.get();
+				}
+				playBySearch(path, query);
 			}
 
 			@Override
@@ -293,24 +317,10 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 					}
 					break;
 				case ACTION_PLAY_RECURSIVE:
+					playRecursive(intent.getStringExtra("path"));
+					break;
 				case ACTION_PLAY_SEARCH:
-					try{
-						if(intent.getAction().equals(ACTION_PLAY_RECURSIVE)){
-							playlist = Playlist.getRecursive(getApplicationContext(), intent.getStringExtra("path"));
-						}else{
-							playlist = Playlist.getSearchResults(getApplicationContext(), intent.getStringExtra("path"), intent.getStringExtra("query"));
-						}
-					}catch(RuuFileBase.NotFound e){
-						showToast(String.format(getString(R.string.cant_open_dir), intent.getStringExtra("path")), true);
-						break;
-					}catch(Playlist.EmptyDirectory e){
-						showToast(String.format(getString(R.string.has_not_music), intent.getStringExtra("path")), true);
-						break;
-					}
-					if(shuffleMode){
-						playlist.shuffle(false);
-					}
-					load(false);
+					playBySearch(intent.getStringExtra("path"), intent.getStringExtra("query"));
 					break;
 				case ACTION_PAUSE:
 					pause();
@@ -546,6 +556,9 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 						| PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
 						| PlaybackStateCompat.ACTION_SET_REPEAT_MODE
 						| PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE_ENABLED
+						| PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID
+						| PlaybackStateCompat.ACTION_PLAY_FROM_URI
+						| PlaybackStateCompat.ACTION_PLAY_FROM_SEARCH
 				).build());
 
 		mediaSession.setQueue(playlist.getMediaSessionQueue());
@@ -637,6 +650,38 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 		}catch(Playlist.NotFound e){
 			showToast(String.format(getString(R.string.music_not_found), path), true);
 		}
+	}
+
+	private void playRecursive(String path){
+		try{
+			playlist = Playlist.getRecursive(getApplicationContext(), path);
+		}catch(RuuFileBase.NotFound e){
+			showToast(String.format(getString(R.string.cant_open_dir), path), true);
+			return;
+		}catch(Playlist.EmptyDirectory e){
+			showToast(String.format(getString(R.string.has_not_music), path), true);
+			return;
+		}
+		if(shuffleMode){
+			playlist.shuffle(false);
+		}
+		load(false);
+	}
+	
+	private void playBySearch(String path, String query){
+		try{
+			playlist = Playlist.getSearchResults(getApplicationContext(), path, query);
+		}catch(RuuFileBase.NotFound e){
+			showToast(String.format(getString(R.string.cant_open_dir), path), true);
+			return;
+		}catch(Playlist.EmptyDirectory e){
+			showToast(String.format(getString(R.string.has_not_music), path), true);
+			return;
+		}
+		if(shuffleMode){
+			playlist.shuffle(false);
+		}
+		load(false);
 	}
 
 	private void load(boolean fromLastest){
@@ -814,6 +859,50 @@ public class RuuService extends Service implements SharedPreferences.OnSharedPre
 			deathTimer.cancel();
 			deathTimer = null;
 		}
+	}
+
+	@Override
+	public MediaBrowserServiceCompat.BrowserRoot onGetRoot(String clientPackageName, int cliendUid, Bundle rootHints) {
+		String id = "";
+		try{
+			id = RuuDirectory.rootDirectory(getApplicationContext()).getFullPath();
+		}catch(RuuFileBase.NotFound e){
+		}
+		return new MediaBrowserServiceCompat.BrowserRoot(id, null);
+	}
+
+	@Override
+	public void onLoadChildren(String parentMediaId, final Result<List<MediaItem>> result){
+		if(parentMediaId == null || parentMediaId.equals("")){
+			result.sendResult(null);
+			return;
+		}
+
+		try{
+			result.sendResult(RuuDirectory.getInstance(getApplicationContext(), parentMediaId).getMediaItemList());
+		}catch(RuuDirectory.NotFound e){
+			result.sendResult(null);
+		}
+	}
+
+	@Override
+	public void onSearch(String query, Bundle extras, Result<List<MediaItem>> result){
+		RuuDirectory dir = null;
+		try{
+			dir = RuuDirectory.getInstance(getApplicationContext(), extras.getCharSequence("path").toString());
+		}catch(NullPointerException | RuuDirectory.NotFound e){
+			try{
+				dir = RuuDirectory.rootDirectory(getApplicationContext());
+			}catch(RuuDirectory.NotFound f){
+				result.sendResult(null);
+			}
+		}
+
+		ArrayList<MediaItem> list = new ArrayList<>();
+		for(RuuFileBase file: dir.search(query)){
+			list.add(file.toMediaItem());
+		}
+		result.sendResult(list);
 	}
 
 
