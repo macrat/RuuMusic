@@ -543,6 +543,7 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 				.setState(player.isPlaying() ? PlaybackStateCompat.STATE_PLAYING : PlaybackStateCompat.STATE_PAUSED,
 						PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN,
 						1.0f)
+				.setActiveQueueItemId(playlist.getQueueIndex())
 				.setActions(PlaybackStateCompat.ACTION_PLAY
 						| PlaybackStateCompat.ACTION_PAUSE
 						| PlaybackStateCompat.ACTION_PLAY_PAUSE

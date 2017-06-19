@@ -173,7 +173,7 @@ public class Playlist{
 
 	public void sort(){
 		if(!sorted){
-			currentIndex = Arrays.asList(playlistSorted).indexOf(getCurrent());
+			currentIndex = getQueueIndex();
 			playlist = playlistSorted;
 			sorted = true;
 		}
@@ -199,6 +199,10 @@ public class Playlist{
 		}
 
 		return queue;
+	}
+
+	public int getQueueIndex(){
+		return Arrays.asList(playlistSorted).indexOf(getCurrent());
 	}
 
 
