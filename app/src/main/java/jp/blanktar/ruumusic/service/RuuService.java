@@ -215,6 +215,7 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 		mediaSession = new MediaSessionCompat(getApplicationContext(), "RuuMusicService", componentName, PendingIntent.getBroadcast(getApplicationContext(), 0, mediaButtonIntent, 0));
 		mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
 		mediaSession.setSessionActivity(PendingIntent.getActivity(getApplicationContext(), 0, openPlayerIntent, 0));
+		updateMediaMetadata();
 		mediaSession.setActive(true);
 
 		setSessionToken(mediaSession.getSessionToken());
