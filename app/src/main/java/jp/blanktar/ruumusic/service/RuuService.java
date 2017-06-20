@@ -538,16 +538,20 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 			parentPath = "";
 		}
 
-		mediaSession.setMetadata(new MediaMetadataCompat.Builder()
+		MediaMetadataCompat.Builder metadata = new MediaMetadataCompat.Builder()
 				.putString(MediaMetadataCompat.METADATA_KEY_ALBUM, parentPath)
 				.putString(MediaMetadataCompat.METADATA_KEY_TITLE, playlist.getCurrent().getName())
-				.putLong(MediaMetadataCompat.METADATA_KEY_DURATION, player.getDuration())
-				.putBitmap(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON, BitmapFactory.decodeResource(getResources(), R.drawable.display_icon))
-				.build());
+				.putBitmap(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON, BitmapFactory.decodeResource(getResources(), R.drawable.display_icon));
+
+		if(status == Status.READY){
+			metadata.putLong(MediaMetadataCompat.METADATA_KEY_DURATION, player.getDuration());
+		}
+
+		mediaSession.setMetadata(metadata.build());
 
 		mediaSession.setPlaybackState(new PlaybackStateCompat.Builder()
 				.setState(player.isPlaying() ? PlaybackStateCompat.STATE_PLAYING : PlaybackStateCompat.STATE_PAUSED,
-						player.getCurrentPosition(),
+						status == Status.READY ? player.getCurrentPosition() : PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN,
 						1.0f)
 				.setActiveQueueItemId(playlist.getQueueIndex())
 				.setActions(PlaybackStateCompat.ACTION_PLAY
