@@ -41,6 +41,7 @@
 	<string name="first_of_directory">this is first</string>
 	<string name="last_of_directory">this is last</string>
 	<string name="has_not_music">`%1$s` has not music file</string>
+	<string name="search_no_hits">`%1$s` was not found</string>
 	<string name="audiofocus_denied">Failed to get audio focus</string>
 	<string name="empty_device_title">Music not found</string>
 	<string name="empty_device_message">Music not found in this device</string>

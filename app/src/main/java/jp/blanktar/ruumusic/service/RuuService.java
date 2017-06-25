@@ -695,7 +695,7 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 			notifyError(getString(R.string.cant_open_dir, path));
 			return;
 		}catch(Playlist.EmptyDirectory e){
-			notifyError(getString(R.string.has_not_music, path));
+			notifyError(getString(R.string.search_no_hits, query));
 			return;
 		}
 		if(shuffleMode){
