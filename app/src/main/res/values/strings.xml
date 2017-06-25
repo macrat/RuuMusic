@@ -28,11 +28,11 @@
 
 	<string name="upper_dir">upper directory</string>
 
-	<string name="recursive">Playing under %s</string>
-	<string name="search_play">Playing search result: %s</string>
+	<string name="recursive">Playing under %1$s</string>
+	<string name="search_play">Playing search result: %1$s</string>
 
-	<string name="out_of_root">`%s` is out of root directory</string>
-	<string name="cant_open_dir">Can\'t open directory `%s`</string>
+	<string name="out_of_root">`%1$s` is out of root directory</string>
+	<string name="cant_open_dir">Can\'t open directory `%1$s`</string>
 	<string name="failed_open_music">Failed loading music</string>
 	<string name="failed_play">Failed playing music</string>
 	<string name="music_not_found">Music file not found</string>
@@ -40,7 +40,7 @@
 	<string name="on_error_cancel">Cancel</string>
 	<string name="first_of_directory">this is first</string>
 	<string name="last_of_directory">this is last</string>
-	<string name="has_not_music">`%s` has not music file</string>
+	<string name="has_not_music">`%1$s` has not music file</string>
 	<string name="audiofocus_denied">Failed to get audio focus</string>
 	<string name="empty_device_title">Music not found</string>
 	<string name="empty_device_message">Music not found in this device</string>

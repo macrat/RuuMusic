@@ -28,11 +28,11 @@
 
 	<string name="upper_dir">親ディレクトリ</string>
 
-	<string name="recursive">%s 以下を再生中</string>
-	<string name="search_play">検索結果を再生中: %s</string>
+	<string name="recursive">%1$s 以下を再生中</string>
+	<string name="search_play">検索結果を再生中: %1$s</string>
 
-	<string name="out_of_root">`%s`はルートディレクトリの外です</string>
-	<string name="cant_open_dir">ディレクトリ`%s`を開くことが出来ません</string>
+	<string name="out_of_root">`%1$s`はルートディレクトリの外です</string>
+	<string name="cant_open_dir">ディレクトリ`%1$s`を開くことが出来ません</string>
 	<string name="failed_open_music">音楽の読み込みに失敗しました</string>
 	<string name="failed_play">音楽の再生に失敗しました</string>
 	<string name="music_not_found">ファイルが見つかりません</string>
@@ -40,7 +40,7 @@
 	<string name="on_error_cancel">キャンセル</string>
 	<string name="first_of_directory">これが最初の曲です</string>
 	<string name="last_of_directory">これが最後の曲です</string>
-	<string name="has_not_music">`%s`以下には音楽がありません</string>
+	<string name="has_not_music">`%1$s`以下には音楽がありません</string>
 	<string name="audiofocus_denied">オーディオフォーカスを取得できませんでした</string>
 	<string name="empty_device_title">音楽が見つかりません</string>
 	<string name="empty_device_message">このデバイスには音楽がないようです</string>

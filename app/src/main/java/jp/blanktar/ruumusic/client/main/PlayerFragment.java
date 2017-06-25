@@ -357,12 +357,12 @@ public class PlayerFragment extends Fragment{
 
 			if(client.status.recursivePath != null){
 				try{
-					((TextView)view.findViewById(R.id.status_indicator)).setText(String.format(getString(R.string.recursive), client.status.recursivePath.getRuuPath()));
+					((TextView)view.findViewById(R.id.status_indicator)).setText(getString(R.string.recursive, client.status.recursivePath.getRuuPath()));
 				}catch(RuuFileBase.OutOfRootDirectory e){
 					((TextView)view.findViewById(R.id.status_indicator)).setText("");
 				}
 			}else if(client.status.searchQuery != null && !client.status.searchQuery.equals("")){
-				((TextView)view.findViewById(R.id.status_indicator)).setText(String.format(getString(R.string.search_play), client.status.searchQuery));
+				((TextView)view.findViewById(R.id.status_indicator)).setText(getString(R.string.search_play, client.status.searchQuery));
 			}else{
 				((TextView)view.findViewById(R.id.status_indicator)).setText("");
 			}

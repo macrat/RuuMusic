@@ -662,11 +662,11 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 				}
 			}
 		}catch(RuuFileBase.NotFound e){
-			notifyError(String.format(getString(R.string.cant_open_dir), e.path));
+			notifyError(getString(R.string.cant_open_dir, e.path));
 		}catch(Playlist.EmptyDirectory e){
-			notifyError(String.format(getString(R.string.has_not_music), path));
+			notifyError(getString(R.string.has_not_music, path));
 		}catch(Playlist.NotFound e){
-			notifyError(String.format(getString(R.string.music_not_found), path));
+			notifyError(getString(R.string.music_not_found, path));
 		}
 	}
 
@@ -674,10 +674,10 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 		try{
 			playlist = Playlist.getRecursive(getApplicationContext(), path);
 		}catch(RuuFileBase.NotFound e){
-			notifyError(String.format(getString(R.string.cant_open_dir), path));
+			notifyError(getString(R.string.cant_open_dir, path));
 			return;
 		}catch(Playlist.EmptyDirectory e){
-			notifyError(String.format(getString(R.string.has_not_music), path));
+			notifyError(getString(R.string.has_not_music, path));
 			return;
 		}
 		if(shuffleMode){
@@ -690,12 +690,12 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 		try{
 			playlist = Playlist.getSearchResults(getApplicationContext(), RuuDirectory.getInstanceFromFullPath(getApplicationContext(), path), query);
 		}catch(RuuFileBase.OutOfRootDirectory e){
-			notifyError(String.format(getString(R.string.out_of_root), path));
+			notifyError(getString(R.string.out_of_root, path));
 		}catch(RuuFileBase.NotFound e){
-			notifyError(String.format(getString(R.string.cant_open_dir), path));
+			notifyError(getString(R.string.cant_open_dir, path));
 			return;
 		}catch(Playlist.EmptyDirectory e){
-			notifyError(String.format(getString(R.string.has_not_music), path));
+			notifyError(getString(R.string.has_not_music, path));
 			return;
 		}
 		if(shuffleMode){
@@ -715,7 +715,7 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 			player.setDataSource(realName);
 			player.prepareAsync();
 		}catch(IOException e){
-			notifyError(String.format(getString(R.string.failed_open_music), realName));
+			notifyError(getString(R.string.failed_open_music, realName));
 		}
 	}
 

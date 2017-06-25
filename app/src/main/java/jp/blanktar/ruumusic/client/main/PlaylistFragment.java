@@ -93,7 +93,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			try{
 				changeDir(RuuDirectory.rootDirectory(getContext()));
 			}catch(RuuFileBase.NotFound e){
-				Toast.makeText(getActivity(), String.format(getString(R.string.cant_open_dir), e.path), Toast.LENGTH_LONG).show();
+				Toast.makeText(getActivity(), getString(R.string.cant_open_dir, e.path), Toast.LENGTH_LONG).show();
 				preference.RootDirectory.remove();
 			}
 		}
@@ -166,7 +166,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 				activity.setTitle(current.path.getRuuPath());
 			}catch(RuuFileBase.OutOfRootDirectory e){
 				activity.setTitle("");
-				Toast.makeText(getActivity(), String.format(getString(R.string.out_of_root), current.path.getFullPath()), Toast.LENGTH_LONG).show();
+				Toast.makeText(getActivity(), getString(R.string.out_of_root, current.path.getFullPath()), Toast.LENGTH_LONG).show();
 			}
 		}
 	}
@@ -229,7 +229,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 		try{
 			dir.getRuuPath();
 		}catch(RuuFileBase.OutOfRootDirectory e){
-			Toast.makeText(getActivity(), String.format(getString(R.string.out_of_root), dir.getFullPath()), Toast.LENGTH_LONG).show();
+			Toast.makeText(getActivity(), getString(R.string.out_of_root, dir.getFullPath()), Toast.LENGTH_LONG).show();
 			return;
 		}
 
@@ -272,7 +272,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			try{
 				rootDirectory = RuuDirectory.rootDirectory(getContext());
 			}catch(RuuFileBase.NotFound e){
-				Toast.makeText(getActivity(), String.format(getString(R.string.cant_open_dir), "root directory"), Toast.LENGTH_LONG).show();
+				Toast.makeText(getActivity(), getString(R.string.cant_open_dir, "root directory"), Toast.LENGTH_LONG).show();
 				return;
 			}
 

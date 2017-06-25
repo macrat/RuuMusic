@@ -59,10 +59,10 @@ public class Playlist{
 					title = path.getRuuPath();
 					break;
 				case RECURSIVE:
-					title = String.format(context.getString(R.string.recursive), path.getRuuPath());
+					title = context.getString(R.string.recursive, path.getRuuPath());
 					break;
 				case SEARCH:
-					title = String.format(context.getString(R.string.search_play), query);
+					title = context.getString(R.string.search_play, query);
 					break;
 			}
 		}catch(RuuFileBase.OutOfRootDirectory e){

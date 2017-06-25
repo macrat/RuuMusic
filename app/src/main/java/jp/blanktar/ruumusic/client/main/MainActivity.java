@@ -129,7 +129,7 @@ public class MainActivity extends AppCompatActivity{
 						Toast.makeText(getApplicationContext(), getString(R.string.music_not_found), Toast.LENGTH_LONG).show();
 						viewPager.setCurrentItem(preference.LastViewPage.get());
 					}catch(RuuFileBase.OutOfRootDirectory e){
-						Toast.makeText(getApplicationContext(), String.format(getString(R.string.out_of_root), path), Toast.LENGTH_LONG).show();
+						Toast.makeText(getApplicationContext(), getString(R.string.out_of_root, path), Toast.LENGTH_LONG).show();
 						viewPager.setCurrentItem(preference.LastViewPage.get());
 					}
 					break;
