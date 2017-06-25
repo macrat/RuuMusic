@@ -526,6 +526,10 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 	}
 
 	private void updateMediaMetadata(){
+		updateMediaMetadata(null);
+	}
+
+	private void updateMediaMetadata(@Nullable String error){
 		if(playlist == null){
 			return;
 		}
@@ -548,7 +552,7 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 
 		mediaSession.setMetadata(metadata.build());
 
-		mediaSession.setPlaybackState(new PlaybackStateCompat.Builder()
+		PlaybackStateCompat.Builder state = new PlaybackStateCompat.Builder()
 				.setState(player.isPlaying() ? PlaybackStateCompat.STATE_PLAYING : PlaybackStateCompat.STATE_PAUSED,
 						status == Status.READY ? player.getCurrentPosition() : PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN,
 						1.0f)
@@ -564,7 +568,16 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 						| PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID
 						| PlaybackStateCompat.ACTION_PLAY_FROM_URI
 						| PlaybackStateCompat.ACTION_PLAY_FROM_SEARCH
-				).build());
+				);
+
+		if(error != null && !error.equals("")){
+			state.setErrorMessage(error);
+			state.setState(PlaybackStateCompat.STATE_ERROR,
+			               status == Status.READY ? player.getCurrentPosition() : PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN,
+			               1.0f);
+		}
+
+		mediaSession.setPlaybackState(state.build());
 
 		mediaSession.setQueue(playlist.getMediaSessionQueue());
 		mediaSession.setQueueTitle(playlist.title);
@@ -612,7 +625,7 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 					saveStatus();
 					stopDeathTimer();
 				}else{
-					showToast(getString(R.string.audiofocus_denied), true);
+					notifyError(getString(R.string.audiofocus_denied));
 				}
 			}else if(status == Status.LOADING_FROM_LASTEST){
 				status = Status.LOADING;
@@ -649,11 +662,11 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 				}
 			}
 		}catch(RuuFileBase.NotFound e){
-			showToast(String.format(getString(R.string.cant_open_dir), e.path), true);
+			notifyError(String.format(getString(R.string.cant_open_dir), e.path));
 		}catch(Playlist.EmptyDirectory e){
-			showToast(String.format(getString(R.string.has_not_music), path), true);
+			notifyError(String.format(getString(R.string.has_not_music), path));
 		}catch(Playlist.NotFound e){
-			showToast(String.format(getString(R.string.music_not_found), path), true);
+			notifyError(String.format(getString(R.string.music_not_found), path));
 		}
 	}
 
@@ -661,10 +674,10 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 		try{
 			playlist = Playlist.getRecursive(getApplicationContext(), path);
 		}catch(RuuFileBase.NotFound e){
-			showToast(String.format(getString(R.string.cant_open_dir), path), true);
+			notifyError(String.format(getString(R.string.cant_open_dir), path));
 			return;
 		}catch(Playlist.EmptyDirectory e){
-			showToast(String.format(getString(R.string.has_not_music), path), true);
+			notifyError(String.format(getString(R.string.has_not_music), path));
 			return;
 		}
 		if(shuffleMode){
@@ -677,12 +690,12 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 		try{
 			playlist = Playlist.getSearchResults(getApplicationContext(), RuuDirectory.getInstanceFromFullPath(getApplicationContext(), path), query);
 		}catch(RuuFileBase.OutOfRootDirectory e){
-			showToast(String.format(getString(R.string.out_of_root), path), true);
+			notifyError(String.format(getString(R.string.out_of_root), path));
 		}catch(RuuFileBase.NotFound e){
-			showToast(String.format(getString(R.string.cant_open_dir), path), true);
+			notifyError(String.format(getString(R.string.cant_open_dir), path));
 			return;
 		}catch(Playlist.EmptyDirectory e){
-			showToast(String.format(getString(R.string.has_not_music), path), true);
+			notifyError(String.format(getString(R.string.has_not_music), path));
 			return;
 		}
 		if(shuffleMode){
@@ -702,7 +715,7 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 			player.setDataSource(realName);
 			player.prepareAsync();
 		}catch(IOException e){
-			showToast(String.format(getString(R.string.failed_open_music), realName), true);
+			notifyError(String.format(getString(R.string.failed_open_music), realName));
 		}
 	}
 
@@ -824,6 +837,11 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 				}
 			}
 		}
+	}
+
+	private void notifyError(@NonNull final String message){
+		updateMediaMetadata(message);
+		showToast(message, true);
 	}
 
 	private void showToast(@NonNull final String message, final boolean show_long){
