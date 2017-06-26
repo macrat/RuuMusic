@@ -1,0 +1,34 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+
+
+android {
+	compileSdkVersion 25
+	buildToolsVersion "26.0.0"
+
+	defaultConfig {
+		applicationId "jp.blanktar.ruumusic.wear"
+		minSdkVersion 20
+		targetSdkVersion 25
+		versionCode 1
+		versionName "1.0"
+	}
+	buildTypes {
+		release {
+			minifyEnabled true
+			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+		}
+	}
+}
+
+dependencies {
+	compile fileTree(dir: 'libs', include: ['*.jar'])
+	compile 'com.google.android.support:wearable:2.0.3'
+	compile 'com.google.android.gms:play-services-wearable:11.0.1'
+	compile 'com.android.support:appcompat-v7:25.3.1'
+	compile 'com.android.support.constraint:constraint-layout:1.0.2'
+	compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+}
+repositories {
+	mavenCentral()
+}
