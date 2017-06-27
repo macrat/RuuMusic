@@ -13,7 +13,7 @@
 		<TextView
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:layout_marginBottom="@dimen/text_margin"
+			android:layout_marginBottom="@dimen/player_text_margin"
 			android:text="/path/to/"
 			android:textSize="@dimen/music_path_size"
 			android:textAlignment="center" />
@@ -21,7 +21,7 @@
 		<TextView
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:layout_marginBottom="@dimen/text_margin"
+			android:layout_marginBottom="@dimen/player_text_margin"
 			android:text="music name"
 			android:textAlignment="center"
 			android:textSize="@dimen/music_name_size" />

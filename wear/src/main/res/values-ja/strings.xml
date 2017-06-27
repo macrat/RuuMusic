@@ -1,5 +1,5 @@
 <resources>
 	<string name="app_name">RuuMusic</string>
 
-	<string name="upper_dir">upper directory</string>
+	<string name="upper_dir">親ディレクトリ</string>
 </resources>

@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <resources>
-	<dimen name="music_path_size">14sp</dimen>
-	<dimen name="music_name_size">16sp</dimen>
-	<dimen name="text_margin">1dp</dimen>
-	<dimen name="button_padding">6dp</dimen>
+	<dimen name="music_path_size">16sp</dimen>
+	<dimen name="music_name_size">18sp</dimen>
+	<dimen name="player_text_margin">1dp</dimen>
+	<dimen name="button_padding">10dp</dimen>
+	
+	<dimen name="playlist_text_size">24dp</dimen>
+	<dimen name="playlist_text_margin">8dp</dimen>
+	<dimen name="playlist_vertical_margin">50dp</dimen>
 </resources>

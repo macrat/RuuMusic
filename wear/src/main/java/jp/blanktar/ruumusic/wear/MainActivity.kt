@@ -21,16 +21,17 @@ class MainActivity : Activity() {
         override fun getItem(position: Int): Fragment? {
             when (position) {
                 0 -> return PlayerFragment()
+                1 -> return PlaylistFragment()
             }
             return null
         }
 
         override fun getCount(): Int {
-            return 1
+            return 2
         }
 
         override fun getPageTitle(position: Int): CharSequence {
-            return "Player"
+            return listOf("Player", "Playlist")[position]
         }
     }
 }

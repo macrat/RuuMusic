@@ -1,0 +1,9 @@
+<android.support.wearable.view.WearableRecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
+													xmlns:tools="http://schemas.android.com/tools"
+													android:layout_width="match_parent"
+													android:layout_height="match_parent"
+													android:paddingTop="@dimen/playlist_vertical_margin"
+													android:paddingBottom="@dimen/playlist_vertical_margin"
+													android:clipToPadding="false"
+													tools:context="jp.blanktar.ruumusic.wear.PlaylistFragment"
+													android:id="@+id/list"/>
