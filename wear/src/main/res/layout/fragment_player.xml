@@ -1,0 +1,83 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+				xmlns:tools="http://schemas.android.com/tools"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:gravity="center"
+				tools:context="jp.blanktar.ruumusic.wear.PlayerFragment">
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="vertical">
+
+		<TextView
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginBottom="@dimen/text_margin"
+			android:text="/path/to/"
+			android:textSize="@dimen/music_path_size"
+			android:textAlignment="center" />
+
+		<TextView
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginBottom="@dimen/text_margin"
+			android:text="music name"
+			android:textAlignment="center"
+			android:textSize="@dimen/music_name_size" />
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal"
+			android:gravity="center|bottom">
+
+			<ImageButton
+				android:id="@+id/imageButton6"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:padding="@dimen/button_padding"
+				android:background="@null"
+				android:src="@drawable/ic_prev" />
+
+			<ImageButton
+				android:id="@+id/imageButton6"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:background="@null"
+				android:padding="@dimen/button_padding"
+				android:src="@drawable/ic_play" />
+
+			<ImageButton
+				android:id="@+id/imageButton6"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:padding="@dimen/button_padding"
+				android:background="@null"
+				android:src="@drawable/ic_next" />
+		</LinearLayout>
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal"
+			android:gravity="center">
+
+			<ImageButton
+				android:id="@+id/imageButton6"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:padding="@dimen/button_padding"
+				android:background="@null"
+				android:src="@drawable/ic_shuffle_on" />
+
+			<ImageButton
+				android:id="@+id/imageButton6"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:padding="@dimen/button_padding"
+				android:background="@null"
+				android:src="@drawable/ic_repeat_one" />
+		</LinearLayout>
+	</LinearLayout>
+</RelativeLayout>
