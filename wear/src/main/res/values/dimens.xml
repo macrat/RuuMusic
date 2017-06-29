@@ -8,5 +8,5 @@
 	
 	<dimen name="playlist_text_size">24dp</dimen>
 	<dimen name="playlist_text_margin">8dp</dimen>
-	<dimen name="playlist_vertical_margin">50dp</dimen>
+	<dimen name="playlist_vertical_margin">0dp</dimen>
 </resources>
