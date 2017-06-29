@@ -1,14 +1,12 @@
 package jp.blanktar.ruumusic.wear
 
+import android.content.Context
 import android.support.v7.widget.RecyclerView
 import android.support.wearable.view.WearableRecyclerView
 import android.view.LayoutInflater
-import android.view.ViewGroup
-import android.content.Context
 import android.view.View
+import android.view.ViewGroup
 import android.widget.TextView
-
-
 
 
 class RecyclerAdapter(val data: Array<String>) : RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
@@ -27,8 +25,8 @@ class RecyclerAdapter(val data: Array<String>) : RecyclerView.Adapter<RecyclerAd
     }
 
     override fun onBindViewHolder(holder: RecyclerAdapter.ViewHolder, position: Int) {
-        holder.text?.text = data[position-1]
+        holder.text?.text = data[position - 1]
     }
 
-    override fun getItemCount() = data.size 
+    override fun getItemCount() = data.size
 }

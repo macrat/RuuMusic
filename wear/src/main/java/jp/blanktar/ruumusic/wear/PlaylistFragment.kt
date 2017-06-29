@@ -1,12 +1,12 @@
 package jp.blanktar.ruumusic.wear
 
-import android.os.Bundle
 import android.app.Fragment
+import android.os.Bundle
+import android.support.wearable.view.CurvedChildLayoutManager
+import android.support.wearable.view.WearableRecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.support.wearable.view.WearableRecyclerView
-import android.support.wearable.view.CurvedChildLayoutManager
 
 
 class PlaylistFragment : Fragment() {
