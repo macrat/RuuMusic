@@ -6,7 +6,7 @@ import android.content.Intent
 import android.content.IntentFilter
 
 import jp.blanktar.ruumusic.service.RuuService
-import jp.blanktar.ruumusic.service.EqualizerInfo
+import jp.blanktar.ruumusic.util.EqualizerInfo
 import jp.blanktar.ruumusic.util.PlayingStatus
 import jp.blanktar.ruumusic.util.RepeatModeType
 import jp.blanktar.ruumusic.util.RuuDirectory

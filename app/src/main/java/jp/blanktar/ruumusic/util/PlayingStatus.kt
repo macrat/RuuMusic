@@ -3,10 +3,13 @@ package jp.blanktar.ruumusic.util
 import android.content.Context
 import android.content.Intent
 
+import jp.blanktar.ruumusic.service.RuuService
+
 
 fun msec2str(msec: Long): String {
     if (msec >= 0) {
-        return "%d:%02d".format(Math.floor(msec / 1000.0 / 60.0).toInt(), Math.round(msec / 1000.0) % 60)
+        val sec = Math.round(msec / 1000.0)
+        return "%d:%02d".format(Math.floor(sec / 60.0).toInt(), sec % 60)
     } else {
         return "-"
     }
@@ -80,4 +83,25 @@ class PlayingStatus(@JvmField val playing: Boolean = false,
             } catch (e: NullPointerException) {
                 null
             })
+
+    fun toIntent(): Intent {
+        val intent = Intent()
+
+        intent.setAction(RuuService.ACTION_STATUS)
+
+        intent.putExtra("repeat", repeatMode.name)
+        intent.putExtra("shuffle", shuffleMode)
+
+        intent.putExtra("path", currentMusic?.getFullPath())
+        intent.putExtra("recursivePath", recursivePath?.getFullPath())
+        intent.putExtra("searchPath", searchPath?.getFullPath())
+        intent.putExtra("searchQuery", searchQuery)
+
+        intent.putExtra("playing", playing)
+        intent.putExtra("duration", duration)
+        intent.putExtra("current", receivedCurrentTime)
+        intent.putExtra("basetime", baseTime)
+
+        return intent
+    }
 }

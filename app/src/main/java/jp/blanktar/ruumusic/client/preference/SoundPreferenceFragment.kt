@@ -6,6 +6,7 @@ import android.support.v7.widget.SwitchCompat
 import android.widget.SeekBar
 
 import jp.blanktar.ruumusic.R
+import jp.blanktar.ruumusic.util.EqualizerInfo
 
 
 class SoundPreferenceFragment : android.support.v4.app.Fragment() {
@@ -24,7 +25,7 @@ class SoundPreferenceFragment : android.support.v4.app.Fragment() {
 
         client!!.requestEqualizerInfo()
         client!!.eventListener = object : jp.blanktar.ruumusic.client.RuuClientEventListener() {
-            override fun onEqualizerInfo(info: jp.blanktar.ruumusic.service.EqualizerInfo) {
+            override fun onEqualizerInfo(info: EqualizerInfo) {
                 view.findViewById(jp.blanktar.ruumusic.R.id.equalizer_switch).setEnabled(true)
                 setupEqualizer(view, info)
             }
@@ -81,7 +82,7 @@ class SoundPreferenceFragment : android.support.v4.app.Fragment() {
         bindSeekBarPreference(view.findViewById(R.id.loudness_level) as SeekBar, preference!!.LoudnessLevel)
     }
 
-    private fun setupEqualizer(view: android.view.View, info: jp.blanktar.ruumusic.service.EqualizerInfo) {
+    private fun setupEqualizer(view: android.view.View, info: EqualizerInfo) {
         val adapter = android.widget.ArrayAdapter<String>(getContext(), R.layout.spinner_item)
         adapter.add("Custom")
         info.presets.forEach { x -> adapter.add(x) }
