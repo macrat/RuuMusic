@@ -38,6 +38,7 @@ import android.widget.Toast;
 
 import jp.blanktar.ruumusic.R;
 import jp.blanktar.ruumusic.client.main.MainActivity;
+import jp.blanktar.ruumusic.util.PlayingStatus;
 import jp.blanktar.ruumusic.util.Preference;
 import jp.blanktar.ruumusic.util.RepeatModeType;
 import jp.blanktar.ruumusic.util.RuuDirectory;
@@ -87,6 +88,8 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 	@NonNull private Status status = Status.INITIAL;
 
 	@Nullable private EffectManager effectManager = null;
+
+	private IntentEndpoint intentEndpoint;
 
 
 	@Override
@@ -173,8 +176,7 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 				player.reset();
 
 				if(status != Status.ERRORED && playlist != null){
-					getBaseContext().sendBroadcast((new Intent(ACTION_FAILED_PLAY))
-							.putExtra("path", playlist.getCurrent().getRealPath()));
+					intentEndpoint.onFailedPlay(playlist.getCurrent());
 					sendStatus();
 
 					if(!errorSE.isPlaying()){
@@ -300,63 +302,14 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 		PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).registerOnSharedPreferenceChangeListener(this);
 		registerReceiver(broadcastReceiver, new IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY));
 
+		intentEndpoint = new IntentEndpoint(getApplicationContext(), new Controller());
+
 		startDeathTimer();
 	}
 
 	@Override
 	public int onStartCommand(@Nullable Intent intent, int flags, int startId){
-		if(intent != null){
-			switch(intent.getAction()){
-				case ACTION_PLAY:
-					String path = intent.getStringExtra("path");
-					if(path == null){
-						play();
-					}else{
-						playByPath(path);
-					}
-					break;
-				case ACTION_PLAY_RECURSIVE:
-					playRecursive(intent.getStringExtra("path"));
-					break;
-				case ACTION_PLAY_SEARCH:
-					playBySearch(intent.getStringExtra("path"), intent.getStringExtra("query"));
-					break;
-				case ACTION_PAUSE:
-					pause();
-					break;
-				case ACTION_PAUSE_TRANSIENT:
-					pauseTransient();
-					break;
-				case ACTION_PLAY_PAUSE:
-					if(player.isPlaying()){
-						pause();
-					}else{
-						play();
-					}
-					break;
-				case ACTION_SEEK:
-					seek(intent.getIntExtra("newtime", -1));
-					break;
-				case ACTION_REPEAT:
-					setRepeatMode(intent.getStringExtra("mode"));
-					break;
-				case ACTION_SHUFFLE:
-					setShuffleMode(intent.getBooleanExtra("mode", false));
-					break;
-				case ACTION_PING:
-					sendStatus();
-					break;
-				case ACTION_NEXT:
-					next();
-					break;
-				case ACTION_PREV:
-					prev();
-					break;
-				case ACTION_REQUEST_EQUALIZER_INFO:
-					sendEqualizerInfo();
-					break;
-			}
-		}
+		intentEndpoint.onIntent(intent);
 		return START_NOT_STICKY;
 	}
 
@@ -382,33 +335,31 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 		}
 	}
 
+	private PlayingStatus getPlayingStatus(){
+		return new PlayingStatus(
+				status == Status.READY && player.isPlaying(),
+				playlist != null ? playlist.getCurrent() : null,
+
+				status == Status.READY ? (long)player.getDuration() : 0,
+				status == Status.READY ? System.currentTimeMillis() - player.getCurrentPosition() : 0,
+				status == Status.READY ? (long)player.getCurrentPosition() : 0,
+
+				repeatMode,
+				shuffleMode,
+
+				(playlist != null && playlist.type == Playlist.Type.SEARCH) ? playlist.path : null,
+				playlist != null ? playlist.query : null,
+
+				(playlist != null && playlist.type == Playlist.Type.RECURSIVE) ? playlist.path : null
+		);
+	}
+
 	private void sendStatus(){
-		Intent sendIntent = new Intent();
-
-		sendIntent.setAction(ACTION_STATUS);
-
-		sendIntent.putExtra("repeat", repeatMode.name());
-		sendIntent.putExtra("shuffle", shuffleMode);
-
-		if(playlist != null){
-			sendIntent.putExtra("path", playlist.getCurrent().getFullPath());
-			sendIntent.putExtra("recursivePath", playlist.type == Playlist.Type.RECURSIVE ? playlist.path.getFullPath() : null);
-			sendIntent.putExtra("searchPath", playlist.type == Playlist.Type.SEARCH ? playlist.path.getFullPath() : null);
-			sendIntent.putExtra("searchQuery", playlist.query);
-		}
-
-		if(status == Status.READY){
-			sendIntent.putExtra("playing", player.isPlaying());
-			sendIntent.putExtra("duration", (long)player.getDuration());
-			sendIntent.putExtra("current", (long)player.getCurrentPosition());
-			sendIntent.putExtra("basetime", System.currentTimeMillis() - player.getCurrentPosition());
-		}
-
-		getBaseContext().sendBroadcast(sendIntent);
+		intentEndpoint.onStatusUpdated(getPlayingStatus());
 	}
 
 	private void sendEqualizerInfo(){
-		getBaseContext().sendBroadcast(effectManager.getEqualizerInfo().toIntent());
+		intentEndpoint.onEqualizerInfo(effectManager.getEqualizerInfo());
 	}
 
 	private void saveStatus(){
@@ -1021,6 +972,69 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 		@WorkerThread
 		private void sendIntent(@NonNull Context context, @NonNull String event){
 			context.startService((new Intent(context, RuuService.class)).setAction(event));
+		}
+	}
+
+
+	public class Controller{
+		public void play(){
+			RuuService.this.play();
+		}
+
+		public void play(String file){
+			RuuService.this.playByPath(file);
+		}
+
+		public void playRecursive(String dir){
+			RuuService.this.playRecursive(dir);
+		}
+
+		public void playSearch(String dir, String query){
+			RuuService.this.playBySearch(dir, query);
+		}
+
+		public void pause(){
+			RuuService.this.pause();
+		}
+
+		public void pauseTransient(){
+			RuuService.this.pauseTransient();
+		}
+
+		public void playPause(){
+			if(player.isPlaying()){
+				pause();
+			}else{
+				play();
+			}
+		}
+
+		public void seek(long msec){
+			RuuService.this.seek((int)msec);
+		}
+
+		public void setRepeatMode(RepeatModeType type){
+			RuuService.this.setRepeatMode(type);
+		}
+
+		public void setShuffleMode(boolean enabled){
+			RuuService.this.setShuffleMode(enabled);
+		}
+
+		public void next(){
+			RuuService.this.next();
+		}
+
+		public void prev(){
+			RuuService.this.prev();
+		}
+
+		public void sendStatus(){
+			RuuService.this.sendStatus();
+		}
+
+		public void sendEqualizerInfo(){
+			RuuService.this.sendEqualizerInfo();
 		}
 	}
 }
