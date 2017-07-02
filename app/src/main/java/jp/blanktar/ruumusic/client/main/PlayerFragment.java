@@ -371,7 +371,8 @@ public class PlayerFragment extends Fragment{
 
 	@NonNull
 	private String msec2str(long msec){
-		return ((int)Math.floor(msec / 1000 / 60)) + ":" + String.format("%02d", Math.round(msec / 1000) % 60);
+		int sec = Math.round(msec / 1000);
+		return ((int)Math.floor(sec / 60)) + ":" + String.format("%02d", sec % 60);
 	}
 
 	private void updateProgress(){

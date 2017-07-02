@@ -8,7 +8,8 @@ import jp.blanktar.ruumusic.service.RuuService
 
 fun msec2str(msec: Long): String {
     if (msec >= 0) {
-        return "%d:%02d".format(Math.floor(msec / 1000.0 / 60.0).toInt(), Math.round(msec / 1000.0) % 60)
+        val sec = Math.round(msec / 1000.0)
+        return "%d:%02d".format(Math.floor(sec / 60.0).toInt(), sec % 60)
     } else {
         return "-"
     }
