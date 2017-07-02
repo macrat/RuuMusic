@@ -5,15 +5,6 @@ import android.content.SharedPreferences
 import android.content.Context
 
 
-enum class RepeatModeType {
-    OFF { override val next get() = LOOP },
-    LOOP { override val next get() = SINGLE },
-    SINGLE { override val next get() = OFF };
-
-    abstract val next: RepeatModeType
-}
-
-
 class Preference(val context: Context) {
     @JvmField val AudioPrefix = "audio_"
 
