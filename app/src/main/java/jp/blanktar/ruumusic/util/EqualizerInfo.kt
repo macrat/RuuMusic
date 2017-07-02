@@ -1,6 +1,8 @@
-package jp.blanktar.ruumusic.service
+package jp.blanktar.ruumusic.util
 
 import android.content.Intent
+
+import jp.blanktar.ruumusic.service.RuuService
 
 
 class EqualizerInfo() {

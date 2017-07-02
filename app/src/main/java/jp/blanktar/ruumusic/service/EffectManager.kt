@@ -12,6 +12,7 @@ import android.widget.Toast
 import kotlin.concurrent.thread
 
 import jp.blanktar.ruumusic.R
+import jp.blanktar.ruumusic.util.EqualizerInfo
 import jp.blanktar.ruumusic.util.Preference
 
 

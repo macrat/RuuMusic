@@ -1,5 +1,6 @@
 package jp.blanktar.ruumusic.service
 
+import jp.blanktar.ruumusic.util.EqualizerInfo
 import jp.blanktar.ruumusic.util.PlayingStatus
 import jp.blanktar.ruumusic.util.RuuFile
 

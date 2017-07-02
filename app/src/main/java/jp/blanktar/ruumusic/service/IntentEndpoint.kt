@@ -3,6 +3,7 @@ package jp.blanktar.ruumusic.service
 import android.content.Context
 import android.content.Intent
 
+import jp.blanktar.ruumusic.util.EqualizerInfo
 import jp.blanktar.ruumusic.util.PlayingStatus
 import jp.blanktar.ruumusic.util.RepeatModeType
 import jp.blanktar.ruumusic.util.RuuFile
