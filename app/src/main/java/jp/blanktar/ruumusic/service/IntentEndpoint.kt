@@ -10,7 +10,7 @@ import jp.blanktar.ruumusic.util.RuuFile
 
 
 class IntentEndpoint(val context: Context, val controller: RuuService.Controller) : Endpoint {
-    override fun onDestroy() {}
+    override fun close() {}
 
     override fun onStatusUpdated(status: PlayingStatus) {
         context.sendBroadcast(status.toIntent())
@@ -23,6 +23,8 @@ class IntentEndpoint(val context: Context, val controller: RuuService.Controller
     override fun onFailedPlay(file: RuuFile) {
         context.sendBroadcast(Intent(RuuService.ACTION_FAILED_PLAY).putExtra("path", file.realPath));
     }
+
+    override fun onError(message: String) {}
 
     fun onIntent(intent: Intent){
         when (intent.getAction()) {
