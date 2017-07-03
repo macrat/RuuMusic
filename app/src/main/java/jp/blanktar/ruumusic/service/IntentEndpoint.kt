@@ -24,7 +24,7 @@ class IntentEndpoint(val context: Context, val controller: RuuService.Controller
         context.sendBroadcast(Intent(RuuService.ACTION_FAILED_PLAY).putExtra("path", status.currentMusic?.realPath));
     }
 
-    override fun onError(message: String) {}
+    override fun onError(message: String, status: PlayingStatus) {}
 
     fun onIntent(intent: Intent){
         when (intent.getAction()) {

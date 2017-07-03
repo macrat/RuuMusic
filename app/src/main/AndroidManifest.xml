@@ -59,7 +59,7 @@
 			</intent-filter>
         </service>
 
-        <receiver android:name=".service.RuuService$MediaButtonReceiver" >
+        <receiver android:name=".service.MediaSessionEndpoint$MediaButtonReceiver" >
             <intent-filter>
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
             </intent-filter>
