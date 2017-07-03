@@ -10,30 +10,21 @@ import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.WorkerThread;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.graphics.BitmapFactory;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaBrowserServiceCompat;
-import android.support.v4.media.MediaMetadataCompat;
-import android.support.v4.media.session.MediaSessionCompat;
-import android.support.v4.media.session.PlaybackStateCompat;
-import android.view.KeyEvent;
 import android.widget.Toast;
 
 import jp.blanktar.ruumusic.R;
-import jp.blanktar.ruumusic.client.main.MainActivity;
 import jp.blanktar.ruumusic.util.PlayingStatus;
 import jp.blanktar.ruumusic.util.Preference;
 import jp.blanktar.ruumusic.util.RepeatModeType;
@@ -465,14 +456,6 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 
 		sendStatus();
 		preference.RepeatMode.set(repeatMode);
-	}
-
-	private void setRepeatMode(@NonNull String mode){
-		try{
-			setRepeatMode(RepeatModeType.valueOf(mode));
-		}catch(IllegalArgumentException e) {
-			return;
-		}
 	}
 
 	private void setShuffleMode(boolean mode){
