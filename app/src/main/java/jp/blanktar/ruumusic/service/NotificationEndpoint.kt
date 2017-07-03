@@ -21,6 +21,7 @@ import jp.blanktar.ruumusic.util.RuuFileBase
 
 class NotificationEndpoint(val service: Service, val mediaSession: MediaSessionCompat) : Endpoint {
     val context = service.getApplicationContext()
+    var first = true
 
     override fun close() {
         removeNotification()
@@ -29,10 +30,11 @@ class NotificationEndpoint(val service: Service, val mediaSession: MediaSessionC
     override fun onStatusUpdated(status: PlayingStatus) {
         if (status.playing) {
             service.startForeground(1, makeNotification(status))
+            first = false
         } else {
             service.stopForeground(true)
 
-            if(Build.VERSION.SDK_INT >= 16 && status.currentMusic != null){
+            if(Build.VERSION.SDK_INT >= 16 && status.currentMusic != null && !first){
                 (context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).notify(1, makeNotification(status))
             }
         }
