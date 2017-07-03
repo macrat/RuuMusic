@@ -10,8 +10,6 @@ import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.WorkerThread;
-import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -23,7 +21,6 @@ import android.graphics.BitmapFactory;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -32,7 +29,6 @@ import android.support.v4.media.MediaBrowserServiceCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
-import android.support.v7.app.NotificationCompat;
 import android.view.KeyEvent;
 import android.widget.Toast;
 
@@ -90,6 +86,7 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 	@Nullable private EffectManager effectManager = null;
 
 	private IntentEndpoint intentEndpoint;
+	private List<Endpoint> endpoints;
 
 
 	@Override
@@ -176,8 +173,9 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 				player.reset();
 
 				if(status != Status.ERRORED && playlist != null){
-					intentEndpoint.onFailedPlay(playlist.getCurrent());
-					sendStatus();
+					for(Endpoint e: endpoints){
+						e.onFailedPlay(getPlayingStatus());
+					}
 
 					if(!errorSE.isPlaying()){
 						errorSE.start();
@@ -185,7 +183,6 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 				}
 
 				status = Status.ERRORED;
-				removePlayingNotification();
 
 				return true;
 			}
@@ -302,7 +299,12 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 		PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).registerOnSharedPreferenceChangeListener(this);
 		registerReceiver(broadcastReceiver, new IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY));
 
+		endpoints = new ArrayList<Endpoint>();
+
 		intentEndpoint = new IntentEndpoint(getApplicationContext(), new Controller());
+		endpoints.add(intentEndpoint);
+
+		endpoints.add(new NotificationEndpoint(this, mediaSession));
 
 		startDeathTimer();
 	}
@@ -315,12 +317,13 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 
 	@Override
 	public void onDestroy(){
-		removePlayingNotification();
 		unregisterReceiver(broadcastReceiver);
 
 		PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).unregisterOnSharedPreferenceChangeListener(this);
 
-		((NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE)).cancel(1);
+		for(Endpoint e: endpoints){
+			e.close();
+		}
 
 		effectManager.release();
 		mediaSession.release();
@@ -355,11 +358,16 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 	}
 
 	private void sendStatus(){
-		intentEndpoint.onStatusUpdated(getPlayingStatus());
+		PlayingStatus status = getPlayingStatus();
+		for(Endpoint e: endpoints){
+			e.onStatusUpdated(status);
+		}
 	}
 
 	private void sendEqualizerInfo(){
-		intentEndpoint.onEqualizerInfo(effectManager.getEqualizerInfo());
+		for(Endpoint e: endpoints){
+			e.onEqualizerInfo(effectManager.getEqualizerInfo());
+		}
 	}
 
 	private void saveStatus(){
@@ -389,91 +397,6 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 		preference.RecursivePath.remove();
 		preference.SearchPath.remove();
 		preference.SearchQuery.remove();
-	}
-
-	@NonNull
-	private Notification makeNotification(){
-		assert playlist != null;
-
-		int playpause_icon = player.isPlaying() ? R.drawable.ic_pause_for_notif : R.drawable.ic_play_for_notif;
-		String playpause_text = player.isPlaying() ? "pause" : "play";
-		PendingIntent playpause_pi = PendingIntent.getService(
-				getApplicationContext(),
-				0,
-				(new Intent(getApplicationContext(), RuuService.class)).setAction(player.isPlaying() ? ACTION_PAUSE : ACTION_PLAY),
-				0);
-
-		PendingIntent prev_pi = PendingIntent.getService(getApplicationContext(), 0, (new Intent(getApplicationContext(), RuuService.class)).setAction(ACTION_PREV), 0);
-		PendingIntent next_pi = PendingIntent.getService(getApplicationContext(), 0, (new Intent(getApplicationContext(), RuuService.class)).setAction(ACTION_NEXT), 0);
-
-		int shuffle_icon = shuffleMode ? R.drawable.ic_shuffle_on : R.drawable.ic_shuffle_off;
-		PendingIntent shuffle_pi = PendingIntent.getService(
-				getApplicationContext(),
-				0,
-				(new Intent(getApplicationContext(), RuuService.class)).setAction(ACTION_SHUFFLE).putExtra("mode", !shuffleMode),
-				PendingIntent.FLAG_CANCEL_CURRENT);
-
-		int repeat_icon = R.drawable.ic_repeat_off;
-		switch(repeatMode){
-			case OFF:
-				repeat_icon = R.drawable.ic_repeat_off;
-				break;
-			case SINGLE:
-				repeat_icon = R.drawable.ic_repeat_one;
-				break;
-			case LOOP:
-				repeat_icon = R.drawable.ic_repeat_all;
-				break;
-		}
-		PendingIntent repeat_pi = PendingIntent.getService(
-				getApplicationContext(),
-				0,
-				(new Intent(getApplicationContext(), RuuService.class)).setAction(ACTION_REPEAT).putExtra("mode", repeatMode.getNext().name()),
-				PendingIntent.FLAG_CANCEL_CURRENT);
-
-		Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-		intent.setAction(MainActivity.ACTION_OPEN_PLAYER);
-		PendingIntent contentIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
-
-		String parentPath;
-		try{
-			parentPath = playlist.getCurrent().getParent().getRuuPath();
-		}catch(RuuFileBase.OutOfRootDirectory e){
-			parentPath = "";
-		}
-
-		return new NotificationCompat.Builder(getApplicationContext())
-				.setSmallIcon(R.drawable.ic_play_notification)
-				.setTicker(playlist.getCurrent().getName())
-				.setContentTitle(playlist.getCurrent().getName())
-				.setContentText(parentPath)
-				.setContentIntent(contentIntent)
-				.setPriority(Notification.PRIORITY_LOW)
-				.setVisibility(Notification.VISIBILITY_PUBLIC)
-				.setCategory(Notification.CATEGORY_TRANSPORT)
-				.addAction(shuffle_icon, "shuffle", shuffle_pi)
-				.addAction(R.drawable.ic_prev_for_notif, "prev", prev_pi)
-				.addAction(playpause_icon, playpause_text, playpause_pi)
-				.addAction(R.drawable.ic_next_for_notif, "next", next_pi)
-				.addAction(repeat_icon, "repeat", repeat_pi)
-				.setStyle(new NotificationCompat.MediaStyle()
-						.setMediaSession(mediaSession.getSessionToken())
-						.setShowActionsInCompactView(1, 2, 3))
-				.build();
-	}
-
-	private void updatePlayingNotification(){
-		startForeground(1, makeNotification());
-	}
-
-	private void removePlayingNotification(){
-		if(!player.isPlaying()){
-			stopForeground(true);
-
-			if(Build.VERSION.SDK_INT >= 16 && playlist != null){
-				((NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE)).notify(1, makeNotification());
-			}
-		}
 	}
 
 	private void updateMediaMetadata(){
@@ -543,24 +466,14 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 		}
 
 		if(playlist != null && (root == null || !root.contains(playlist.path))){
-			if(player.isPlaying()){
-				stopForeground(true);
-			}else{
-				((NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE)).cancel(1);
-			}
-
 			player.reset();
 			status = Status.INITIAL;
 			playlist = null;
 
-			sendStatus();
 			removeSavedStatus();
-		}else if(player.isPlaying()){
-			updatePlayingNotification();
-		}else{
-			((NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE)).cancel(1);
 		}
 
+		sendStatus();
 		updateMediaMetadata();
 	}
 
@@ -571,7 +484,6 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 				== AudioManager.AUDIOFOCUS_REQUEST_GRANTED){
 					player.start();
 					sendStatus();
-					updatePlayingNotification();
 					updateMediaMetadata();
 					saveStatus();
 					stopDeathTimer();
@@ -683,7 +595,7 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 	private void pause(){
 		pauseTransient();
 		((AudioManager)getSystemService(Context.AUDIO_SERVICE)).abandonAudioFocus(focusListener);
-		removePlayingNotification();
+		sendStatus();
 		updateMediaMetadata();
 		saveStatus();
 	}
@@ -711,7 +623,6 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 		}
 
 		sendStatus();
-		updatePlayingNotification();
 		preference.RepeatMode.set(repeatMode);
 	}
 
@@ -734,7 +645,6 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 
 		shuffleMode = mode;
 		sendStatus();
-		updatePlayingNotification();
 		mediaSession.setShuffleModeEnabled(mode);
 
 		preference.ShuffleMode.set(shuffleMode);
@@ -791,6 +701,9 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 	}
 
 	private void notifyError(@NonNull final String message){
+		for(Endpoint e: endpoints){
+			e.onError(message);
+		}
 		updateMediaMetadata(message);
 		showToast(message, true);
 	}

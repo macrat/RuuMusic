@@ -20,8 +20,8 @@ class IntentEndpoint(val context: Context, val controller: RuuService.Controller
         context.sendBroadcast(info.toIntent())
     }
 
-    override fun onFailedPlay(file: RuuFile) {
-        context.sendBroadcast(Intent(RuuService.ACTION_FAILED_PLAY).putExtra("path", file.realPath));
+    override fun onFailedPlay(status: PlayingStatus) {
+        context.sendBroadcast(Intent(RuuService.ACTION_FAILED_PLAY).putExtra("path", status.currentMusic?.realPath));
     }
 
     override fun onError(message: String) {}

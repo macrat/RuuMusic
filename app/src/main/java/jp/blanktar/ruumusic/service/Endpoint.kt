@@ -10,6 +10,6 @@ interface Endpoint {
 
     fun onStatusUpdated(status: PlayingStatus)
     fun onEqualizerInfo(info: EqualizerInfo)
-    fun onFailedPlay(file: RuuFile)
+    fun onFailedPlay(status: PlayingStatus)
     fun onError(message: String)
 }
