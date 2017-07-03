@@ -15,13 +15,11 @@ import android.view.KeyEvent
 
 import jp.blanktar.ruumusic.R
 import jp.blanktar.ruumusic.client.main.MainActivity
+import jp.blanktar.ruumusic.util.EqualizerInfo
+import jp.blanktar.ruumusic.util.PlayingStatus
+import jp.blanktar.ruumusic.util.Preference
 import jp.blanktar.ruumusic.util.RepeatModeType
 import jp.blanktar.ruumusic.util.RuuFileBase
-import jp.blanktar.ruumusic.util.PlayingStatus
-import jp.blanktar.ruumusic.util.EqualizerInfo
-import jp.blanktar.ruumusic.util.Preference
-
-
 
 
 class MediaSessionEndpoint(val context: Context, controller: RuuService.Controller, initialStatus: PlayingStatus, initialPlaylist: Playlist?) : Endpoint {
@@ -51,7 +49,7 @@ class MediaSessionEndpoint(val context: Context, controller: RuuService.Controll
             updateQueue(initialPlaylist)
         }
 
-        mediaSession.setActive(true);
+        mediaSession.setActive(true)
 
         mediaSession.setCallback(object : MediaSessionCompat.Callback() {
             override fun onPlay() {
@@ -63,7 +61,7 @@ class MediaSessionEndpoint(val context: Context, controller: RuuService.Controll
             }
 
             override fun onPlayFromUri(uri: Uri, extras: Bundle) {
-                controller.play(uri.getPath())
+                controller.play(uri.path)
             }
 
             override fun onPlayFromSearch(query: String?, extras: Bundle?) {
@@ -139,7 +137,7 @@ class MediaSessionEndpoint(val context: Context, controller: RuuService.Controll
         val metadata = MediaMetadataCompat.Builder()
                 .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, parentPath)
                 .putString(MediaMetadataCompat.METADATA_KEY_TITLE, status.currentMusic?.name)
-                .putBitmap(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON, BitmapFactory.decodeResource(context.getResources(), R.drawable.display_icon))
+                .putBitmap(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON, BitmapFactory.decodeResource(context.resources, R.drawable.display_icon))
 
         metadata.putLong(MediaMetadataCompat.METADATA_KEY_DURATION, status.duration)
 
