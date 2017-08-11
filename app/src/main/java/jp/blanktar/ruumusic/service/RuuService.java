@@ -10,34 +10,21 @@ import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.WorkerThread;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.graphics.BitmapFactory;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaBrowserServiceCompat;
-import android.support.v4.media.MediaMetadataCompat;
-import android.support.v4.media.session.MediaSessionCompat;
-import android.support.v4.media.session.PlaybackStateCompat;
-import android.support.v7.app.NotificationCompat;
-import android.view.KeyEvent;
 import android.widget.Toast;
 
 import jp.blanktar.ruumusic.R;
-import jp.blanktar.ruumusic.client.main.MainActivity;
 import jp.blanktar.ruumusic.util.PlayingStatus;
 import jp.blanktar.ruumusic.util.Preference;
 import jp.blanktar.ruumusic.util.RepeatModeType;
@@ -78,7 +65,6 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 	private MediaPlayer endOfListSE;
 	private MediaPlayer errorSE;
 	@Nullable private Timer deathTimer;
-	@Nullable private static MediaSessionCompat mediaSession;
 	@Nullable private Preference preference;
 
 	@Nullable private Playlist playlist;
@@ -90,6 +76,8 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 	@Nullable private EffectManager effectManager = null;
 
 	private IntentEndpoint intentEndpoint;
+	private MediaSessionEndpoint mediaSessionEndpoint;
+	private List<Endpoint> endpoints;
 
 
 	@Override
@@ -176,8 +164,9 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 				player.reset();
 
 				if(status != Status.ERRORED && playlist != null){
-					intentEndpoint.onFailedPlay(playlist.getCurrent());
-					sendStatus();
+					for(Endpoint e: endpoints){
+						e.onFailedPlay(getPlayingStatus());
+					}
 
 					if(!errorSE.isPlaying()){
 						errorSE.start();
@@ -185,7 +174,6 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 				}
 
 				status = Status.ERRORED;
-				removePlayingNotification();
 
 				return true;
 			}
@@ -205,104 +193,20 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 			}
 		});
 
-		ComponentName componentName = new ComponentName(getApplicationContext().getPackageName(), MediaButtonReceiver.class.getName());
-
-		Intent mediaButtonIntent = new Intent(Intent.ACTION_MEDIA_BUTTON);
-		mediaButtonIntent.setComponent(componentName);
-
-		Intent openPlayerIntent = new Intent(getApplicationContext(), MainActivity.class);
-		openPlayerIntent.setAction(MainActivity.ACTION_OPEN_PLAYER);
-
-		mediaSession = new MediaSessionCompat(getApplicationContext(), "RuuMusicService", componentName, PendingIntent.getBroadcast(getApplicationContext(), 0, mediaButtonIntent, 0));
-		mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
-		mediaSession.setSessionActivity(PendingIntent.getActivity(getApplicationContext(), 0, openPlayerIntent, 0));
-		updateMediaMetadata();
-		mediaSession.setActive(true);
-
-		setSessionToken(mediaSession.getSessionToken());
-
-		mediaSession.setCallback(new MediaSessionCompat.Callback(){
-			@Override
-			public void onPlay(){
-				play();
-			}
-
-			@Override
-			public void onPlayFromMediaId(String mediaId, Bundle extras){
-				playByPath(mediaId);
-			}
-
-			@Override
-			public void onPlayFromUri(Uri uri, Bundle extras){
-				playByPath(uri.getPath());
-			}
-
-			@Override
-			public void onPlayFromSearch(String query, Bundle extras){
-				playBySearch(extras.getCharSequence("path", preference.RootDirectory.get()).toString(), query);
-			}
-
-			@Override
-			public void onSkipToQueueItem(long id){
-				try{
-					playlist.goQueueIndex(id);
-				}catch(IndexOutOfBoundsException e){
-				}
-				load(false);
-				play();
-			}
-
-			@Override
-			public void onPause(){
-				pause();
-			}
-
-			@Override
-			public void onStop(){
-				pause();
-			}
-
-			@Override
-			public void onSkipToNext(){
-				next();
-			}
-
-			@Override
-			public void onSkipToPrevious(){
-				prev();
-			}
-
-			@Override
-			public void onSeekTo(long pos){
-				seek((int)pos);
-			}
-
-			@Override
-			public void onSetRepeatMode(int repeatMode){
-				switch(repeatMode){
-					case PlaybackStateCompat.REPEAT_MODE_NONE:
-						setRepeatMode(RepeatModeType.OFF);
-						break;
-					case PlaybackStateCompat.REPEAT_MODE_ONE:
-						setRepeatMode(RepeatModeType.SINGLE);
-						break;
-					case PlaybackStateCompat.REPEAT_MODE_ALL:
-						setRepeatMode(RepeatModeType.LOOP);
-						break;
-				}
-			}
-
-			@Override
-			public void onSetShuffleModeEnabled(boolean shuffleMode){
-				setShuffleMode(shuffleMode);
-			}
-		});
-
 		effectManager = new EffectManager(player, getApplicationContext());
 		PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).registerOnSharedPreferenceChangeListener(this);
 		registerReceiver(broadcastReceiver, new IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY));
 
+		endpoints = new ArrayList<Endpoint>();
+
 		intentEndpoint = new IntentEndpoint(getApplicationContext(), new Controller());
+		endpoints.add(intentEndpoint);
+
+		mediaSessionEndpoint = new MediaSessionEndpoint(getApplicationContext(), new Controller(), getPlayingStatus(), playlist);
+		setSessionToken(mediaSessionEndpoint.getSessionToken());
+		endpoints.add(mediaSessionEndpoint);
+
+		endpoints.add(new NotificationEndpoint(this, mediaSessionEndpoint.getMediaSession()));
 
 		startDeathTimer();
 	}
@@ -315,15 +219,15 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 
 	@Override
 	public void onDestroy(){
-		removePlayingNotification();
 		unregisterReceiver(broadcastReceiver);
 
 		PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).unregisterOnSharedPreferenceChangeListener(this);
 
-		((NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE)).cancel(1);
+		for(Endpoint e: endpoints){
+			e.close();
+		}
 
 		effectManager.release();
-		mediaSession.release();
 
 		saveStatus();
 	}
@@ -355,11 +259,20 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 	}
 
 	private void sendStatus(){
-		intentEndpoint.onStatusUpdated(getPlayingStatus());
+		if (playlist != null) {
+			mediaSessionEndpoint.updateQueue(playlist);
+		}
+
+		PlayingStatus status = getPlayingStatus();
+		for(Endpoint e: endpoints){
+			e.onStatusUpdated(status);
+		}
 	}
 
 	private void sendEqualizerInfo(){
-		intentEndpoint.onEqualizerInfo(effectManager.getEqualizerInfo());
+		for(Endpoint e: endpoints){
+			e.onEqualizerInfo(effectManager.getEqualizerInfo());
+		}
 	}
 
 	private void saveStatus(){
@@ -391,149 +304,6 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 		preference.SearchQuery.remove();
 	}
 
-	@NonNull
-	private Notification makeNotification(){
-		assert playlist != null;
-
-		int playpause_icon = player.isPlaying() ? R.drawable.ic_pause_for_notif : R.drawable.ic_play_for_notif;
-		String playpause_text = player.isPlaying() ? "pause" : "play";
-		PendingIntent playpause_pi = PendingIntent.getService(
-				getApplicationContext(),
-				0,
-				(new Intent(getApplicationContext(), RuuService.class)).setAction(player.isPlaying() ? ACTION_PAUSE : ACTION_PLAY),
-				0);
-
-		PendingIntent prev_pi = PendingIntent.getService(getApplicationContext(), 0, (new Intent(getApplicationContext(), RuuService.class)).setAction(ACTION_PREV), 0);
-		PendingIntent next_pi = PendingIntent.getService(getApplicationContext(), 0, (new Intent(getApplicationContext(), RuuService.class)).setAction(ACTION_NEXT), 0);
-
-		int shuffle_icon = shuffleMode ? R.drawable.ic_shuffle_on : R.drawable.ic_shuffle_off;
-		PendingIntent shuffle_pi = PendingIntent.getService(
-				getApplicationContext(),
-				0,
-				(new Intent(getApplicationContext(), RuuService.class)).setAction(ACTION_SHUFFLE).putExtra("mode", !shuffleMode),
-				PendingIntent.FLAG_CANCEL_CURRENT);
-
-		int repeat_icon = R.drawable.ic_repeat_off;
-		switch(repeatMode){
-			case OFF:
-				repeat_icon = R.drawable.ic_repeat_off;
-				break;
-			case SINGLE:
-				repeat_icon = R.drawable.ic_repeat_one;
-				break;
-			case LOOP:
-				repeat_icon = R.drawable.ic_repeat_all;
-				break;
-		}
-		PendingIntent repeat_pi = PendingIntent.getService(
-				getApplicationContext(),
-				0,
-				(new Intent(getApplicationContext(), RuuService.class)).setAction(ACTION_REPEAT).putExtra("mode", repeatMode.getNext().name()),
-				PendingIntent.FLAG_CANCEL_CURRENT);
-
-		Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-		intent.setAction(MainActivity.ACTION_OPEN_PLAYER);
-		PendingIntent contentIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
-
-		String parentPath;
-		try{
-			parentPath = playlist.getCurrent().getParent().getRuuPath();
-		}catch(RuuFileBase.OutOfRootDirectory e){
-			parentPath = "";
-		}
-
-		return new NotificationCompat.Builder(getApplicationContext())
-				.setSmallIcon(R.drawable.ic_play_notification)
-				.setTicker(playlist.getCurrent().getName())
-				.setContentTitle(playlist.getCurrent().getName())
-				.setContentText(parentPath)
-				.setContentIntent(contentIntent)
-				.setPriority(Notification.PRIORITY_LOW)
-				.setVisibility(Notification.VISIBILITY_PUBLIC)
-				.setCategory(Notification.CATEGORY_TRANSPORT)
-				.addAction(shuffle_icon, "shuffle", shuffle_pi)
-				.addAction(R.drawable.ic_prev_for_notif, "prev", prev_pi)
-				.addAction(playpause_icon, playpause_text, playpause_pi)
-				.addAction(R.drawable.ic_next_for_notif, "next", next_pi)
-				.addAction(repeat_icon, "repeat", repeat_pi)
-				.setStyle(new NotificationCompat.MediaStyle()
-						.setMediaSession(mediaSession.getSessionToken())
-						.setShowActionsInCompactView(1, 2, 3))
-				.build();
-	}
-
-	private void updatePlayingNotification(){
-		startForeground(1, makeNotification());
-	}
-
-	private void removePlayingNotification(){
-		if(!player.isPlaying()){
-			stopForeground(true);
-
-			if(Build.VERSION.SDK_INT >= 16 && playlist != null){
-				((NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE)).notify(1, makeNotification());
-			}
-		}
-	}
-
-	private void updateMediaMetadata(){
-		updateMediaMetadata(null);
-	}
-
-	private void updateMediaMetadata(@Nullable String error){
-		if(playlist == null){
-			return;
-		}
-
-		String parentPath;
-		try{
-			parentPath = playlist.getCurrent().getParent().getRuuPath();
-		}catch(RuuFileBase.OutOfRootDirectory e){
-			parentPath = "";
-		}
-
-		MediaMetadataCompat.Builder metadata = new MediaMetadataCompat.Builder()
-				.putString(MediaMetadataCompat.METADATA_KEY_ALBUM, parentPath)
-				.putString(MediaMetadataCompat.METADATA_KEY_TITLE, playlist.getCurrent().getName())
-				.putBitmap(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON, BitmapFactory.decodeResource(getResources(), R.drawable.display_icon));
-
-		if(status == Status.READY){
-			metadata.putLong(MediaMetadataCompat.METADATA_KEY_DURATION, player.getDuration());
-		}
-
-		mediaSession.setMetadata(metadata.build());
-
-		PlaybackStateCompat.Builder state = new PlaybackStateCompat.Builder()
-				.setState(player.isPlaying() ? PlaybackStateCompat.STATE_PLAYING : PlaybackStateCompat.STATE_PAUSED,
-						status == Status.READY ? player.getCurrentPosition() : PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN,
-						1.0f)
-				.setActiveQueueItemId(playlist.getQueueIndex())
-				.setActions(PlaybackStateCompat.ACTION_PLAY
-						| PlaybackStateCompat.ACTION_PAUSE
-						| PlaybackStateCompat.ACTION_PLAY_PAUSE
-						| PlaybackStateCompat.ACTION_STOP
-						| PlaybackStateCompat.ACTION_SKIP_TO_NEXT
-						| PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
-						| PlaybackStateCompat.ACTION_SET_REPEAT_MODE
-						| PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE_ENABLED
-						| PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID
-						| PlaybackStateCompat.ACTION_PLAY_FROM_URI
-						| PlaybackStateCompat.ACTION_PLAY_FROM_SEARCH
-				);
-
-		if(error != null && !error.equals("")){
-			state.setErrorMessage(error);
-			state.setState(PlaybackStateCompat.STATE_ERROR,
-			               status == Status.READY ? player.getCurrentPosition() : PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN,
-			               1.0f);
-		}
-
-		mediaSession.setPlaybackState(state.build());
-
-		mediaSession.setQueue(playlist.getMediaSessionQueue());
-		mediaSession.setQueueTitle(playlist.title);
-	}
-
 	private void updateRoot(){
 		RuuDirectory root;
 		try{
@@ -543,25 +313,14 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 		}
 
 		if(playlist != null && (root == null || !root.contains(playlist.path))){
-			if(player.isPlaying()){
-				stopForeground(true);
-			}else{
-				((NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE)).cancel(1);
-			}
-
 			player.reset();
 			status = Status.INITIAL;
 			playlist = null;
 
-			sendStatus();
 			removeSavedStatus();
-		}else if(player.isPlaying()){
-			updatePlayingNotification();
-		}else{
-			((NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE)).cancel(1);
 		}
 
-		updateMediaMetadata();
+		sendStatus();
 	}
 
 	private void play(){
@@ -571,8 +330,6 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 				== AudioManager.AUDIOFOCUS_REQUEST_GRANTED){
 					player.start();
 					sendStatus();
-					updatePlayingNotification();
-					updateMediaMetadata();
 					saveStatus();
 					stopDeathTimer();
 				}else{
@@ -683,8 +440,7 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 	private void pause(){
 		pauseTransient();
 		((AudioManager)getSystemService(Context.AUDIO_SERVICE)).abandonAudioFocus(focusListener);
-		removePlayingNotification();
-		updateMediaMetadata();
+		sendStatus();
 		saveStatus();
 	}
 
@@ -698,29 +454,8 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 	private void setRepeatMode(@NonNull RepeatModeType mode){
 		repeatMode = mode;
 
-		switch(mode){
-			case OFF:
-				mediaSession.setRepeatMode(PlaybackStateCompat.REPEAT_MODE_NONE);
-				break;
-			case SINGLE:
-				mediaSession.setRepeatMode(PlaybackStateCompat.REPEAT_MODE_ONE);
-				break;
-			case LOOP:
-				mediaSession.setRepeatMode(PlaybackStateCompat.REPEAT_MODE_ALL);
-				break;
-		}
-
 		sendStatus();
-		updatePlayingNotification();
 		preference.RepeatMode.set(repeatMode);
-	}
-
-	private void setRepeatMode(@NonNull String mode){
-		try{
-			setRepeatMode(RepeatModeType.valueOf(mode));
-		}catch(IllegalArgumentException e) {
-			return;
-		}
 	}
 
 	private void setShuffleMode(boolean mode){
@@ -734,8 +469,6 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 
 		shuffleMode = mode;
 		sendStatus();
-		updatePlayingNotification();
-		mediaSession.setShuffleModeEnabled(mode);
 
 		preference.ShuffleMode.set(shuffleMode);
 	}
@@ -791,7 +524,9 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 	}
 
 	private void notifyError(@NonNull final String message){
-		updateMediaMetadata(message);
+		for(Endpoint e: endpoints){
+			e.onError(message, getPlayingStatus());
+		}
 		showToast(message, true);
 	}
 
@@ -939,43 +674,6 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 	};
 
 
-	public static class MediaButtonReceiver extends BroadcastReceiver{
-		@Override
-		@WorkerThread
-		public void onReceive(@NonNull Context context, @NonNull Intent intent){
-			if(intent.getAction().equals(Intent.ACTION_MEDIA_BUTTON)){
-				KeyEvent keyEvent = intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
-				if(keyEvent.getAction() != KeyEvent.ACTION_UP){
-					return;
-				}
-				switch(keyEvent.getKeyCode()){
-					case KeyEvent.KEYCODE_MEDIA_PLAY:
-						sendIntent(context, ACTION_PLAY);
-						break;
-					case KeyEvent.KEYCODE_MEDIA_PAUSE:
-						sendIntent(context, ACTION_PAUSE);
-						break;
-					case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
-					case KeyEvent.KEYCODE_HEADSETHOOK:
-						sendIntent(context, ACTION_PLAY_PAUSE);
-						break;
-					case KeyEvent.KEYCODE_MEDIA_NEXT:
-						sendIntent(context, ACTION_NEXT);
-						break;
-					case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
-						sendIntent(context, ACTION_PREV);
-						break;
-				}
-			}
-		}
-
-		@WorkerThread
-		private void sendIntent(@NonNull Context context, @NonNull String event){
-			context.startService((new Intent(context, RuuService.class)).setAction(event));
-		}
-	}
-
-
 	public class Controller{
 		public void play(){
 			RuuService.this.play();
@@ -983,6 +681,16 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 
 		public void play(String file){
 			RuuService.this.playByPath(file);
+		}
+
+		public void play(long index){
+			try{
+				playlist.goQueueIndex(index);
+			}catch(IndexOutOfBoundsException e){
+			}
+
+			load(false);
+			play();
 		}
 
 		public void playRecursive(String dir){
