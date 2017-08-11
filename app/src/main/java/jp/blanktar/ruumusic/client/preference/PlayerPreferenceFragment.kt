@@ -13,35 +13,36 @@ import android.widget.TextView
 
 import jp.blanktar.ruumusic.R
 import jp.blanktar.ruumusic.util.Preference
+import kotlinx.android.synthetic.main.fragment_player_preference.*
 
 
 class PlayerPreferenceFragment : Fragment() {
     var preference: Preference? = null
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val view = inflater!!.inflate(R.layout.fragment_player_preference, container, false)
+        return inflater!!.inflate(R.layout.fragment_player_preference, container, false)
+    }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         preference = Preference(getContext())
 
-        bindPreferenceOnOff(view.findViewById(R.id.player_auto_shrink_switch) as SwitchCompat, preference!!.PlayerAutoShrinkEnabled) {
-            (view.findViewById(R.id.player_auto_shrink_switch) as SwitchCompat).setChecked(preference!!.PlayerAutoShrinkEnabled.get())
+        bindPreferenceOnOff(player_auto_shrink_switch as SwitchCompat, preference!!.PlayerAutoShrinkEnabled) {
+            (player_auto_shrink_switch as SwitchCompat).setChecked(preference!!.PlayerAutoShrinkEnabled.get())
         }
 
-        bindSeekBarPreference(view.findViewById(R.id.music_path_size_seekbar) as SeekBar, preference!!.PlayerMusicPathSize) {
-            size -> (view.findViewById(R.id.music_path_size_sample) as TextView).setTextSize(size.toFloat())
+        bindSeekBarPreference(music_path_size_seekbar as SeekBar, preference!!.PlayerMusicPathSize) {
+            size -> (music_path_size_sample as TextView).setTextSize(size.toFloat())
         }
 
-        bindSeekBarPreference(view.findViewById(R.id.music_name_size_seekbar) as SeekBar, preference!!.PlayerMusicNameSize) {
-            size -> (view.findViewById(R.id.music_name_size_sample) as TextView).setTextSize(size.toFloat())
+        bindSeekBarPreference(music_name_size_seekbar as SeekBar, preference!!.PlayerMusicNameSize) {
+            size -> (music_name_size_sample as TextView).setTextSize(size.toFloat())
         }
 
-        (view.findViewById(R.id.reset) as Button).setOnClickListener {
+        (reset as Button).setOnClickListener {
             preference!!.PlayerAutoShrinkEnabled.remove()
             preference!!.PlayerMusicPathSize.remove()
             preference!!.PlayerMusicNameSize.remove()
         }
-
-        return view
     }
 
     override fun onDestroyView() {

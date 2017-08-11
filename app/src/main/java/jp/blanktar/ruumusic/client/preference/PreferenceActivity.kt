@@ -1,6 +1,9 @@
 package jp.blanktar.ruumusic.client.preference
 
 
+import kotlinx.android.synthetic.main.activity_preference.*
+
+
 fun bindPreferenceOnOff(switch: android.support.v7.widget.SwitchCompat, pref: jp.blanktar.ruumusic.util.Preference.BooleanPreferenceHandler, receiver: (Boolean) -> Unit) {
     receiver(pref.get())
     switch.setChecked(pref.get())
@@ -16,7 +19,7 @@ fun bindSeekBarPreference(bar: android.widget.SeekBar, pref: jp.blanktar.ruumusi
     callback?.invoke(pref.get())
 
     bar.setOnSeekBarChangeListener(object : android.widget.SeekBar.OnSeekBarChangeListener {
-        override fun onProgressChanged(bar: android.widget.SeekBar?, progress: Int, fromUser: Boolean) {
+        override fun onProgressChanged(b: android.widget.SeekBar?, progress: Int, fromUser: Boolean) {
             pref.set(progress)
 
             callback?.invoke(progress)
@@ -38,7 +41,7 @@ fun bindSeekBarPreference(bar: android.widget.SeekBar, pref: jp.blanktar.ruumusi
     callback?.invoke(pref.get())
 
     bar.setOnSeekBarChangeListener(object : android.widget.SeekBar.OnSeekBarChangeListener {
-        override fun onProgressChanged(bar: android.widget.SeekBar?, progress: Int, fromUser: Boolean) {
+        override fun onProgressChanged(b: android.widget.SeekBar?, progress: Int, fromUser: Boolean) {
             pref.set(progress.toShort())
 
             callback?.invoke(progress.toShort())
@@ -76,10 +79,10 @@ class PreferenceActivity : android.support.v7.app.AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(jp.blanktar.ruumusic.R.layout.activity_preference)
 
-        setSupportActionBar(findViewById(jp.blanktar.ruumusic.R.id.toolbar) as android.support.v7.widget.Toolbar)
+        setSupportActionBar(toolbar as android.support.v7.widget.Toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        val viewPager = findViewById(jp.blanktar.ruumusic.R.id.viewpager) as android.support.v4.view.ViewPager
+        val viewPager = viewpager as android.support.v4.view.ViewPager
         viewPager.adapter = object : android.support.v4.app.FragmentPagerAdapter(supportFragmentManager) {
             override fun getItem(position: Int): android.support.v4.app.Fragment? {
                 return when (position) {
@@ -100,6 +103,6 @@ class PreferenceActivity : android.support.v7.app.AppCompatActivity() {
                                         jp.blanktar.ruumusic.R.string.title_widget_preference)[position])
             }
         }
-        (findViewById(jp.blanktar.ruumusic.R.id.tablayout) as android.support.design.widget.TabLayout).setupWithViewPager(viewPager)
+        (tablayout as android.support.design.widget.TabLayout).setupWithViewPager(viewPager)
     }
 }
