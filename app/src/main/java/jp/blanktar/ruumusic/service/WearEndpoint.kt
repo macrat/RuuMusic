@@ -6,6 +6,7 @@ import com.google.android.gms.wearable.WearableListenerService
 
 import jp.blanktar.ruumusic.util.EqualizerInfo
 import jp.blanktar.ruumusic.util.PlayingStatus
+import jp.blanktar.ruumusic.util.RuuClient
 import jp.blanktar.ruumusic.util.RuuFile
 
 
@@ -19,19 +20,21 @@ class WearEndpoint : Endpoint {
 
 
     class Listener : WearableListenerService() {
-        init {
-            println("initial")
-        }
-        
+        var client: RuuClient? = null
+
         override fun onCreate() {
             super.onCreate()
-            println("on create")
+
+            client = RuuClient(getApplicationContext())
         }
 
         override fun onMessageReceived(ev: MessageEvent) {
-            println("on received")
-            println(ev.path)
-            println(ev.data)
+            when (ev.path) {
+                "/control/play" -> client?.play()
+                "/control/pause" -> client?.pause()
+                "/control/next" -> client?.next()
+                "/control/prev" -> client?.prev()
+            }
         }
     }
 }

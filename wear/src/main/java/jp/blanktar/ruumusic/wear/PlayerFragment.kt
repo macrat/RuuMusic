@@ -25,7 +25,15 @@ class PlayerFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         playpause.setOnClickListener {
-            controller?.sendMessage("/control/test", "hello world")
+            controller?.play()
+        }
+
+        next.setOnClickListener {
+            controller?.next()
+        }
+
+        prev.setOnClickListener {
+            controller?.prev()
         }
     }
 

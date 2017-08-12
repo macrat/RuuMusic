@@ -20,18 +20,27 @@ class RuuController(ctx: Context) {
         client.disconnect()
     }
     
-    fun sendMessage(path: String, message: String) {
+    private fun sendMessage(path: String, message: String = "") {
         thread {
             for (node in Wearable.NodeApi.getConnectedNodes(client).await().getNodes()) {
-                val result = Wearable.MessageApi.sendMessage(client, node.getId(), path, message.toByteArray()).await()
-
-                if (result.status.isSuccess()) {
-                    println("sent to: " + node.getDisplayName())
-                    println("data: " + path + ", message: " + message)
-                } else {
-                    println("send error")
-                }
+                Wearable.MessageApi.sendMessage(client, node.getId(), path, message.toByteArray())
             }
         }
+    }
+
+    fun play() {
+        sendMessage("/control/play")
+    }
+
+    fun pause() {
+        sendMessage("/control/pause")
+    }
+
+    fun next() {
+        sendMessage("/control/next")
+    }
+
+    fun prev() {
+        sendMessage("/control/prev")
     }
 }
