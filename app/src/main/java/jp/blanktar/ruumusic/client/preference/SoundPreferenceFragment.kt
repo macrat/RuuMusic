@@ -4,18 +4,17 @@ package jp.blanktar.ruumusic.client.preference
 import android.media.audiofx.PresetReverb
 import android.os.Bundle
 import android.support.v4.app.Fragment
-import android.support.v7.widget.SwitchCompat
 import android.view.View
-import android.widget.SeekBar
 
 import jp.blanktar.ruumusic.R
 import jp.blanktar.ruumusic.util.EqualizerInfo
+import jp.blanktar.ruumusic.util.RuuClient
 import kotlinx.android.synthetic.main.fragment_sound_preference.*
 
 
 class SoundPreferenceFragment : Fragment() {
     var preference: jp.blanktar.ruumusic.util.Preference? = null
-    var client: jp.blanktar.ruumusic.client.RuuClient? = null
+    var client: RuuClient? = null
 
     override fun onCreateView(inflater: android.view.LayoutInflater?, container: android.view.ViewGroup?, savedInstanceState: android.os.Bundle?): android.view.View? {
         return inflater!!.inflate(jp.blanktar.ruumusic.R.layout.fragment_sound_preference, container, false)
@@ -23,14 +22,14 @@ class SoundPreferenceFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         preference = jp.blanktar.ruumusic.util.Preference(context)
-        client = jp.blanktar.ruumusic.client.RuuClient(context)
+        client = RuuClient(context)
 
         setupBassBoost()
         setupReverb()
         setupLoudness()
 
         client!!.requestEqualizerInfo()
-        client!!.eventListener = object : jp.blanktar.ruumusic.client.RuuClientEventListener() {
+        client!!.eventListener = object : RuuClient.EventListener() {
             override fun onEqualizerInfo(info: EqualizerInfo) {
                 equalizer_switch.setEnabled(true)
                 setupEqualizer(info)

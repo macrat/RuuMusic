@@ -24,10 +24,9 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import jp.blanktar.ruumusic.R;
-import jp.blanktar.ruumusic.client.RuuClient;
-import jp.blanktar.ruumusic.client.RuuClientEventListener;
-import jp.blanktar.ruumusic.util.Preference;
 import jp.blanktar.ruumusic.util.PlayingStatus;
+import jp.blanktar.ruumusic.util.Preference;
+import jp.blanktar.ruumusic.util.RuuClient;
 import jp.blanktar.ruumusic.util.RuuFileBase;
 import jp.blanktar.ruumusic.view.ShrinkTextView;
 
@@ -152,7 +151,7 @@ public class PlayerFragment extends Fragment{
 			}
 		});
 
-		client.setEventListener(new RuuClientEventListener(){
+		client.setEventListener(new RuuClient.EventListener(){
 			@Override
 			public void onFailedPlay(@NonNull String path) {
 				noticeFailedPlay(R.string.failed_play, path);

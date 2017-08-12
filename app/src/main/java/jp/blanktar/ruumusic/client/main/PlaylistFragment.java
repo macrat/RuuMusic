@@ -1,6 +1,5 @@
 package jp.blanktar.ruumusic.client.main;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
@@ -30,8 +29,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import jp.blanktar.ruumusic.R;
-import jp.blanktar.ruumusic.client.RuuClient;
 import jp.blanktar.ruumusic.util.Preference;
+import jp.blanktar.ruumusic.util.RuuClient;
 import jp.blanktar.ruumusic.util.RuuDirectory;
 import jp.blanktar.ruumusic.util.RuuFile;
 import jp.blanktar.ruumusic.util.RuuFileBase;

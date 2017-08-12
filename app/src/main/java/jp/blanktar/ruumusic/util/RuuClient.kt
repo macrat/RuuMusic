@@ -1,4 +1,4 @@
-package jp.blanktar.ruumusic.client
+package jp.blanktar.ruumusic.util
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -6,19 +6,6 @@ import android.content.Intent
 import android.content.IntentFilter
 
 import jp.blanktar.ruumusic.service.RuuService
-import jp.blanktar.ruumusic.util.EqualizerInfo
-import jp.blanktar.ruumusic.util.PlayingStatus
-import jp.blanktar.ruumusic.util.RepeatModeType
-import jp.blanktar.ruumusic.util.RuuDirectory
-import jp.blanktar.ruumusic.util.RuuFile
-
-
-open class RuuClientEventListener {
-    open fun onUpdatedStatus(status: PlayingStatus) {}
-    open fun onEqualizerInfo(info: EqualizerInfo) {}
-    open fun onFailedPlay(path: String) {}
-    open fun onMusicNotFound(path: String) {}
-}
 
 
 class RuuClient(val context: Context) {
@@ -43,7 +30,7 @@ class RuuClient(val context: Context) {
     
     private fun send(i: Intent) = context.startService(i)
 
-    var eventListener: RuuClientEventListener? = null
+    var eventListener: RuuClient.EventListener? = null
         set(listener) {
             if (listener != null && field == null) {
                 val intentFilter = IntentFilter()
@@ -124,5 +111,13 @@ class RuuClient(val context: Context) {
     fun onReceiveStatus(intent: Intent) {
         status = PlayingStatus(context, intent)
         eventListener?.onUpdatedStatus(status)
+    }
+
+
+    open class EventListener {
+        open fun onUpdatedStatus(status: PlayingStatus) {}
+        open fun onEqualizerInfo(info: EqualizerInfo) {}
+        open fun onFailedPlay(path: String) {}
+        open fun onMusicNotFound(path: String) {}
     }
 }
