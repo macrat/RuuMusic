@@ -7,6 +7,8 @@ import android.os.Bundle
 import android.support.v13.app.FragmentPagerAdapter
 import android.support.v4.view.ViewPager
 
+import kotlinx.android.synthetic.main.activity_main.*
+
 
 class MainActivity : Activity() {
     override protected fun onCreate(savedInstanceState: Bundle?) {
@@ -14,7 +16,7 @@ class MainActivity : Activity() {
         setContentView(R.layout.activity_main)
 
         val pagerAdapter = PagerAdapter(getFragmentManager())
-        (findViewById(R.id.pager) as ViewPager).setAdapter(pagerAdapter)
+        pager.setAdapter(pagerAdapter)
     }
 
     inner class PagerAdapter(fm: FragmentManager) : FragmentPagerAdapter(fm) {

@@ -82,8 +82,7 @@ class PreferenceActivity : android.support.v7.app.AppCompatActivity() {
         setSupportActionBar(toolbar as android.support.v7.widget.Toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        val viewPager = viewpager as android.support.v4.view.ViewPager
-        viewPager.adapter = object : android.support.v4.app.FragmentPagerAdapter(supportFragmentManager) {
+        viewpager.adapter = object : android.support.v4.app.FragmentPagerAdapter(supportFragmentManager) {
             override fun getItem(position: Int): android.support.v4.app.Fragment? {
                 return when (position) {
                     0 -> SoundPreferenceFragment()
@@ -103,6 +102,6 @@ class PreferenceActivity : android.support.v7.app.AppCompatActivity() {
                                         jp.blanktar.ruumusic.R.string.title_widget_preference)[position])
             }
         }
-        (tablayout as android.support.design.widget.TabLayout).setupWithViewPager(viewPager)
+        tablayout.setupWithViewPager(viewpager)
     }
 }

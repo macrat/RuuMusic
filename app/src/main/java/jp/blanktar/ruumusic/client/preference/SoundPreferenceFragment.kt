@@ -38,7 +38,7 @@ class SoundPreferenceFragment : Fragment() {
         }
 
         equalizer_switch.setEnabled(false)
-        (equalizer_switch as android.support.v7.widget.SwitchCompat).setChecked(preference!!.EqualizerEnabled.get())
+        equalizer_switch.setChecked(preference!!.EqualizerEnabled.get())
         equalizer_spinner.setEnabled(preference!!.EqualizerEnabled.get())
     }
 
@@ -50,28 +50,27 @@ class SoundPreferenceFragment : Fragment() {
     }
 
     private fun setupBassBoost() {
-        bindPreferenceOnOff(bass_boost_switch as SwitchCompat, preference!!.BassBoostEnabled) {
+        bindPreferenceOnOff(bass_boost_switch, preference!!.BassBoostEnabled) {
             e -> bass_boost_level.setEnabled(e)
         }
-        bindSeekBarPreference(bass_boost_level as SeekBar, preference!!.BassBoostLevel)
+        bindSeekBarPreference(bass_boost_level, preference!!.BassBoostLevel)
     }
 
     private fun setupReverb() {
-        bindPreferenceOnOff(reverb_switch as SwitchCompat, preference!!.ReverbEnabled) {
+        bindPreferenceOnOff(reverb_switch, preference!!.ReverbEnabled) {
             e -> reverb_spinner.setEnabled(e)
         }
 
         val adapter = android.widget.ArrayAdapter.createFromResource(getContext(), jp.blanktar.ruumusic.R.array.reverb_options, jp.blanktar.ruumusic.R.layout.spinner_item)
         adapter.setDropDownViewResource(jp.blanktar.ruumusic.R.layout.spinner_dropdown_item)
 
-        val spinner = reverb_spinner as android.widget.Spinner
-        spinner.adapter = adapter
+        reverb_spinner.adapter = adapter
 
-        bindSpinnerPreference(spinner, preference!!.ReverbType, listOf(PresetReverb.PRESET_LARGEHALL,
-                                                             PresetReverb.PRESET_MEDIUMHALL,
-                                                             PresetReverb.PRESET_LARGEROOM,
-                                                             PresetReverb.PRESET_MEDIUMROOM,
-                                                             PresetReverb.PRESET_SMALLROOM))
+        bindSpinnerPreference(reverb_spinner, preference!!.ReverbType, listOf(PresetReverb.PRESET_LARGEHALL,
+                                                                              PresetReverb.PRESET_MEDIUMHALL,
+                                                                              PresetReverb.PRESET_LARGEROOM,
+                                                                              PresetReverb.PRESET_MEDIUMROOM,
+                                                                              PresetReverb.PRESET_SMALLROOM))
     }
 
     private fun setupLoudness() {
@@ -80,10 +79,10 @@ class SoundPreferenceFragment : Fragment() {
             return
         }
 
-        bindPreferenceOnOff(loudness_switch as SwitchCompat, preference!!.LoudnessEnabled) {
+        bindPreferenceOnOff(loudness_switch, preference!!.LoudnessEnabled) {
             e -> loudness_level.setEnabled(e)
         }
-        bindSeekBarPreference(loudness_level as SeekBar, preference!!.LoudnessLevel)
+        bindSeekBarPreference(loudness_level, preference!!.LoudnessLevel)
     }
 
     private fun setupEqualizer(info: EqualizerInfo) {
@@ -92,12 +91,11 @@ class SoundPreferenceFragment : Fragment() {
         info.presets.forEach { x -> adapter.add(x) }
         adapter.setDropDownViewResource(jp.blanktar.ruumusic.R.layout.spinner_dropdown_item)
 
-        val spinner = equalizer_spinner as android.widget.Spinner
-        spinner.adapter = adapter
+        equalizer_spinner.adapter = adapter
 
-        spinner.setSelection(preference!!.EqualizerPreset.get() + 1)
+        equalizer_spinner.setSelection(preference!!.EqualizerPreset.get() + 1)
 
-        spinner.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
+        equalizer_spinner.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: android.widget.AdapterView<*>, view: android.view.View, position: Int, id: Long) {
                 preference!!.EqualizerPreset.set((position - 1).toShort())
             }
@@ -106,14 +104,14 @@ class SoundPreferenceFragment : Fragment() {
         }
 
         preference!!.EqualizerPreset.setOnChangeListener {
-            spinner.setSelection(preference!!.EqualizerPreset.get() + 1)
+            equalizer_spinner.setSelection(preference!!.EqualizerPreset.get() + 1)
         }
 
         val texts = mutableListOf<android.widget.TextView>()
         val bars = mutableListOf<android.widget.SeekBar>()
 
         for (i in 0..(info.freqs.size-1)) {
-            val table = View.inflate(getContext(), jp.blanktar.ruumusic.R.layout.equalizer_preference_row, equalizer_container as android.view.ViewGroup) as android.view.ViewGroup
+            val table = View.inflate(getContext(), jp.blanktar.ruumusic.R.layout.equalizer_preference_row, equalizer_container) as android.view.ViewGroup
             val row = table.getChildAt(table.getChildCount() - 1) as android.view.ViewGroup
 
             row.findViewById<android.widget.TextView>(jp.blanktar.ruumusic.R.id.equalizer_freq).setText("${info.freqs[i]/1000}Hz")
@@ -144,7 +142,7 @@ class SoundPreferenceFragment : Fragment() {
             }
         }
 
-        bindPreferenceOnOff(equalizer_switch as SwitchCompat, preference!!.EqualizerEnabled) { e ->
+        bindPreferenceOnOff(equalizer_switch, preference!!.EqualizerEnabled) { e ->
             equalizer_spinner.setEnabled(e)
 
             texts.forEach { x -> x.setEnabled(e) }

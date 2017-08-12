@@ -11,7 +11,7 @@ import android.widget.TextView
 
 class RecyclerAdapter(val data: Array<String>) : RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val text = view.findViewById(R.id.text) as TextView?
+        val text = view.findViewById<TextView>(R.id.text)
     }
 
     override fun getItemViewType(position: Int) = if (position == 0) { 0 } else { 1 }

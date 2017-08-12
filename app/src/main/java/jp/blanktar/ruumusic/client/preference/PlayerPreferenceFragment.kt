@@ -27,15 +27,15 @@ class PlayerPreferenceFragment : Fragment() {
         preference = Preference(getContext())
 
         bindPreferenceOnOff(player_auto_shrink_switch as SwitchCompat, preference!!.PlayerAutoShrinkEnabled) {
-            (player_auto_shrink_switch as SwitchCompat).setChecked(preference!!.PlayerAutoShrinkEnabled.get())
+            player_auto_shrink_switch.setChecked(preference!!.PlayerAutoShrinkEnabled.get())
         }
 
         bindSeekBarPreference(music_path_size_seekbar as SeekBar, preference!!.PlayerMusicPathSize) {
-            size -> (music_path_size_sample as TextView).setTextSize(size.toFloat())
+            size -> music_path_size_sample.setTextSize(size.toFloat())
         }
 
         bindSeekBarPreference(music_name_size_seekbar as SeekBar, preference!!.PlayerMusicNameSize) {
-            size -> (music_name_size_sample as TextView).setTextSize(size.toFloat())
+            size -> music_name_size_sample.setTextSize(size.toFloat())
         }
 
         (reset as Button).setOnClickListener {

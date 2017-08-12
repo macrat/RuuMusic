@@ -21,19 +21,19 @@ class WidgetPreferenceFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         preference = jp.blanktar.ruumusic.util.Preference(getContext())
 
-        bindSeekBarPreference(unified_path_size_seekbar as SeekBar, preference!!.UnifiedWidgetMusicPathSize) {
-            size -> (unified_path_size_sample as TextView).setTextSize(size.toFloat())
+        bindSeekBarPreference(unified_path_size_seekbar, preference!!.UnifiedWidgetMusicPathSize) {
+            size -> unified_path_size_sample.setTextSize(size.toFloat())
         }
 
-        bindSeekBarPreference(unified_name_size_seekbar as SeekBar, preference!!.UnifiedWidgetMusicNameSize) {
-            size -> (unified_name_size_sample as TextView).setTextSize(size.toFloat())
+        bindSeekBarPreference(unified_name_size_seekbar, preference!!.UnifiedWidgetMusicNameSize) {
+            size -> unified_name_size_sample.setTextSize(size.toFloat())
         }
 
-        bindSeekBarPreference(musicname_name_size_seekbar as SeekBar, preference!!.MusicNameWidgetNameSize) {
-            size -> (musicname_name_size_sample as TextView).setTextSize(size.toFloat())
+        bindSeekBarPreference(musicname_name_size_seekbar, preference!!.MusicNameWidgetNameSize) {
+            size -> musicname_name_size_sample.setTextSize(size.toFloat())
         }
 
-        (reset as android.widget.Button).setOnClickListener {
+        reset.setOnClickListener {
             preference!!.UnifiedWidgetMusicPathSize.remove()
             preference!!.UnifiedWidgetMusicNameSize.remove()
             preference!!.MusicNameWidgetNameSize.remove()

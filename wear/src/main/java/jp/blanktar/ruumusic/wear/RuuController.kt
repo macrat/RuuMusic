@@ -7,11 +7,9 @@ import com.google.android.gms.wearable.Wearable
 
 
 class RuuConctoller(ctx: Context) {
-    client = GoogleApiClient.Builder(ctx)
-        .addApi(Wearable.API)
-        .addConnectionCallbacks(ctx)
-        .addOnConnectionFailedListener(ctx)
-        .build()
+    val client = GoogleApiClient.Builder(ctx)
+                                .addApi(Wearable.API)
+                                .build()
 
     init {
         client.connect()
@@ -22,13 +20,13 @@ class RuuConctoller(ctx: Context) {
     }
     
     fun sendMessage(path: String, message: String) {
-        for (Node node : Wearable.NodeApi.getConnectedNodes(client).await()) {
-            SendMessageResult result = Wearable.MessageApi.sendMessage(client, node.getId(), path, message.getBytes()).await();
+        for (node in Wearable.NodeApi.getConnectedNodes(client).await().getNodes()) {
+            val result = Wearable.MessageApi.sendMessage(client, node.getId(), path, message.toByteArray()).await()
 
             if (result.status.isSuccess()) {
-                println("sent to: " + node.getDisplayName());
+                println("sent to: " + node.getDisplayName())
             } else {
-                println("Send error");
+                println("send error")
             }
         }
     }

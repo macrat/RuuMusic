@@ -8,6 +8,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 
+import kotlinx.android.synthetic.main.fragment_playlist.*
+
 
 class PlaylistFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -18,17 +20,16 @@ class PlaylistFragment : Fragment() {
                               savedInstanceState: Bundle?): View? {
         val view = inflater!!.inflate(R.layout.fragment_playlist, container, false)
         
-        val recycler = view.findViewById(R.id.list) as WearableRecyclerView
-        recycler.layoutManager = CurvedChildLayoutManager(getContext())
+        list.layoutManager = CurvedChildLayoutManager(getContext())
 
-        recycler.adapter = RecyclerAdapter(arrayOf<String>("/this/is/test/",
-                                                           "/path/to/song/",
-                                                           "/this/is/test/",
-                                                           "/path/to/song/",
-                                                           "this is song",
-                                                           "song file name",
-                                                           "this is song",
-                                                           "song file name"))
+        list.adapter = RecyclerAdapter(arrayOf<String>("/this/is/test/",
+                                                       "/path/to/song/",
+                                                       "/this/is/test/",
+                                                       "/path/to/song/",
+                                                       "this is song",
+                                                       "song file name",
+                                                       "this is song",
+                                                       "song file name"))
 
         return view
     }
