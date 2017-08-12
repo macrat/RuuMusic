@@ -4,6 +4,7 @@
 
 	<use-feature android:name="android.hardware.audio.output" />
 	<use-feature android:name="android.hardware.type.automotive" android:required="false" />
+	<uses-feature android:name="android.hardware.type.watch" android:required="false" />
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
@@ -64,6 +65,14 @@
 				<action android:name="android.media.browse.MediaBrowserService" />
 			</intent-filter>
         </service>
+
+		<service
+			android:name=".service.WearEndpoint$Listener">
+			<intent-filter>
+				<action android:name="com.google.android.gms.wearable.MESSAGE_RECEIVED" />
+				<data android:scheme="wear" android:host="*" android:pathPrefix="/control/" />
+			</intent-filter>
+		</service>
 
         <receiver android:name=".service.MediaSessionEndpoint$MediaButtonReceiver" >
             <intent-filter>

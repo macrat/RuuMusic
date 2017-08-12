@@ -8,7 +8,7 @@ android {
 	buildToolsVersion '26.0.0'
 
 	defaultConfig {
-		applicationId "jp.blanktar.ruumusic.wear"
+		applicationId "jp.blanktar.ruumusic"
 		minSdkVersion 20
 		targetSdkVersion 25
 		versionCode 1

@@ -208,6 +208,8 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 
 		endpoints.add(new NotificationEndpoint(this, mediaSessionEndpoint.getMediaSession()));
 
+		endpoints.add(new WearEndpoint());
+
 		startDeathTimer();
 	}
 
