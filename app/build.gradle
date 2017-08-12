@@ -29,6 +29,7 @@ dependencies {
 	compile 'com.android.support:design:26.0.0'
 	compile 'com.android.support:support-annotations:26.0.0'
 	compile 'com.android.support:support-v4:26.0.0'
+	compile 'com.google.android.gms:play-services-wearable:11.0.1'
 
 	dependencies { wearApp project(':wear') }
 }
