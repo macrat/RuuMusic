@@ -11,11 +11,11 @@ class RuuConctoller(ctx: Context) {
                                 .addApi(Wearable.API)
                                 .build()
 
-    init {
+    fun connect() {
         client.connect()
     }
 
-    fun close() {
+    fun disconnect() {
         client.disconnect()
     }
     

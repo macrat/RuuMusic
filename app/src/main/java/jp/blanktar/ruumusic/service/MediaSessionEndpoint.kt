@@ -164,7 +164,7 @@ class MediaSessionEndpoint(val context: Context, controller: RuuService.Controll
                 )
 
         if (error != null && error != "") {
-            state.setErrorMessage(error)
+            state.setErrorMessage(0, error)
             state.setState(PlaybackStateCompat.STATE_ERROR,
                     if (status.currentMusic != null) status.receivedCurrentTime else PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN,
                     1.0f)
@@ -172,7 +172,7 @@ class MediaSessionEndpoint(val context: Context, controller: RuuService.Controll
 
         mediaSession.setPlaybackState(state.build())
 
-        mediaSession.setShuffleModeEnabled(status.shuffleMode)
+        mediaSession.setShuffleMode(if (status.shuffleMode) PlaybackStateCompat.SHUFFLE_MODE_ALL else PlaybackStateCompat.SHUFFLE_MODE_NONE)
 
         mediaSession.setRepeatMode(when (status.repeatMode) {
             RepeatModeType.OFF -> PlaybackStateCompat.REPEAT_MODE_NONE
