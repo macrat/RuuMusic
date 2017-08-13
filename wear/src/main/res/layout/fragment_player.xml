@@ -15,7 +15,6 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_marginBottom="@dimen/player_text_margin"
-			android:text="/path/to/"
 			android:textSize="@dimen/music_path_size"
 			android:textAlignment="center" />
 
@@ -24,7 +23,6 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_marginBottom="@dimen/player_text_margin"
-			android:text="music name"
 			android:textAlignment="center"
 			android:textSize="@dimen/music_name_size" />
 
@@ -66,7 +64,7 @@
 			android:gravity="center">
 
 			<ImageButton
-				android:id="@+id/shuffleButton"
+				android:id="@+id/shuffle"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:padding="@dimen/button_padding"
@@ -74,7 +72,7 @@
 				android:src="@drawable/ic_shuffle_on" />
 
 			<ImageButton
-				android:id="@+id/repeatButton"
+				android:id="@+id/repeat"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:padding="@dimen/button_padding"

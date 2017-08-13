@@ -32,6 +32,10 @@ class RuuController(ctx: Context) {
         sendMessage("/control/play")
     }
 
+    fun play(path: String) {
+        sendMessage("/control/play", path)
+    }
+
     fun pause() {
         sendMessage("/control/pause")
     }
@@ -42,5 +46,13 @@ class RuuController(ctx: Context) {
 
     fun prev() {
         sendMessage("/control/prev")
+    }
+
+    fun repeat(mode: RepeatModeType) {
+        sendMessage("/control/repeat", mode.name)
+    }
+
+    fun shuffle(mode: Boolean) {
+        sendMessage("/control/shuffle", if (mode) "ON" else "OFF")
     }
 }

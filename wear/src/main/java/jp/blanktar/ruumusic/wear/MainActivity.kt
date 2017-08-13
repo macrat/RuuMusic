@@ -11,19 +11,49 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 
 class MainActivity : Activity() {
+    var receiver: RuuReceiver? = null
+    var player: PlayerFragment? = null
+    var playlist: PlaylistFragment? = null
+
     override protected fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         val pagerAdapter = PagerAdapter(getFragmentManager())
         pager.setAdapter(pagerAdapter)
+
+        receiver = RuuReceiver(applicationContext)
+        receiver?.onStatusUpdated = { status ->
+            player?.onStatusUpdated(status)
+            playlist?.onStatusUpdated(status)
+        }
+
+        val controller = RuuController(applicationContext)
+
+        player = PlayerFragment(controller)
+        playlist = PlaylistFragment(controller, receiver!!)
+        playlist?.onMusicChanged = {
+            pager.setCurrentItem(0)
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+        receiver?.connect()
+    }
+
+    override fun onStop() {
+        receiver?.disconnect()
+
+        super.onStop()
     }
 
     inner class PagerAdapter(fm: FragmentManager) : FragmentPagerAdapter(fm) {
         override fun getItem(position: Int): Fragment? {
             when (position) {
-                0 -> return PlayerFragment()
-                1 -> return PlaylistFragment()
+                0 -> return player
+                1 -> return playlist!!
             }
             return null
         }

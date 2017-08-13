@@ -257,7 +257,7 @@ public class RuuDirectory extends RuuFileBase{
 	}
 
 	@NonNull
-	private List<RuuDirectory> getDirectoriesRecursive(){
+	public List<RuuDirectory> getDirectoriesRecursive(){
 		ArrayList<RuuDirectory> list = new ArrayList<>();
 
 		List<RuuDirectory> dirs = getDirectories();
