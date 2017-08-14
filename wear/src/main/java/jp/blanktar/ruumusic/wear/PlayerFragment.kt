@@ -5,6 +5,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AnimationSet
+import android.view.animation.AnimationUtils
 
 import jp.blanktar.ruumusic.wear.R
 import kotlinx.android.synthetic.main.fragment_player.*
@@ -22,8 +24,14 @@ class PlayerFragment(val controller: RuuController) : Fragment() {
         return inflater!!.inflate(R.layout.fragment_player, container, false)
     }
 
+    private fun startAnimation(view: View) {
+        view.startAnimation(AnimationUtils.loadAnimation(context, R.anim.doing_effect))
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         playpause.setOnClickListener {
+            startAnimation(playpause)
+
             if (status.playing) {
                 controller.pause()
             } else {
@@ -32,18 +40,26 @@ class PlayerFragment(val controller: RuuController) : Fragment() {
         }
 
         next.setOnClickListener {
+            startAnimation(next)
+
             controller.next()
         }
 
         prev.setOnClickListener {
+            startAnimation(prev)
+
             controller.prev()
         }
 
         repeat.setOnClickListener {
+            startAnimation(repeat)
+
             controller.repeat(status.repeat.next)
         }
 
         shuffle.setOnClickListener {
+            startAnimation(shuffle)
+
             controller.shuffle(!status.shuffle)
         }
     }
@@ -61,6 +77,12 @@ class PlayerFragment(val controller: RuuController) : Fragment() {
     }
 
     fun onStatusUpdated(s: Status) {
+        playpause.clearAnimation()
+        next.clearAnimation()
+        prev.clearAnimation()
+        repeat.clearAnimation()
+        shuffle.clearAnimation()
+
         status = s
         playpause.setImageResource(if (status.playing) R.drawable.ic_pause else R.drawable.ic_play)
         repeat.setImageResource(when (status.repeat) {

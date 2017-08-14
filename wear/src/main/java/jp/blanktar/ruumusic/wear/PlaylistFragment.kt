@@ -46,7 +46,7 @@ class PlaylistFragment(val controller: RuuController, val receiver: RuuReceiver)
 
     fun onStatusUpdated(s: Status) {
         if (!statusUpdated) {
-            setDirectoryByPath(receiver.status.rootPath)
+            setDirectoryByPath(s.rootPath)
             statusUpdated = true
         }
     }
