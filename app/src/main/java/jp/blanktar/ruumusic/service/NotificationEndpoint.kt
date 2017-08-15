@@ -48,6 +48,7 @@ class NotificationEndpoint(val service: Service, val mediaSession: MediaSessionC
     }
 
     override fun onError(message: String, status: PlayingStatus) {}
+    override fun onEndOfList(isFirst: Boolean, status: PlayingStatus) {}
 
     fun removeNotification() {
         service.stopForeground(true)

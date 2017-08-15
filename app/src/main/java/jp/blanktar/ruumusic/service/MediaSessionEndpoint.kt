@@ -125,6 +125,10 @@ class MediaSessionEndpoint(val context: Context, controller: RuuService.Controll
         updateMetadata(status)
         updatePlaybackState(status, message)
     }
+
+    override fun onEndOfList(isFirst: Boolean, status: PlayingStatus) {
+        onError(context.getString(if (isFirst) R.string.first_of_directory else R.string.last_of_directory, status.currentMusic?.realPath), status)
+    }
     
     fun updateMetadata(status: PlayingStatus) {
         var parentPath: String

@@ -9,6 +9,7 @@ import com.google.android.gms.wearable.PutDataRequest
 import com.google.android.gms.wearable.Wearable
 import com.google.android.gms.wearable.WearableListenerService
 
+import jp.blanktar.ruumusic.R
 import jp.blanktar.ruumusic.util.EqualizerInfo
 import jp.blanktar.ruumusic.util.PlayingStatus
 import jp.blanktar.ruumusic.util.RepeatModeType
@@ -31,7 +32,7 @@ class WearEndpoint(val context: Context, val controller: RuuService.Controller) 
         client.disconnect()
     }
 
-    override fun onStatusUpdated(status: PlayingStatus) {
+    private fun statusUpdate(status: PlayingStatus, errorMessage: String?) {
         val dataMapRequest = PutDataMapRequest.create("/status")
         val dataMap = dataMapRequest.getDataMap()
 
@@ -40,14 +41,30 @@ class WearEndpoint(val context: Context, val controller: RuuService.Controller) 
         dataMap.putString("music_path", status.currentMusic?.fullPath ?: "")
         dataMap.putString("repeat_mode", status.repeatMode.name)
         dataMap.putBoolean("shuffle_mode", status.shuffleMode)
+        dataMap.putString("error_message", errorMessage)
+        dataMap.putLong("error_time", if (errorMessage != null) System.currentTimeMillis() else 0)
 
         val request = dataMapRequest.asPutDataRequest()
         Wearable.DataApi.putDataItem(client, request)
     }
 
+    override fun onStatusUpdated(status: PlayingStatus) {
+        statusUpdate(status, null)
+    }
+
     override fun onEqualizerInfo(info: EqualizerInfo) {}
-    override fun onFailedPlay(status: PlayingStatus) {}
-    override fun onError(message: String, status: PlayingStatus) {}
+
+    override fun onFailedPlay(status: PlayingStatus) {
+        statusUpdate(status, context.getString(R.string.failed_play, status.currentMusic?.realPath))
+    }
+
+    override fun onError(message: String, status: PlayingStatus) {
+        statusUpdate(status, message)
+    }
+
+    override fun onEndOfList(isFirst: Boolean, status: PlayingStatus) {
+        statusUpdate(status, context.getString(if (isFirst) R.string.first_of_directory else R.string.last_of_directory, status.currentMusic?.realPath))
+    }
 
     private fun makeDataMapFromDirectory(dir: RuuDirectory): PutDataRequest {
         val request = PutDataMapRequest.create("/musics" + dir.fullPath)

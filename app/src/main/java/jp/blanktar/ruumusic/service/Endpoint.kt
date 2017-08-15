@@ -12,4 +12,5 @@ interface Endpoint {
     fun onEqualizerInfo(info: EqualizerInfo)
     fun onFailedPlay(status: PlayingStatus)
     fun onError(message: String, status: PlayingStatus)
+    fun onEndOfList(isFirst: Boolean, status: PlayingStatus)
 }

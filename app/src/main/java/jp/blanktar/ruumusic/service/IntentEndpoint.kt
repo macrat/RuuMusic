@@ -25,6 +25,7 @@ class IntentEndpoint(val context: Context, val controller: RuuService.Controller
     }
 
     override fun onError(message: String, status: PlayingStatus) {}
+    override fun onEndOfList(isFirst: Boolean, status: PlayingStatus) {}
 
     fun onIntent(intent: Intent){
         when (intent.getAction()) {

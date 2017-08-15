@@ -480,7 +480,7 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 			try{
 				playlist.goNext();
 				load(false);
-			}catch(Playlist.EndOfList e){
+			}catch(Playlist.EndOfList err){
 				if(repeatMode.equals(RepeatModeType.LOOP)){
 					if(shuffleMode){
 						playlist.shuffle(false);
@@ -492,6 +492,9 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 					showToast(getString(R.string.last_of_directory), false);
 					if(!endOfListSE.isPlaying()){
 						endOfListSE.start();
+					}
+					for(Endpoint e: endpoints){
+						e.onEndOfList(false, getPlayingStatus());
 					}
 				}
 			}
@@ -506,7 +509,7 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 				try{
 					playlist.goPrev();
 					load(false);
-				}catch(Playlist.EndOfList e){
+				}catch(Playlist.EndOfList err){
 					if(repeatMode.equals(RepeatModeType.LOOP)){
 						if(shuffleMode){
 							playlist.shuffle(false);
@@ -518,6 +521,9 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 						showToast(getString(R.string.first_of_directory), false);
 						if(!endOfListSE.isPlaying()){
 							endOfListSE.start();
+						}
+						for(Endpoint e: endpoints){
+							e.onEndOfList(true, getPlayingStatus());
 						}
 					}
 				}

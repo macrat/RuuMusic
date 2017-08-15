@@ -52,6 +52,7 @@ class RuuReceiver(ctx: Context) : GoogleApiClient.ConnectionCallbacks, DataApi.D
         for (ev in evs) {
             if (ev.getType() == DataEvent.TYPE_CHANGED && ev.dataItem.uri.path == "/status") {
                 status = Status(DataMap.fromByteArray(ev.dataItem.data))
+                break
             }
         }
         evs.release()

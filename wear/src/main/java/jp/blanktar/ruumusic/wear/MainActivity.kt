@@ -6,6 +6,7 @@ import android.app.FragmentManager
 import android.os.Bundle
 import android.support.v13.app.FragmentPagerAdapter
 import android.support.v4.view.ViewPager
+import android.widget.Toast
 
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -24,6 +25,9 @@ class MainActivity : Activity() {
 
         receiver = RuuReceiver(applicationContext)
         receiver?.onStatusUpdated = { status ->
+            if (status.hasError && status.errorTime + 1000 > System.currentTimeMillis()) {
+                Toast.makeText(applicationContext, status.error, Toast.LENGTH_LONG).show()
+            }
             player?.onStatusUpdated(status)
             playlist?.onStatusUpdated(status)
         }
