@@ -5,6 +5,7 @@ import kotlin.concurrent.thread
 import android.app.Fragment
 import android.os.Bundle
 import android.os.Handler
+import android.support.v7.widget.LinearSnapHelper
 import android.support.wearable.view.CurvedChildLayoutManager
 import android.support.wearable.view.WearableRecyclerView
 import android.view.LayoutInflater
@@ -42,6 +43,8 @@ class PlaylistFragment(val controller: RuuController, val receiver: RuuReceiver)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         list.layoutManager = CurvedChildLayoutManager(getContext())
+
+        LinearSnapHelper().attachToRecyclerView(list)
     }
 
     fun onStatusUpdated(s: Status) {
