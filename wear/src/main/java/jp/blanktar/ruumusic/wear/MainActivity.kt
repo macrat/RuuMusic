@@ -1,24 +1,30 @@
 package jp.blanktar.ruumusic.wear
 
-import android.app.Activity
 import android.app.Fragment
 import android.app.FragmentManager
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.support.v13.app.FragmentPagerAdapter
 import android.support.v4.view.ViewPager
+import android.support.wearable.activity.WearableActivity
 import android.widget.Toast
 
 import kotlinx.android.synthetic.main.activity_main.*
 
 
-class MainActivity : Activity() {
+class MainActivity : WearableActivity() {
     var receiver: RuuReceiver? = null
     var player: PlayerFragment? = null
     var playlist: PlaylistFragment? = null
+    var defaultBackgroundColor: Int = 0
 
     override protected fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        setAmbientEnabled()
+        defaultBackgroundColor = (pager.getBackground() as ColorDrawable).color
 
         val pagerAdapter = PagerAdapter(getFragmentManager())
         pager.setAdapter(pagerAdapter)
@@ -51,6 +57,24 @@ class MainActivity : Activity() {
         receiver?.disconnect()
 
         super.onStop()
+    }
+
+    override fun onEnterAmbient(ambientDetails: Bundle) {
+        super.onEnterAmbient(ambientDetails)
+
+        player?.onEnterAmbient()
+        playlist?.onEnterAmbient()
+
+        pager.setBackgroundColor(Color.BLACK)
+    }
+
+    override fun onExitAmbient() {
+        super.onExitAmbient()
+
+        player?.onExitAmbient()
+        playlist?.onExitAmbient()
+
+        pager.setBackgroundColor(defaultBackgroundColor)
     }
 
     inner class PagerAdapter(fm: FragmentManager) : FragmentPagerAdapter(fm) {

@@ -47,6 +47,10 @@ class PlaylistFragment(val controller: RuuController, val receiver: RuuReceiver)
         LinearSnapHelper().attachToRecyclerView(list)
     }
 
+    fun onEnterAmbient() {}
+
+    fun onExitAmbient() {}
+
     fun onStatusUpdated(s: Status) {
         if (!statusUpdated) {
             setDirectoryByPath(s.rootPath)

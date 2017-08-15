@@ -76,6 +76,16 @@ class PlayerFragment(val controller: RuuController) : Fragment() {
         controller.disconnect()
     }
 
+    fun onEnterAmbient() {
+        musicPath.visibility = View.INVISIBLE
+        musicName.getPaint().setAntiAlias(false)
+    }
+
+    fun onExitAmbient() {
+        musicPath.visibility = View.VISIBLE
+        musicName.getPaint().setAntiAlias(true)
+    }
+
     fun onStatusUpdated(s: Status) {
         playpause.clearAnimation()
         next.clearAnimation()

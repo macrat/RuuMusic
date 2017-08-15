@@ -6,4 +6,5 @@
 		  android:layout_height="wrap_content"
 		  android:orientation="vertical"
 		  android:padding="@dimen/playlist_text_margin"
-		  android:textSize="@dimen/playlist_text_size" />
+		  android:textSize="@dimen/playlist_text_size"
+		  android:background="@android:color/transparent" />
