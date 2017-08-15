@@ -45,6 +45,13 @@ class MainActivity : WearableActivity() {
         playlist?.onMusicChanged = {
             pager.setCurrentItem(0)
         }
+
+        player?.onMusicNameTapped = {
+            playlist?.setDirectoryByPath(receiver!!.status.musicPath.dropLast(receiver!!.status.musicPath.length - receiver!!.status.musicPath.lastIndexOf('/') - 1)) {
+                playlist?.scrollTo(receiver!!.status.musicName)
+                pager.setCurrentItem(1)
+            }
+        }
     }
 
     override fun onStart() {

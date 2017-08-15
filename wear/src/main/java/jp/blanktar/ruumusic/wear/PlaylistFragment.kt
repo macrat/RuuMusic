@@ -5,6 +5,7 @@ import kotlin.concurrent.thread
 import android.app.Fragment
 import android.os.Bundle
 import android.os.Handler
+import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.LinearSnapHelper
 import android.support.wearable.view.CurvedChildLayoutManager
 import android.support.wearable.view.WearableRecyclerView
@@ -23,7 +24,6 @@ class PlaylistFragment(val controller: RuuController, val receiver: RuuReceiver)
 
             val adapter = RecyclerAdapter(x!!, receiver.status.rootPath == x.path)
             adapter.onParentClickListener = {
-                println(x.parentPath)
                 setDirectoryByPath(x.parentPath)
             }
             adapter.onDirectoryClickListener = { dir: String -> setDirectoryByPath(dir) }
@@ -58,13 +58,22 @@ class PlaylistFragment(val controller: RuuController, val receiver: RuuReceiver)
         }
     }
 
-    fun setDirectoryByPath(path: String) {
+    fun setDirectoryByPath(path: String, callback: (() -> Unit)? = null) {
         val handler = Handler()
         thread {
             val d = receiver.getDirectory(path)
             handler.post {
                 directory = d
+                callback?.invoke()
             }
         }
+    }
+
+    fun scrollTo(position: Int) {
+        (list.layoutManager as LinearLayoutManager).scrollToPosition(position)
+    }
+
+    fun scrollTo(name: String) {
+        scrollTo(directory!!.all.indexOf(name) + if (receiver.status.rootPath == receiver.status.musicPath) 0 else 1)
     }
 }

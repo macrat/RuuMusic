@@ -15,6 +15,8 @@ import kotlinx.android.synthetic.main.fragment_player.*
 class PlayerFragment(val controller: RuuController) : Fragment() {
     var status = Status()
 
+    var onMusicNameTapped: (() -> Unit)? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
     }
@@ -29,6 +31,14 @@ class PlayerFragment(val controller: RuuController) : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        musicName.setOnClickListener {
+            onMusicNameTapped?.invoke()
+        }
+
+        musicPath.setOnClickListener {
+            onMusicNameTapped?.invoke()
+        }
+
         playpause.setOnClickListener {
             startAnimation(playpause)
 
