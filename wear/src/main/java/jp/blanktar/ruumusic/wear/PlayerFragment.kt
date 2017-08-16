@@ -31,6 +31,10 @@ class PlayerFragment(val controller: RuuController) : Fragment() {
         view.startAnimation(AnimationUtils.loadAnimation(context, R.anim.doing_effect))
     }
 
+    fun startLoadingAnimation() {
+        startAnimation(playpause)
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         musicName.setOnClickListener {
             onMusicNameTapped?.invoke()

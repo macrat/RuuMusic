@@ -49,6 +49,7 @@ class MainActivity : WearableActivity() {
         player?.onMusicNameTapped = {
             playlist?.setDirectoryByPath(receiver!!.status.musicPath.dropLast(receiver!!.status.musicPath.length - receiver!!.status.musicPath.lastIndexOf('/') - 1)) {
                 playlist?.scrollTo(receiver!!.status.musicName)
+                player?.startLoadingAnimation()
                 pager.setCurrentItem(1)
             }
         }
