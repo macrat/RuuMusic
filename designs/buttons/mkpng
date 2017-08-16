@@ -1,33 +1,56 @@
 #!/bin/sh
 
-function makepng(){
-	inkscape -e drawable-mdpi/${3:-$1}.png -w $2 $1.svg
-	inkscape -e drawable-hdpi/${3:-$1}.png -w `echo $2 1.5\*p | dc` $1.svg
-	inkscape -e drawable-xhdpi/${3:-$1}.png -w `echo $2 2\*p | dc` $1.svg
-	inkscape -e drawable-xxhdpi/${3:-$1}.png -w `echo $2 3\*p | dc` $1.svg
-	inkscape -e drawable-xxxhdpi/${3:-$1}.png -w `echo $2 4\*p | dc` $1.svg
+function make_handheld(){
+	inkscape -e handheld/drawable-mdpi/${3:-$1}.png -w $2 $1.svg
+	inkscape -e handheld/drawable-hdpi/${3:-$1}.png -w `echo $2 1.5\*p | dc` $1.svg
+	inkscape -e handheld/drawable-xhdpi/${3:-$1}.png -w `echo $2 2\*p | dc` $1.svg
+	inkscape -e handheld/drawable-xxhdpi/${3:-$1}.png -w `echo $2 3\*p | dc` $1.svg
+	inkscape -e handheld/drawable-xxxhdpi/${3:-$1}.png -w `echo $2 4\*p | dc` $1.svg
+}
+
+function make_wear(){
+	inkscape -e wear/drawable-mdpi/${3:-$1}.png -w $2 $1.svg
+	inkscape -e wear/drawable-hdpi/${3:-$1}.png -w `echo $2 1.5\*p | dc` $1.svg
+	inkscape -e wear/drawable-xhdpi/${3:-$1}.png -w `echo $2 2\*p | dc` $1.svg
+	inkscape -e wear/drawable-xxhdpi/${3:-$1}.png -w `echo $2 3\*p | dc` $1.svg
+	inkscape -e wear/drawable-xxxhdpi/${3:-$1}.png -w `echo $2 4\*p | dc` $1.svg
 }
 
 
-mkdir drawable-{m,h,xh,xxh,xxxh}dpi
+mkdir -p {handheld,wear}/drawable-{m,h,xh,xxh,xxxh}dpi
 
-makepng ic_play 50
-makepng ic_pause 50
 
-makepng ic_prev 40
-makepng ic_next 40
+make_handheld ic_play 50
+make_handheld ic_pause 50
 
-makepng ic_play_for_notif 32
-makepng ic_pause 32 ic_pause_for_notif
-makepng ic_prev 32 ic_prev_for_notif
-makepng ic_next 32 ic_next_for_notif
+make_handheld ic_prev 40
+make_handheld ic_next 40
 
-makepng ic_upper_directory 20
+make_handheld ic_play_for_notif 32
+make_handheld ic_pause 32 ic_pause_for_notif
+make_handheld ic_prev 32 ic_prev_for_notif
+make_handheld ic_next 32 ic_next_for_notif
 
-makepng ic_search 24
-makepng ic_play_all 24
-makepng ic_preference 24
+make_handheld ic_upper_directory 20
 
-for x in `ls ic_{repeat,shuffle}_*`; do
-	makepng `echo $x | sed -e 's/\.svg$//'` 30
+make_handheld ic_search 24
+make_handheld ic_play_all 24
+make_handheld ic_preference 24
+
+for x in ic_repeat_{one,all,off} ic_shuffle_{on,off}; do
+	make_handheld $x 30
 done
+
+
+for ambient in "" "_ambient"; do
+	make_wear ic_play${ambient} 50
+	make_wear ic_pause${ambient} 50
+	make_wear ic_prev${ambient} 40
+	make_wear ic_next${ambient} 40
+
+	for x in ic_repeat_{one,all,off} ic_shuffle_{on,off}; do
+		make_wear $x${ambient} 30
+	done
+done
+
+make_wear ic_upper_directory 20
