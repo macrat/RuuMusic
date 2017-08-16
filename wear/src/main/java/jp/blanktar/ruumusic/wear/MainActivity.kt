@@ -6,7 +6,6 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.support.v13.app.FragmentPagerAdapter
-import android.support.v4.view.ViewPager
 import android.support.wearable.activity.WearableActivity
 import android.widget.Toast
 
@@ -14,7 +13,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 
 class MainActivity : WearableActivity() {
-    var receiver: RuuReceiver? = null
+    var client: RuuClient? = null
     var player: PlayerFragment? = null
     var playlist: PlaylistFragment? = null
     var defaultBackgroundColor: Int = 0
@@ -29,8 +28,9 @@ class MainActivity : WearableActivity() {
         val pagerAdapter = PagerAdapter(getFragmentManager())
         pager.setAdapter(pagerAdapter)
 
-        receiver = RuuReceiver(applicationContext)
-        receiver?.onStatusUpdated = { status ->
+        client = RuuClient(applicationContext)
+
+        client?.onStatusUpdated = { status ->
             if (status.hasError && status.errorTime + 1000 > System.currentTimeMillis()) {
                 Toast.makeText(applicationContext, status.error, Toast.LENGTH_LONG).show()
             }
@@ -38,17 +38,16 @@ class MainActivity : WearableActivity() {
             playlist?.onStatusUpdated(status)
         }
 
-        val controller = RuuController(applicationContext)
+        player = PlayerFragment(client!!)
+        playlist = PlaylistFragment(client!!)
 
-        player = PlayerFragment(controller)
-        playlist = PlaylistFragment(controller, receiver!!)
         playlist?.onMusicChanged = {
             pager.setCurrentItem(0)
         }
 
         player?.onMusicNameTapped = {
-            playlist?.setDirectoryByPath(receiver!!.status.musicPath.dropLast(receiver!!.status.musicPath.length - receiver!!.status.musicPath.lastIndexOf('/') - 1)) {
-                playlist?.scrollTo(receiver!!.status.musicName)
+            playlist?.setDirectoryByPath(client!!.status.musicPath.dropLast(client!!.status.musicPath.length - client!!.status.musicPath.lastIndexOf('/') - 1)) {
+                playlist?.scrollTo(client!!.status.musicName)
                 player?.startLoadingAnimation()
                 pager.setCurrentItem(1)
             }
@@ -58,11 +57,11 @@ class MainActivity : WearableActivity() {
     override fun onStart() {
         super.onStart()
 
-        receiver?.connect()
+        client?.connect()
     }
 
     override fun onStop() {
-        receiver?.disconnect()
+        client?.disconnect()
 
         super.onStop()
     }

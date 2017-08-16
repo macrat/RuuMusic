@@ -5,14 +5,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.AnimationSet
 import android.view.animation.AnimationUtils
 
-import jp.blanktar.ruumusic.wear.R
 import kotlinx.android.synthetic.main.fragment_player.*
 
 
-class PlayerFragment(val controller: RuuController) : Fragment() {
+class PlayerFragment(val client: RuuClient) : Fragment() {
     var status = Status()
     var ambientMode = false
 
@@ -48,47 +46,47 @@ class PlayerFragment(val controller: RuuController) : Fragment() {
             startAnimation(playpause)
 
             if (status.playing) {
-                controller.pause()
+                client.pause()
             } else {
-                controller.play()
+                client.play()
             }
         }
 
         next.setOnClickListener {
             startAnimation(next)
 
-            controller.next()
+            client.next()
         }
 
         prev.setOnClickListener {
             startAnimation(prev)
 
-            controller.prev()
+            client.prev()
         }
 
         repeat.setOnClickListener {
             startAnimation(repeat)
 
-            controller.repeat(status.repeat.next)
+            client.repeat(status.repeat.next)
         }
 
         shuffle.setOnClickListener {
             startAnimation(shuffle)
 
-            controller.shuffle(!status.shuffle)
+            client.shuffle(!status.shuffle)
         }
     }
 
     override fun onResume() {
         super.onResume()
 
-        controller.connect()
+        client.connect()
     }
 
     override fun onPause() {
         super.onPause()
 
-        controller.disconnect()
+        client.disconnect()
     }
 
     fun onEnterAmbient() {

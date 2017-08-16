@@ -1,20 +1,22 @@
 package jp.blanktar.ruumusic.wear
 
-import android.os.Bundle
+import kotlin.concurrent.thread
+
 import android.content.Context
+import android.os.Bundle
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.wearable.DataApi
-import com.google.android.gms.wearable.DataMap
 import com.google.android.gms.wearable.DataEvent
 import com.google.android.gms.wearable.DataEventBuffer
+import com.google.android.gms.wearable.DataMap
 import com.google.android.gms.wearable.Wearable
 
 
-class RuuReceiver(ctx: Context) : GoogleApiClient.ConnectionCallbacks, DataApi.DataListener {
+class RuuClient(ctx: Context) : GoogleApiClient.ConnectionCallbacks, DataApi.DataListener {
     val client = GoogleApiClient.Builder(ctx)
-            .addApi(Wearable.API)
-            .addConnectionCallbacks(this)
-            .build()
+                                .addApi(Wearable.API)
+                                .addConnectionCallbacks(this)
+                                .build()
 
     var status = Status()
         set(x: Status) {
@@ -29,7 +31,6 @@ class RuuReceiver(ctx: Context) : GoogleApiClient.ConnectionCallbacks, DataApi.D
     }
 
     fun disconnect() {
-        Wearable.DataApi.removeListener(client, this)
         client.disconnect()
     }
 
@@ -79,5 +80,41 @@ class RuuReceiver(ctx: Context) : GoogleApiClient.ConnectionCallbacks, DataApi.D
         }
 
         return null
+    }
+
+    private fun sendMessage(path: String, message: String = "") {
+        thread {
+            for (node in Wearable.NodeApi.getConnectedNodes(client).await().getNodes()) {
+                Wearable.MessageApi.sendMessage(client, node.getId(), path, message.toByteArray())
+            }
+        }
+    }
+
+    fun play() {
+        sendMessage("/control/play")
+    }
+
+    fun play(path: String) {
+        sendMessage("/control/play", path)
+    }
+
+    fun pause() {
+        sendMessage("/control/pause")
+    }
+
+    fun next() {
+        sendMessage("/control/next")
+    }
+
+    fun prev() {
+        sendMessage("/control/prev")
+    }
+
+    fun repeat(mode: RepeatModeType) {
+        sendMessage("/control/repeat", mode.name)
+    }
+
+    fun shuffle(mode: Boolean) {
+        sendMessage("/control/shuffle", if (mode) "ON" else "OFF")
     }
 }
