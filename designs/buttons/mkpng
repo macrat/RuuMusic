@@ -17,9 +17,6 @@ function make_wear(){
 }
 
 
-mkdir -p {handheld,wear}/drawable-{m,h,xh,xxh,xxxh}dpi
-
-
 make_handheld ic_play 50
 make_handheld ic_pause 50
 
