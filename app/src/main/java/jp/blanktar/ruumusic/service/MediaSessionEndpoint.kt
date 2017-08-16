@@ -176,7 +176,7 @@ class MediaSessionEndpoint(val context: Context, controller: RuuService.Controll
 
         mediaSession.setPlaybackState(state.build())
 
-        mediaSession.setShuffleMode(if (status.shuffleMode) PlaybackStateCompat.SHUFFLE_MODE_ALL else PlaybackStateCompat.SHUFFLE_MODE_NONE)
+        mediaSession.setShuffleModeEnabled(status.shuffleMode)
 
         mediaSession.setRepeatMode(when (status.repeatMode) {
             RepeatModeType.OFF -> PlaybackStateCompat.REPEAT_MODE_NONE

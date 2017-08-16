@@ -9,10 +9,10 @@ android {
 
 	defaultConfig {
 		applicationId "jp.blanktar.ruumusic"
-		minSdkVersion 14
+		minSdkVersion 10
 		targetSdkVersion 22
-		versionCode 27
-		versionName '0.7'
+		versionCode 28
+		versionName '1.0'
 	}
 	buildTypes {
 		release {
@@ -20,18 +20,30 @@ android {
 			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
 		}
 	}
+	productFlavors {
+		single {
+		}
+		wear {
+			minSdkVersion 14
+			versionCode 1000 + android.defaultConfig.versionCode
+		}
+	}
 }
 
 dependencies {
 	compile fileTree(include: ['*.jar'], dir: 'libs')
 	compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
-	compile 'com.android.support:appcompat-v7:26.0.0'
-	compile 'com.android.support:design:26.0.0'
-	compile 'com.android.support:support-annotations:26.0.0'
-	compile 'com.android.support:support-v4:26.0.0'
-	compile 'com.google.android.gms:play-services-wearable:11.0.1'
+	compile 'com.android.support:appcompat-v7:25.3.1'
+	compile 'com.android.support:design:25.3.1'
+	compile 'com.android.support:support-annotations:25.3.1'
+	compile 'com.android.support:support-v4:25.3.1'
 
-	dependencies { wearApp project(':wear') }
+	wearCompile 'com.android.support:appcompat-v7:26.0.0'
+	wearCompile 'com.android.support:design:26.0.0'
+	wearCompile 'com.android.support:support-annotations:26.0.0'
+	wearCompile 'com.android.support:support-v4:26.0.0'
+	wearCompile 'com.google.android.gms:play-services-wearable:11.0.1'
+	wearWearApp project(':wear')
 }
 repositories {
 	mavenCentral()

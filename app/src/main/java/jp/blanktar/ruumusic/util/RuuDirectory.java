@@ -37,8 +37,7 @@ public class RuuDirectory extends RuuFileBase{
 		if(root == null){
 			ArrayList<String> musics = new ArrayList<>();
 			Cursor cursor = context.getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, new String[]{"_data"}, null, null, "lower(_data)");
-			assert cursor != null;
-			if(!cursor.moveToFirst()){
+			if(cursor == null || !cursor.moveToFirst()){
 				throw new RuuFileBase.NotFound(path);
 			}else{
 				do{

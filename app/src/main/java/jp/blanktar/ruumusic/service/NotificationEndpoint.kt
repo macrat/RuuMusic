@@ -8,8 +8,8 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.support.v4.app.NotificationCompat
-import android.support.v4.media.app.NotificationCompat.MediaStyle
 import android.support.v4.media.session.MediaSessionCompat
+import android.support.v7.app.NotificationCompat.MediaStyle
 
 import jp.blanktar.ruumusic.R
 import jp.blanktar.ruumusic.client.main.MainActivity
@@ -96,7 +96,7 @@ class NotificationEndpoint(val service: Service, val mediaSession: MediaSessionC
             parentPath = ""
         }
 
-        return NotificationCompat.Builder(context, "ruumusic_notification")
+        return NotificationCompat.Builder(context)
                 .setSmallIcon(R.drawable.ic_play_notification)
                 .setTicker(status.currentMusic?.name)
                 .setContentTitle(status.currentMusic?.name)
