@@ -3,9 +3,9 @@ package jp.blanktar.ruumusic.wear
 import kotlin.concurrent.thread
 
 import android.app.Fragment
+import android.graphics.Point
 import android.os.Bundle
 import android.os.Handler
-import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.LinearSnapHelper
 import android.support.wearable.view.CurvedChildLayoutManager
 import android.view.LayoutInflater
@@ -17,6 +17,11 @@ import kotlinx.android.synthetic.main.fragment_playlist.*
 
 class PlaylistFragment(val client: RuuClient) : Fragment() {
     var statusUpdated = false
+
+    val handler = Handler()
+
+    val snapHelper = LinearSnapHelper()
+
     var directory: Directory? = null
         set(x) {
             field = x
@@ -31,6 +36,10 @@ class PlaylistFragment(val client: RuuClient) : Fragment() {
                 onMusicChanged?.invoke()
             }
             list.adapter = adapter
+
+            if (isRoundDisplay && (x!!.all.size > 1 || client.status.rootPath != x.path && x!!.all.size > 0)) {
+                scrollTo(1)
+            }
         }
 
     var onMusicChanged: (() -> Unit)? = null
@@ -40,10 +49,19 @@ class PlaylistFragment(val client: RuuClient) : Fragment() {
         return inflater!!.inflate(R.layout.fragment_playlist, container, false)
     }
 
+    private val isRoundDisplay
+        get() = list.paddingTop > 0
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         list.layoutManager = CurvedChildLayoutManager(getContext())
 
-        LinearSnapHelper().attachToRecyclerView(list)
+        snapHelper.attachToRecyclerView(list)
+
+        if (isRoundDisplay) {
+            val point = Point()
+            activity.windowManager.defaultDisplay.getSize(point)
+            list.setPadding(0, point.y / 2, 0, point.y / 2)
+        }
     }
 
     fun onEnterAmbient() {}
@@ -58,7 +76,6 @@ class PlaylistFragment(val client: RuuClient) : Fragment() {
     }
 
     fun setDirectoryByPath(path: String, callback: (() -> Unit)? = null) {
-        val handler = Handler()
         thread {
             val d = client.getDirectory(path)
             handler.post {
@@ -69,7 +86,10 @@ class PlaylistFragment(val client: RuuClient) : Fragment() {
     }
 
     fun scrollTo(position: Int) {
-        (list.layoutManager as LinearLayoutManager).scrollToPosition(position)
+        handler.post {
+            val pos = snapHelper.calculateDistanceToFinalSnap(list.layoutManager, list.findViewHolderForAdapterPosition(position).itemView)!!
+            list.scrollBy(pos[0], pos[1])
+        }
     }
 
     fun scrollTo(name: String) {
