@@ -85,18 +85,6 @@ class PlayerFragment(val client: RuuClient) : Fragment() {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-
-        client.connect()
-    }
-
-    override fun onPause() {
-        super.onPause()
-
-        client.disconnect()
-    }
-
     fun onEnterAmbient() {
         ambientMode = true
         musicPath.visibility = View.INVISIBLE

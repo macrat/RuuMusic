@@ -64,16 +64,16 @@ class MainActivity : WearableActivity() {
         }
     }
 
-    override fun onStart() {
-        super.onStart()
+    override fun onResume() {
+        super.onResume()
 
         client?.connect()
     }
 
-    override fun onStop() {
+    override fun onPause() {
         client?.disconnect()
 
-        super.onStop()
+        super.onPause()
     }
 
     override fun onEnterAmbient(ambientDetails: Bundle) {

@@ -33,6 +33,7 @@ class RuuClient(ctx: Context) : GoogleApiClient.ConnectionCallbacks, DataApi.Dat
     }
 
     fun disconnect() {
+        Wearable.DataApi.removeListener(client, this)
         client.disconnect()
     }
 
