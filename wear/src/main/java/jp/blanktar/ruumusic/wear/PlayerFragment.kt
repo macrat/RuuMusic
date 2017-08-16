@@ -14,6 +14,7 @@ import kotlinx.android.synthetic.main.fragment_player.*
 
 class PlayerFragment(val controller: RuuController) : Fragment() {
     var status = Status()
+    var ambientMode = false
 
     var onMusicNameTapped: (() -> Unit)? = null
 
@@ -87,13 +88,17 @@ class PlayerFragment(val controller: RuuController) : Fragment() {
     }
 
     fun onEnterAmbient() {
+        ambientMode = true
         musicPath.visibility = View.INVISIBLE
         musicName.getPaint().setAntiAlias(false)
+        onStatusUpdated(status)
     }
 
     fun onExitAmbient() {
+        ambientMode = false
         musicPath.visibility = View.VISIBLE
         musicName.getPaint().setAntiAlias(true)
+        onStatusUpdated(status)
     }
 
     fun onStatusUpdated(s: Status) {
@@ -104,14 +109,28 @@ class PlayerFragment(val controller: RuuController) : Fragment() {
         shuffle.clearAnimation()
 
         status = s
-        playpause.setImageResource(if (status.playing) R.drawable.ic_pause else R.drawable.ic_play)
-        repeat.setImageResource(when (status.repeat) {
-            RepeatModeType.OFF -> R.drawable.ic_repeat_off
-            RepeatModeType.LOOP -> R.drawable.ic_repeat_all
-            RepeatModeType.SINGLE -> R.drawable.ic_repeat_one
-        })
-        shuffle.setImageResource(if (status.shuffle) R.drawable.ic_shuffle_on else R.drawable.ic_shuffle_off)
         musicName.text = status.musicName
         musicPath.text = status.musicDir
+        if (ambientMode) {
+            playpause.setImageResource(if (status.playing) R.drawable.ic_pause_ambient else R.drawable.ic_play_ambient)
+            next.setImageResource(R.drawable.ic_next_ambient)
+            prev.setImageResource(R.drawable.ic_prev_ambient)
+            repeat.setImageResource(when (status.repeat) {
+                RepeatModeType.OFF -> R.drawable.ic_repeat_off_ambient
+                RepeatModeType.LOOP -> R.drawable.ic_repeat_all_ambient
+                RepeatModeType.SINGLE -> R.drawable.ic_repeat_one_ambient
+            })
+            shuffle.setImageResource(if (status.shuffle) R.drawable.ic_shuffle_on_ambient else R.drawable.ic_shuffle_off_ambient)
+        } else {
+            playpause.setImageResource(if (status.playing) R.drawable.ic_pause else R.drawable.ic_play)
+            next.setImageResource(R.drawable.ic_next)
+            prev.setImageResource(R.drawable.ic_prev)
+            repeat.setImageResource(when (status.repeat) {
+                RepeatModeType.OFF -> R.drawable.ic_repeat_off
+                RepeatModeType.LOOP -> R.drawable.ic_repeat_all
+                RepeatModeType.SINGLE -> R.drawable.ic_repeat_one
+            })
+            shuffle.setImageResource(if (status.shuffle) R.drawable.ic_shuffle_on else R.drawable.ic_shuffle_off)
+        }
     }
 }
