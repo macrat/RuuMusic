@@ -75,7 +75,7 @@
 				android:layout_height="wrap_content"
 				android:padding="@dimen/button_padding"
 				android:background="@null"
-				android:src="@drawable/ic_shuffle_on" />
+				android:src="@drawable/ic_shuffle_off" />
 
 			<ImageButton
 				android:id="@+id/repeat"
@@ -83,7 +83,7 @@
 				android:layout_height="wrap_content"
 				android:padding="@dimen/button_padding"
 				android:background="@null"
-				android:src="@drawable/ic_repeat_one" />
+				android:src="@drawable/ic_repeat_off" />
 		</LinearLayout>
 	</LinearLayout>
 </RelativeLayout>
