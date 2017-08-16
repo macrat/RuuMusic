@@ -2,4 +2,6 @@
 	<string name="app_name">RuuMusic</string>
 
 	<string name="upper_dir">親ディレクトリ</string>
+
+	<string name="failed_send_message">接続に失敗しました</string>
 </resources>

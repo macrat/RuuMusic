@@ -29,6 +29,14 @@ class PlayerFragment(val client: RuuClient) : Fragment() {
         view.startAnimation(AnimationUtils.loadAnimation(context, R.anim.doing_effect))
     }
 
+    fun resetAnimation() {
+        playpause.clearAnimation()
+        next.clearAnimation()
+        prev.clearAnimation()
+        repeat.clearAnimation()
+        shuffle.clearAnimation()
+    }
+
     fun startLoadingAnimation() {
         startAnimation(playpause)
     }
@@ -93,26 +101,17 @@ class PlayerFragment(val client: RuuClient) : Fragment() {
         ambientMode = true
         musicPath.visibility = View.INVISIBLE
         musicName.getPaint().setAntiAlias(false)
-        onStatusUpdated(status)
+        updateButtons()
     }
 
     fun onExitAmbient() {
         ambientMode = false
         musicPath.visibility = View.VISIBLE
         musicName.getPaint().setAntiAlias(true)
-        onStatusUpdated(status)
+        updateButtons()
     }
 
-    fun onStatusUpdated(s: Status) {
-        playpause.clearAnimation()
-        next.clearAnimation()
-        prev.clearAnimation()
-        repeat.clearAnimation()
-        shuffle.clearAnimation()
-
-        status = s
-        musicName.text = status.musicName
-        musicPath.text = status.musicDir
+    fun updateButtons() {
         if (ambientMode) {
             playpause.setImageResource(if (status.playing) R.drawable.ic_pause_ambient else R.drawable.ic_play_ambient)
             next.setImageResource(R.drawable.ic_next_ambient)
@@ -134,5 +133,16 @@ class PlayerFragment(val client: RuuClient) : Fragment() {
             })
             shuffle.setImageResource(if (status.shuffle) R.drawable.ic_shuffle_on else R.drawable.ic_shuffle_off)
         }
+    }
+
+    fun onStatusUpdated(s: Status) {
+        status = s
+
+        resetAnimation()
+
+        musicName.text = status.musicName
+        musicPath.text = status.musicDir
+
+        updateButtons()
     }
 }

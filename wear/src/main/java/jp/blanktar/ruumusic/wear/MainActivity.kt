@@ -2,10 +2,12 @@ package jp.blanktar.ruumusic.wear
 
 import android.app.Fragment
 import android.app.FragmentManager
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.support.v13.app.FragmentPagerAdapter
+import android.support.wearable.activity.ConfirmationActivity
 import android.support.wearable.activity.WearableActivity
 import android.widget.Toast
 
@@ -36,6 +38,14 @@ class MainActivity : WearableActivity() {
             }
             player?.onStatusUpdated(status)
             playlist?.onStatusUpdated(status)
+        }
+
+        client?.onFailedSendMessage = {
+            player?.resetAnimation()
+
+            startActivity(Intent(this, ConfirmationActivity::class.java)
+                              .putExtra(ConfirmationActivity.EXTRA_ANIMATION_TYPE, ConfirmationActivity.FAILURE_ANIMATION)
+                              .putExtra(ConfirmationActivity.EXTRA_MESSAGE, getString(R.string.failed_send_message)))
         }
 
         player = PlayerFragment(client!!)

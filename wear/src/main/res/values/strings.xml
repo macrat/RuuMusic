@@ -2,4 +2,6 @@
 	<string name="app_name">RuuMusic</string>
 
 	<string name="upper_dir">upper directory</string>
+
+	<string name="failed_send_message">Failed to connect</string>
 </resources>

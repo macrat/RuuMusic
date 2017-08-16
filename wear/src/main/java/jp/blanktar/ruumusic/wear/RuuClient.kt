@@ -26,6 +26,8 @@ class RuuClient(ctx: Context) : GoogleApiClient.ConnectionCallbacks, DataApi.Dat
 
     var onStatusUpdated: ((Status) -> Unit)? = null
 
+    var onFailedSendMessage: (() -> Unit)? = null
+
     fun connect() {
         client.connect()
     }
@@ -85,7 +87,11 @@ class RuuClient(ctx: Context) : GoogleApiClient.ConnectionCallbacks, DataApi.Dat
     private fun sendMessage(path: String, message: String = "") {
         thread {
             for (node in Wearable.NodeApi.getConnectedNodes(client).await().getNodes()) {
-                Wearable.MessageApi.sendMessage(client, node.getId(), path, message.toByteArray())
+                Wearable.MessageApi.sendMessage(client, node.getId(), path, message.toByteArray()).setResultCallback { result ->
+                    if (!result.status.isSuccess() && !result.status.isCanceled()) {
+                        onFailedSendMessage?.invoke()
+                    }
+                }
             }
         }
     }
