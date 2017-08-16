@@ -113,16 +113,6 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 	}
 
 	@Override
-	public void onPause(){
-		super.onPause();
-
-		if(current != null){
-			preference.CurrentViewPath.set(current.path.getFullPath());
-			preference.LastSearchQuery.set(searchQuery);
-		}
-	}
-
-	@Override
 	public void onCreateContextMenu(@NonNull ContextMenu menu, @NonNull View view, @NonNull ContextMenu.ContextMenuInfo info){
 		super.onCreateContextMenu(menu, view, info);
 		RuuFileBase file = adapter.getItem(((AdapterView.AdapterContextMenuInfo)info).position);
@@ -259,6 +249,8 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			current = new DirectoryInfo(dir);
 		}
 
+		preference.CurrentViewPath.set(current.path.getFullPath());
+
 		if(((MainActivity)getActivity()).getCurrentPage() == MainActivity.Page.PLAYLIST){
 			updateTitle();
 		}
@@ -368,6 +360,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 					public void run(){
 						searchQuery = text;
 						adapter.setSearchResults(filtered);
+						preference.LastSearchQuery.set(text);
 					}
 				});
 			}
