@@ -10,6 +10,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.MenuItemCompat;
@@ -107,19 +108,24 @@ public class MainActivity extends AppCompatActivity{
 				updateTitleAndMenu();
 			}
 		});
+	}
 
-		switch(getIntent().getAction()){
+	@Override
+	public void onNewIntent(@NonNull Intent intent) {
+		super.onNewIntent(intent);
+
+		switch(intent.getAction()){
 			case ACTION_OPEN_PLAYER:
 				moveToPlayer();
 				break;
 			case Intent.ACTION_SEARCH:
 				moveToPlaylist();
 				preference.CurrentViewPath.set(preference.RootDirectory.get());
-				preference.LastSearchQuery.set(getIntent().getStringExtra(SearchManager.QUERY));
+				preference.LastSearchQuery.set(intent.getStringExtra(SearchManager.QUERY));
 				break;
 			case Intent.ACTION_VIEW:
-				if(getIntent().getData() != null){
-					String path = getIntent().getData().getPath();
+				if(intent.getData() != null){
+					String path = intent.getData().getPath();
 					try{
 						RuuFile file = RuuFile.getInstance(getApplicationContext(), path.substring(0, path.lastIndexOf(".")));
 						file.getRuuPath();
@@ -134,6 +140,18 @@ public class MainActivity extends AppCompatActivity{
 					}
 					break;
 				}
+			case MediaStore.INTENT_ACTION_MEDIA_PLAY_FROM_SEARCH:
+				moveToPlayer();
+				try{
+					client.playSearch(RuuDirectory.getInstance(getApplicationContext(), preference.RootDirectory.get()), intent.getStringExtra(SearchManager.QUERY));
+				}catch(RuuFileBase.NotFound err){
+					try{
+						client.playSearch(RuuDirectory.rootDirectory(getApplicationContext()), intent.getStringExtra(SearchManager.QUERY));
+					}catch(RuuFileBase.NotFound e){
+						Toast.makeText(getApplicationContext(), getString(R.string.cant_open_dir, "/"), Toast.LENGTH_LONG).show();
+					}
+				}
+				break;
 			default:
 				viewPager.setCurrentItem(preference.LastViewPage.get());
 		}
