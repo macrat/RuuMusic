@@ -86,7 +86,13 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 					onQueryTextSubmit(searchQuery);
 				}
 			}else{
-				changeDir(RuuDirectory.rootCandidate(getContext()));
+				RuuDirectory dir = RuuDirectory.rootCandidate(getContext());
+				RuuDirectory root = RuuDirectory.rootDirectory(getContext());
+				if(!root.contains(dir)){
+					changeDir(root);
+				}else{
+					changeDir(dir);
+				}
 			}
 		}catch(RuuFileBase.NotFound err){
 			try{
