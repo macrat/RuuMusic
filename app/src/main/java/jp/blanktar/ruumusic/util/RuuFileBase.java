@@ -59,6 +59,15 @@ public abstract class RuuFileBase implements Comparable<RuuFileBase>{
 	}
 
 	@NonNull
+	public RuuDirectory getParent(int nth) throws OutOfRootDirectory{
+		RuuFileBase dir = this;
+		for(int i=0; i<nth; i++){
+			dir = dir.getParent();
+		}
+		return (RuuDirectory)dir;
+	}
+
+	@NonNull
 	abstract public Uri toUri();
 
 	@NonNull
@@ -71,6 +80,16 @@ public abstract class RuuFileBase implements Comparable<RuuFileBase>{
 	private int depth(){
 		int count = 0;
 		for(char x: getFullPath().toCharArray()){
+			if(x == '/'){
+				count++;
+			}
+		}
+		return count;
+	}
+
+	public int ruuDepth() throws OutOfRootDirectory{
+		int count = 0;
+		for(char x: getRuuPath().toCharArray()){
 			if(x == '/'){
 				count++;
 			}

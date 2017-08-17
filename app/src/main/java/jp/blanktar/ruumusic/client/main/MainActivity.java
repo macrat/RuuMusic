@@ -90,9 +90,9 @@ public class MainActivity extends AppCompatActivity{
 			@NonNull
 			public Fragment getItem(@IntRange(from=0, to=1) int position){
 				if(position == 0){
-					return (player = new PlayerFragment());
-				}else{
 					return (playlist = new PlaylistFragment());
+				}else{
+					return (player = new PlayerFragment());
 				}
 			}
 
@@ -204,8 +204,8 @@ public class MainActivity extends AppCompatActivity{
 		assert searchMenu != null;
 		searchView = (SearchView)MenuItemCompat.getActionView(searchMenu);
 		assert searchView != null;
-		searchView.setOnQueryTextListener(playlist);
-		searchView.setOnCloseListener(playlist);
+		//searchView.setOnQueryTextListener(playlist);
+		//searchView.setOnCloseListener(playlist);
 
 		String query = preference.LastSearchQuery.get();
 		if(query != null){
@@ -221,10 +221,10 @@ public class MainActivity extends AppCompatActivity{
 	public boolean onOptionsItemSelected(@NonNull MenuItem item){
 		int id = item.getItemId();
 
-		if((id == R.id.action_set_root || id == R.id.action_unset_root) && playlist.current != null){
+		if((id == R.id.action_set_root || id == R.id.action_unset_root) && playlist.getDirectory() != null){
 			String rootPath = "/";
 			if(id == R.id.action_set_root){
-				rootPath = playlist.current.path.getFullPath();
+				rootPath = playlist.getDirectory().getFullPath();
 			}
 			preference.RootDirectory.set(rootPath);
 
@@ -234,16 +234,16 @@ public class MainActivity extends AppCompatActivity{
 			return true;
 		}
 
-		if(id == R.id.action_recursive_play && playlist.current != null){
-			client.playRecursive(playlist.current.path);
+		if(id == R.id.action_recursive_play && playlist.getDirectory() != null){
+			client.playRecursive(playlist.getDirectory());
 
 			moveToPlayer();
 
 			return true;
 		}
 
-		if(id == R.id.action_search_play && playlist.current != null){
-			client.playSearch(playlist.current.path, playlist.searchQuery);
+		if(id == R.id.action_search_play && playlist.getDirectory() != null){
+			client.playSearch(playlist.getDirectory(), playlist.getSearchQuery());
 
 			moveToPlayer();
 
@@ -284,7 +284,7 @@ public class MainActivity extends AppCompatActivity{
 	}
 
 	public void moveToPlaylist(@NonNull RuuDirectory path){
-		playlist.changeDir(path);
+		playlist.setDirectory(path);
 		moveToPlaylist();
 	}
 
@@ -325,8 +325,8 @@ public class MainActivity extends AppCompatActivity{
 
 
 	enum Page{
-		PLAYER,
-		PLAYLIST
+		PLAYLIST,
+		PLAYER
 	}
 }
 
