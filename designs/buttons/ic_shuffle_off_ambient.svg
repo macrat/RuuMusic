@@ -143,8 +143,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.49497475"
-     inkscape:cx="169.11628"
-     inkscape:cy="516.0996"
+     inkscape:cx="232.18855"
+     inkscape:cy="503.8008"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false" />
@@ -166,24 +166,14 @@
      id="layer1"
      transform="translate(0,-28.362183)">
     <path
-       style="fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#ffffff;stroke-width:54.65127945;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="m 951.23672,347.49834 -139.17669,56.85779 -139.17675,56.85778 0,-113.71558 0,-113.71556 139.17676,56.85778 z"
-       id="path4169"
-       inkscape:connector-curvature="0" />
+       style="fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#ffffff;stroke-width:64;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 669.97266 217.91016 L 669.97266 266.66602 L 70.980469 266.66602 L 70.980469 371.60742 L 669.97266 371.60742 L 669.97266 424.4043 L 796.33789 372.7793 L 922.70117 321.15625 L 796.33789 269.5332 L 669.97266 217.91016 z "
+       transform="translate(0,28.362183)"
+       id="path4169" />
     <path
-       style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none"
-       d="m 24.51402,311.19016 652.71808,0 0,72.61641 -652.71808,0 z"
-       id="path7788"
-       inkscape:connector-curvature="0" />
-    <path
-       style="fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#ffffff;stroke-width:54.65128326;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="m 951.23677,733.22603 -139.17675,56.85779 -139.17675,56.85779 0,-113.71558 0,-113.71557 139.17675,56.85779 z"
-       id="path4173"
-       inkscape:connector-curvature="0" />
-    <path
-       style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none"
-       d="m 24.513975,696.91785 652.718055,0 0,72.61642 -652.718055,0 z"
-       id="path7788-5"
-       inkscape:connector-curvature="0" />
+       style="fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#ffffff;stroke-opacity:1;stroke-width:64;stroke-miterlimit:4;stroke-dasharray:none"
+       d="M 669.97266 596.87305 L 669.97266 652.39258 L 70.980469 652.39258 L 70.980469 757.33398 L 669.97266 757.33398 L 669.97266 803.36719 L 796.33789 751.74414 L 922.70117 700.11914 L 796.33789 648.49609 L 669.97266 596.87305 z "
+       transform="translate(0,28.362183)"
+       id="path4173" />
   </g>
 </svg>
