@@ -15,6 +15,7 @@ import android.widget.Toast
 import jp.blanktar.ruumusic.R
 import jp.blanktar.ruumusic.util.Preference
 import jp.blanktar.ruumusic.util.RuuDirectory
+import jp.blanktar.ruumusic.util.RuuFile
 import jp.blanktar.ruumusic.util.RuuFileBase
 import jp.blanktar.ruumusic.view.FilerView
 import kotlinx.android.synthetic.main.fragment_playlist.*
@@ -45,6 +46,8 @@ class PlaylistFragment : Fragment() {
                 field = dir
             }
         }
+
+    var onMusicSelectListener: OnMusicSelectListener? = null
 
     private fun restoreCurrentPath(preference: Preference) {
         val currentPath = preference.CurrentViewPath.get()
@@ -143,6 +146,8 @@ class PlaylistFragment : Fragment() {
             filer.onItemClickListener = { item ->
                 if (item.isDirectory()) {
                     directory = item as RuuDirectory
+                } else {
+                    onMusicSelectListener?.onMusicSelect(item as RuuFile)
                 }
             }
 
@@ -165,5 +170,9 @@ class PlaylistFragment : Fragment() {
                 return 1
             }
         }
+    }
+
+    abstract class OnMusicSelectListener {
+        abstract fun onMusicSelect(music: RuuFile)
     }
 }

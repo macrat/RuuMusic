@@ -83,6 +83,17 @@ public class MainActivity extends AppCompatActivity{
 					.create().show();
 		}
 
+		player = new PlayerFragment();
+		playlist = new PlaylistFragment();
+
+		playlist.setOnMusicSelectListener(new PlaylistFragment.OnMusicSelectListener(){
+			@Override
+			public void onMusicSelect(RuuFile music){
+				client.play(music);
+				moveToPlayer();
+			}
+		});
+
 		viewPager = (ViewPager)findViewById(R.id.viewPager);
 
 		viewPager.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager()){
@@ -90,9 +101,9 @@ public class MainActivity extends AppCompatActivity{
 			@NonNull
 			public Fragment getItem(@IntRange(from=0, to=1) int position){
 				if(position == 0){
-					return (playlist = new PlaylistFragment());
+					return playlist;
 				}else{
-					return (player = new PlayerFragment());
+					return player;
 				}
 			}
 
@@ -276,11 +287,11 @@ public class MainActivity extends AppCompatActivity{
 	}
 
 	public void moveToPlayer(){
-		viewPager.setCurrentItem(0);
+		viewPager.setCurrentItem(Page.PLAYER.ordinal());
 	}
 
 	private void moveToPlaylist(){
-		viewPager.setCurrentItem(1);
+		viewPager.setCurrentItem(Page.PLAYLIST.ordinal());
 	}
 
 	public void moveToPlaylist(@NonNull RuuDirectory path){
