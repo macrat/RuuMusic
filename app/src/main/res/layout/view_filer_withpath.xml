@@ -5,13 +5,13 @@
 			  android:layout_height="match_parent">
 
 	<TextView
-		android:id="@+id/search_name"
+		android:id="@+id/name"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:textSize="@dimen/list_item_text_size" />
 
 	<TextView
-		android:id="@+id/search_path"
+		android:id="@+id/path"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:textColor="#999999"

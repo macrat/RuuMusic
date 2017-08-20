@@ -1,6 +1,8 @@
 <resources>
 	<dimen name="activity_horizontal_margin">16dp</dimen>
 	<dimen name="activity_vertical_margin">16dp</dimen>
+	<dimen name="filer_horizontal_margin">16dp</dimen>
+	<dimen name="filer_vertical_margin">8dp</dimen>
 	<dimen name="preference_margin">10dp</dimen>
 
 	<dimen name="widget_margin">8dp</dimen>

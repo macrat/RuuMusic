@@ -10,27 +10,41 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 
 import jp.blanktar.ruumusic.R
 import jp.blanktar.ruumusic.util.Preference
 import jp.blanktar.ruumusic.util.RuuDirectory
 import jp.blanktar.ruumusic.util.RuuFileBase
+import jp.blanktar.ruumusic.view.FilerView
 import kotlinx.android.synthetic.main.fragment_playlist.*
-import android.widget.Toast
-import android.R.attr.path
 
 
 class PlaylistFragment : Fragment() {
     var searchQuery: String? = null
 
-    var directory: RuuDirectory? = null
-        set(x) {
-            field = x
-            if (x != null) {
+    var shownDirectory: RuuDirectory? = null
+        private set(dir) {
+            field = dir
+            if (dir != null) {
                 recycler?.adapter?.notifyDataSetChanged()
             }
         }
 
+    var directory: RuuDirectory? = null
+        set(dir) {
+            if (shownDirectory?.contains(dir!!) ?: true) {
+                shownDirectory = dir
+                field = null
+                recycler?.smoothScrollToPosition(recycler?.adapter?.itemCount ?: 0)
+            } else {
+                try {
+                    recycler?.smoothScrollToPosition((dir?.ruuDepth() ?: 1) - 1)
+                } catch(e: RuuFileBase.OutOfRootDirectory) {
+                }
+                field = dir
+            }
+        }
 
     private fun restoreCurrentPath(preference: Preference) {
         val currentPath = preference.CurrentViewPath.get()
@@ -81,8 +95,12 @@ class PlaylistFragment : Fragment() {
         recycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(re: RecyclerView, state: Int) {
                 if (state == RecyclerView.SCROLL_STATE_IDLE) {
-                    val ommit = re.adapter.itemCount - 1 - layout.findFirstVisibleItemPosition()
-                    directory = directory?.getParent(ommit)
+                    if (directory != null) {
+                        shownDirectory = directory
+                    } else {
+                        val ommit = re.adapter.itemCount - 1 - layout.findFirstVisibleItemPosition()
+                        shownDirectory = shownDirectory?.getParent(ommit)
+                    }
                 }
             }
 
@@ -110,9 +128,7 @@ class PlaylistFragment : Fragment() {
 
 
     inner class Adapter : RecyclerView.Adapter<Adapter.ViewHolder>() {
-        inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-            val text = view.findViewById<TextView>(R.id.text)
-        }
+        inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {}
 
         override fun getItemViewType(position: Int) = 0
 
@@ -120,12 +136,31 @@ class PlaylistFragment : Fragment() {
                 = ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.playlist_page, parent, false))
 
         override fun onBindViewHolder(holder: Adapter.ViewHolder, position: Int) {
-            holder.text?.text = directory?.getParent(getItemCount() - 1 - position)?.fullPath
+            val filer = holder.itemView as FilerView
+
+            filer.loading = true
+
+            filer.onItemClickListener = { item ->
+                if (item.isDirectory()) {
+                    directory = item as RuuDirectory
+                }
+            }
+
+            filer.onParentClickListener = {
+                directory = shownDirectory!!.getParent(getItemCount() - position)
+            }
+
+            filer.hasParent = position != 0
+
+            val files = shownDirectory?.getParent(getItemCount() - 1 - position)?.getChildren()
+            if (files != null) {
+                filer.setFiles(files)
+            }
         }
 
         override fun getItemCount(): Int {
             try {
-                return directory?.ruuDepth() ?: 1
+                return shownDirectory?.ruuDepth() ?: 1
             } catch(e: RuuFileBase.OutOfRootDirectory) {
                 return 1
             }
