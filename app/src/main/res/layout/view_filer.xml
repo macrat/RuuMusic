@@ -13,7 +13,8 @@
 		android:paddingTop="@dimen/filer_vertical_margin"
 		android:paddingBottom="@dimen/filer_vertical_margin"
 		android:dividerHeight="2dp"
-		android:visibility="gone" />
+		android:visibility="gone"
+		android:clipToPadding="false" />
 
 	<ProgressBar
 		android:id="@+id/progress"
