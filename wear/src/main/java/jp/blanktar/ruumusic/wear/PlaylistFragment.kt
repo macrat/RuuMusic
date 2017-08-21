@@ -16,7 +16,9 @@ import android.view.ViewGroup
 import kotlinx.android.synthetic.main.fragment_playlist.*
 
 
-class DirectoryLog(val dir: Directory) {}
+class DirectoryLog(val dir: Directory) {
+    var scrollPosition = 0
+}
 
 
 class PlaylistFragment(val client: RuuClient) : Fragment() {
@@ -30,6 +32,11 @@ class PlaylistFragment(val client: RuuClient) : Fragment() {
 
     var directory: Directory? = null
         set(x) {
+            if (!directoryStack.empty()) {
+                val layout = list.layoutManager as CurvedChildLayoutManager
+                directoryStack.peek().scrollPosition = layout.findFirstVisibleItemPosition()
+            }
+
             field = x
             directoryStack.push(DirectoryLog(x!!))
 
@@ -90,7 +97,9 @@ class PlaylistFragment(val client: RuuClient) : Fragment() {
         }
 
         if (!directoryStack.empty() && directoryStack.peek().dir.path == path) {
-            directory = directoryStack.pop().dir
+            val log = directoryStack.pop()
+            directory = log.dir
+            scrollTo(log.scrollPosition)
             callback?.invoke()
             return
         }
@@ -120,8 +129,13 @@ class PlaylistFragment(val client: RuuClient) : Fragment() {
 
     fun scrollTo(position: Int) {
         handler.post {
-            val pos = snapHelper.calculateDistanceToFinalSnap(list.layoutManager, list.findViewHolderForAdapterPosition(position).itemView)!!
-            list.scrollBy(pos[0], pos[1])
+            val view = list.findViewHolderForAdapterPosition(position)?.itemView
+            if (view != null) {
+                val pos = snapHelper.calculateDistanceToFinalSnap(list.layoutManager, view)!!
+                list.scrollBy(pos[0], pos[1])
+            } else {
+                list.scrollToPosition(position)
+            }
         }
     }
 
