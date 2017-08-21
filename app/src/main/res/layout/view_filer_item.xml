@@ -8,4 +8,5 @@
 	android:layout_height="wrap_content"
 	android:paddingLeft="@dimen/filer_horizontal_margin"
 	android:paddingRight="@dimen/filer_horizontal_margin"
-	android:textSize="@dimen/view_filer_text_size" />
+	android:textSize="@dimen/view_filer_text_size"
+	android:background="?android:attr/selectableItemBackground" />
