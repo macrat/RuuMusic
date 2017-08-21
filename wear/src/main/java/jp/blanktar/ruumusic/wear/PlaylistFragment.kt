@@ -1,5 +1,6 @@
 package jp.blanktar.ruumusic.wear
 
+import java.util.Stack
 import kotlin.concurrent.thread
 
 import android.app.Fragment
@@ -15,6 +16,9 @@ import android.view.ViewGroup
 import kotlinx.android.synthetic.main.fragment_playlist.*
 
 
+class DirectoryLog(val dir: Directory) {}
+
+
 class PlaylistFragment(val client: RuuClient) : Fragment() {
     var statusUpdated = false
 
@@ -22,9 +26,12 @@ class PlaylistFragment(val client: RuuClient) : Fragment() {
 
     val snapHelper = LinearSnapHelper()
 
+    val directoryStack = Stack<DirectoryLog>()
+
     var directory: Directory? = null
         set(x) {
             field = x
+            directoryStack.push(DirectoryLog(x!!))
 
             val adapter = RecyclerAdapter(x!!, client.status.rootPath == x.path)
             adapter.onParentClickListener = {
@@ -78,6 +85,16 @@ class PlaylistFragment(val client: RuuClient) : Fragment() {
     private var loading = false
 
     fun setDirectoryByPath(path: String, callback: (() -> Unit)? = null) {
+        while (!directoryStack.empty() && !path.startsWith(directoryStack.peek().dir.path)) {
+            directoryStack.pop()
+        }
+
+        if (!directoryStack.empty() && directoryStack.peek().dir.path == path) {
+            directory = directoryStack.pop().dir
+            callback?.invoke()
+            return
+        }
+
         loading = true
 
         handler.postDelayed({
