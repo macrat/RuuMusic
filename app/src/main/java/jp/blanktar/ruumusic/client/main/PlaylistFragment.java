@@ -13,6 +13,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
@@ -34,6 +35,7 @@ import jp.blanktar.ruumusic.util.RuuClient;
 import jp.blanktar.ruumusic.util.RuuDirectory;
 import jp.blanktar.ruumusic.util.RuuFile;
 import jp.blanktar.ruumusic.util.RuuFileBase;
+import jp.blanktar.ruumusic.view.FilerView;
 
 
 @UiThread
@@ -41,7 +43,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 	private Preference preference;
 	private RuuClient client;
 
-	private RuuAdapter adapter;
+	private FilerView filer;
 	private final Stack<DirectoryInfo> directoryCache = new Stack<>();
 	@NonNull private ListStatus status = ListStatus.LOADING;
 
@@ -57,24 +59,60 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 		preference = new Preference(view.getContext());
 		client = new RuuClient(getContext());
 
-		adapter = new RuuAdapter(view.getContext());
+		filer = (FilerView)view.findViewById(R.id.filer);
 
-		final ListView lv = (ListView)view.findViewById(R.id.playlist);
-		lv.setAdapter(adapter);
-
-		lv.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+		filer.setOnEventListener(new FilerView.OnEventListener(){
 			@Override
-			public void onItemClick(@NonNull AdapterView<?> parent, @Nullable View view, int position, long id){
-				RuuFileBase selected = (RuuFileBase)lv.getItemAtPosition(position);
-				if(selected.isDirectory()){
-					changeDir((RuuDirectory)selected);
-				}else{
-					changeMusic((RuuFile)selected);
+			public void onMusicClick(@NonNull RuuFile music){
+				changeMusic(music);
+			}
+
+			@Override
+			public void onDirectoryClick(@NonNull RuuDirectory dir){
+				changeDir(dir);
+			}
+
+			@Override
+			public void onParentClick(){
+				try{
+					changeDir(current.path.getParent());
+				}catch(RuuFileBase.OutOfRootDirectory e){
 				}
 			}
-		});
 
-		registerForContextMenu(lv);
+			@Override
+			public void onMusicLongClick(@NonNull RuuFile music, @NonNull ContextMenu menu){
+				final boolean openable = getActivity().getPackageManager().queryIntentActivities(music.toIntent(), 0).size() > 0;
+
+				menu.setHeaderTitle(music.getName());
+				getActivity().getMenuInflater().inflate(R.menu.music_context_menu, menu);
+				menu.findItem(R.id.action_open_music_with_other_app).setVisible(openable);
+			}
+
+			@Override
+			public void onDirectoryLongClick(@NonNull RuuDirectory dir, @NonNull ContextMenu menu){
+				final boolean openable = getActivity().getPackageManager().queryIntentActivities(dir.toIntent(), 0).size() > 0;
+
+				menu.setHeaderTitle(dir.getName() + "/");
+				getActivity().getMenuInflater().inflate(R.menu.directory_context_menu, menu);
+				menu.findItem(R.id.action_open_dir_with_other_app).setVisible(openable);
+			}
+	
+			@Override
+			public void onParentLongClick(@NonNull ContextMenu menu){
+				RuuDirectory dir;
+				try{
+					dir = current.path.getParent();
+				}catch(RuuFileBase.OutOfRootDirectory e){
+					return;
+				}
+				final boolean openable = getActivity().getPackageManager().queryIntentActivities(dir.toIntent(), 0).size() > 0;
+
+				menu.setHeaderTitle(dir.getName() + "/");
+				getActivity().getMenuInflater().inflate(R.menu.directory_context_menu, menu);
+				menu.findItem(R.id.action_open_dir_with_other_app).setVisible(openable);
+			}
+		});
 
 		String currentPath = preference.CurrentViewPath.get();
 		try{
@@ -113,25 +151,8 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 	}
 
 	@Override
-	public void onCreateContextMenu(@NonNull ContextMenu menu, @NonNull View view, @NonNull ContextMenu.ContextMenuInfo info){
-		super.onCreateContextMenu(menu, view, info);
-		RuuFileBase file = adapter.getItem(((AdapterView.AdapterContextMenuInfo)info).position);
-		boolean openable = getActivity().getPackageManager().queryIntentActivities(file.toIntent(), 0).size() > 0;
-
-		if(file.isDirectory()){
-			menu.setHeaderTitle(file.getName() + "/");
-			getActivity().getMenuInflater().inflate(R.menu.directory_context_menu, menu);
-			menu.findItem(R.id.action_open_dir_with_other_app).setVisible(openable);
-		}else{
-			menu.setHeaderTitle(file.getName());
-			getActivity().getMenuInflater().inflate(R.menu.music_context_menu, menu);
-			menu.findItem(R.id.action_open_music_with_other_app).setVisible(openable);
-		}
-	}
-
-	@Override
 	public boolean onContextItemSelected(@NonNull MenuItem item){
-		RuuFileBase file = adapter.getItem(((AdapterView.AdapterContextMenuInfo)item.getMenuInfo()).position);
+		RuuFileBase file = filer.getFiles().get(((AdapterView.AdapterContextMenuInfo)item.getMenuInfo()).position);
 
 		switch(item.getItemId()){
 			case R.id.action_open_directory:
@@ -181,37 +202,24 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 	private void updateStatus(@NonNull ListStatus status){
 		this.status = status;
 
-		if(status == ListStatus.SHOWN){
-			getActivity().findViewById(R.id.loading_list).setVisibility(View.GONE);
-			getActivity().findViewById(R.id.empty_list).setVisibility(View.GONE);
-			getActivity().findViewById(R.id.playlist).setVisibility(View.VISIBLE);
-		}else{
-			final Handler handler = new Handler();
-			(new Handler()).postDelayed(new Runnable(){
-				@Override
-				public void run(){
-					if(PlaylistFragment.this.status == ListStatus.SHOWN){
-						getActivity().findViewById(R.id.loading_list).setVisibility(View.GONE);
-						getActivity().findViewById(R.id.empty_list).setVisibility(View.GONE);
-						getActivity().findViewById(R.id.playlist).setVisibility(View.VISIBLE);
-					}else{
-						handler.post(new Runnable(){
-							@Override
-							public void run(){
-								getActivity().findViewById(R.id.playlist).setVisibility(View.GONE);
-
-								if(PlaylistFragment.this.status == ListStatus.LOADING){
-									getActivity().findViewById(R.id.empty_list).setVisibility(View.GONE);
-									getActivity().findViewById(R.id.loading_list).setVisibility(View.VISIBLE);
-								}else{
-									getActivity().findViewById(R.id.loading_list).setVisibility(View.GONE);
-									getActivity().findViewById(R.id.empty_list).setVisibility(View.VISIBLE);
-								}
-							}
-						});
-					}
-				}
-			}, 100);
+		try{
+			switch(status){
+				case SHOWN:
+					filer.setLoading(false);
+					getActivity().findViewById(R.id.empty_list).setVisibility(View.GONE);
+					getActivity().findViewById(R.id.filer).setVisibility(View.VISIBLE);
+					break;
+				case LOADING:
+					filer.setLoading(true);
+					getActivity().findViewById(R.id.empty_list).setVisibility(View.GONE);
+					getActivity().findViewById(R.id.filer).setVisibility(View.VISIBLE);
+					break;
+				case EMPTY:
+					getActivity().findViewById(R.id.filer).setVisibility(View.GONE);
+					getActivity().findViewById(R.id.empty_list).setVisibility(View.VISIBLE);
+					break;
+			}
+		}catch(NullPointerException e) {
 		}
 	}
 
@@ -225,6 +233,12 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 		}catch(RuuFileBase.OutOfRootDirectory e){
 			Toast.makeText(getActivity(), getString(R.string.out_of_root, dir.getFullPath()), Toast.LENGTH_LONG).show();
 			return;
+		}
+
+		try{
+			filer.hideFiles(dir != RuuDirectory.rootDirectory(getContext()));
+		}catch(RuuDirectory.NotFound e){
+			filer.hideFiles(false);
 		}
 
 		MainActivity main = (MainActivity)getActivity();
@@ -241,7 +255,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			current = directoryCache.pop();
 		}else{
 			if(current != null){
-				current.selection = ((ListView)getActivity().findViewById(R.id.playlist)).getFirstVisiblePosition();
+				current.state = filer.getLayoutState();
 				directoryCache.push(current);
 			}
 
@@ -254,7 +268,12 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			updateTitle();
 		}
 
-		adapter.setRuuFiles(current);
+		filer.setShowPath(false);
+		filer.changeDirectory(current.path);
+		if(current.state != null){
+			filer.setLayoutState(current.state);
+		}
+		updateStatus(ListStatus.SHOWN);
 	}
 
 	public void updateMenu(@NonNull MainActivity activity){
@@ -275,8 +294,8 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			menu.findItem(R.id.action_set_root).setVisible(current != null && !rootDirectory.equals(current.path) && searchQuery == null);
 			menu.findItem(R.id.action_unset_root).setVisible(!rootDirectory.getFullPath().equals("/") && searchQuery == null);
 			menu.findItem(R.id.action_search_play).setVisible(searchQuery != null);
-			menu.findItem(R.id.action_search_play).setEnabled(adapter.getCount() > 0);
-			menu.findItem(R.id.action_recursive_play).setVisible(searchQuery == null && adapter.getCount() > 0);
+			menu.findItem(R.id.action_search_play).setEnabled(filer.getHasContent());
+			menu.findItem(R.id.action_recursive_play).setVisible(searchQuery == null && filer.getHasContent());
 			menu.findItem(R.id.menu_search).setVisible(true);
 		}
 	}
@@ -347,7 +366,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 		}
 
 		updateStatus(ListStatus.LOADING);
-		
+
 		final Handler handler = new Handler();
 		(new Thread(new Runnable(){
 			@Override
@@ -358,7 +377,13 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 					@Override
 					public void run(){
 						searchQuery = text;
-						adapter.setSearchResults(filtered);
+						filer.setShowPath(true);
+						filer.changeFiles(filtered, false);
+						if(filer.getHasContent()){
+							updateStatus(ListStatus.SHOWN);
+						}else{
+							updateStatus(ListStatus.EMPTY);
+						}
 						preference.LastSearchQuery.set(text);
 					}
 				});
@@ -370,7 +395,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 
 	@Override
 	public boolean onClose(){
-		adapter.resumeFromSearch();
+		changeDir(current.path);
 
 		searchQuery = null;
 		preference.LastSearchQuery.remove();
@@ -389,151 +414,10 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 
 	class DirectoryInfo{
 		public final RuuDirectory path;
-		public int selection = 0;
+		public Parcelable state;
 
 		public DirectoryInfo(@NonNull RuuDirectory path){
 			this.path = path;
-		}
-	}
-
-
-	@UiThread
-	private class RuuAdapter extends ArrayAdapter<RuuFileBase>{
-		@Nullable private DirectoryInfo dirInfo;
-
-		RuuAdapter(@NonNull Context context){
-			super(context, R.layout.list_item);
-		}
-
-		void setRuuFiles(@NonNull final DirectoryInfo dirInfo){
-			searchQuery = null;
-			this.dirInfo = dirInfo;
-	
-			updateStatus(ListStatus.LOADING);
-
-			final Handler handler = new Handler();
-			(new Thread(new Runnable(){
-				@Override
-				public void run(){
-					handler.post(new Runnable(){
-						@Override
-						public void run(){
-							clear();
-
-							try{
-								RuuDirectory rootDirectory = RuuDirectory.rootDirectory(getContext());
-								if(!rootDirectory.equals(dirInfo.path) && rootDirectory.contains(dirInfo.path)){
-									add(dirInfo.path.getParent());
-								}
-							}catch(RuuFileBase.NotFound | RuuFileBase.OutOfRootDirectory e){
-							}
-
-							for(RuuDirectory dir: dirInfo.path.getDirectories()){
-								add(dir);
-							}
-
-							for(RuuFile music: dirInfo.path.getMusics()){
-								add(music);
-							}
-
-							ListView listView = (ListView)getActivity().findViewById(R.id.playlist);
-							if(listView != null){
-								listView.setSelection(dirInfo.selection);
-							}
-
-							updateStatus(ListStatus.SHOWN);
-							updateMenu();
-						}
-					});
-				}
-			})).start();
-		}
-
-		void setSearchResults(@NonNull final List<RuuFileBase> results){
-			updateStatus(ListStatus.LOADING);
-
-			if(dirInfo != null && getActivity() != null && getActivity().findViewById(R.id.playlist) != null){
-				dirInfo.selection = ((ListView)getActivity().findViewById(R.id.playlist)).getFirstVisiblePosition();
-			}
-
-			clear();
-
-			if(results.size() == 0){
-				updateStatus(ListStatus.EMPTY);
-				return;
-			}
-
-			for(RuuFileBase result: results){
-				add(result);
-			}
-
-			ListView listView = (ListView)getActivity().findViewById(R.id.playlist);
-			if(listView != null){
-				listView.setSelection(0);
-			}
-
-			updateStatus(ListStatus.SHOWN);
-			updateMenu();
-		}
-
-		void resumeFromSearch(){
-			if(dirInfo != null){
-				clear();
-				setRuuFiles(dirInfo);
-			}
-		}
-
-		@Override
-		public int getViewTypeCount(){
-			return 3;
-		}
-
-		@Override
-		@IntRange(from=0, to=2)
-		public int getItemViewType(int position){
-			if(searchQuery != null){
-				return 2;
-			}
-
-			if(getItem(position).isDirectory() && dirInfo != null && ((RuuDirectory)getItem(position)).contains(dirInfo.path)){
-				return 1;
-			}else{
-				return 0;
-			}
-		}
-
-		@Override
-		@NonNull
-		public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent){
-			RuuFileBase item = getItem(position);
-
-			if(searchQuery != null){
-				if(convertView == null){
-					convertView = ((LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.list_item_search, null);
-				}
-
-				((TextView)convertView.findViewById(R.id.search_name)).setText(item.getName() + (item.isDirectory() ? "/" : ""));
-				try{
-					((TextView)convertView.findViewById(R.id.search_path)).setText(item.getParent().getRuuPath());
-				}catch(RuuFileBase.OutOfRootDirectory e){
-					((TextView)convertView.findViewById(R.id.search_path)).setText("");
-				}
-			}else{
-				assert dirInfo != null;
-				if(item.isDirectory() && ((RuuDirectory)item).contains(dirInfo.path)){
-					if(convertView == null){
-						convertView = ((LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.list_item_upper, null);
-					}
-				}else{
-					if(convertView == null){
-						convertView = ((LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.list_item, null);
-					}
-
-					((TextView)convertView).setText(item.getName() + (item.isDirectory() ? "/" : ""));
-				}
-			}
-
-			return convertView;
 		}
 	}
 }

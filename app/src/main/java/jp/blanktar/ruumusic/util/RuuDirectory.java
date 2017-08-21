@@ -243,6 +243,21 @@ public class RuuDirectory extends RuuFileBase{
 	}
 
 	@NonNull
+	public List<RuuFileBase> getChildren(){
+		ArrayList<RuuFileBase> children = new ArrayList<>();
+
+		for(RuuDirectory x: getDirectories()){
+			children.add(x);
+		}
+
+		for(RuuFile x: getMusics()){
+			children.add(x);
+		}
+
+		return children;
+	}
+
+	@NonNull
 	public List<RuuFile> getMusicsRecursive(){
 		ArrayList<RuuFile> list = new ArrayList<>();
 

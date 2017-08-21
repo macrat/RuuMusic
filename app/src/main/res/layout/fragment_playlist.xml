@@ -1,18 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+
 <FrameLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	android:paddingLeft="@dimen/activity_horizontal_margin"
-	android:paddingRight="@dimen/activity_horizontal_margin"
 	tools:context=".client.main.PlaylistFragment">
 
-	<ListView
-		android:id="@+id/playlist"
+	<jp.blanktar.ruumusic.view.FilerView
+		android:id="@+id/filer"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		android:visibility="gone"
-		android:dividerHeight="2dp" />
+		android:visibility="gone" />
 
 	<TextView
 		android:id="@+id/empty_list"
@@ -21,13 +20,5 @@
 		android:gravity="center"
 		android:visibility="gone"
 		android:text="@string/empty_list"
-		android:textSize="@dimen/list_item_text_size" />
-
-	<ProgressBar
-		android:id="@+id/loading_list"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_gravity="center"
-		android:indeterminate="true"
-		android:indeterminateOnly="true" />
+		android:textSize="@dimen/view_filer_text_size" />
 </FrameLayout>
