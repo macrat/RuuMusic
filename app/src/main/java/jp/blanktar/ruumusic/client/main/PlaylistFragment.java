@@ -204,7 +204,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 		if(current == null){
 			toolbar.setTitle("");
 			toolbar.setSubtitle("");
-		}else if(current.path == root){
+		}else if(current.path.equals(root)){
 			toolbar.setTitle("/");
 			toolbar.setSubtitle("");
 		}else if(parent == root){

@@ -55,7 +55,7 @@ class FilerView(context: Context, attrs: AttributeSet) : FrameLayout(context, at
                 if (parent == RuuDirectory.rootDirectory(context)) {
                     return "/"
                 } else {
-                    return parent?.parent?.name + "/"
+                    return parent?.name + "/"
                 }
             } catch (e: RuuFileBase.NotFound) {
                 return null
@@ -99,6 +99,7 @@ class FilerView(context: Context, attrs: AttributeSet) : FrameLayout(context, at
         this.files = files
         this.parent = parent
         adapter.notifyDataSetChanged()
+        list.scrollToPosition(0)
 
         loading = false
     }
