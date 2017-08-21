@@ -4,21 +4,30 @@
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	android:paddingLeft="@dimen/activity_horizontal_margin"
-	android:paddingRight="@dimen/activity_horizontal_margin" >
+	android:paddingRight="@dimen/activity_horizontal_margin"
+	tools:context=".client.main.PlaylistFragment">
 
 	<ListView
+		android:id="@+id/playlist"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		tools:context="jp.blanktar.ruumusic.PlaylistFragment"
-		android:id="@+id/playlist"
 		android:visibility="gone"
 		android:dividerHeight="2dp" />
 
 	<TextView
-		  android:layout_width="match_parent"
-		  android:layout_height="match_parent"
-		  android:id="@+id/playlist_message"
-		  android:text="@string/loading_list"
-		  android:gravity="center"
-		  android:textSize="@dimen/list_item_text_size" />
+		android:id="@+id/empty_list"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:gravity="center"
+		android:visibility="gone"
+		android:text="@string/empty_list"
+		android:textSize="@dimen/list_item_text_size" />
+
+	<ProgressBar
+		android:id="@+id/loading_list"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="center"
+		android:indeterminate="true"
+		android:indeterminateOnly="true" />
 </FrameLayout>

@@ -180,34 +180,33 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 
 	private void updateStatus(@NonNull ListStatus status){
 		this.status = status;
-		try{
-			switch(status){
-				case LOADING:
-					((TextView)getActivity().findViewById(R.id.playlist_message)).setText(R.string.loading_list);
-					break;
-				case EMPTY:
-					((TextView)getActivity().findViewById(R.id.playlist_message)).setText(R.string.empty_list);
-					break;
-				case SHOWN:
-					getActivity().findViewById(R.id.playlist).setVisibility(View.VISIBLE);
-					getActivity().findViewById(R.id.playlist_message).setVisibility(View.GONE);
-					break;
-			}
-		}catch(NullPointerException e){
-			return;
-		}
 
-		if(status != ListStatus.SHOWN){
+		if(status == ListStatus.SHOWN){
+			getActivity().findViewById(R.id.loading_list).setVisibility(View.GONE);
+			getActivity().findViewById(R.id.empty_list).setVisibility(View.GONE);
+			getActivity().findViewById(R.id.playlist).setVisibility(View.VISIBLE);
+		}else{
 			final Handler handler = new Handler();
 			(new Handler()).postDelayed(new Runnable(){
 				@Override
 				public void run(){
-					if(PlaylistFragment.this.status != ListStatus.SHOWN){
+					if(PlaylistFragment.this.status == ListStatus.SHOWN){
+						getActivity().findViewById(R.id.loading_list).setVisibility(View.GONE);
+						getActivity().findViewById(R.id.empty_list).setVisibility(View.GONE);
+						getActivity().findViewById(R.id.playlist).setVisibility(View.VISIBLE);
+					}else{
 						handler.post(new Runnable(){
 							@Override
 							public void run(){
-								getActivity().findViewById(R.id.playlist_message).setVisibility(View.VISIBLE);
 								getActivity().findViewById(R.id.playlist).setVisibility(View.GONE);
+
+								if(PlaylistFragment.this.status == ListStatus.LOADING){
+									getActivity().findViewById(R.id.empty_list).setVisibility(View.GONE);
+									getActivity().findViewById(R.id.loading_list).setVisibility(View.VISIBLE);
+								}else{
+									getActivity().findViewById(R.id.loading_list).setVisibility(View.GONE);
+									getActivity().findViewById(R.id.empty_list).setVisibility(View.VISIBLE);
+								}
 							}
 						});
 					}
