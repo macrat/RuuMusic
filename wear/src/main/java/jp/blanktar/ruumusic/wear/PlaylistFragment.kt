@@ -111,7 +111,7 @@ class PlaylistFragment(val client: RuuClient) : Fragment() {
                 list.visibility = View.GONE
                 progress.visibility = View.VISIBLE
             }
-        }, 100)
+        }, 300)
 
         thread {
             val d = client.getDirectory(path)
