@@ -86,12 +86,9 @@ class FilerView(context: Context, attrs: AttributeSet) : FrameLayout(context, at
     var onEventListener: OnEventListener? = null
 
     fun changeFiles(files: List<RuuFileBase>, parentName: String?) {
-        val reuseParent = hasParent && parentName != null
-
-        adapter.notifyItemRangeRemoved(if (reuseParent) 1 else 0, adapter.itemCount)
         this.files = files
         this.parentName = parentName
-        adapter.notifyItemRangeInserted(if (reuseParent) 1 else 0, adapter.itemCount)
+        adapter.notifyDataSetChanged()
 
         loading = false
     }
