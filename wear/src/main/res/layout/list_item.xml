@@ -7,4 +7,5 @@
 		  android:orientation="vertical"
 		  android:padding="@dimen/playlist_text_margin"
 		  android:textSize="@dimen/playlist_text_size"
-		  android:background="@android:color/transparent" />
+		  android:background="@android:color/transparent"
+		  android:foreground="?android:attr/selectableItemBackground" />
