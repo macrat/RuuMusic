@@ -40,34 +40,36 @@ class PlaylistFragment(val client: RuuClient) : Fragment() {
             field = x
             directoryStack.push(DirectoryLog(x!!))
 
-            val adapter = RecyclerAdapter(x!!, client.status.rootPath == x.path)
-            adapter.onParentClickListener = {
-                setDirectoryByPath(x.parentPath)
-            }
-            adapter.onDirectoryClickListener = { dir: String -> setDirectoryByPath(dir) }
-            adapter.onMusicClickListener = { music: String ->
-                client.play(music)
-                onMusicChanged?.invoke()
-            }
-            list.adapter = adapter
+            adapter.changeDirectory(x, client.status.rootPath == x.path)
 
-            if (isRoundDisplay && (x!!.all.size > 1 || client.status.rootPath != x.path && x!!.all.size > 0)) {
+            if (isRoundDisplay && (x.all.size > 1 || client.status.rootPath != x.path && x.all.isNotEmpty())) {
                 scrollTo(1)
             }
         }
 
     var onMusicChanged: (() -> Unit)? = null
 
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater!!.inflate(R.layout.fragment_playlist, container, false)
     }
 
     private val isRoundDisplay
         get() = list.paddingTop > 0
 
+    private val adapter = PlaylistAdapter()
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        list.layoutManager = CurvedChildLayoutManager(getContext())
+        list.layoutManager = CurvedChildLayoutManager(context)
+
+        adapter.onParentClickListener = {
+            setDirectoryByPath(directory!!.parentPath)
+        }
+        adapter.onDirectoryClickListener = { dir: String -> setDirectoryByPath(dir) }
+        adapter.onMusicClickListener = { music: String ->
+            client.play(music)
+            onMusicChanged?.invoke()
+        }
+        list.adapter = adapter
 
         snapHelper.attachToRecyclerView(list)
 
