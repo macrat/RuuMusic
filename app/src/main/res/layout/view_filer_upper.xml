@@ -16,10 +16,11 @@
 		android:src="@drawable/ic_upper_directory" />
 
 	<TextView
+		android:id="@+id/text"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:text="@string/upper_dir"
-		android:textSize="@dimen/view_filer_text_size"
+		android:layout_marginLeft="4dp"
+		android:textSize="@dimen/view_filer_upper_size"
 		android:textColor="#999999"
 		android:layout_gravity="center_vertical" />
 </LinearLayout>

@@ -235,12 +235,6 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			return;
 		}
 
-		try{
-			filer.hideFiles(dir != RuuDirectory.rootDirectory(getContext()));
-		}catch(RuuDirectory.NotFound e){
-			filer.hideFiles(false);
-		}
-
 		MainActivity main = (MainActivity)getActivity();
 		if(main.searchView != null && !main.searchView.isIconified()){
 			main.searchView.setQuery("", false);
@@ -378,7 +372,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 					public void run(){
 						searchQuery = text;
 						filer.setShowPath(true);
-						filer.changeFiles(filtered, false);
+						filer.changeFiles(filtered, null);
 						if(filer.getHasContent()){
 							updateStatus(ListStatus.SHOWN);
 						}else{

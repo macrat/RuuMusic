@@ -36,18 +36,20 @@ class FilerView(context: Context, attrs: AttributeSet) : FrameLayout(context, at
         list.addItemDecoration(DividerDecoration(context))
     }
 
-    var hasParent = attrs.getAttributeBooleanValue(namespace, "has_parent", false)
-        set(new) {
-            val old = field
-            field = new
+    var parentName: String? = attrs.getAttributeValue(namespace, "parent_name")
+        set(x) {
+            val old = hasParent
+            field = x
 
-            if (old && !new) {
-                adapter.notifyItemRemoved(0)
-            }
-            if (!old && new) {
-                adapter.notifyItemInserted(0)
+            when {
+                old && !hasParent -> adapter.notifyItemRemoved(0)
+                !old && hasParent -> adapter.notifyItemInserted(0)
+                old && hasParent -> adapter.notifyItemChanged(0)
             }
         }
+
+    val hasParent
+        get() = parentName != null
 
     var showPath = attrs.getAttributeBooleanValue(namespace, "show_path", false)
         set(x) {
@@ -83,24 +85,28 @@ class FilerView(context: Context, attrs: AttributeSet) : FrameLayout(context, at
 
     var onEventListener: OnEventListener? = null
 
-    fun hideFiles(useParent: Boolean) {
-        adapter.notifyItemRangeRemoved(if (useParent && hasParent) 1 else 0, adapter.itemCount)
-        files = null
-    }
-
-    fun changeFiles(files: List<RuuFileBase>, hasParent: Boolean) {
-        val reuseParent = this.hasParent && hasParent
+    fun changeFiles(files: List<RuuFileBase>, parentName: String?) {
+        val reuseParent = hasParent && parentName != null
 
         adapter.notifyItemRangeRemoved(if (reuseParent) 1 else 0, adapter.itemCount)
         this.files = files
-        this.hasParent = hasParent
+        this.parentName = parentName
         adapter.notifyItemRangeInserted(if (reuseParent) 1 else 0, adapter.itemCount)
 
         loading = false
     }
 
     fun changeDirectory(dir: RuuDirectory) {
-        changeFiles(dir.children, dir != RuuDirectory.rootDirectory(context))
+        var parent: String? = null
+        if (dir != RuuDirectory.rootDirectory(context)) {
+            if (dir.parent == RuuDirectory.rootDirectory(context)) {
+                parent = "/"
+            } else {
+                parent = dir.parent.name + "/"
+            }
+        }
+
+        changeFiles(dir.children, parent)
     }
 
     var layoutState: Parcelable
@@ -167,6 +173,7 @@ class FilerView(context: Context, attrs: AttributeSet) : FrameLayout(context, at
 
         override fun onBindViewHolder(holder: Adapter.ViewHolder, position: Int) {
             if (holder.itemViewType == VIEWTYPE_UPPER_DIR) {
+                holder.text?.text = context.getString(R.string.upper_dir, parentName)
                 return
             }
 
@@ -187,6 +194,7 @@ class FilerView(context: Context, attrs: AttributeSet) : FrameLayout(context, at
         inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
             val name = view.findViewById<TextView?>(R.id.name)
             val path = view.findViewById<TextView?>(R.id.path)
+            val text = view.findViewById<TextView?>(R.id.text)
         }
     }
 

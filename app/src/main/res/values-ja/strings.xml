@@ -26,7 +26,7 @@
 	<string name="action_open_with_other_app">他のアプリで開く</string>
 	<string name="action_web_search">Webで検索</string>
 
-	<string name="upper_dir">親ディレクトリ</string>
+	<string name="upper_dir">%1$s に戻る</string>
 
 	<string name="recursive">%1$s 以下を再生中</string>
 	<string name="search_play">検索結果を再生中: %1$s</string>
