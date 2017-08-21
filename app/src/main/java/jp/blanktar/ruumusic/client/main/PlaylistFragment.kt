@@ -107,7 +107,12 @@ class PlaylistFragment : Fragment() {
                 }
             }
 
-            override fun onScrolled(re: RecyclerView, dx: Int, dy: Int) {}
+            override fun onScrolled(re: RecyclerView, dx: Int, dy: Int) {
+                val target = layout.findViewByPosition(layout.findFirstVisibleItemPosition() + 1)
+                if (target != null) {
+                    target.alpha = Math.pow(1.0f - target.left.toDouble()/target.width, 3.0).toFloat()
+                }
+            }
         })
 
         return view
@@ -139,6 +144,8 @@ class PlaylistFragment : Fragment() {
                 = ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.playlist_page, parent, false))
 
         override fun onBindViewHolder(holder: Adapter.ViewHolder, position: Int) {
+            holder.itemView.alpha = 1.0f
+
             val filer = holder.itemView as FilerView
 
             filer.loading = true
