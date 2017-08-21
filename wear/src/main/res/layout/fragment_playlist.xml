@@ -1,10 +1,30 @@
-<android.support.wearable.view.WearableRecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
-													xmlns:tools="http://schemas.android.com/tools"
-													android:layout_width="match_parent"
-													android:layout_height="match_parent"
-													android:paddingTop="@dimen/playlist_vertical_margin"
-													android:paddingBottom="@dimen/playlist_vertical_margin"
-													android:clipToPadding="false"
-													tools:context="jp.blanktar.ruumusic.wear.PlaylistFragment"
-													android:id="@+id/list"
-													android:background="@android:color/transparent" />
+<?xml version="1.0" encoding="utf-8"?>
+
+<FrameLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	tools:context="jp.blanktar.ruumusic.wear.PlaylistFragment"
+	android:background="@android:color/transparent">
+
+	<android.support.wearable.view.WearableRecyclerView
+		android:id="@+id/list"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:paddingTop="@dimen/playlist_vertical_margin"
+		android:paddingBottom="@dimen/playlist_vertical_margin"
+		android:clipToPadding="false"
+		android:background="@android:color/transparent"
+		android:visibility="gone" />
+
+	<ProgressBar
+		android:id="@+id/progress"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="center"
+		android:background="@android:color/transparent"
+		android:indeterminate="true"
+		android:indeterminateOnly="true"
+		android:indeterminateTint="?attr/colorAccent" />
+</FrameLayout>

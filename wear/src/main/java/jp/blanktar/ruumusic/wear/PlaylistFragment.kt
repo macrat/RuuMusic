@@ -75,11 +75,27 @@ class PlaylistFragment(val client: RuuClient) : Fragment() {
         }
     }
 
+    private var loading = false
+
     fun setDirectoryByPath(path: String, callback: (() -> Unit)? = null) {
+        loading = true
+
+        handler.postDelayed({
+            if (loading) {
+                list.visibility = View.GONE
+                progress.visibility = View.VISIBLE
+            }
+        }, 100)
+
         thread {
             val d = client.getDirectory(path)
             handler.post {
                 directory = d
+
+                loading = false
+                progress.visibility = View.GONE
+                list.visibility = View.VISIBLE
+
                 callback?.invoke()
             }
         }
