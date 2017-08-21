@@ -63,54 +63,92 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 
 		filer.setOnEventListener(new FilerView.OnEventListener(){
 			@Override
-			public void onMusicClick(@NonNull RuuFile music){
-				changeMusic(music);
-			}
-
-			@Override
-			public void onDirectoryClick(@NonNull RuuDirectory dir){
-				changeDir(dir);
-			}
-
-			@Override
-			public void onParentClick(){
-				try{
-					changeDir(current.path.getParent());
-				}catch(RuuFileBase.OutOfRootDirectory e){
+			public void onClick(@NonNull RuuFileBase file){
+				if(file.isDirectory()){
+					changeDir((RuuDirectory)file);
+				}else{
+					changeMusic((RuuFile)file);
 				}
 			}
 
 			@Override
-			public void onMusicLongClick(@NonNull RuuFile music, @NonNull ContextMenu menu){
-				final boolean openable = getActivity().getPackageManager().queryIntentActivities(music.toIntent(), 0).size() > 0;
-
-				menu.setHeaderTitle(music.getName());
-				getActivity().getMenuInflater().inflate(R.menu.music_context_menu, menu);
-				menu.findItem(R.id.action_open_music_with_other_app).setVisible(openable);
-			}
-
-			@Override
-			public void onDirectoryLongClick(@NonNull RuuDirectory dir, @NonNull ContextMenu menu){
-				final boolean openable = getActivity().getPackageManager().queryIntentActivities(dir.toIntent(), 0).size() > 0;
-
-				menu.setHeaderTitle(dir.getName() + "/");
-				getActivity().getMenuInflater().inflate(R.menu.directory_context_menu, menu);
-				menu.findItem(R.id.action_open_dir_with_other_app).setVisible(openable);
-			}
-	
-			@Override
-			public void onParentLongClick(@NonNull ContextMenu menu){
-				RuuDirectory dir;
-				try{
-					dir = current.path.getParent();
-				}catch(RuuFileBase.OutOfRootDirectory e){
-					return;
+			public void onLongClick(@NonNull final RuuFileBase file, @NonNull ContextMenu menu){
+				menu.setHeaderTitle(file.getName() + (file.isDirectory() ? "/" : ""));
+				if(file.isDirectory()){
+					getActivity().getMenuInflater().inflate(R.menu.directory_context_menu, menu);
+					menu.findItem(R.id.action_open_dir_with_other_app).setVisible(getActivity().getPackageManager().queryIntentActivities(file.toIntent(), 0).size() > 0);
+				}else{
+					getActivity().getMenuInflater().inflate(R.menu.music_context_menu, menu);
+					menu.findItem(R.id.action_open_music_with_other_app).setVisible(getActivity().getPackageManager().queryIntentActivities(file.toIntent(), 0).size() > 0);
 				}
-				final boolean openable = getActivity().getPackageManager().queryIntentActivities(dir.toIntent(), 0).size() > 0;
 
-				menu.setHeaderTitle(dir.getName() + "/");
-				getActivity().getMenuInflater().inflate(R.menu.directory_context_menu, menu);
-				menu.findItem(R.id.action_open_dir_with_other_app).setVisible(openable);
+				MenuItem item;
+
+				item = menu.findItem(R.id.action_open_directory);
+				if(item != null){
+					item.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+						@Override
+						public boolean onMenuItemClick(MenuItem item) {
+							changeDir((RuuDirectory)file);
+							return true;
+						}
+					});
+				}
+
+				item = menu.findItem(R.id.action_open_music);
+				if(item != null){
+					item.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+						@Override
+						public boolean onMenuItemClick(MenuItem item) {
+							changeMusic((RuuFile)file);
+							return true;
+						}
+					});
+				}
+
+				item = menu.findItem(R.id.action_open_music_with_other_app);
+				if(item != null){
+					item.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+						@Override
+						public boolean onMenuItemClick(MenuItem item) {
+							startActivity(file.toIntent());
+							return true;
+						}
+					});
+				}
+
+				item = menu.findItem(R.id.action_open_dir_with_other_app);
+				if(item != null){
+					item.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+						@Override
+						public boolean onMenuItemClick(MenuItem item) {
+							startActivity(file.toIntent());
+							return true;
+						}
+					});
+				}
+
+				item = menu.findItem(R.id.action_web_search_music);
+				if(item != null){
+					item.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+						@Override
+						public boolean onMenuItemClick(MenuItem item) {
+							startActivity((new Intent(Intent.ACTION_WEB_SEARCH)).putExtra(SearchManager.QUERY, file.getName()));
+							return true;
+						}
+					});
+				}
+
+				item = menu.findItem(R.id.action_web_search_dir);
+				if(item != null){
+					item.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+						@Override
+						public boolean onMenuItemClick(MenuItem item) {
+							startActivity((new Intent(Intent.ACTION_WEB_SEARCH)).putExtra(SearchManager.QUERY, file.getName()));
+							return true;
+						}
+					});
+				}
 			}
 		});
 
@@ -148,30 +186,6 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 	public void onDestroy(){
 		client.release();
 		super.onDestroy();
-	}
-
-	@Override
-	public boolean onContextItemSelected(@NonNull MenuItem item){
-		RuuFileBase file = filer.getFiles().get(((AdapterView.AdapterContextMenuInfo)item.getMenuInfo()).position);
-
-		switch(item.getItemId()){
-			case R.id.action_open_directory:
-				changeDir((RuuDirectory)file);
-				return true;
-			case R.id.action_open_music:
-				changeMusic((RuuFile)file);
-				return true;
-			case R.id.action_open_dir_with_other_app:
-			case R.id.action_open_music_with_other_app:
-				startActivity(file.toIntent());
-				return true;
-			case R.id.action_web_search_dir:
-			case R.id.action_web_search_music:
-				startActivity((new Intent(Intent.ACTION_WEB_SEARCH)).putExtra(SearchManager.QUERY, file.getName()));
-				return true;
-			default:
-				return super.onContextItemSelected(item);
-		}
 	}
 
 	public void updateTitle(@NonNull Toolbar toolbar){

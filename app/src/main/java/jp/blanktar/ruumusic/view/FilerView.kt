@@ -11,6 +11,7 @@ import android.support.v7.widget.RecyclerView
 import android.util.AttributeSet
 import android.view.ContextMenu
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
@@ -36,7 +37,7 @@ class FilerView(context: Context, attrs: AttributeSet) : FrameLayout(context, at
         list.addItemDecoration(DividerDecoration(context))
     }
 
-    var parentName: String? = attrs.getAttributeValue(namespace, "parent_name")
+    var parent: RuuDirectory? = null
         set(x) {
             val old = hasParent
             field = x
@@ -48,8 +49,21 @@ class FilerView(context: Context, attrs: AttributeSet) : FrameLayout(context, at
             }
         }
 
+    val parentName: String?
+        get() {
+            try {
+                if (parent == RuuDirectory.rootDirectory(context)) {
+                    return "/"
+                } else {
+                    return parent?.parent?.name + "/"
+                }
+            } catch (e: RuuFileBase.NotFound) {
+                return null
+            }
+        }
+
     val hasParent
-        get() = parentName != null
+        get() = parent != null
 
     var showPath = attrs.getAttributeBooleanValue(namespace, "show_path", false)
         set(x) {
@@ -75,35 +89,22 @@ class FilerView(context: Context, attrs: AttributeSet) : FrameLayout(context, at
             }
         }
 
-    var onMusicClickListener: ((RuuFile) -> Unit)? = { onEventListener?.onMusicClick(it) }
-    var onDirectoryClickListener: ((RuuDirectory) -> Unit)? = { onEventListener?.onDirectoryClick(it) }
-    var onParentClickListener: (() -> Unit)? = { onEventListener?.onParentClick() }
+    var onClickListener: ((RuuFileBase) -> Unit)? = { onEventListener?.onClick(it) }
 
-    var onMusicLongClickListener: ((RuuFile, ContextMenu) -> Unit)? = { music, menu -> onEventListener?.onMusicLongClick(music, menu) }
-    var onDirectoryLongClickListener: ((RuuDirectory, ContextMenu) -> Unit)? = { dir, menu -> onEventListener?.onDirectoryLongClick(dir, menu) }
-    var onParentLongClickListener: ((ContextMenu) -> Unit)? = { onEventListener?.onParentLongClick(it) }
+    var onLongClickListener: ((RuuFileBase, ContextMenu) -> Unit)? = { file, menu -> onEventListener?.onLongClick(file, menu) }
 
     var onEventListener: OnEventListener? = null
 
-    fun changeFiles(files: List<RuuFileBase>, parentName: String?) {
+    fun changeFiles(files: List<RuuFileBase>, parent: RuuDirectory?) {
         this.files = files
-        this.parentName = parentName
+        this.parent = parent
         adapter.notifyDataSetChanged()
 
         loading = false
     }
 
     fun changeDirectory(dir: RuuDirectory) {
-        var parent: String? = null
-        if (dir != RuuDirectory.rootDirectory(context)) {
-            if (dir.parent == RuuDirectory.rootDirectory(context)) {
-                parent = "/"
-            } else {
-                parent = dir.parent.name + "/"
-            }
-        }
-
-        changeFiles(dir.children, parent)
+        changeFiles(dir.children, if (RuuDirectory.rootDirectory(context) != dir) dir.parent else null)
     }
 
     var layoutState: Parcelable
@@ -123,27 +124,22 @@ class FilerView(context: Context, attrs: AttributeSet) : FrameLayout(context, at
             else -> VIEWTYPE_NORMAL
         }
         
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Adapter.ViewHolder {
+        override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): Adapter.ViewHolder {
             val inflater = LayoutInflater.from(context)
             
             val holder = when (viewType) {
-                VIEWTYPE_UPPER_DIR -> ViewHolder(inflater.inflate(R.layout.view_filer_upper, parent, false))
-                VIEWTYPE_WITH_PATH -> ViewHolder(inflater.inflate(R.layout.view_filer_withpath, parent, false))
-                else -> ViewHolder(inflater.inflate(R.layout.view_filer_item, parent, false))
+                VIEWTYPE_UPPER_DIR -> ViewHolder(inflater.inflate(R.layout.view_filer_upper, viewGroup, false))
+                VIEWTYPE_WITH_PATH -> ViewHolder(inflater.inflate(R.layout.view_filer_withpath, viewGroup, false))
+                else -> ViewHolder(inflater.inflate(R.layout.view_filer_item, viewGroup, false))
             }
             
             holder.itemView.setOnClickListener { _ ->
                 if (viewType == VIEWTYPE_UPPER_DIR) {
-                    onParentClickListener?.invoke()
+                    onClickListener?.invoke(parent!!)
                 } else {
                     files?.let {
                         try {
-                            val item = it[holder.adapterPosition - if (hasParent) 1 else 0]
-                            if (item.isDirectory) {
-                                onDirectoryClickListener?.invoke(item as RuuDirectory)
-                            } else {
-                                onMusicClickListener?.invoke(item as RuuFile)
-                            }
+                            onClickListener?.invoke(it[holder.adapterPosition - if (hasParent) 1 else 0])
                         } catch (e: IndexOutOfBoundsException) {
                         }
                     }
@@ -152,14 +148,12 @@ class FilerView(context: Context, attrs: AttributeSet) : FrameLayout(context, at
 
             holder.itemView.setOnCreateContextMenuListener { menu, _, _ ->
                 if (viewType == VIEWTYPE_UPPER_DIR) {
-                    onParentLongClickListener?.invoke(menu)
+                    onLongClickListener?.invoke(parent!!, menu)
                 } else {
                     files?.let {
-                        val item = it[holder.adapterPosition - if (hasParent) 1 else 0]
-                        if (holder.adapterPosition < itemCount) {
-                            onDirectoryLongClickListener?.invoke(item as RuuDirectory, menu)
-                        } else {
-                            onMusicLongClickListener?.invoke(item as RuuFile, menu)
+                        try {
+                            onLongClickListener?.invoke(it[holder.adapterPosition - if (hasParent) 1 else 0], menu)
+                        } catch (e: IndexOutOfBoundsException) {
                         }
                     }
                 }
@@ -224,12 +218,7 @@ class FilerView(context: Context, attrs: AttributeSet) : FrameLayout(context, at
 
 
     abstract class OnEventListener {
-        abstract fun onMusicClick(music: RuuFile)
-        abstract fun onDirectoryClick(dir: RuuDirectory)
-        abstract fun onParentClick()
-
-        abstract fun onMusicLongClick(music: RuuFile, menu: ContextMenu)
-        abstract fun onDirectoryLongClick(dir: RuuDirectory, menu: ContextMenu)
-        abstract fun onParentLongClick(menu: ContextMenu)
+        abstract fun onClick(file: RuuFileBase)
+        abstract fun onLongClick(file: RuuFileBase, menu: ContextMenu)
     }
 }
