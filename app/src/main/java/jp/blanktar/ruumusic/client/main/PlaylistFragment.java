@@ -7,7 +7,6 @@ import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
-import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
@@ -16,6 +15,7 @@ import android.os.Handler;
 import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.SearchView;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -174,21 +174,40 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 		}
 	}
 
-	public void updateTitle(@NonNull Activity activity){
+	public void updateTitle(@NonNull Toolbar toolbar){
+		RuuDirectory root = null;
+		try{
+			root = RuuDirectory.rootDirectory(getContext());
+		}catch(RuuDirectory.NotFound e){
+		}
+
+		RuuDirectory parent = null;
+		try{
+			parent = current.path.getParent();
+		}catch(RuuDirectory.OutOfRootDirectory e){
+		}
+
 		if(current == null){
-			activity.setTitle("");
+			toolbar.setTitle("");
+			toolbar.setSubtitle("");
+		}else if(current.path == root){
+			toolbar.setTitle("/");
+			toolbar.setSubtitle("");
+		}else if(parent == root){
+			toolbar.setTitle("/" + current.path.getName() + "/");
+			toolbar.setSubtitle("");
 		}else{
+			toolbar.setTitle(current.path.getName() + "/");
 			try{
-				activity.setTitle(current.path.getRuuPath());
+				toolbar.setSubtitle(parent.getRuuPath());
 			}catch(RuuFileBase.OutOfRootDirectory e){
-				activity.setTitle("");
-				Toast.makeText(getActivity(), getString(R.string.out_of_root, current.path.getFullPath()), Toast.LENGTH_LONG).show();
+				toolbar.setSubtitle("");
 			}
 		}
 	}
 
 	private void updateTitle(){
-		updateTitle(getActivity());
+		updateTitle((Toolbar)getActivity().findViewById(R.id.toolbar));
 	}
 
 	public void updateRoot(){

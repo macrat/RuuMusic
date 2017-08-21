@@ -260,8 +260,11 @@ public class MainActivity extends AppCompatActivity{
 	}
 
 	private void updateTitleAndMenu(){
+		Toolbar toolbar = (Toolbar)findViewById(R.id.toolbar);
+
 		if(getCurrentPage() == Page.PLAYER){
-			setTitle(R.string.app_name);
+			toolbar.setTitle(R.string.app_name);
+			toolbar.setSubtitle("");
 			if(menu != null){
 				menu.findItem(R.id.action_unset_root).setVisible(false);
 				menu.findItem(R.id.action_set_root).setVisible(false);
@@ -270,7 +273,7 @@ public class MainActivity extends AppCompatActivity{
 				menu.findItem(R.id.action_search_play).setVisible(false);
 			}
 		}else if(playlist != null){
-			playlist.updateTitle(this);
+			playlist.updateTitle(toolbar);
 			playlist.updateMenu(this);
 		}
 	}
