@@ -5,6 +5,7 @@ import android.media.audiofx.PresetReverb
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.View
+import android.widget.ArrayAdapter
 
 import jp.blanktar.ruumusic.R
 import jp.blanktar.ruumusic.util.EqualizerInfo
@@ -33,6 +34,8 @@ class SoundPreferenceActivity : AppCompatActivity() {
         client!!.requestEqualizerInfo()
         client!!.eventListener = object : RuuClient.EventListener() {
             override fun onEqualizerInfo(info: EqualizerInfo) {
+                equalizer_spinner.visibility = View.VISIBLE
+                equalizer_progress.visibility = View.GONE
                 equalizer_switch.setEnabled(true)
                 setupEqualizer(info)
             }
@@ -40,7 +43,7 @@ class SoundPreferenceActivity : AppCompatActivity() {
 
         equalizer_switch.setEnabled(false)
         equalizer_switch.setChecked(preference!!.EqualizerEnabled.get())
-        equalizer_spinner.setEnabled(preference!!.EqualizerEnabled.get())
+        equalizer_spinner.visibility = View.GONE
     }
 
     override fun onDestroy() {
@@ -62,7 +65,7 @@ class SoundPreferenceActivity : AppCompatActivity() {
             e -> reverb_spinner.setEnabled(e)
         }
 
-        val adapter = android.widget.ArrayAdapter.createFromResource(applicationContext, jp.blanktar.ruumusic.R.array.reverb_options, jp.blanktar.ruumusic.R.layout.spinner_item)
+        val adapter = ArrayAdapter.createFromResource(applicationContext, jp.blanktar.ruumusic.R.array.reverb_options, jp.blanktar.ruumusic.R.layout.spinner_item)
         adapter.setDropDownViewResource(jp.blanktar.ruumusic.R.layout.spinner_dropdown_item)
 
         reverb_spinner.adapter = adapter
@@ -87,7 +90,7 @@ class SoundPreferenceActivity : AppCompatActivity() {
     }
 
     private fun setupEqualizer(info: EqualizerInfo) {
-        val adapter = android.widget.ArrayAdapter<String>(applicationContext, R.layout.spinner_item)
+        val adapter = ArrayAdapter<String>(applicationContext, R.layout.spinner_item)
         adapter.add("Custom")
         info.presets.forEach { x -> adapter.add(x) }
         adapter.setDropDownViewResource(jp.blanktar.ruumusic.R.layout.spinner_dropdown_item)

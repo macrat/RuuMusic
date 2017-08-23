@@ -123,6 +123,12 @@
 				android:layout_height="match_parent"
 				android:layout_gravity="right"
 				android:stretchColumns="1" />
+
+			<ProgressBar
+				android:id="@+id/equalizer_progress"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center" />
 		</LinearLayout>
 	</LinearLayout>
 </LinearLayout>

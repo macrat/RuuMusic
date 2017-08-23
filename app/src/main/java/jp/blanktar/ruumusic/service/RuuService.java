@@ -25,6 +25,7 @@ import android.support.v4.media.MediaBrowserServiceCompat;
 import android.widget.Toast;
 
 import jp.blanktar.ruumusic.R;
+import jp.blanktar.ruumusic.util.EqualizerInfo;
 import jp.blanktar.ruumusic.util.PlayingStatus;
 import jp.blanktar.ruumusic.util.Preference;
 import jp.blanktar.ruumusic.util.RepeatModeType;
@@ -272,9 +273,15 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 	}
 
 	private void sendEqualizerInfo(){
-		for(Endpoint e: endpoints){
-			e.onEqualizerInfo(effectManager.getEqualizerInfo());
-		}
+		new Thread(new Runnable(){
+			@Override
+			public void run(){
+				EqualizerInfo info = effectManager.getEqualizerInfo();
+				for(Endpoint e: endpoints){
+					e.onEqualizerInfo(info);
+				}
+			}
+		}).start();
 	}
 
 	private void saveStatus(){
