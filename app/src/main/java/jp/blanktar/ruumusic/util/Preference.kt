@@ -11,13 +11,13 @@ class Preference(val context: Context) {
     @JvmField val RootDirectory = StringPreferenceHandler("root_directory")
 
     @JvmField val BassBoostEnabled = BooleanPreferenceHandler(AudioPrefix + "bassboost_enabled")
-    @JvmField val BassBoostLevel = ShortPreferenceHandler(AudioPrefix + "bassboost_level")
+    @JvmField val BassBoostLevel = ShortPreferenceHandler(AudioPrefix + "bassboost_level", default = 500)
 
     @JvmField val ReverbEnabled = BooleanPreferenceHandler(AudioPrefix + "reverb_enabled")
     @JvmField val ReverbType = ShortPreferenceHandler(AudioPrefix + "reverb_type")
 
     @JvmField val LoudnessEnabled = BooleanPreferenceHandler(AudioPrefix + "loudness_enabled")
-    @JvmField val LoudnessLevel = IntPreferenceHandler(AudioPrefix + "loudness_level")
+    @JvmField val LoudnessLevel = IntPreferenceHandler(AudioPrefix + "loudness_level", default = 2500)
 
     @JvmField val EqualizerEnabled = BooleanPreferenceHandler(AudioPrefix + "equalizer_enabled")
     @JvmField val EqualizerPreset = ShortPreferenceHandler(AudioPrefix + "equalizer_preset", default = -1)
