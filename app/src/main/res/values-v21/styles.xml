@@ -3,5 +3,6 @@
 <resources>
 	<style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
 		<item name="colorAccent">#ef9a9a</item>
+		<item name="selectableItemBackground">?android:attr/selectableItemBackground</item>
 	</style>
 </resources>
