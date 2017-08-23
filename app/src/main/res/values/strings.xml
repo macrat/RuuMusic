@@ -53,6 +53,7 @@
 	<string name="reverb_switch">Reverb</string>
 	<string name="loudness_switch">Loudness enhancer</string>
 	<string name="equalizer_switch">Equalizer</string>
+	<string name="virtualizer_switch">Virtualizer</string>
 
 	<string-array name="reverb_options">
 		<item>Large Hall</item>
@@ -60,6 +61,12 @@
 		<item>Large Room</item>
 		<item>Medium Room</item>
 		<item>Small Room</item>
+	</string-array>
+
+	<string-array name="virtualizer_modes">
+		<item>Auto</item>
+		<item>Headphones</item>
+		<item>Speakers</item>
 	</string-array>
 
 	<string name="preference_list_sound_name">Sound Effect</string>

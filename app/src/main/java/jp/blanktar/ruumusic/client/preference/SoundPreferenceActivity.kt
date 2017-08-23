@@ -2,15 +2,16 @@ package jp.blanktar.ruumusic.client.preference
 
 
 import android.media.audiofx.PresetReverb
+import android.media.audiofx.Virtualizer
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import android.view.View
-import android.widget.ArrayAdapter
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
-import android.widget.SeekBar
 import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.SeekBar
+import android.widget.TextView
 
 import jp.blanktar.ruumusic.R
 import jp.blanktar.ruumusic.util.EqualizerInfo
@@ -36,6 +37,7 @@ class SoundPreferenceActivity : AppCompatActivity() {
         setupBassBoost()
         setupReverb()
         setupLoudness()
+        setupVirtualizer()
 
         client!!.requestEqualizerInfo()
         client!!.eventListener = object : RuuClient.EventListener() {
@@ -93,6 +95,21 @@ class SoundPreferenceActivity : AppCompatActivity() {
             e -> loudness_level.setEnabled(e)
         }
         bindSeekBarPreference(loudness_level, preference!!.LoudnessLevel)
+    }
+
+    private fun setupVirtualizer() {
+        val adapter = ArrayAdapter.createFromResource(applicationContext, R.array.virtualizer_modes, R.layout.spinner_item)
+        adapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
+        virtualizer_mode.adapter = adapter
+
+        bindPreferenceOnOff(virtualizer_switch, preference!!.VirtualizerEnabled) {
+            virtualizer_mode.setEnabled(it)
+            virtualizer_strength.setEnabled(it)
+        }
+        bindSpinnerPreference(virtualizer_mode, preference!!.VirtualizerMode, listOf(Virtualizer.VIRTUALIZATION_MODE_AUTO,
+                                                                                     Virtualizer.VIRTUALIZATION_MODE_BINAURAL,
+                                                                                     Virtualizer.VIRTUALIZATION_MODE_TRANSAURAL))
+        bindSeekBarPreference(virtualizer_strength, preference!!.VirtualizerStrength)
     }
 
     private fun setupEqualizer(info: EqualizerInfo) {

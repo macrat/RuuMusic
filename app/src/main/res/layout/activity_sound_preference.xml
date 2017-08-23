@@ -100,6 +100,36 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:orientation="vertical"
+			android:paddingBottom="@dimen/preference_margin"
+			android:paddingTop="@dimen/preference_margin">
+
+			<android.support.v7.widget.SwitchCompat
+				android:id="@+id/virtualizer_switch"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginBottom="5dp"
+				android:text="@string/virtualizer_switch"
+				android:textSize="@dimen/preference_text_size" />
+
+			<Spinner
+				android:id="@+id/virtualizer_mode"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_gravity="right"
+				android:layout_marginBottom="15dp" />
+
+			<SeekBar
+				android:id="@+id/virtualizer_strength"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_gravity="right"
+				android:max="1000" />
+		</LinearLayout>
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="vertical"
 			android:paddingTop="@dimen/preference_margin">
 
 			<android.support.v7.widget.SwitchCompat

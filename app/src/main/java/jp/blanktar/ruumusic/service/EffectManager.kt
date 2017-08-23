@@ -1,15 +1,17 @@
 package jp.blanktar.ruumusic.service
 
+import kotlin.concurrent.thread
+
 import android.content.Context
 import android.media.MediaPlayer
 import android.media.audiofx.BassBoost
 import android.media.audiofx.Equalizer
 import android.media.audiofx.LoudnessEnhancer
 import android.media.audiofx.PresetReverb
+import android.media.audiofx.Virtualizer
 import android.os.Build
 import android.os.Handler
 import android.widget.Toast
-import kotlin.concurrent.thread
 
 import jp.blanktar.ruumusic.R
 import jp.blanktar.ruumusic.util.EqualizerInfo
@@ -23,6 +25,7 @@ class EffectManager(val player: MediaPlayer, val context: Context) {
     private var presetReverb: PresetReverb? = null
     private var loudnessEnhancer: LoudnessEnhancer? = null
     private var equalizer: Equalizer? = null
+    private var virtualizer: Virtualizer? = null
 
 
     init {
@@ -39,10 +42,15 @@ class EffectManager(val player: MediaPlayer, val context: Context) {
         preference.EqualizerPreset.setOnChangeListener { updateEqualizer() }
         preference.EqualizerLevel.setOnChangeListener { updateEqualizer() }
 
+        preference.VirtualizerEnabled.setOnChangeListener { updateVirtualizer() }
+        preference.VirtualizerMode.setOnChangeListener { updateVirtualizer() }
+        preference.VirtualizerStrength.setOnChangeListener { updateVirtualizer() }
+
         updateBassBoost()
         updateReverb()
         updateLoudnessEnhancer()
         updateEqualizer()
+        updateVirtualizer()
     }
 
     fun release() {
@@ -175,6 +183,29 @@ class EffectManager(val player: MediaPlayer, val context: Context) {
         }
 
         return info
+    }
+
+    fun updateVirtualizer() {
+        if (preference.VirtualizerEnabled.get()) {
+            try {
+                if (virtualizer == null) {
+                    virtualizer = Virtualizer(0, player.audioSessionId)
+                }
+                virtualizer!!.forceVirtualizationMode(preference.VirtualizerMode.get())
+                virtualizer!!.setStrength(preference.VirtualizerStrength.get())
+                virtualizer!!.enabled = true
+            } catch (e: UnsupportedOperationException) {
+                showToast(context.getString(R.string.audioeffect_cant_enable))
+                preference.VirtualizerEnabled.set(false)
+            } catch (e: RuntimeException) {
+                showToast(context.getString(R.string.audioeffect_failed_enable, "virtualizer"))
+                preference.VirtualizerEnabled.set(false)
+            }
+
+        } else {
+            virtualizer?.release()
+            virtualizer = null
+        }
     }
 
     private fun showToast(message: String) {

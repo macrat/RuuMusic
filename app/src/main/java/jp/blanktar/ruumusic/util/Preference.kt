@@ -23,6 +23,10 @@ class Preference(val context: Context) {
     @JvmField val EqualizerPreset = ShortPreferenceHandler(AudioPrefix + "equalizer_preset", default = -1)
     @JvmField val EqualizerLevel = IntListPreferenceHandler(AudioPrefix + "equalizer_level")
 
+    @JvmField val VirtualizerEnabled = BooleanPreferenceHandler(AudioPrefix + "virtualizer_enabled")
+    @JvmField val VirtualizerMode = IntPreferenceHandler(AudioPrefix + "virtualizer_mode", default = 1)
+    @JvmField val VirtualizerStrength = ShortPreferenceHandler(AudioPrefix + "virtualizer_strength", default = 500)
+
     // player preference
     @JvmField val PlayerAutoShrinkEnabled = BooleanPreferenceHandler("player_auto_shrink_enabled", default = true)
     @JvmField val PlayerMusicPathSize = IntPreferenceHandler("player_music_path_size", default = 20)
