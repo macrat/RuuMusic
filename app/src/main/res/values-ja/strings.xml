@@ -1,7 +1,7 @@
 <resources>
 	<string name="app_name">RuuMusic</string>
 	<string name="title_activity_preference">設定</string>
-	<string name="title_activity_sound_preference">サウンドエフェクトの設定</string>
+	<string name="title_activity_sound_preference">オーディオエフェクトの設定</string>
 	<string name="title_activity_player_preference">プレイヤーの設定</string>
 	<string name="title_activity_widget_preference">ウィジェットの設定</string>
 	<string name="title_activity_directory_select">音楽のあるディレクトリを選ぶ</string>
@@ -49,11 +49,11 @@
 
 	<string name="preference_reset_button">リセット</string>
 
-	<string name="bass_boost_switch">Bass boost</string>
-	<string name="reverb_switch">Reverb</string>
-	<string name="loudness_switch">Loudness enhancer</string>
-	<string name="equalizer_switch">Equalizer</string>
-	<string name="virtualizer_switch">Virtualizer</string>
+	<string name="bass_boost_switch">バスブースト</string>
+	<string name="reverb_switch">リバーブ</string>
+	<string name="loudness_switch">ラウドネス</string>
+	<string name="equalizer_switch">イコライザー</string>
+	<string name="virtualizer_switch">バーチャライザー</string>
 
 	<string-array name="reverb_options">
 		<item>Large Hall</item>
@@ -69,7 +69,7 @@
 		<item>スピーカー</item>
 	</string-array>
 
-	<string name="preference_list_sound_name">サウンドエフェクト</string>
+	<string name="preference_list_sound_name">オーディオエフェクト</string>
 	<string name="preference_list_player_name">プレイヤー</string>
 	<string name="preference_list_player_description">プレイヤーのフォントサイズを変更する</string>
 	<string name="preference_list_widget_name">ウィジェット</string>

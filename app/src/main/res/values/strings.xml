@@ -1,7 +1,7 @@
 <resources>
 	<string name="app_name">RuuMusic</string>
 	<string name="title_activity_preference">Preference</string>
-	<string name="title_activity_sound_preference">Sound Effect Preference</string>
+	<string name="title_activity_sound_preference">Audio Effect Preference</string>
 	<string name="title_activity_player_preference">Player Preference</string>
 	<string name="title_activity_widget_preference">Widget Preference</string>
 	<string name="title_activity_directory_select">Select music directory</string>
@@ -69,7 +69,7 @@
 		<item>Speakers</item>
 	</string-array>
 
-	<string name="preference_list_sound_name">Sound Effect</string>
+	<string name="preference_list_sound_name">Audio Effect</string>
 	<string name="preference_list_player_name">Player</string>
 	<string name="preference_list_player_description">Change player\'s font size</string>
 	<string name="preference_list_widget_name">Widget</string>
