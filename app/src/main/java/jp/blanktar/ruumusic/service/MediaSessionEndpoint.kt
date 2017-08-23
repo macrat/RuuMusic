@@ -129,7 +129,9 @@ class MediaSessionEndpoint(val context: Context, controller: RuuService.Controll
     override fun onEndOfList(isFirst: Boolean, status: PlayingStatus) {
         onError(context.getString(if (isFirst) R.string.first_of_directory else R.string.last_of_directory, status.currentMusic?.realPath), status)
     }
-    
+
+    private val displayIcon = BitmapFactory.decodeResource(context.resources, R.drawable.display_icon)
+
     fun updateMetadata(status: PlayingStatus) {
         var parentPath: String
         try {
@@ -138,14 +140,13 @@ class MediaSessionEndpoint(val context: Context, controller: RuuService.Controll
             parentPath = ""
         }
 
-        val metadata = MediaMetadataCompat.Builder()
+        mediaSession.setMetadata(
+            MediaMetadataCompat.Builder()
                 .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, parentPath)
                 .putString(MediaMetadataCompat.METADATA_KEY_TITLE, status.currentMusic?.name)
-                .putBitmap(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON, BitmapFactory.decodeResource(context.resources, R.drawable.display_icon))
-
-        metadata.putLong(MediaMetadataCompat.METADATA_KEY_DURATION, status.duration)
-
-        mediaSession.setMetadata(metadata.build())
+                .putBitmap(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON, displayIcon)
+                .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, status.duration)
+                .build())
     }
 
     fun updatePlaybackState(status: PlayingStatus, error: String? = null) {
