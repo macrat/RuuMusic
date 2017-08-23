@@ -318,8 +318,6 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 				return;
 			}
 
-			menu.findItem(R.id.action_set_root).setVisible(current != null && !rootDirectory.equals(current.path) && searchQuery == null);
-			menu.findItem(R.id.action_unset_root).setVisible(!rootDirectory.getFullPath().equals("/") && searchQuery == null);
 			menu.findItem(R.id.action_search_play).setVisible(searchQuery != null);
 			menu.findItem(R.id.action_search_play).setEnabled(filer.getHasContent());
 			menu.findItem(R.id.action_recursive_play).setVisible(searchQuery == null && filer.getHasContent());

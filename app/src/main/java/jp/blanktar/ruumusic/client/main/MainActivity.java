@@ -221,19 +221,6 @@ public class MainActivity extends AppCompatActivity{
 	public boolean onOptionsItemSelected(@NonNull MenuItem item){
 		int id = item.getItemId();
 
-		if((id == R.id.action_set_root || id == R.id.action_unset_root) && playlist.current != null){
-			String rootPath = "/";
-			if(id == R.id.action_set_root){
-				rootPath = playlist.current.path.getFullPath();
-			}
-			preference.RootDirectory.set(rootPath);
-
-			playlist.updateRoot();
-			player.updateRoot();
-
-			return true;
-		}
-
 		if(id == R.id.action_recursive_play && playlist.current != null){
 			client.playRecursive(playlist.current.path);
 
@@ -266,8 +253,6 @@ public class MainActivity extends AppCompatActivity{
 			toolbar.setTitle(R.string.app_name);
 			toolbar.setSubtitle("");
 			if(menu != null){
-				menu.findItem(R.id.action_unset_root).setVisible(false);
-				menu.findItem(R.id.action_set_root).setVisible(false);
 				menu.findItem(R.id.action_recursive_play).setVisible(false);
 				menu.findItem(R.id.menu_search).setVisible(false);
 				menu.findItem(R.id.action_search_play).setVisible(false);
