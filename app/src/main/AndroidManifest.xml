@@ -56,8 +56,13 @@
             android:parentActivityName=".client.main.MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="jp.blanktar.ruumusic.client.main.MainActivity" />
+                android:value=".client.main.MainActivity" />
         </activity>
+		<activity android:name=".client.preference.DirectorySelectActivity">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".client.preference.PreferenceActivity" />
+		</activity>
 
         <service
             android:name=".service.RuuService"

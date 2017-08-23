@@ -74,6 +74,8 @@ class Preference(val context: Context) {
         abstract fun get(): T
         abstract fun set(value: T)
 
+        fun areSet() = sharedPreferences.contains(key)
+
         open fun remove() {
             sharedPreferences.edit().remove(key).apply()
         }

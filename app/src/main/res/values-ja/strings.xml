@@ -76,6 +76,9 @@
 	<string name="musicname_name_size_label">曲名だけのウィジェット: 曲名のサイズ</string>
 	<string name="musicname_name_size_sample">music name</string>
 
+	<string name="select_directory_title">音楽のあるディレクトリを選ぶ</string>
+	<string name="select_directory_button">ここにする</string>
+
 	<string name="audioeffect_cant_enable">オーディオエフェクトを有効にすることが出来ませんでした。他のエフェクトアプリが起動しているようです。</string>
 	<string name="audioeffect_failed_enable">%sの有効化に失敗しました</string>
 

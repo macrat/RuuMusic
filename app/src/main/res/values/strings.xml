@@ -76,6 +76,9 @@
 	<string name="musicname_name_size_label">Music name widget: Music name size</string>
 	<string name="musicname_name_size_sample">music name</string>
 
+	<string name="select_directory_title">Select music directory</string>
+	<string name="select_directory_button">SELECT</string>
+
 	<string name="audioeffect_cant_enable">Audio effect can\'t enable. Maybe, other audio effect app is running.</string>
 	<string name="audioeffect_failed_enable">Failed enable %s</string>
 
