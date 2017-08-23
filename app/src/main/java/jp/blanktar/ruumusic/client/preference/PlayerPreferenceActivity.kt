@@ -2,7 +2,7 @@ package jp.blanktar.ruumusic.client.preference
 
 
 import android.os.Bundle
-import android.support.v4.app.Fragment
+import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.SwitchCompat
 import android.view.LayoutInflater
 import android.view.View
@@ -13,40 +13,42 @@ import android.widget.TextView
 
 import jp.blanktar.ruumusic.R
 import jp.blanktar.ruumusic.util.Preference
-import kotlinx.android.synthetic.main.fragment_player_preference.*
+import kotlinx.android.synthetic.main.activity_player_preference.*
 
 
-class PlayerPreferenceFragment : Fragment() {
+class PlayerPreferenceActivity : AppCompatActivity() {
     var preference: Preference? = null
 
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater!!.inflate(R.layout.fragment_player_preference, container, false)
-    }
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_player_preference)
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        preference = Preference(getContext())
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        bindPreferenceOnOff(player_auto_shrink_switch as SwitchCompat, preference!!.PlayerAutoShrinkEnabled) {
+        preference = Preference(applicationContext)
+
+        bindPreferenceOnOff(player_auto_shrink_switch, preference!!.PlayerAutoShrinkEnabled) {
             player_auto_shrink_switch.setChecked(preference!!.PlayerAutoShrinkEnabled.get())
         }
 
-        bindSeekBarPreference(music_path_size_seekbar as SeekBar, preference!!.PlayerMusicPathSize) {
+        bindSeekBarPreference(music_path_size_seekbar, preference!!.PlayerMusicPathSize) {
             size -> music_path_size_sample.setTextSize(size.toFloat())
         }
 
-        bindSeekBarPreference(music_name_size_seekbar as SeekBar, preference!!.PlayerMusicNameSize) {
+        bindSeekBarPreference(music_name_size_seekbar, preference!!.PlayerMusicNameSize) {
             size -> music_name_size_sample.setTextSize(size.toFloat())
         }
 
-        (reset as Button).setOnClickListener {
+        reset.setOnClickListener {
             preference!!.PlayerAutoShrinkEnabled.remove()
             preference!!.PlayerMusicPathSize.remove()
             preference!!.PlayerMusicNameSize.remove()
         }
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
+    override fun onDestroy() {
+        super.onDestroy()
 
         preference?.unsetAllListeners()
     }

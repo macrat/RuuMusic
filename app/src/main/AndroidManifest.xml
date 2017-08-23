@@ -58,7 +58,34 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".client.main.MainActivity" />
         </activity>
-		<activity android:name=".client.preference.DirectorySelectActivity">
+		<activity
+			android:name=".client.preference.PlayerPreferenceActivity"
+			android:label="@string/title_activity_player_preference"
+			android:parentActivityName=".client.preference.PreferenceActivity">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".client.preference.PreferenceActivity" />
+		</activity>
+		<activity
+			android:name=".client.preference.SoundPreferenceActivity"
+			android:label="@string/title_activity_sound_preference"
+			android:parentActivityName=".client.preference.PreferenceActivity">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".client.preference.PreferenceActivity" />
+		</activity>
+		<activity
+			android:name=".client.preference.WidgetPreferenceActivity"
+			android:label="@string/title_activity_widget_preference"
+			android:parentActivityName=".client.preference.PreferenceActivity">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".client.preference.PreferenceActivity" />
+		</activity>
+		<activity
+			android:name=".client.preference.DirectorySelectActivity"
+			android:label="@string/title_activity_directory_select"
+			android:parentActivityName=".client.preference.PreferenceActivity">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".client.preference.PreferenceActivity" />

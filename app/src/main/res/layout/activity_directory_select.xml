@@ -15,8 +15,7 @@
 		android:layout_height="wrap_content"
 		android:background="?attr/colorPrimary"
 		android:minHeight="?attr/actionBarSize"
-		android:theme="?attr/actionBarTheme"
-		app:title="@string/select_directory_title" />
+		android:theme="?attr/actionBarTheme" />
 
 	<jp.blanktar.ruumusic.view.FilerView
 		android:id="@+id/filer"

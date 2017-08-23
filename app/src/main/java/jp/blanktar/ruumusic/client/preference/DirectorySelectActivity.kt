@@ -17,6 +17,9 @@ class DirectorySelectActivity : AppCompatActivity() {
         setContentView(R.layout.activity_directory_select)
 
         setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+        setSupportActionBar(toolbar)
 
         val preference = Preference(getApplicationContext());
 
@@ -43,5 +46,7 @@ class DirectorySelectActivity : AppCompatActivity() {
             setResult(RESULT_OK, Intent().putExtra("directory", directory.fullPath))
             finish()
         }
+
+        setResult(RESULT_CANCELED, Intent())
     }
 }

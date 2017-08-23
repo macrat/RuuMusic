@@ -1,10 +1,22 @@
 package jp.blanktar.ruumusic.client.preference
 
 
+import android.support.v7.app.AppCompatActivity
+import android.os.Bundle
+import android.widget.ArrayAdapter
+import android.content.Context
+import android.view.View
+import android.view.LayoutInflater
+import android.widget.TextView
+import android.view.ViewGroup
+import android.content.Intent
+
+import jp.blanktar.ruumusic.R
+import jp.blanktar.ruumusic.util.Preference
 import kotlinx.android.synthetic.main.activity_preference.*
 
 
-fun bindPreferenceOnOff(switch: android.support.v7.widget.SwitchCompat, pref: jp.blanktar.ruumusic.util.Preference.BooleanPreferenceHandler, receiver: (Boolean) -> Unit) {
+fun bindPreferenceOnOff(switch: android.support.v7.widget.SwitchCompat, pref: Preference.BooleanPreferenceHandler, receiver: (Boolean) -> Unit) {
     receiver(pref.get())
     switch.setChecked(pref.get())
 
@@ -13,7 +25,7 @@ fun bindPreferenceOnOff(switch: android.support.v7.widget.SwitchCompat, pref: jp
 }
 
 
-fun bindSeekBarPreference(bar: android.widget.SeekBar, pref: jp.blanktar.ruumusic.util.Preference.IntPreferenceHandler, callback: ((Int) -> Unit)? = null) {
+fun bindSeekBarPreference(bar: android.widget.SeekBar, pref: Preference.IntPreferenceHandler, callback: ((Int) -> Unit)? = null) {
     bar.progress = pref.get()
 
     callback?.invoke(pref.get())
@@ -35,7 +47,7 @@ fun bindSeekBarPreference(bar: android.widget.SeekBar, pref: jp.blanktar.ruumusi
 }
 
 
-fun bindSeekBarPreference(bar: android.widget.SeekBar, pref: jp.blanktar.ruumusic.util.Preference.ShortPreferenceHandler, callback: ((Short) -> Unit)? = null) {
+fun bindSeekBarPreference(bar: android.widget.SeekBar, pref: Preference.ShortPreferenceHandler, callback: ((Short) -> Unit)? = null) {
     bar.progress = pref.get().toInt()
 
     callback?.invoke(pref.get())
@@ -57,11 +69,11 @@ fun bindSeekBarPreference(bar: android.widget.SeekBar, pref: jp.blanktar.ruumusi
 }
 
 
-fun <T> bindSpinnerPreference(spinner: android.widget.Spinner, pref: jp.blanktar.ruumusic.util.Preference.PreferenceHandler<T>, values: List<T>) {
+fun <T> bindSpinnerPreference(spinner: android.widget.Spinner, pref: Preference.PreferenceHandler<T>, values: List<T>) {
     spinner.setSelection(values.indexOf(pref.get()))
 
     spinner.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
-        override fun onItemSelected(parent: android.widget.AdapterView<*>?, view: android.view.View?, position: Int, id: Long){
+        override fun onItemSelected(parent: android.widget.AdapterView<*>?, view: View?, position: Int, id: Long){
             pref.set(values[position])
         }
 
@@ -74,34 +86,62 @@ fun <T> bindSpinnerPreference(spinner: android.widget.Spinner, pref: jp.blanktar
 }
 
 
-class PreferenceActivity : android.support.v7.app.AppCompatActivity() {
-    override fun onCreate(savedInstanceState: android.os.Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(jp.blanktar.ruumusic.R.layout.activity_preference)
+class PreferenceActivity : AppCompatActivity() {
+    private var rootDirItem: Item? = null
 
-        setSupportActionBar(toolbar as android.support.v7.widget.Toolbar)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_preference)
+
+        setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        viewpager.adapter = object : android.support.v4.app.FragmentPagerAdapter(supportFragmentManager) {
-            override fun getItem(position: Int): android.support.v4.app.Fragment? {
-                return when (position) {
-                    0 -> SoundPreferenceFragment()
-                    1 -> PlayerPreferenceFragment()
-                    2 -> WidgetPreferenceFragment()
-                    else -> null
-                }
-            }
+        val preference = Preference(applicationContext)
 
-            override fun getCount(): Int {
-                return 3
-            }
+        val adapter = Adapter(applicationContext)
+        adapter.add(Item(getString(R.string.preference_list_sound_name), null))
+        adapter.add(Item(getString(R.string.preference_list_player_name), getString(R.string.preference_list_player_description)))
+        adapter.add(Item(getString(R.string.preference_list_widget_name), getString(R.string.preference_list_widget_description)))
+        rootDirItem = Item(getString(R.string.preference_list_rootdir_name), preference.RootDirectory.get())
+        adapter.add(rootDirItem!!)
+        list.adapter = adapter
 
-            override fun getPageTitle(position: Int): CharSequence {
-                return getString(listOf(jp.blanktar.ruumusic.R.string.title_sound_preference,
-                                        jp.blanktar.ruumusic.R.string.title_player_preference,
-                                        jp.blanktar.ruumusic.R.string.title_widget_preference)[position])
+        list.setOnItemClickListener { _, _, position, _ ->
+            when (position) {
+                0 -> startActivity(Intent(applicationContext, SoundPreferenceActivity::class.java))
+                1 -> startActivity(Intent(applicationContext, PlayerPreferenceActivity::class.java))
+                2 -> startActivity(Intent(applicationContext, WidgetPreferenceActivity::class.java))
+                3 -> startActivityForResult(Intent(applicationContext, DirectorySelectActivity::class.java), 0)
             }
         }
-        tablayout.setupWithViewPager(viewpager)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
+        if (resultCode == RESULT_OK) {
+            Preference(applicationContext).RootDirectory.set(data.getStringExtra("directory"))
+            rootDirItem?.description = data.getStringExtra("directory")
+            (list.adapter as Adapter).notifyDataSetChanged()
+        }
+    }
+
+
+    class Item(val name: String, var description: String?) {}
+
+    class Adapter(context: Context) : ArrayAdapter<Item>(context, R.layout.preference_item) {
+        override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+            val view = convertView ?: LayoutInflater.from(context).inflate(R.layout.preference_item, parent, false)
+
+            val item = getItem(position)
+
+            view.findViewById<TextView>(R.id.name)?.text = item.name
+            if (item.description == null) {
+                view.findViewById<TextView>(R.id.description)?.visibility = View.GONE
+            } else {
+                view.findViewById<TextView>(R.id.description)?.text = item.description
+                view.findViewById<TextView>(R.id.description)?.visibility = View.VISIBLE
+            }
+
+            return view
+        }
     }
 }

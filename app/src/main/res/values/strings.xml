@@ -1,9 +1,10 @@
 <resources>
 	<string name="app_name">RuuMusic</string>
 	<string name="title_activity_preference">Preference</string>
-	<string name="title_sound_preference">Sound</string>
-	<string name="title_player_preference">Player</string>
-	<string name="title_widget_preference">Widget</string>
+	<string name="title_activity_sound_preference">Sound Effect Preference</string>
+	<string name="title_activity_player_preference">Player Preference</string>
+	<string name="title_activity_widget_preference">Widget Preference</string>
+	<string name="title_activity_directory_select">Select music directory</string>
 
 	<string name="unified_widget_name">RuuMusic</string>
 	<string name="playpause_widget_name">RuuMusic | Play / Pause</string>
@@ -63,6 +64,13 @@
 		<item>Small Room</item>
 	</string-array>
 
+	<string name="preference_list_sound_name">Sound Effect</string>
+	<string name="preference_list_player_name">Player</string>
+	<string name="preference_list_player_description">Change player\'s font size</string>
+	<string name="preference_list_widget_name">Widget</string>
+	<string name="preference_list_widget_description">Change widget\'s font size</string>
+	<string name="preference_list_rootdir_name">Music Directory</string>
+
 	<string name="player_auto_shrink">Auto resizing</string>
 	<string name="player_music_path_size_label">Directory name size</string>
 	<string name="player_music_path_size_sample">/path/to/music/</string>
@@ -76,7 +84,6 @@
 	<string name="musicname_name_size_label">Music name widget: Music name size</string>
 	<string name="musicname_name_size_sample">music name</string>
 
-	<string name="select_directory_title">Select music directory</string>
 	<string name="select_directory_button">SELECT</string>
 
 	<string name="audioeffect_cant_enable">Audio effect can\'t enable. Maybe, other audio effect app is running.</string>

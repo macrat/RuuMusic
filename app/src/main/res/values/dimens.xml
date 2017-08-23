@@ -19,6 +19,9 @@
 
 	<dimen name="status_indicator_size">18sp</dimen>
 
+	<dimen name="preference_list_padding">4dp</dimen>
+	<dimen name="preference_list_name_size">26sp</dimen>
+	<dimen name="preference_list_description_size">22sp</dimen>
 	<dimen name="preference_text_size">20sp</dimen>
 	<dimen name="preference_spinner_text_size">18sp</dimen>
 	<dimen name="preference_spinner_dropdown_text_size">22sp</dimen>

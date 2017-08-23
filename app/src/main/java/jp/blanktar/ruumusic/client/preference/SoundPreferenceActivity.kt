@@ -3,26 +3,28 @@ package jp.blanktar.ruumusic.client.preference
 
 import android.media.audiofx.PresetReverb
 import android.os.Bundle
-import android.support.v4.app.Fragment
+import android.support.v7.app.AppCompatActivity
 import android.view.View
 
 import jp.blanktar.ruumusic.R
 import jp.blanktar.ruumusic.util.EqualizerInfo
 import jp.blanktar.ruumusic.util.RuuClient
-import kotlinx.android.synthetic.main.fragment_sound_preference.*
+import kotlinx.android.synthetic.main.activity_sound_preference.*
 
 
-class SoundPreferenceFragment : Fragment() {
+class SoundPreferenceActivity : AppCompatActivity() {
     var preference: jp.blanktar.ruumusic.util.Preference? = null
     var client: RuuClient? = null
 
-    override fun onCreateView(inflater: android.view.LayoutInflater?, container: android.view.ViewGroup?, savedInstanceState: android.os.Bundle?): android.view.View? {
-        return inflater!!.inflate(jp.blanktar.ruumusic.R.layout.fragment_sound_preference, container, false)
-    }
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_sound_preference)
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        preference = jp.blanktar.ruumusic.util.Preference(context)
-        client = RuuClient(context)
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+        preference = jp.blanktar.ruumusic.util.Preference(applicationContext)
+        client = RuuClient(applicationContext)
 
         setupBassBoost()
         setupReverb()
@@ -41,8 +43,8 @@ class SoundPreferenceFragment : Fragment() {
         equalizer_spinner.setEnabled(preference!!.EqualizerEnabled.get())
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
+    override fun onDestroy() {
+        super.onDestroy()
 
         preference?.unsetAllListeners()
         client?.release()
@@ -60,7 +62,7 @@ class SoundPreferenceFragment : Fragment() {
             e -> reverb_spinner.setEnabled(e)
         }
 
-        val adapter = android.widget.ArrayAdapter.createFromResource(getContext(), jp.blanktar.ruumusic.R.array.reverb_options, jp.blanktar.ruumusic.R.layout.spinner_item)
+        val adapter = android.widget.ArrayAdapter.createFromResource(applicationContext, jp.blanktar.ruumusic.R.array.reverb_options, jp.blanktar.ruumusic.R.layout.spinner_item)
         adapter.setDropDownViewResource(jp.blanktar.ruumusic.R.layout.spinner_dropdown_item)
 
         reverb_spinner.adapter = adapter
@@ -85,7 +87,7 @@ class SoundPreferenceFragment : Fragment() {
     }
 
     private fun setupEqualizer(info: EqualizerInfo) {
-        val adapter = android.widget.ArrayAdapter<String>(getContext(), R.layout.spinner_item)
+        val adapter = android.widget.ArrayAdapter<String>(applicationContext, R.layout.spinner_item)
         adapter.add("Custom")
         info.presets.forEach { x -> adapter.add(x) }
         adapter.setDropDownViewResource(jp.blanktar.ruumusic.R.layout.spinner_dropdown_item)
@@ -110,7 +112,7 @@ class SoundPreferenceFragment : Fragment() {
         val bars = mutableListOf<android.widget.SeekBar>()
 
         for (i in 0..(info.freqs.size-1)) {
-            val table = View.inflate(getContext(), jp.blanktar.ruumusic.R.layout.equalizer_preference_row, equalizer_container) as android.view.ViewGroup
+            val table = View.inflate(applicationContext, jp.blanktar.ruumusic.R.layout.equalizer_preference_row, equalizer_container) as android.view.ViewGroup
             val row = table.getChildAt(table.getChildCount() - 1) as android.view.ViewGroup
 
             row.findViewById<android.widget.TextView>(jp.blanktar.ruumusic.R.id.equalizer_freq).setText("${info.freqs[i]/1000}Hz")

@@ -2,24 +2,26 @@ package jp.blanktar.ruumusic.client.preference
 
 
 import android.os.Bundle
-import android.support.v4.app.Fragment
+import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.widget.SeekBar
 import android.widget.TextView
 
 import jp.blanktar.ruumusic.R
-import kotlinx.android.synthetic.main.fragment_widget_preference.*
+import kotlinx.android.synthetic.main.activity_widget_preference.*
 
 
-class WidgetPreferenceFragment : Fragment() {
+class WidgetPreferenceActivity : AppCompatActivity() {
     var preference: jp.blanktar.ruumusic.util.Preference? = null
 
-    override fun onCreateView(inflater: android.view.LayoutInflater?, container: android.view.ViewGroup?, savedInstanceState: android.os.Bundle?): android.view.View? {
-        return inflater!!.inflate(jp.blanktar.ruumusic.R.layout.fragment_widget_preference, container, false)
-    }
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_widget_preference)
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        preference = jp.blanktar.ruumusic.util.Preference(getContext())
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+        preference = jp.blanktar.ruumusic.util.Preference(applicationContext)
 
         bindSeekBarPreference(unified_path_size_seekbar, preference!!.UnifiedWidgetMusicPathSize) {
             size -> unified_path_size_sample.setTextSize(size.toFloat())
@@ -40,8 +42,8 @@ class WidgetPreferenceFragment : Fragment() {
         }
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
+    override fun onDestroy() {
+        super.onDestroy()
 
         preference?.unsetAllListeners()
     }
