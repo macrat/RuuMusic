@@ -57,6 +57,14 @@ public class MainActivity extends AppCompatActivity{
 		preference = new Preference(getApplicationContext());
 		client = new RuuClient(getApplicationContext());
 
+		preference.RootDirectory.setOnChangeListener(new Preference.OnChangeListener(){
+			@Override
+			public void onChange(){
+				player.updateRoot();
+				playlist.updateRoot();
+			}
+		});
+
 		setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
 		try{

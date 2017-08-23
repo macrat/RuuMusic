@@ -228,7 +228,15 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 		updateTitle();
 		updateMenu();
 		if(current != null){
-			changeDir(current.path);
+			try{
+				RuuDirectory root = RuuDirectory.rootDirectory(getContext());
+				if(root.contains(current.path)){
+					changeDir(current.path);
+				}else{
+					changeDir(root);
+				}
+			}catch(RuuFileBase.NotFound e){
+			}
 		}
 	}
 

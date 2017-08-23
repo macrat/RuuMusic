@@ -96,11 +96,22 @@ class Preference(val context: Context) {
             sharedPreferences.registerOnSharedPreferenceChangeListener(this)
         }
 
+        fun setOnChangeListener(listener: OnChangeListener) {
+            setOnChangeListener {
+                listener.onChange()
+            }
+        }
+
         fun unsetOnChangeListener() {
             sharedPreferences.unregisterOnSharedPreferenceChangeListener(this)
             listeners.remove(this)
             receiver = null
         }
+    }
+
+
+    abstract class OnChangeListener {
+        abstract fun onChange()
     }
 
 
