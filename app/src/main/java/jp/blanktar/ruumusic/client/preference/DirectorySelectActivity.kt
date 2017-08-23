@@ -36,11 +36,11 @@ class DirectorySelectActivity : AppCompatActivity() {
         filer.onClickListener = { file ->
             if (file.isDirectory) {
                 directory = file as RuuDirectory
-                filer.changeFiles(directory.children, if (directory.fullPath != "/") directory.parent else null)
+                filer.changeFiles(directory.directories, if (directory.fullPath != "/") directory.parent else null)
             }
         }
 
-        filer.changeFiles(directory.children, if (directory.fullPath != "/") directory.parent else null)
+        filer.changeFiles(directory.directories, if (directory.fullPath != "/") directory.parent else null)
 
         select.setOnClickListener {
             setResult(RESULT_OK, Intent().putExtra("directory", directory.fullPath))
