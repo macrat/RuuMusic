@@ -1,7 +1,7 @@
 <resources>
 	<string name="app_name">RuuMusic</string>
 	<string name="title_activity_preference">設定</string>
-	<string name="title_activity_sound_preference">音質の設定</string>
+	<string name="title_activity_sound_preference">サウンドエフェクトの設定</string>
 	<string name="title_activity_player_preference">プレイヤーの設定</string>
 	<string name="title_activity_widget_preference">ウィジェットの設定</string>
 	<string name="title_activity_directory_select">音楽のあるディレクトリを選ぶ</string>
@@ -62,7 +62,7 @@
 		<item>Small Room</item>
 	</string-array>
 
-	<string name="preference_list_sound_name">音質</string>
+	<string name="preference_list_sound_name">サウンドエフェクト</string>
 	<string name="preference_list_player_name">プレイヤー</string>
 	<string name="preference_list_player_description">プレイヤーのフォントサイズを変更する</string>
 	<string name="preference_list_widget_name">ウィジェット</string>
