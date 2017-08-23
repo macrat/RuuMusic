@@ -74,7 +74,7 @@ class EffectManager(val player: MediaPlayer, val context: Context) {
                 showToast(context.getString(R.string.audioeffect_cant_enable))
                 preference.BassBoostEnabled.set(false)
             } catch (e: RuntimeException) {
-                showToast(context.getString(R.string.audioeffect_failed_enable, "bass boost"))
+                showToast(context.getString(R.string.audioeffect_failed_enable, context.getString(R.string.bass_boost_switch)))
                 preference.BassBoostEnabled.set(false)
             }
 
@@ -96,7 +96,7 @@ class EffectManager(val player: MediaPlayer, val context: Context) {
                 showToast(context.getString(R.string.audioeffect_cant_enable))
                 preference.ReverbEnabled.set(false)
             } catch (e: RuntimeException) {
-                showToast(context.getString(R.string.audioeffect_failed_enable, "reverb"))
+                showToast(context.getString(R.string.audioeffect_failed_enable, context.getString(R.string.reverb_switch)))
                 preference.ReverbEnabled.set(false)
             }
 
@@ -122,7 +122,7 @@ class EffectManager(val player: MediaPlayer, val context: Context) {
                 showToast(context.getString(R.string.audioeffect_cant_enable))
                 preference.LoudnessEnabled.set(false)
             } catch (e: RuntimeException) {
-                showToast(context.getString(R.string.audioeffect_failed_enable, "loudness enhancer"))
+                showToast(context.getString(R.string.audioeffect_failed_enable, context.getString(R.string.loudness_switch)))
                 preference.LoudnessEnabled.set(false)
             }
         } else {
@@ -153,7 +153,7 @@ class EffectManager(val player: MediaPlayer, val context: Context) {
                 showToast(context.getString(R.string.audioeffect_cant_enable))
                 preference.EqualizerEnabled.set(false)
             } catch (e: RuntimeException) {
-                showToast(context.getString(R.string.audioeffect_failed_enable, "equalizer"))
+                showToast(context.getString(R.string.audioeffect_failed_enable, context.getString(R.string.equalizer_switch)))
                 preference.EqualizerEnabled.set(false)
             }
         } else {
@@ -198,7 +198,7 @@ class EffectManager(val player: MediaPlayer, val context: Context) {
                 showToast(context.getString(R.string.audioeffect_cant_enable))
                 preference.VirtualizerEnabled.set(false)
             } catch (e: RuntimeException) {
-                showToast(context.getString(R.string.audioeffect_failed_enable, "virtualizer"))
+                showToast(context.getString(R.string.audioeffect_failed_enable, context.getString(R.string.virtualizer_switch)))
                 preference.VirtualizerEnabled.set(false)
             }
 
