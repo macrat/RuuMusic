@@ -39,7 +39,7 @@ fun createDynamicShortcutInfo(context: Context, file: RuuFileBase): ShortcutInfo
 
 
 class DynamicShortcuts(val context: Context) {
-    val manager: ShortcutManager? = context.getSystemService(ShortcutManager::class.java)
+    val manager: ShortcutManager? = if (Build.VERSION.SDK_INT < 25) null else context.getSystemService(ShortcutManager::class.java)
 
     var shortcuts
         get() = manager?.getDynamicShortcuts()

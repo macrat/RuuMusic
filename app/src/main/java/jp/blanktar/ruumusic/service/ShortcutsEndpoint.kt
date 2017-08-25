@@ -48,8 +48,10 @@ class ShortcutsEndpoint(val context: Context) : Endpoint {
     override fun onEqualizerInfo(info: EqualizerInfo) {}
 
     override fun onMediaStoreUpdated() {
-        thread {
-            manager!!.managePinnedShortcuts()
+        if (Build.VERSION.SDK_INT >= 25) {
+            thread {
+                manager!!.managePinnedShortcuts()
+            }
         }
     }
 
