@@ -34,6 +34,9 @@ make_handheld ic_search 24
 make_handheld ic_play_all 24
 make_handheld ic_preference 24
 
+make_handheld ic_shortcut_player 48
+make_handheld ic_shortcut_playlist 48
+
 for x in ic_repeat_{one,all,off} ic_shuffle_{on,off}; do
 	make_handheld $x 30
 done
