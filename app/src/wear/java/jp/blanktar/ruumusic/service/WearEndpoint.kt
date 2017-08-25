@@ -16,6 +16,7 @@ import jp.blanktar.ruumusic.util.RepeatModeType
 import jp.blanktar.ruumusic.util.RuuClient
 import jp.blanktar.ruumusic.util.RuuDirectory
 import jp.blanktar.ruumusic.util.RuuFile
+import jp.blanktar.ruumusic.util.RuuFileBase
 
 
 class WearEndpoint(val context: Context, val controller: RuuService.Controller) : Endpoint, GoogleApiClient.ConnectionCallbacks {
@@ -23,6 +24,8 @@ class WearEndpoint(val context: Context, val controller: RuuService.Controller) 
                                 .addApi(Wearable.API)
                                 .addConnectionCallbacks(this)
                                 .build()
+
+    var musicsUpdated = false
 
     init {
         client.connect()
@@ -52,6 +55,14 @@ class WearEndpoint(val context: Context, val controller: RuuService.Controller) 
         statusUpdate(status, null)
     }
 
+    override fun onMediaStoreUpdated() {
+        if (client.isConnected()) {
+            updateDirectory()
+        } else {
+            musicsUpdated = true
+        }
+    }
+
     override fun onEqualizerInfo(info: EqualizerInfo) {}
 
     override fun onFailedPlay(status: PlayingStatus) {
@@ -75,13 +86,20 @@ class WearEndpoint(val context: Context, val controller: RuuService.Controller) 
         return request.asPutDataRequest()
     }
 
-    override fun onConnected(bundle: Bundle?) {
+    fun updateDirectory() {
         val root = RuuDirectory.rootDirectory(context)
 
         Wearable.DataApi.putDataItem(client, makeDataMapFromDirectory(root))
 
         for (dir in root.directoriesRecursive) {
             Wearable.DataApi.putDataItem(client, makeDataMapFromDirectory(dir))
+        }
+    }
+
+    override fun onConnected(bundle: Bundle?) {
+        if (musicsUpdated) {
+            updateDirectory()
+            musicsUpdated = false
         }
     }
 

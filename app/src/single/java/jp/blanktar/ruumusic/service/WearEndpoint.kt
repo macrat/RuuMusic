@@ -12,6 +12,7 @@ class WearEndpoint(context: Context, controller: RuuService.Controller) : Endpoi
 
     override fun onStatusUpdated(status: PlayingStatus) {}
     override fun onEqualizerInfo(info: EqualizerInfo) {}
+    override fun onMediaStoreUpdated() {}
     override fun onFailedPlay(status: PlayingStatus) {}
     override fun onError(message: String, status: PlayingStatus) {}
     override fun onEndOfList(isFirst: Boolean, status: PlayingStatus) {}

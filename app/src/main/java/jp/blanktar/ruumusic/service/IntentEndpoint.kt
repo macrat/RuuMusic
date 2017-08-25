@@ -20,6 +20,8 @@ class IntentEndpoint(val context: Context, val controller: RuuService.Controller
         context.sendBroadcast(info.toIntent())
     }
 
+    override fun onMediaStoreUpdated() {}
+
     override fun onFailedPlay(status: PlayingStatus) {
         context.sendBroadcast(Intent(RuuService.ACTION_FAILED_PLAY).putExtra("path", status.currentMusic?.realPath));
     }

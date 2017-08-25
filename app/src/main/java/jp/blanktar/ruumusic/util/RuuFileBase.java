@@ -5,6 +5,7 @@ import android.support.annotation.Nullable;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.provider.MediaStore;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 
 
@@ -99,6 +100,10 @@ public abstract class RuuFileBase implements Comparable<RuuFileBase>{
 
 	@NonNull
 	abstract public MediaItem toMediaItem();
+
+	public static String getDataVersion(Context context) {
+		return MediaStore.getVersion(context);
+	}
 
 
 	public static class OutOfRootDirectory extends Throwable{

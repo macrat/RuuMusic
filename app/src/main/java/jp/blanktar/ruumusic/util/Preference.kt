@@ -9,6 +9,7 @@ class Preference(val context: Context) {
     @JvmField val AudioPrefix = "audio_"
 
     @JvmField val RootDirectory = StringPreferenceHandler("root_directory")
+    @JvmField val MediaStoreVersion = StringPreferenceHandler("media_store_version")
 
     @JvmField val BassBoostEnabled = BooleanPreferenceHandler(AudioPrefix + "bassboost_enabled")
     @JvmField val BassBoostLevel = ShortPreferenceHandler(AudioPrefix + "bassboost_level", default = 500)
