@@ -21,7 +21,7 @@ fun createDynamicShortcutInfo(context: Context, file: RuuFileBase): ShortcutInfo
     if (Build.VERSION.SDK_INT < 26) {
         return null
     } else {
-        val id = "view:" + file.fullPath
+        val id = "view:" + (if (file.isDirectory) "dir:" else "file:") + file.fullPath
         val intent = Intent(context, MainActivity::class.java)
                             .setAction(if (file.isDirectory) MainActivity.ACTION_OPEN_PLAYLIST else MainActivity.ACTION_START_PLAY)
                             .setData(file.toUri())
@@ -70,6 +70,41 @@ class DynamicShortcuts(val context: Context) {
         if (id != null) {
             manager?.reportShortcutUsed(id)
         }
+    }
+
+    fun managePinnedShortcuts() {
+        val shortcuts = manager?.getPinnedShortcuts()
+        if (shortcuts == null) {
+            return
+        }
+
+        val enabled = shortcuts.map(fun (it): Boolean {
+            if (!it.id.startsWith("view:")) {
+                return true
+            }
+
+            val path = it.intent?.data?.path
+            if (path == null) {
+                return false
+            }
+
+            try {
+                val file = if (it.id.startsWith("view:file:")) {
+                    RuuFile.getInstance(context, path.dropLastWhile { it != '.' }.dropLast(1))
+                } else {
+                    RuuDirectory.getInstance(context, path)
+                }
+                file.ruuPath
+            } catch (e: RuuFileBase.NotFound) {
+                return false
+            } catch (e: RuuFileBase.OutOfRootDirectory) {
+                return false
+            }
+
+            return true
+        })
+        manager?.enableShortcuts(shortcuts.filterIndexed { i, _ -> enabled[i] }.map { it.id })
+        manager?.disableShortcuts(shortcuts.filterIndexed { i, _ -> !enabled[i] }.map { it.id })
     }
 
     companion object {

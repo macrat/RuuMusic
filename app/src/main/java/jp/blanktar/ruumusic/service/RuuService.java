@@ -208,8 +208,8 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 		endpoints.add(mediaSessionEndpoint);
 
 		endpoints.add(new NotificationEndpoint(this, mediaSessionEndpoint.getMediaSession()));
-
 		endpoints.add(new WearEndpoint(getApplicationContext(), new Controller()));
+		endpoints.add(new ShortcutsEndpoint(getApplicationContext()));
 
 		String dataVersion = RuuFileBase.getDataVersion(getApplicationContext());
 		if (preference.MediaStoreVersion.get() != dataVersion) {
