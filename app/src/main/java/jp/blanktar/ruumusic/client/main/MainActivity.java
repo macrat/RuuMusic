@@ -35,6 +35,7 @@ import jp.blanktar.ruumusic.util.RuuFileBase;
 @UiThread
 public class MainActivity extends AppCompatActivity{
 	public final static String ACTION_OPEN_PLAYER = "jp.blanktar.ruumusic.OPEN_PLAYER";
+	public final static String ACTION_OPEN_PLAYLIST = "jp.blanktar.ruumusic.OPEN_PLAYLIST";
 
 	private Preference preference;
 	private RuuClient client;
@@ -116,6 +117,8 @@ public class MainActivity extends AppCompatActivity{
 				updateTitleAndMenu();
 			}
 		});
+
+		onNewIntent(getIntent());
 	}
 
 	@Override
@@ -125,6 +128,9 @@ public class MainActivity extends AppCompatActivity{
 		switch(intent.getAction()){
 			case ACTION_OPEN_PLAYER:
 				moveToPlayer();
+				break;
+			case ACTION_OPEN_PLAYLIST:
+				moveToPlaylist();
 				break;
 			case Intent.ACTION_SEARCH:
 				moveToPlaylist();
