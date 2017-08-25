@@ -30,6 +30,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import jp.blanktar.ruumusic.R;
+import jp.blanktar.ruumusic.util.DynamicShortcuts;
 import jp.blanktar.ruumusic.util.Preference;
 import jp.blanktar.ruumusic.util.RuuClient;
 import jp.blanktar.ruumusic.util.RuuDirectory;
@@ -148,6 +149,21 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 							return true;
 						}
 					});
+				}
+
+				item = menu.findItem(R.id.action_pin_shortcut);
+				if(item != null){
+					if (!(new DynamicShortcuts(getContext()).isRequestPinSupported())) {
+						item.setVisible(false);
+					}else{
+						item.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+							@Override
+							public boolean onMenuItemClick(MenuItem item) {
+								new DynamicShortcuts(getContext()).requestPin(getContext(), file);
+								return true;
+							}
+						});
+					}
 				}
 			}
 		});

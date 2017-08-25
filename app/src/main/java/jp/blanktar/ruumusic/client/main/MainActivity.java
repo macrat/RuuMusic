@@ -25,6 +25,7 @@ import android.widget.Toast;
 
 import jp.blanktar.ruumusic.R;
 import jp.blanktar.ruumusic.client.preference.PreferenceActivity;
+import jp.blanktar.ruumusic.util.DynamicShortcuts;
 import jp.blanktar.ruumusic.util.Preference;
 import jp.blanktar.ruumusic.util.RuuClient;
 import jp.blanktar.ruumusic.util.RuuDirectory;
@@ -36,6 +37,7 @@ import jp.blanktar.ruumusic.util.RuuFileBase;
 public class MainActivity extends AppCompatActivity{
 	public final static String ACTION_OPEN_PLAYER = "jp.blanktar.ruumusic.OPEN_PLAYER";
 	public final static String ACTION_OPEN_PLAYLIST = "jp.blanktar.ruumusic.OPEN_PLAYLIST";
+	public final static String ACTION_START_PLAY = "jp.blanktar.ruumusic.START_PLAY_WITH_ACTIVITY";
 
 	private Preference preference;
 	private RuuClient client;
@@ -125,11 +127,28 @@ public class MainActivity extends AppCompatActivity{
 	public void onNewIntent(@NonNull Intent intent) {
 		super.onNewIntent(intent);
 
+		new DynamicShortcuts(getApplicationContext()).reportShortcutUsed(intent.getStringExtra(DynamicShortcuts.EXTRA_SHORTCUT_ID));
+
 		switch(intent.getAction()){
 			case ACTION_OPEN_PLAYER:
 				moveToPlayer();
 				break;
 			case ACTION_OPEN_PLAYLIST:
+				if(intent.getData() != null){
+					String path = intent.getData().getPath();
+					try{
+						RuuDirectory dir = RuuDirectory.getInstance(getApplicationContext(), path);
+						dir.getRuuPath();
+						moveToPlaylist(dir);
+						return;
+					}catch(RuuFileBase.NotFound e){
+						Toast.makeText(getApplicationContext(), getString(R.string.cant_open_dir), Toast.LENGTH_LONG).show();
+						viewPager.setCurrentItem(preference.LastViewPage.get());
+					}catch(RuuFileBase.OutOfRootDirectory e){
+						Toast.makeText(getApplicationContext(), getString(R.string.out_of_root, path), Toast.LENGTH_LONG).show();
+						viewPager.setCurrentItem(preference.LastViewPage.get());
+					}
+				}
 				moveToPlaylist();
 				break;
 			case Intent.ACTION_SEARCH:
@@ -137,6 +156,7 @@ public class MainActivity extends AppCompatActivity{
 				preference.CurrentViewPath.set(preference.RootDirectory.get());
 				preference.LastSearchQuery.set(intent.getStringExtra(SearchManager.QUERY));
 				break;
+			case ACTION_START_PLAY:
 			case Intent.ACTION_VIEW:
 				if(intent.getData() != null){
 					String path = intent.getData().getPath();

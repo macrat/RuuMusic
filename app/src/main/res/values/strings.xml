@@ -24,6 +24,7 @@
 	<string name="action_open_search">Search</string>
 	<string name="action_open_with_other_app">Open with other application</string>
 	<string name="action_web_search">Web search</string>
+	<string name="action_pin_shortcut">Add shortcut to home launcher</string>
 
 	<string name="upper_dir">Back to %1$s</string>
 

@@ -9,4 +9,7 @@
 
 	<item android:id="@+id/action_web_search_music"
 		  android:title="@string/action_web_search" />
+
+	<item android:id="@+id/action_pin_shortcut"
+		  android:title="@string/action_pin_shortcut" />
 </menu>

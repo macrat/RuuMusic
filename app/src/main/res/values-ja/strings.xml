@@ -24,6 +24,7 @@
 	<string name="action_open_search">検索する</string>
 	<string name="action_open_with_other_app">他のアプリで開く</string>
 	<string name="action_web_search">Webで検索</string>
+	<string name="action_pin_shortcut">ホーム画面にショートカットを追加</string>
 
 	<string name="upper_dir">%1$s に戻る</string>
 
