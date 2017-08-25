@@ -18,7 +18,7 @@ const val SHORTCUTS_EXTRA_SHORTCUT_ID = "jp.blanktar.ruumusic.EXTRA_SHORTCUT_ID"
 
 
 fun createDynamicShortcutInfo(context: Context, file: RuuFileBase): ShortcutInfo? {
-    if (Build.VERSION.SDK_INT < 26) {
+    if (Build.VERSION.SDK_INT < 25) {
         return null
     } else {
         val id = "view:" + (if (file.isDirectory) "dir:" else "file:") + file.fullPath
@@ -59,9 +59,11 @@ class DynamicShortcuts(val context: Context) {
     }
 
     fun requestPin(context: Context, file: RuuFileBase): Boolean {
-        val shortcut = createDynamicShortcutInfo(context, file)
-        if (shortcut != null) {
-            return requestPin(shortcut)
+        if (Build.VERSION.SDK_INT >= 26) {
+            val shortcut = createDynamicShortcutInfo(context, file)
+            if (shortcut != null) {
+                return requestPin(shortcut)
+            }
         }
         return false
     }
@@ -73,16 +75,12 @@ class DynamicShortcuts(val context: Context) {
     }
 
     fun managePinnedShortcuts() {
-        val shortcuts = manager?.getPinnedShortcuts()
+        val shortcuts = manager?.getPinnedShortcuts()?.filter { it.id.startsWith("view:") }
         if (shortcuts == null) {
             return
         }
 
         val enabled = shortcuts.map(fun (it): Boolean {
-            if (!it.id.startsWith("view:")) {
-                return true
-            }
-
             val path = it.intent?.data?.path
             if (path == null) {
                 return false

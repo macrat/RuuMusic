@@ -54,6 +54,9 @@ class Preference(val context: Context) {
     @JvmField val CurrentViewPath = StringPreferenceHandler("current_view_path")
     @JvmField val LastSearchQuery = StringPreferenceHandler("last_search_query")
 
+    // shortcuts
+    @JvmField val ListedDynamicShortcuts = DirectoriesPreferenceHandler("listed_dynamic_shortcuts")
+
 
     val listeners = mutableSetOf<PreferenceHandler<*>>()
 
@@ -195,6 +198,23 @@ class Preference(val context: Context) {
 
         override fun set(value: String?) {
             sharedPreferences.edit().putString(key, value).apply()
+        }
+    }
+
+    inner class DirectoriesPreferenceHandler(key: String) : PreferenceHandler<List<RuuDirectory>>(key, listOf<RuuDirectory>()) {
+        override fun get() = sharedPreferences.getString(key, "").lines().map(fun (it): RuuDirectory? {
+            if (it == "") {
+                return null
+            }
+            try {
+                return RuuDirectory.getInstance(context, it)
+            } catch (e: RuuFileBase.NotFound) {
+                return null
+            }
+        }).filterNotNull()
+
+        override fun set(value: List<RuuDirectory>) {
+            return sharedPreferences.edit().putString(key, value.map { it.fullPath }.joinToString("\n")).apply()
         }
     }
 
