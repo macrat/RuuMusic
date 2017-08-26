@@ -95,7 +95,7 @@ class NotificationEndpoint(val service: Service, val mediaSession: MediaSessionC
 
         var parentPath: String
         try {
-            parentPath = status.currentMusic?.ruuPath ?: ""
+            parentPath = status.currentMusic?.parent?.ruuPath ?: ""
         } catch (e: RuuFileBase.OutOfRootDirectory) {
             parentPath = ""
         }
