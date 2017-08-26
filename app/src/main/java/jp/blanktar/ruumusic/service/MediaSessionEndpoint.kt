@@ -28,7 +28,7 @@ class MediaSessionEndpoint(val context: Context, controller: RuuService.Controll
     val preference
         get() = Preference(context)
     val mediaSession: MediaSessionCompat
-    val sessionToken
+    val sessionToken: MediaSessionCompat.Token
         get() = mediaSession.sessionToken
     
     var queueIndex: Long = 0
@@ -51,7 +51,7 @@ class MediaSessionEndpoint(val context: Context, controller: RuuService.Controll
             updateQueue(initialPlaylist)
         }
 
-        mediaSession.setActive(true)
+        mediaSession.isActive = true
 
         mediaSession.setCallback(object : MediaSessionCompat.Callback() {
             override fun onPlay() {

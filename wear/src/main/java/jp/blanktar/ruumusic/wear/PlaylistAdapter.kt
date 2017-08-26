@@ -57,6 +57,6 @@ class PlaylistAdapter : RecyclerView.Adapter<PlaylistAdapter.ViewHolder>() {
 
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val text = view.findViewById<TextView>(R.id.text)
+        val text: TextView? = view.findViewById<TextView>(R.id.text)
     }
 }

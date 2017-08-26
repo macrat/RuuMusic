@@ -45,13 +45,13 @@ class SoundPreferenceActivity : AppCompatActivity() {
             override fun onEqualizerInfo(info: EqualizerInfo) {
                 equalizer_spinner.visibility = View.VISIBLE
                 equalizer_progress.visibility = View.GONE
-                equalizer_switch.setEnabled(true)
+                equalizer_switch.isEnabled = true
                 setupEqualizer(info)
             }
         }
 
-        equalizer_switch.setEnabled(false)
-        equalizer_switch.setChecked(preference!!.EqualizerEnabled.get())
+        equalizer_switch.isEnabled = false
+        equalizer_switch.isChecked = preference!!.EqualizerEnabled.get()
         equalizer_spinner.visibility = View.GONE
     }
 
@@ -64,14 +64,16 @@ class SoundPreferenceActivity : AppCompatActivity() {
 
     private fun setupBassBoost() {
         bindPreferenceOnOff(bass_boost_switch, preference!!.BassBoostEnabled) {
-            e -> bass_boost_level.setEnabled(e)
+            e ->
+            bass_boost_level.isEnabled = e
         }
         bindSeekBarPreference(bass_boost_level, preference!!.BassBoostLevel)
     }
 
     private fun setupReverb() {
         bindPreferenceOnOff(reverb_switch, preference!!.ReverbEnabled) {
-            e -> reverb_spinner.setEnabled(e)
+            e ->
+            reverb_spinner.isEnabled = e
         }
 
         val adapter = ArrayAdapter.createFromResource(applicationContext, R.array.reverb_options, R.layout.spinner_item)
@@ -88,12 +90,13 @@ class SoundPreferenceActivity : AppCompatActivity() {
 
     private fun setupLoudness() {
         if (Build.VERSION.SDK_INT < 19) {
-            loudness_wrapper.setVisibility(View.GONE)
+            loudness_wrapper.visibility = View.GONE
             return
         }
 
         bindPreferenceOnOff(loudness_switch, preference!!.LoudnessEnabled) {
-            e -> loudness_level.setEnabled(e)
+            e ->
+            loudness_level.isEnabled = e
         }
         bindSeekBarPreference(loudness_level, preference!!.LoudnessLevel)
     }
@@ -106,8 +109,8 @@ class SoundPreferenceActivity : AppCompatActivity() {
         }
 
         bindPreferenceOnOff(virtualizer_switch, preference!!.VirtualizerEnabled) {
-            virtualizer_mode.setEnabled(it)
-            virtualizer_strength.setEnabled(it)
+            virtualizer_mode.isEnabled = it
+            virtualizer_strength.isEnabled = it
         }
         bindSeekBarPreference(virtualizer_strength, preference!!.VirtualizerStrength)
         if (Build.VERSION.SDK_INT < 21) {
@@ -147,14 +150,14 @@ class SoundPreferenceActivity : AppCompatActivity() {
         val inflater = LayoutInflater.from(this)
         for (i in 0..(info.freqs.size-1)) {
             val table = inflater.inflate(R.layout.equalizer_preference_row, equalizer_container) as ViewGroup
-            val row = table.getChildAt(table.getChildCount() - 1)
+            val row = table.getChildAt(table.childCount - 1)
 
-            row.findViewById<TextView>(R.id.equalizer_freq).setText("${info.freqs[i]/1000}Hz")
-            texts.add(row.findViewById<TextView>(R.id.equalizer_freq))
+            row.findViewById<TextView>(R.id.equalizer_freq).text = "${info.freqs[i]/1000}Hz"
+            texts.add(row.findViewById(R.id.equalizer_freq))
 
             val seekBar = row.findViewById<SeekBar>(R.id.equalizer_bar)
-            seekBar.setMax(info.max - info.min)
-            seekBar.setProgress(preference!!.EqualizerLevel.get(i) - info.min)
+            seekBar.max = info.max - info.min
+            seekBar.progress = preference!!.EqualizerLevel.get(i) - info.min
 
             seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
                 override fun onProgressChanged(b: SeekBar, progress: Int, fromUser: Boolean){
@@ -173,15 +176,16 @@ class SoundPreferenceActivity : AppCompatActivity() {
 
         preference!!.EqualizerLevel.setOnChangeListener {
             bars.zip(preference!!.EqualizerLevel.get()).forEach {
-                (bar, center) -> bar.setProgress(center - info.min)
+                (bar, center) ->
+                bar.progress = center - info.min
             }
         }
 
         bindPreferenceOnOff(equalizer_switch, preference!!.EqualizerEnabled) { e ->
-            equalizer_spinner.setEnabled(e)
+            equalizer_spinner.isEnabled = e
 
-            texts.forEach { x -> x.setEnabled(e) }
-            bars.forEach { x -> x.setEnabled(e) }
+            texts.forEach { x -> x.isEnabled = e }
+            bars.forEach { x -> x.isEnabled = e }
         }
     }
 }

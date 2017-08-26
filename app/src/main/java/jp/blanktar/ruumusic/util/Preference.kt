@@ -42,7 +42,7 @@ class Preference(val context: Context) {
     @JvmField val LastViewPage = IntPreferenceHandler("last_view_page", default = 1)
 
     // player state
-    @JvmField val RepeatMode = EnumPreferenceHandler<RepeatModeType>("repeat_mode", RepeatModeType.OFF, {x -> RepeatModeType.valueOf(x)})
+    @JvmField val RepeatMode = EnumPreferenceHandler("repeat_mode", RepeatModeType.OFF, { x -> RepeatModeType.valueOf(x)})
     @JvmField val ShuffleMode = BooleanPreferenceHandler("shuffle_mode")
     @JvmField val RecursivePath = StringPreferenceHandler("recursive_path")
     @JvmField val SearchQuery = StringPreferenceHandler("search_query")
@@ -141,13 +141,13 @@ class Preference(val context: Context) {
     }
 
 
-    inner class IntListPreferenceHandler(key: String, val defaultInt: Int = 0) : PreferenceHandler<List<Int>>(key, listOf<Int>()) {
+    inner class IntListPreferenceHandler(key: String, val defaultInt: Int = 0) : PreferenceHandler<List<Int>>(key, listOf()) {
         private fun keyOf(index: Int) = "${key}_${index}"
 
         fun get(index: Int) = sharedPreferences.getInt(keyOf(index), defaultInt)
 
         override fun get(): List<Int> {
-            var result = mutableListOf<Int>()
+            val result = mutableListOf<Int>()
             var index = 0
             while (sharedPreferences.contains(keyOf(index))) {
                 result.add(get(index))
@@ -161,10 +161,8 @@ class Preference(val context: Context) {
         }
 
         override fun set(value: List<Int>) {
-            var index = 0
-            for (x in value) {
-                set(index, x)
-                index++
+            for ((i, x) in value.withIndex()) {
+                set(i, x)
             }
         }
 
@@ -194,15 +192,15 @@ class Preference(val context: Context) {
 
 
     inner class StringPreferenceHandler(key: String, default: String? = null) : PreferenceHandler<String?>(key, default) {
-        override fun get() = sharedPreferences.getString(key, default)
+        override fun get(): String? = sharedPreferences.getString(key, default)
 
         override fun set(value: String?) {
             sharedPreferences.edit().putString(key, value).apply()
         }
     }
 
-    inner class DirectoriesPreferenceHandler(key: String) : PreferenceHandler<List<RuuDirectory>>(key, listOf<RuuDirectory>()) {
-        override fun get() = sharedPreferences.getString(key, "").lines().map(fun (it): RuuDirectory? {
+    inner class DirectoriesPreferenceHandler(key: String) : PreferenceHandler<List<RuuDirectory>>(key, listOf()) {
+        override fun get() = sharedPreferences.getString(key, "").lines().mapNotNull(fun (it): RuuDirectory? {
             if (it == "") {
                 return null
             }
@@ -211,10 +209,10 @@ class Preference(val context: Context) {
             } catch (e: RuuFileBase.NotFound) {
                 return null
             }
-        }).filterNotNull()
+        })
 
         override fun set(value: List<RuuDirectory>) {
-            return sharedPreferences.edit().putString(key, value.map { it.fullPath }.joinToString("\n")).apply()
+            return sharedPreferences.edit().putString(key, value.joinToString("\n") { it.fullPath }).apply()
         }
     }
 

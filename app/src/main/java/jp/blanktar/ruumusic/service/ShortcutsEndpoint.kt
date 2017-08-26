@@ -10,7 +10,6 @@ import jp.blanktar.ruumusic.util.DynamicShortcuts
 import jp.blanktar.ruumusic.util.EqualizerInfo
 import jp.blanktar.ruumusic.util.PlayingStatus
 import jp.blanktar.ruumusic.util.Preference
-import jp.blanktar.ruumusic.util.RuuFile
 import jp.blanktar.ruumusic.util.createDynamicShortcutInfo
 
 
@@ -40,9 +39,9 @@ class ShortcutsEndpoint(val context: Context) : Endpoint {
         val shortcuts = preference!!.ListedDynamicShortcuts.get().filter { it != status.currentMusic.parent }.toMutableList()
         shortcuts.add(status.currentMusic.parent)
 
-        manager!!.shortcuts = shortcuts.map {
+        manager!!.shortcuts = shortcuts.mapNotNull {
             createDynamicShortcutInfo(context, it)
-        }.filterNotNull()
+        }
 
         preference.ListedDynamicShortcuts.set(shortcuts)
     }

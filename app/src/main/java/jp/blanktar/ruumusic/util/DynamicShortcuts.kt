@@ -41,10 +41,10 @@ fun createDynamicShortcutInfo(context: Context, file: RuuFileBase): ShortcutInfo
 class DynamicShortcuts(val context: Context) {
     val manager: ShortcutManager? = if (Build.VERSION.SDK_INT < 25) null else context.getSystemService(ShortcutManager::class.java)
 
-    var shortcuts
-        get() = manager?.getDynamicShortcuts()
+    var shortcuts: List<ShortcutInfo>?
+        get() = manager?.dynamicShortcuts
         set(xs) {
-            manager?.setDynamicShortcuts(xs)
+            manager?.dynamicShortcuts = xs
         }
 
     val isRequestPinSupported
@@ -53,7 +53,7 @@ class DynamicShortcuts(val context: Context) {
     fun requestPin(x: ShortcutInfo): Boolean {
         val intent = manager?.createShortcutResultIntent(x)
         if (intent != null) {
-            return manager?.requestPinShortcut(x, PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT).getIntentSender()) ?: false
+            return manager?.requestPinShortcut(x, PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT).intentSender) ?: false
         }
         return false
     }
@@ -75,7 +75,7 @@ class DynamicShortcuts(val context: Context) {
     }
 
     fun managePinnedShortcuts() {
-        val shortcuts = manager?.getPinnedShortcuts()?.filter { it.id.startsWith("view:") }
+        val shortcuts = manager?.pinnedShortcuts?.filter { it.id.startsWith("view:") }
         if (shortcuts == null) {
             return
         }

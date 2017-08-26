@@ -21,7 +21,7 @@ class DirectorySelectActivity : AppCompatActivity() {
 
         setSupportActionBar(toolbar)
 
-        val preference = Preference(getApplicationContext());
+        val preference = Preference(applicationContext)
 
         var directory = RuuDirectory.getInstance(applicationContext, "/")
         try {

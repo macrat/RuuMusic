@@ -11,16 +11,14 @@ import android.support.v7.widget.RecyclerView
 import android.util.AttributeSet
 import android.view.ContextMenu
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.TextView
 
 import jp.blanktar.ruumusic.R
-import jp.blanktar.ruumusic.util.RuuFileBase
 import jp.blanktar.ruumusic.util.RuuDirectory
-import jp.blanktar.ruumusic.util.RuuFile
+import jp.blanktar.ruumusic.util.RuuFileBase
 
 
 class FilerView(context: Context, attrs: AttributeSet) : FrameLayout(context, attrs) {
@@ -192,7 +190,7 @@ class FilerView(context: Context, attrs: AttributeSet) : FrameLayout(context, at
 
 
     class DividerDecoration(context: Context) : RecyclerView.ItemDecoration() {
-        val divider = context.resources.getDrawable(R.drawable.view_filer_divider)
+        val divider = context.resources.getDrawable(R.drawable.view_filer_divider)!!
 
         override fun onDraw(canvas: Canvas, parent: RecyclerView, state: RecyclerView.State) {
             val left = parent.paddingLeft

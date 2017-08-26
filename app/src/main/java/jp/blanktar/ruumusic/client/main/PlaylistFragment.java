@@ -3,12 +3,10 @@ package jp.blanktar.ruumusic.client.main;
 import java.util.List;
 import java.util.Stack;
 
-import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 import android.app.SearchManager;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -23,10 +21,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import jp.blanktar.ruumusic.R;
@@ -60,7 +54,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 		preference = new Preference(view.getContext());
 		client = new RuuClient(getContext());
 
-		filer = (FilerView)view.findViewById(R.id.filer);
+		filer = view.findViewById(R.id.filer);
 
 		filer.setOnEventListener(new FilerView.OnEventListener(){
 			@Override
@@ -332,14 +326,6 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 
 		Menu menu = activity.menu;
 		if(menu != null){
-			RuuDirectory rootDirectory;
-			try{
-				rootDirectory = RuuDirectory.rootDirectory(getContext());
-			}catch(RuuFileBase.NotFound e){
-				Toast.makeText(getActivity(), getString(R.string.cant_open_dir, "root directory"), Toast.LENGTH_LONG).show();
-				return;
-			}
-
 			menu.findItem(R.id.action_search_play).setVisible(searchQuery != null);
 			menu.findItem(R.id.action_search_play).setEnabled(filer.getHasContent());
 			menu.findItem(R.id.action_recursive_play).setVisible(searchQuery == null && filer.getHasContent());

@@ -25,7 +25,6 @@ import android.support.v4.media.MediaBrowserServiceCompat;
 import android.widget.Toast;
 
 import jp.blanktar.ruumusic.R;
-import jp.blanktar.ruumusic.util.EqualizerInfo;
 import jp.blanktar.ruumusic.util.PlayingStatus;
 import jp.blanktar.ruumusic.util.Preference;
 import jp.blanktar.ruumusic.util.RepeatModeType;
@@ -208,7 +207,7 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 		endpoints.add(new ShortcutsEndpoint(getApplicationContext()));
 
 		String dataVersion = RuuFileBase.getDataVersion(getApplicationContext());
-		if (preference.MediaStoreVersion.get() != dataVersion) {
+		if (!preference.MediaStoreVersion.get().equals(dataVersion)) {
 			endpoints.onMediaStoreUpdated();
 			preference.MediaStoreVersion.set(dataVersion);
 		}

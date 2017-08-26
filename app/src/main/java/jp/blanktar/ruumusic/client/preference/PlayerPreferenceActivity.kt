@@ -3,13 +3,6 @@ package jp.blanktar.ruumusic.client.preference
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.SwitchCompat
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.Button
-import android.widget.SeekBar
-import android.widget.TextView
 
 import jp.blanktar.ruumusic.R
 import jp.blanktar.ruumusic.util.Preference
@@ -29,15 +22,15 @@ class PlayerPreferenceActivity : AppCompatActivity() {
         preference = Preference(applicationContext)
 
         bindPreferenceOnOff(player_auto_shrink_switch, preference!!.PlayerAutoShrinkEnabled) {
-            player_auto_shrink_switch.setChecked(preference!!.PlayerAutoShrinkEnabled.get())
+            player_auto_shrink_switch.isChecked = preference!!.PlayerAutoShrinkEnabled.get()
         }
 
         bindSeekBarPreference(music_path_size_seekbar, preference!!.PlayerMusicPathSize) {
-            size -> music_path_size_sample.setTextSize(size.toFloat())
+            size -> music_path_size_sample.textSize = size.toFloat()
         }
 
         bindSeekBarPreference(music_name_size_seekbar, preference!!.PlayerMusicNameSize) {
-            size -> music_name_size_sample.setTextSize(size.toFloat())
+            size -> music_name_size_sample.textSize = size.toFloat()
         }
 
         reset.setOnClickListener {

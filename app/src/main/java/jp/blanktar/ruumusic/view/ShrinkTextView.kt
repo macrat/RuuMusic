@@ -5,16 +5,13 @@ import android.content.Context
 import android.util.AttributeSet
 import android.graphics.Paint
 import android.util.TypedValue
-import android.R.attr.textSize
-
-import jp.blanktar.ruumusic.R
 
 
-class ShrinkTextView(context: Context, val attrs: AttributeSet) : TextView(context, attrs) {
+class ShrinkTextView(context: Context, attrs: AttributeSet) : TextView(context, attrs) {
     val namespace = "http://ruumusic.blanktar.jp/view"
 
     var minTextSize = attrs.getAttributeFloatValue(namespace, "min_size", 0.0f)
-        set(x: Float) {
+        set(x) {
             field = x
             updateTextSize()
         }
@@ -29,13 +26,13 @@ class ShrinkTextView(context: Context, val attrs: AttributeSet) : TextView(conte
         }
 
     var maxTextSize = attrs.getAttributeFloatValue(namespace, "max_size", 120.0f)
-        set(x: Float) {
+        set(x) {
             field = x
             updateTextSize()
         }
 
     var secondLine = attrs.getAttributeBooleanValue(namespace, "secondLine", false)
-        set(x: Boolean) {
+        set(x) {
             field = x
             updateTextSize()
         }
@@ -44,13 +41,13 @@ class ShrinkTextView(context: Context, val attrs: AttributeSet) : TextView(conte
 
     fun calcTextWidth(size: Float): Float {
         val p = Paint()
-        p.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, size, getResources().getDisplayMetrics()))
+        p.textSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, size, resources.displayMetrics)
         return p.measureText(text.toString())
     }
 
     fun updateTextSize() {
         if (!resizingEnabled) {
-            setTextSize(maxTextSize)
+            textSize = maxTextSize
             return
         }
 
@@ -69,7 +66,7 @@ class ShrinkTextView(context: Context, val attrs: AttributeSet) : TextView(conte
             }
         }
 
-        setTextSize(temp)
+        textSize = temp
     }
 
     override fun onMeasure(width: Int, height: Int) {

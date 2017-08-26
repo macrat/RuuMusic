@@ -88,14 +88,14 @@ class PlayerFragment(val client: RuuClient) : Fragment() {
     fun onEnterAmbient() {
         ambientMode = true
         musicPath.visibility = View.INVISIBLE
-        musicName.getPaint().setAntiAlias(false)
+        musicName.paint.isAntiAlias = false
         updateButtons()
     }
 
     fun onExitAmbient() {
         ambientMode = false
         musicPath.visibility = View.VISIBLE
-        musicName.getPaint().setAntiAlias(true)
+        musicName.paint.isAntiAlias = true
         updateButtons()
     }
 

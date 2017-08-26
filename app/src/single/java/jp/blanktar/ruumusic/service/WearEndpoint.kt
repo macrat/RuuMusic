@@ -4,7 +4,6 @@ import android.content.Context
 
 import jp.blanktar.ruumusic.util.EqualizerInfo
 import jp.blanktar.ruumusic.util.PlayingStatus
-import jp.blanktar.ruumusic.util.RuuFile
 
 
 class WearEndpoint(context: Context, controller: RuuService.Controller) : Endpoint {

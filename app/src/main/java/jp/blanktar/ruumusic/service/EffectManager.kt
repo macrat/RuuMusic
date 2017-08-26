@@ -176,7 +176,7 @@ class EffectManager(val player: MediaPlayer, val context: Context) {
 
         info.freqs = IntArray(eq.numberOfBands.toInt()) { i -> eq!!.getCenterFreq(i.toShort()) }
 
-        info.presets = Array<String>(eq.numberOfPresets.toInt()) { i -> eq!!.getPresetName(i.toShort()) }
+        info.presets = Array(eq.numberOfPresets.toInt()) { i -> eq!!.getPresetName(i.toShort()) }
 
         if (have_to_release) {
             eq.release()

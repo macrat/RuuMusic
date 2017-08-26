@@ -6,7 +6,6 @@ import android.content.Intent
 import jp.blanktar.ruumusic.util.EqualizerInfo
 import jp.blanktar.ruumusic.util.PlayingStatus
 import jp.blanktar.ruumusic.util.RepeatModeType
-import jp.blanktar.ruumusic.util.RuuFile
 
 
 class IntentEndpoint(val context: Context, val controller: RuuService.Controller) : Endpoint {
@@ -25,14 +24,14 @@ class IntentEndpoint(val context: Context, val controller: RuuService.Controller
     override fun onMediaStoreUpdated() {}
 
     override fun onFailedPlay(status: PlayingStatus) {
-        context.sendBroadcast(Intent(RuuService.ACTION_FAILED_PLAY).putExtra("path", status.currentMusic?.realPath));
+        context.sendBroadcast(Intent(RuuService.ACTION_FAILED_PLAY).putExtra("path", status.currentMusic?.realPath))
     }
 
     override fun onError(message: String, status: PlayingStatus) {}
     override fun onEndOfList(isFirst: Boolean, status: PlayingStatus) {}
 
     fun onIntent(intent: Intent){
-        when (intent.getAction()) {
+        when (intent.action) {
             RuuService.ACTION_PLAY -> {
                 val path = intent.getStringExtra("path")
                 if(path == null){

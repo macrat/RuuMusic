@@ -18,7 +18,7 @@ import kotlinx.android.synthetic.main.activity_preference.*
 
 fun bindPreferenceOnOff(switch: android.support.v7.widget.SwitchCompat, pref: Preference.BooleanPreferenceHandler, receiver: (Boolean) -> Unit) {
     receiver(pref.get())
-    switch.setChecked(pref.get())
+    switch.isChecked = pref.get()
 
     switch.setOnCheckedChangeListener { _, checked -> pref.set(checked) }
     pref.setOnChangeListener { receiver(pref.get()) }
@@ -125,7 +125,7 @@ class PreferenceActivity : AppCompatActivity() {
     }
 
 
-    class Item(val name: String, var description: String?) {}
+    class Item(val name: String, var description: String?)
 
     class Adapter(context: Context) : ArrayAdapter<Item>(context, R.layout.preference_item) {
         override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {

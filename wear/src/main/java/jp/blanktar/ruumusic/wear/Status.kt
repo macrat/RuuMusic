@@ -21,9 +21,7 @@ class Status(val playing: Boolean = false,
              val errorTime: Long = 0) {
 
     val musicDir: String
-        get() {
-            return musicPath.dropLast(musicPath.length - musicPath.lastIndexOf('/') - 1).drop(rootPath.length - 1)
-        }
+        get() = musicPath.dropLast(musicPath.length - musicPath.lastIndexOf('/') - 1).drop(rootPath.length - 1)
 
     val musicName = musicPath.drop(musicPath.lastIndexOf('/') + 1)
 
@@ -37,5 +35,5 @@ class Status(val playing: Boolean = false,
             RepeatModeType.valueOf(data.getString("repeat_mode", "OFF")),
             data.getBoolean("shuffle_mode", false),
             data.getString("error_message", null),
-            data.getLong("error_time", 0)) {}
+            data.getLong("error_time", 0))
 }

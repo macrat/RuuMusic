@@ -16,14 +16,13 @@ import jp.blanktar.ruumusic.client.main.MainActivity
 import jp.blanktar.ruumusic.util.EqualizerInfo
 import jp.blanktar.ruumusic.util.PlayingStatus
 import jp.blanktar.ruumusic.util.RepeatModeType
-import jp.blanktar.ruumusic.util.RuuFile
 import jp.blanktar.ruumusic.util.RuuFileBase
 
 
 class NotificationEndpoint(val service: Service, val mediaSession: MediaSessionCompat) : Endpoint {
     override val supported = true
 
-    val context = service.getApplicationContext()
+    val context = service.applicationContext!!
     var first = true
 
     override fun close() {

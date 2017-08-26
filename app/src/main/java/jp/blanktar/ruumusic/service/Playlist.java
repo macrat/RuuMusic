@@ -12,8 +12,6 @@ import android.support.annotation.WorkerThread;
 import android.content.Context;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.session.MediaSessionCompat;
-import android.support.v4.media.session.MediaSessionCompat;
-import android.text.TextUtils;
 
 import jp.blanktar.ruumusic.R;
 import jp.blanktar.ruumusic.util.RuuDirectory;

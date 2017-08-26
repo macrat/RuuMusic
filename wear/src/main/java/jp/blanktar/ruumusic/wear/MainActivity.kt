@@ -20,15 +20,15 @@ class MainActivity : WearableActivity() {
     var playlist: PlaylistFragment? = null
     var defaultBackgroundColor: Int = 0
 
-    override protected fun onCreate(savedInstanceState: Bundle?) {
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         setAmbientEnabled()
-        defaultBackgroundColor = (pager.getBackground() as ColorDrawable).color
+        defaultBackgroundColor = (pager.background as ColorDrawable).color
 
-        val pagerAdapter = PagerAdapter(getFragmentManager())
-        pager.setAdapter(pagerAdapter)
+        val pagerAdapter = PagerAdapter(fragmentManager)
+        pager.adapter = pagerAdapter
 
         client = RuuClient(applicationContext)
 
@@ -52,14 +52,14 @@ class MainActivity : WearableActivity() {
         playlist = PlaylistFragment(client!!)
 
         playlist?.onMusicChanged = {
-            pager.setCurrentItem(0)
+            pager.currentItem = 0
             player?.startLoadingAnimation()
         }
 
         player?.onMusicNameTapped = {
             playlist?.setDirectoryByPath(client!!.status.musicPath.dropLast(client!!.status.musicPath.length - client!!.status.musicPath.lastIndexOf('/') - 1)) {
                 playlist?.scrollTo(client!!.status.musicName)
-                pager.setCurrentItem(1)
+                pager.currentItem = 1
             }
         }
     }
@@ -103,12 +103,8 @@ class MainActivity : WearableActivity() {
             return null
         }
 
-        override fun getCount(): Int {
-            return 2
-        }
+        override fun getCount() = 2
 
-        override fun getPageTitle(position: Int): CharSequence {
-            return listOf("Player", "Playlist")[position]
-        }
+        override fun getPageTitle(position: Int) = listOf("Player", "Playlist")[position]
     }
 }

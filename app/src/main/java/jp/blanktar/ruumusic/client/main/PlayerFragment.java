@@ -169,7 +169,7 @@ public class PlayerFragment extends Fragment{
 					((ImageButton)view.findViewById(R.id.playButton))
 							.setImageResource(client.status.playing ? R.drawable.ic_pause : R.drawable.ic_play);
 
-					ImageButton repeatButton = (ImageButton)view.findViewById(R.id.repeatButton);
+					ImageButton repeatButton = view.findViewById(R.id.repeatButton);
 					switch(client.status.repeatMode){
 						case LOOP:
 							repeatButton.setImageResource(R.drawable.ic_repeat_all);
@@ -207,14 +207,14 @@ public class PlayerFragment extends Fragment{
 
 		Preference pref = new Preference(getContext());
 
-		ShrinkTextView musicPath = (ShrinkTextView)getView().findViewById(R.id.musicPath);
+		ShrinkTextView musicPath = getView().findViewById(R.id.musicPath);
 		float pathSize = pref.PlayerMusicPathSize.get().floatValue();
 
 		musicPath.setMaxTextSize(pathSize);
 		musicPath.setMinTextSize(pathSize / 2);
 		musicPath.setResizingEnabled(pref.PlayerAutoShrinkEnabled.get());
 
-		ShrinkTextView musicName = (ShrinkTextView)getView().findViewById(R.id.musicName);
+		ShrinkTextView musicName = getView().findViewById(R.id.musicName);
 		float nameSize = pref.PlayerMusicNameSize.get().floatValue();
 
 		musicName.setMaxTextSize(nameSize);
@@ -383,8 +383,8 @@ public class PlayerFragment extends Fragment{
 			return;
 		}
 
-		TextView text = (TextView)getView().findViewById(R.id.progress);
-		SeekBar bar = (SeekBar)getView().findViewById(R.id.seekBar);
+		TextView text = getView().findViewById(R.id.progress);
+		SeekBar bar = getView().findViewById(R.id.seekBar);
 
 		String currentStr;
 		if(time >= 0){

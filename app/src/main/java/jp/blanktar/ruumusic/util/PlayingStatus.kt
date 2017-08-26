@@ -87,14 +87,14 @@ class PlayingStatus(@JvmField val playing: Boolean = false,
     fun toIntent(): Intent {
         val intent = Intent()
 
-        intent.setAction(RuuService.ACTION_STATUS)
+        intent.action = RuuService.ACTION_STATUS
 
         intent.putExtra("repeat", repeatMode.name)
         intent.putExtra("shuffle", shuffleMode)
 
-        intent.putExtra("path", currentMusic?.getFullPath())
-        intent.putExtra("recursivePath", recursivePath?.getFullPath())
-        intent.putExtra("searchPath", searchPath?.getFullPath())
+        intent.putExtra("path", currentMusic?.fullPath)
+        intent.putExtra("recursivePath", recursivePath?.fullPath)
+        intent.putExtra("searchPath", searchPath?.fullPath)
         intent.putExtra("searchQuery", searchQuery)
 
         intent.putExtra("playing", playing)

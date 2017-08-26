@@ -16,10 +16,10 @@ class RuuClient(ctx: Context) : GoogleApiClient.ConnectionCallbacks, DataApi.Dat
     val client = GoogleApiClient.Builder(ctx)
                                 .addApi(Wearable.API)
                                 .addConnectionCallbacks(this)
-                                .build()
+                                .build()!!
 
     var status = Status()
-        set(x: Status) {
+        set(x) {
             field = x
             onStatusUpdated?.invoke(x)
         }
@@ -54,7 +54,7 @@ class RuuClient(ctx: Context) : GoogleApiClient.ConnectionCallbacks, DataApi.Dat
 
     override fun onDataChanged(evs: DataEventBuffer) {
         for (ev in evs) {
-            if (ev.getType() == DataEvent.TYPE_CHANGED && ev.dataItem.uri.path == "/status") {
+            if (ev.type == DataEvent.TYPE_CHANGED && ev.dataItem.uri.path == "/status") {
                 status = Status(DataMap.fromByteArray(ev.dataItem.data))
                 break
             }
@@ -63,7 +63,7 @@ class RuuClient(ctx: Context) : GoogleApiClient.ConnectionCallbacks, DataApi.Dat
     }
 
     fun getDirectory(dir: String): Directory? {
-        if (!client.isConnected()) {
+        if (!client.isConnected) {
             client.blockingConnect()
         }
 
@@ -87,9 +87,9 @@ class RuuClient(ctx: Context) : GoogleApiClient.ConnectionCallbacks, DataApi.Dat
 
     private fun sendMessage(path: String, message: String = "") {
         thread {
-            for (node in Wearable.NodeApi.getConnectedNodes(client).await().getNodes()) {
-                Wearable.MessageApi.sendMessage(client, node.getId(), path, message.toByteArray()).setResultCallback { result ->
-                    if (!result.status.isSuccess() && !result.status.isCanceled()) {
+            for (node in Wearable.NodeApi.getConnectedNodes(client).await().nodes) {
+                Wearable.MessageApi.sendMessage(client, node.id, path, message.toByteArray()).setResultCallback { result ->
+                    if (!result.status.isSuccess && !result.status.isCanceled) {
                         onFailedSendMessage?.invoke()
                     }
                 }
