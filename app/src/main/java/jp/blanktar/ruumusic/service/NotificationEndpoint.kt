@@ -1,6 +1,7 @@
 package jp.blanktar.ruumusic.service
 
 import android.app.Notification
+import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
@@ -20,10 +21,27 @@ import jp.blanktar.ruumusic.util.RuuFileBase
 
 
 class NotificationEndpoint(val service: Service, val mediaSession: MediaSessionCompat) : Endpoint {
+    val CHANNEL_ID = "playing_status"
+
     override val supported = true
 
     val context = service.applicationContext!!
     var first = true
+
+    init {
+        if (Build.VERSION.SDK_INT >= 26) {
+            val channel = NotificationChannel(CHANNEL_ID,
+                                              context.getString(R.string.notification_channel_playing_status_name),
+                                              NotificationManager.IMPORTANCE_LOW)
+            channel.setDescription(context.getString(R.string.notification_channel_playing_status_description))
+            channel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC)
+            channel.setShowBadge(false)
+            channel.enableLights(false)
+            channel.enableVibration(false)
+
+            (context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).createNotificationChannel(channel)
+        }
+    }
 
     override fun close() {
         removeNotification()
@@ -99,7 +117,7 @@ class NotificationEndpoint(val service: Service, val mediaSession: MediaSessionC
             parentPath = ""
         }
 
-        return NotificationCompat.Builder(context)
+        return NotificationCompat.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_play_notification)
                 .setTicker(status.currentMusic?.name)
                 .setContentTitle(status.currentMusic?.name)

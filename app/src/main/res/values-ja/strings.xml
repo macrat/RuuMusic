@@ -107,4 +107,7 @@
 	<string name="shortcut_open_playlist_short">プレイリスト</string>
 	<string name="shortcut_open_playlist_long">プレイリスト画面を開く</string>
 	<string name="shortcut_open_playlist_disable">今は開けません</string>
+
+	<string name="notification_channel_playing_status_name">再生中の音楽</string>
+	<string name="notification_channel_playing_status_description">再生中の音楽を表示し、操作出来るようにします</string>
 </resources>
