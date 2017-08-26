@@ -10,6 +10,6 @@
 	<item android:id="@+id/action_web_search_dir"
 		  android:title="@string/action_web_search" />
 
-	<item android:id="@+id/action_pin_shortcut"
+	<item android:id="@+id/action_pin_shortcut_directory"
 		  android:title="@string/action_pin_shortcut" />
 </menu>

@@ -265,6 +265,7 @@ public class PlayerFragment extends Fragment{
 				menu.findItem(R.id.action_open_dir_with_other_app).setVisible(
 					getActivity().getPackageManager().queryIntentActivities(client.status.currentMusic.getParent().toIntent(), 0).size() > 0
 				);
+				menu.findItem(R.id.action_pin_shortcut_directory).setVisible(new DynamicShortcuts(getContext()).isRequestPinSupported());
 				break;
 			case R.id.musicName:
 				menu.setHeaderTitle(client.status.currentMusic.getName());
@@ -273,6 +274,7 @@ public class PlayerFragment extends Fragment{
 				menu.findItem(R.id.action_open_music_with_other_app).setVisible(
 					getActivity().getPackageManager().queryIntentActivities(client.status.currentMusic.toIntent(), 0).size() > 0
 				);
+				menu.findItem(R.id.action_pin_shortcut_music).setVisible(new DynamicShortcuts(getContext()).isRequestPinSupported());
 				break;
 			case R.id.status_indicator:
 				if(client.status.recursivePath != null){
@@ -287,8 +289,6 @@ public class PlayerFragment extends Fragment{
 				}
 				break;
 		}
-
-		menu.findItem(R.id.action_pin_shortcut).setVisible(new DynamicShortcuts(getContext()).isRequestPinSupported());
 	}
 
 	@Override
@@ -333,6 +333,14 @@ public class PlayerFragment extends Fragment{
 			case R.id.action_web_search_search:
 				assert client.status.searchQuery != null;
 				startActivity((new Intent(Intent.ACTION_WEB_SEARCH)).putExtra(SearchManager.QUERY, client.status.searchQuery));
+				return true;
+			case R.id.action_pin_shortcut_music:
+				assert client.status.currentMusic != null;
+				new DynamicShortcuts(getContext()).requestPin(getContext(), client.status.currentMusic);
+				return true;
+			case R.id.action_pin_shortcut_directory:
+				assert client.status.currentMusic != null;
+				new DynamicShortcuts(getContext()).requestPin(getContext(), client.status.currentMusic.getParent());
 				return true;
 			default:
 				return super.onContextItemSelected(item);

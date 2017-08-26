@@ -148,7 +148,22 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 					});
 				}
 
-				item = menu.findItem(R.id.action_pin_shortcut);
+				item = menu.findItem(R.id.action_pin_shortcut_music);
+				if(item != null){
+					if (!(new DynamicShortcuts(getContext()).isRequestPinSupported())) {
+						item.setVisible(false);
+					}else{
+						item.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+							@Override
+							public boolean onMenuItemClick(MenuItem item) {
+								new DynamicShortcuts(getContext()).requestPin(getContext(), file);
+								return true;
+							}
+						});
+					}
+				}
+
+				item = menu.findItem(R.id.action_pin_shortcut_directory);
 				if(item != null){
 					if (!(new DynamicShortcuts(getContext()).isRequestPinSupported())) {
 						item.setVisible(false);
