@@ -184,7 +184,12 @@ public class MainActivity extends PermissionManager.Activity {
 					try{
 						RuuDirectory dir = RuuDirectory.getInstance(getApplicationContext(), path);
 						dir.getRuuPath();
-						moveToPlaylist(dir);
+						if(playlist != null){
+							moveToPlaylist(dir);
+						}else{
+							preference.CurrentViewPath.set(dir.getFullPath());
+							moveToPlaylist();
+						}
 						return;
 					}catch(RuuFileBase.NotFound e){
 						Toast.makeText(getApplicationContext(), getString(R.string.cant_open_dir), Toast.LENGTH_LONG).show();
