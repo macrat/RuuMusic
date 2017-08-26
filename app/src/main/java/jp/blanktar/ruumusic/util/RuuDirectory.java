@@ -276,7 +276,7 @@ public class RuuDirectory extends RuuFileBase{
 
 		List<RuuDirectory> dirs = getDirectories();
 		for(RuuDirectory dir: dirs){
-			list.addAll(dir.getDirectories());
+			list.addAll(dir.getDirectoriesRecursive());
 		}
 
 		list.addAll(dirs);
