@@ -3,6 +3,7 @@ package jp.blanktar.ruumusic.client.preference
 
 import android.media.audiofx.PresetReverb
 import android.media.audiofx.Virtualizer
+import android.os.Build
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.LayoutInflater
@@ -86,7 +87,7 @@ class SoundPreferenceActivity : AppCompatActivity() {
     }
 
     private fun setupLoudness() {
-        if (android.os.Build.VERSION.SDK_INT < 19) {
+        if (Build.VERSION.SDK_INT < 19) {
             loudness_wrapper.setVisibility(View.GONE)
             return
         }
@@ -98,18 +99,24 @@ class SoundPreferenceActivity : AppCompatActivity() {
     }
 
     private fun setupVirtualizer() {
-        val adapter = ArrayAdapter.createFromResource(applicationContext, R.array.virtualizer_modes, R.layout.spinner_item)
-        adapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
-        virtualizer_mode.adapter = adapter
+        if (Build.VERSION.SDK_INT >= 21) {
+            val adapter = ArrayAdapter.createFromResource(applicationContext, R.array.virtualizer_modes, R.layout.spinner_item)
+            adapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
+            virtualizer_mode.adapter = adapter
+        }
 
         bindPreferenceOnOff(virtualizer_switch, preference!!.VirtualizerEnabled) {
             virtualizer_mode.setEnabled(it)
             virtualizer_strength.setEnabled(it)
         }
-        bindSpinnerPreference(virtualizer_mode, preference!!.VirtualizerMode, listOf(Virtualizer.VIRTUALIZATION_MODE_AUTO,
-                                                                                     Virtualizer.VIRTUALIZATION_MODE_BINAURAL,
-                                                                                     Virtualizer.VIRTUALIZATION_MODE_TRANSAURAL))
         bindSeekBarPreference(virtualizer_strength, preference!!.VirtualizerStrength)
+        if (Build.VERSION.SDK_INT < 21) {
+            virtualizer_mode.visibility = View.GONE
+        } else {
+            bindSpinnerPreference(virtualizer_mode, preference!!.VirtualizerMode, listOf(Virtualizer.VIRTUALIZATION_MODE_AUTO,
+                    Virtualizer.VIRTUALIZATION_MODE_BINAURAL,
+                    Virtualizer.VIRTUALIZATION_MODE_TRANSAURAL))
+        }
     }
 
     private fun setupEqualizer(info: EqualizerInfo) {

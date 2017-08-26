@@ -191,7 +191,9 @@ class EffectManager(val player: MediaPlayer, val context: Context) {
                 if (virtualizer == null) {
                     virtualizer = Virtualizer(0, player.audioSessionId)
                 }
-                virtualizer!!.forceVirtualizationMode(preference.VirtualizerMode.get())
+                if (Build.VERSION.SDK_INT >= 21) {
+                    virtualizer!!.forceVirtualizationMode(preference.VirtualizerMode.get())
+                }
                 virtualizer!!.setStrength(preference.VirtualizerStrength.get())
                 virtualizer!!.enabled = true
             } catch (e: UnsupportedOperationException) {
