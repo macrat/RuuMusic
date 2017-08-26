@@ -24,6 +24,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import jp.blanktar.ruumusic.R;
+import jp.blanktar.ruumusic.util.DynamicShortcuts;
 import jp.blanktar.ruumusic.util.PlayingStatus;
 import jp.blanktar.ruumusic.util.Preference;
 import jp.blanktar.ruumusic.util.RuuClient;
@@ -286,6 +287,8 @@ public class PlayerFragment extends Fragment{
 				}
 				break;
 		}
+
+		menu.findItem(R.id.action_pin_shortcut).setVisible(new DynamicShortcuts(getContext()).isRequestPinSupported());
 	}
 
 	@Override
