@@ -18,7 +18,7 @@ class Preference(val context: Context) {
     @JvmField val ReverbType = ShortPreferenceHandler(AudioPrefix + "reverb_type")
 
     @JvmField val LoudnessEnabled = BooleanPreferenceHandler(AudioPrefix + "loudness_enabled")
-    @JvmField val LoudnessLevel = IntPreferenceHandler(AudioPrefix + "loudness_level", default = 2500)
+    @JvmField val LoudnessLevel = IntPreferenceHandler(AudioPrefix + "loudness_level", default = 1000)
 
     @JvmField val EqualizerEnabled = BooleanPreferenceHandler(AudioPrefix + "equalizer_enabled")
     @JvmField val EqualizerPreset = ShortPreferenceHandler(AudioPrefix + "equalizer_preset", default = -1)
