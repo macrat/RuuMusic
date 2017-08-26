@@ -144,7 +144,7 @@ class SoundPreferenceActivity : AppCompatActivity() {
         val texts = mutableListOf<TextView>()
         val bars = mutableListOf<SeekBar>()
 
-        val inflater = LayoutInflater.from(applicationContext)
+        val inflater = LayoutInflater.from(this)
         for (i in 0..(info.freqs.size-1)) {
             val table = inflater.inflate(R.layout.equalizer_preference_row, equalizer_container) as ViewGroup
             val row = table.getChildAt(table.getChildCount() - 1)
