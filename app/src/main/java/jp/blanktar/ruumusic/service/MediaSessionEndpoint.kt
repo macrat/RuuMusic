@@ -23,6 +23,8 @@ import jp.blanktar.ruumusic.util.RuuFileBase
 
 
 class MediaSessionEndpoint(val context: Context, controller: RuuService.Controller, initialStatus: PlayingStatus, initialPlaylist: Playlist?) : Endpoint {
+    override val supported = true
+
     val preference
         get() = Preference(context)
     val mediaSession: MediaSessionCompat

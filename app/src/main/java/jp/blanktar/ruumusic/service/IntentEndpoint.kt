@@ -10,6 +10,8 @@ import jp.blanktar.ruumusic.util.RuuFile
 
 
 class IntentEndpoint(val context: Context, val controller: RuuService.Controller) : Endpoint {
+    override val supported = true
+
     override fun close() {}
 
     override fun onStatusUpdated(status: PlayingStatus) {

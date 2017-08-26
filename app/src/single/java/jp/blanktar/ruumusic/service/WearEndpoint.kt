@@ -8,6 +8,8 @@ import jp.blanktar.ruumusic.util.RuuFile
 
 
 class WearEndpoint(context: Context, controller: RuuService.Controller) : Endpoint {
+    override val supported = false
+
     override fun close() {}
 
     override fun onStatusUpdated(status: PlayingStatus) {}

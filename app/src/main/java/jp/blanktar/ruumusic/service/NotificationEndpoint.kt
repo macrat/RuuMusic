@@ -21,6 +21,8 @@ import jp.blanktar.ruumusic.util.RuuFileBase
 
 
 class NotificationEndpoint(val service: Service, val mediaSession: MediaSessionCompat) : Endpoint {
+    override val supported = true
+
     val context = service.getApplicationContext()
     var first = true
 

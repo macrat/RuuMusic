@@ -78,7 +78,7 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 
 	private IntentEndpoint intentEndpoint;
 	private MediaSessionEndpoint mediaSessionEndpoint;
-	private List<Endpoint> endpoints;
+	private EndpointManager endpoints = new EndpointManager();
 
 
 	@Override
@@ -165,9 +165,7 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 				player.reset();
 
 				if(status != Status.ERRORED && playlist != null){
-					for(Endpoint e: endpoints){
-						e.onFailedPlay(getPlayingStatus());
-					}
+					endpoints.onFailedPlay(getPlayingStatus());
 
 					if(!errorSE.isPlaying()){
 						errorSE.start();
@@ -198,8 +196,6 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 		PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).registerOnSharedPreferenceChangeListener(this);
 		registerReceiver(broadcastReceiver, new IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY));
 
-		endpoints = new ArrayList<Endpoint>();
-
 		intentEndpoint = new IntentEndpoint(getApplicationContext(), new Controller());
 		endpoints.add(intentEndpoint);
 
@@ -213,9 +209,7 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 
 		String dataVersion = RuuFileBase.getDataVersion(getApplicationContext());
 		if (preference.MediaStoreVersion.get() != dataVersion) {
-			for(Endpoint e: endpoints){
-				e.onMediaStoreUpdated();
-			}
+			endpoints.onMediaStoreUpdated();
 			preference.MediaStoreVersion.set(dataVersion);
 		}
 
@@ -234,9 +228,7 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 
 		PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).unregisterOnSharedPreferenceChangeListener(this);
 
-		for(Endpoint e: endpoints){
-			e.close();
-		}
+		endpoints.close();
 
 		effectManager.release();
 
@@ -274,20 +266,14 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 			mediaSessionEndpoint.updateQueue(playlist);
 		}
 
-		PlayingStatus status = getPlayingStatus();
-		for(Endpoint e: endpoints){
-			e.onStatusUpdated(status);
-		}
+		endpoints.onStatusUpdated(getPlayingStatus());
 	}
 
 	private void sendEqualizerInfo(){
 		new Thread(new Runnable(){
 			@Override
 			public void run(){
-				EqualizerInfo info = effectManager.getEqualizerInfo();
-				for(Endpoint e: endpoints){
-					e.onEqualizerInfo(info);
-				}
+				endpoints.onEqualizerInfo(effectManager.getEqualizerInfo());
 			}
 		}).start();
 	}
@@ -508,9 +494,7 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 					if(!endOfListSE.isPlaying()){
 						endOfListSE.start();
 					}
-					for(Endpoint e: endpoints){
-						e.onEndOfList(false, getPlayingStatus());
-					}
+					endpoints.onEndOfList(false, getPlayingStatus());
 				}
 			}
 		}
@@ -537,9 +521,7 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 						if(!endOfListSE.isPlaying()){
 							endOfListSE.start();
 						}
-						for(Endpoint e: endpoints){
-							e.onEndOfList(true, getPlayingStatus());
-						}
+						endpoints.onEndOfList(true, getPlayingStatus());
 					}
 				}
 			}
@@ -547,9 +529,7 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 	}
 
 	private void notifyError(@NonNull final String message){
-		for(Endpoint e: endpoints){
-			e.onError(message, getPlayingStatus());
-		}
+		endpoints.onError(message, getPlayingStatus());
 		showToast(message, true);
 	}
 

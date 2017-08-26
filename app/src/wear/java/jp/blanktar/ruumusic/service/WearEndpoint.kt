@@ -20,6 +20,8 @@ import jp.blanktar.ruumusic.util.RuuFileBase
 
 
 class WearEndpoint(val context: Context, val controller: RuuService.Controller) : Endpoint, GoogleApiClient.ConnectionCallbacks {
+    override val supported = true
+
     val client = GoogleApiClient.Builder(context)
                                 .addApi(Wearable.API)
                                 .addConnectionCallbacks(this)

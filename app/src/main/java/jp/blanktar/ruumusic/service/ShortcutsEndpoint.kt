@@ -15,8 +15,10 @@ import jp.blanktar.ruumusic.util.createDynamicShortcutInfo
 
 
 class ShortcutsEndpoint(val context: Context) : Endpoint {
-    val manager = if (Build.VERSION.SDK_INT >= 25) DynamicShortcuts(context) else null
-    val preference = if (Build.VERSION.SDK_INT >= 25) Preference(context) else null
+    override val supported = Build.VERSION.SDK_INT >= 25
+
+    val manager = if (supported) DynamicShortcuts(context) else null
+    val preference = if (supported) Preference(context) else null
 
     init {
         preference?.RootDirectory?.setOnChangeListener {
@@ -31,7 +33,7 @@ class ShortcutsEndpoint(val context: Context) : Endpoint {
     }
 
     override fun onStatusUpdated(status: PlayingStatus) {
-        if (Build.VERSION.SDK_INT < 25 || status.currentMusic == null) {
+        if (status.currentMusic == null) {
             return
         }
 
@@ -42,16 +44,14 @@ class ShortcutsEndpoint(val context: Context) : Endpoint {
             createDynamicShortcutInfo(context, it)
         }.filterNotNull()
 
-        preference!!.ListedDynamicShortcuts.set(shortcuts)
+        preference.ListedDynamicShortcuts.set(shortcuts)
     }
 
     override fun onEqualizerInfo(info: EqualizerInfo) {}
 
     override fun onMediaStoreUpdated() {
-        if (Build.VERSION.SDK_INT >= 25) {
-            thread {
-                manager!!.managePinnedShortcuts()
-            }
+        thread {
+            manager!!.managePinnedShortcuts()
         }
     }
 
