@@ -122,7 +122,7 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 					playlist.shuffle(true);
 				}
 				load(true);
-			}catch(RuuFileBase.NotFound | Playlist.NotFound | Playlist.EmptyDirectory e){
+			}catch(RuuFileBase.NotFound | Playlist.NotFound | Playlist.EmptyDirectory | SecurityException e){
 				playlist = null;
 			}
 		}else if(playlist != null && shuffleMode){
