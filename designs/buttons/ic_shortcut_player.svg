@@ -5,11 +5,32 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="48"
    height="48"
    viewBox="0 0 48 48.000001"
    id="svg2"
-   version="1.1">
+   version="1.1"
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="ic_shortcut_player.svg">
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="640"
+     inkscape:window-height="480"
+     id="namedview9"
+     showgrid="false"
+     inkscape:zoom="6.7898324"
+     inkscape:cx="20.45255"
+     inkscape:cy="33.662632"
+     inkscape:current-layer="svg2" />
   <defs
      id="defs4" />
   <metadata
@@ -20,25 +41,28 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
   <g
      id="layer1"
-     transform="translate(0,-1004.3622)">
+     transform="matrix(1.0465656,0,0,1.0465656,-1.1175744,-1052.2485)"
+     style="fill:#180000;fill-opacity:1;stroke:none">
     <circle
-       style="opacity:1;fill:#faf0fa;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:1.95772386;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:1.39999998;stroke-opacity:1"
+       style="opacity:1;fill:#180000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1.95772386;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:1.39999998;stroke-opacity:1"
        id="path4136"
        cx="24"
        cy="1028.3622"
        r="21.021137" />
   </g>
   <g
-     id="layer2">
+     id="layer2"
+     transform="matrix(0.75,0,0,0.75,8.8339373,5.8680045)">
     <path
-       style="opacity:1;fill:#180000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:1.39999998;stroke-opacity:1"
+       style="opacity:1;fill:#faf0fa;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:1.39999998;stroke-opacity:1"
        id="path4139"
-       d="m 16.000001,36 0,-12 L 16,12 26.392305,18.000001 36.78461,24 26.392305,30 Z" />
+       d="m 12.657845,36.175994 0,-12 -10e-7,-12 10.392305,6.000001 10.392305,5.999999 -10.392305,6 z"
+       inkscape:connector-curvature="0" />
   </g>
 </svg>
