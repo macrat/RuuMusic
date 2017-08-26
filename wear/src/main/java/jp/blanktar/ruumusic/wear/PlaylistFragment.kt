@@ -89,6 +89,9 @@ class PlaylistFragment(val client: RuuClient) : Fragment() {
             setDirectoryByPath(s.rootPath)
             statusUpdated = true
         }
+        if (directory?.path?.startsWith(s.rootPath) != true) {
+            setDirectoryByPath(s.rootPath)
+        }
     }
 
     private var loading = false
