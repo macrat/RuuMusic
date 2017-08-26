@@ -25,6 +25,8 @@ public class UnifiedWidget extends AppWidgetProvider{
 	@Nullable private String musicName = null;
 	@Nullable private String musicPath = null;
 
+	@Nullable private Preference preference = null;
+
 
 	@Override
 	public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds){
@@ -63,8 +65,11 @@ public class UnifiedWidget extends AppWidgetProvider{
 		views.setTextViewText(R.id.music_name, musicName != null ? musicName : context.getString(R.string.widget_nodata));
 		views.setTextViewText(R.id.music_path, musicPath != null ? musicPath : "");
 
-		views.setFloat(R.id.music_path, "setTextSize", new Preference(context).UnifiedWidgetMusicPathSize.get());
-		views.setFloat(R.id.music_name, "setTextSize", new Preference(context).UnifiedWidgetMusicNameSize.get());
+		if(preference == null){
+			preference = new Preference(context);
+		}
+		views.setFloat(R.id.music_path, "setTextSize", preference.UnifiedWidgetMusicPathSize.get());
+		views.setFloat(R.id.music_name, "setTextSize", preference.UnifiedWidgetMusicNameSize.get());
 
 		for(int id: appWidgetIds){
 			appWidgetManager.updateAppWidget(id, views);

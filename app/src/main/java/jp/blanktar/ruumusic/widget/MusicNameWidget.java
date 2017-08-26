@@ -23,6 +23,8 @@ import jp.blanktar.ruumusic.util.Preference;
 public class MusicNameWidget extends AppWidgetProvider{
 	@Nullable private String musicName = null;
 
+	@Nullable private Preference preference = null;
+
 
 	@Override
 	public void onUpdate(@NonNull Context context, @NonNull AppWidgetManager appWidgetManager, int[] appWidgetIds){
@@ -41,7 +43,10 @@ public class MusicNameWidget extends AppWidgetProvider{
 			views.setTextViewText(R.id.widget_music_name, musicName);
 		}
 
-		views.setFloat(R.id.widget_music_name, "setTextSize", new Preference(context).MusicNameWidgetNameSize.get());
+		if(preference == null){
+			preference = new Preference(context);
+		}
+		views.setFloat(R.id.widget_music_name, "setTextSize", preference.MusicNameWidgetNameSize.get());
 
 		for(int id: appWidgetIds){
 			appWidgetManager.updateAppWidget(id, views);
