@@ -76,7 +76,7 @@ class SoundPreferenceActivity : AppCompatActivity() {
             reverb_spinner.isEnabled = e
         }
 
-        val adapter = ArrayAdapter.createFromResource(applicationContext, R.array.reverb_options, R.layout.spinner_item)
+        val adapter = ArrayAdapter.createFromResource(this, R.array.reverb_options, R.layout.spinner_item)
         adapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
 
         reverb_spinner.adapter = adapter
@@ -103,7 +103,7 @@ class SoundPreferenceActivity : AppCompatActivity() {
 
     private fun setupVirtualizer() {
         if (Build.VERSION.SDK_INT >= 21) {
-            val adapter = ArrayAdapter.createFromResource(applicationContext, R.array.virtualizer_modes, R.layout.spinner_item)
+            val adapter = ArrayAdapter.createFromResource(this, R.array.virtualizer_modes, R.layout.spinner_item)
             adapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
             virtualizer_mode.adapter = adapter
         }
@@ -123,7 +123,7 @@ class SoundPreferenceActivity : AppCompatActivity() {
     }
 
     private fun setupEqualizer(info: EqualizerInfo) {
-        val adapter = ArrayAdapter<String>(applicationContext, R.layout.spinner_item)
+        val adapter = ArrayAdapter<String>(this, R.layout.spinner_item)
         adapter.add("Custom")
         info.presets.forEach { x -> adapter.add(x) }
         adapter.setDropDownViewResource(R.layout.spinner_dropdown_item)

@@ -98,7 +98,7 @@ class PreferenceActivity : AppCompatActivity() {
 
         val preference = Preference(applicationContext)
 
-        val adapter = Adapter(applicationContext)
+        val adapter = Adapter(this)
         adapter.add(Item(getString(R.string.preference_list_sound_name), null))
         adapter.add(Item(getString(R.string.preference_list_player_name), getString(R.string.preference_list_player_description)))
         adapter.add(Item(getString(R.string.preference_list_widget_name), getString(R.string.preference_list_widget_description)))
