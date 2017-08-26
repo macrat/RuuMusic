@@ -15,7 +15,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.KeyEvent;
@@ -26,6 +25,7 @@ import android.widget.Toast;
 import jp.blanktar.ruumusic.R;
 import jp.blanktar.ruumusic.client.preference.PreferenceActivity;
 import jp.blanktar.ruumusic.util.DynamicShortcuts;
+import jp.blanktar.ruumusic.util.PermissionManager;
 import jp.blanktar.ruumusic.util.Preference;
 import jp.blanktar.ruumusic.util.RuuClient;
 import jp.blanktar.ruumusic.util.RuuDirectory;
@@ -34,7 +34,7 @@ import jp.blanktar.ruumusic.util.RuuFileBase;
 
 
 @UiThread
-public class MainActivity extends AppCompatActivity{
+public class MainActivity extends PermissionManager.Activity {
 	public final static String ACTION_OPEN_PLAYER = "jp.blanktar.ruumusic.OPEN_PLAYER";
 	public final static String ACTION_OPEN_PLAYLIST = "jp.blanktar.ruumusic.OPEN_PLAYLIST";
 	public final static String ACTION_START_PLAY = "jp.blanktar.ruumusic.START_PLAY_WITH_ACTIVITY";
@@ -70,6 +70,79 @@ public class MainActivity extends AppCompatActivity{
 
 		setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
+		viewPager = (ViewPager)findViewById(R.id.viewPager);
+
+		viewPager.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager()){
+			@Override
+			@NonNull
+			public Fragment getItem(@IntRange(from=0, to=1) int position){
+				if(position == 0){
+					return (player = new PlayerFragment());
+				}else{
+					playlist = new PlaylistFragment();
+					playlist.permissionManager = getPermissionManager();
+					return playlist;
+				}
+			}
+
+			@Override
+			public int getCount(){
+				return 2;
+			}
+		});
+
+		viewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener(){
+			@Override
+			public void onPageSelected(int position){
+				updateTitleAndMenu();
+			}
+		});
+
+		if(getPermissionManager().getHasPermission()){
+			checkRootDirectory();
+		}else{
+			getPermissionManager().setOnResultListener(new PermissionManager.OnResultListener(){
+				@Override
+				public void onGranted(){
+					checkRootDirectory();
+					if(playlist != null){
+						playlist.onPermissionGranted();
+					}
+				}
+
+				@Override
+				public void onDenied(){
+					(new AlertDialog.Builder(MainActivity.this))
+							.setTitle(getString(R.string.permission_denied_title))
+							.setMessage(getString(R.string.permission_denied_message))
+							.setNegativeButton(
+									getString(R.string.permission_denied_close),
+									new DialogInterface.OnClickListener(){
+										@Override
+										public void onClick(DialogInterface dialog, int which){
+											finish();
+										}
+									}
+							)
+							.setPositiveButton(
+									getString(R.string.permission_denied_ok),
+									new DialogInterface.OnClickListener(){
+										@Override
+										public void onClick(DialogInterface dialog, int which){
+											getPermissionManager().request();
+										}
+									}
+							)
+							.create().show();
+				}
+			});
+			getPermissionManager().request();
+		}
+
+		onNewIntent(getIntent());
+	}
+
+	private void checkRootDirectory(){
 		try{
 			RuuDirectory.rootDirectory(getApplicationContext());
 		}catch(RuuFileBase.NotFound e){
@@ -93,34 +166,6 @@ public class MainActivity extends AppCompatActivity{
 					)
 					.create().show();
 		}
-
-		viewPager = (ViewPager)findViewById(R.id.viewPager);
-
-		viewPager.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager()){
-			@Override
-			@NonNull
-			public Fragment getItem(@IntRange(from=0, to=1) int position){
-				if(position == 0){
-					return (player = new PlayerFragment());
-				}else{
-					return (playlist = new PlaylistFragment());
-				}
-			}
-
-			@Override
-			public int getCount(){
-				return 2;
-			}
-		});
-
-		viewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener(){
-			@Override
-			public void onPageSelected(int position){
-				updateTitleAndMenu();
-			}
-		});
-
-		onNewIntent(getIntent());
 	}
 
 	@Override

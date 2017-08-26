@@ -24,37 +24,55 @@ class EndpointManager : Endpoint {
 
     override fun onStatusUpdated(status: PlayingStatus) {
         for (e in endpoints) {
-            e.onStatusUpdated(status)
+            try {
+                e.onStatusUpdated(status)
+            } catch (err: SecurityException) {
+            }
         }
     }
 
     override fun onEqualizerInfo(info: EqualizerInfo) {
         for (e in endpoints) {
-            e.onEqualizerInfo(info)
+            try {
+                e.onEqualizerInfo(info)
+            } catch (err: SecurityException) {
+            }
         }
     }
 
     override fun onMediaStoreUpdated() {
         for (e in endpoints) {
-            e.onMediaStoreUpdated()
+            try {
+                e.onMediaStoreUpdated()
+            } catch (err: SecurityException) {
+            }
         }
     }
 
     override fun onFailedPlay(status: PlayingStatus) {
         for (e in endpoints) {
-            e.onFailedPlay(status)
+            try {
+                e.onFailedPlay(status)
+            } catch (err: SecurityException) {
+            }
         }
     }
 
     override fun onError(message: String, status: PlayingStatus) {
         for (e in endpoints) {
-            e.onError(message, status)
+            try {
+                e.onError(message, status)
+            } catch (err: SecurityException) {
+            }
         }
     }
 
     override fun onEndOfList(isFirst: Boolean, status: PlayingStatus) {
         for (e in endpoints) {
-            e.onEndOfList(isFirst, status)
+            try {
+                e.onEndOfList(isFirst, status)
+            } catch (err: SecurityException) {
+            }
         }
     }
 }

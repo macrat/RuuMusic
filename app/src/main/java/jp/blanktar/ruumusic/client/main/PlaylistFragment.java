@@ -25,6 +25,7 @@ import android.widget.Toast;
 
 import jp.blanktar.ruumusic.R;
 import jp.blanktar.ruumusic.util.DynamicShortcuts;
+import jp.blanktar.ruumusic.util.PermissionManager;
 import jp.blanktar.ruumusic.util.Preference;
 import jp.blanktar.ruumusic.util.RuuClient;
 import jp.blanktar.ruumusic.util.RuuDirectory;
@@ -44,6 +45,8 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 
 	@Nullable DirectoryInfo current;
 	@Nullable public String searchQuery = null;
+
+	PermissionManager permissionManager;
 
 
 	@Override
@@ -162,6 +165,20 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			}
 		});
 
+		if(permissionManager != null && permissionManager.getHasPermission()){
+			resumeDirectory();
+		}
+
+		return view;
+	}
+
+	public void onPermissionGranted() {
+		if(current == null){
+			resumeDirectory();
+		}
+	}
+
+	private void resumeDirectory() {
 		String currentPath = preference.CurrentViewPath.get();
 		try{
 			if(currentPath != null){
@@ -187,9 +204,8 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 				Toast.makeText(getActivity(), getString(R.string.cant_open_dir, e.path), Toast.LENGTH_LONG).show();
 				preference.RootDirectory.remove();
 			}
+		}catch(SecurityException e){
 		}
-
-		return view;
 	}
 
 	@Override
@@ -203,6 +219,8 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 		try{
 			root = RuuDirectory.rootDirectory(getContext());
 		}catch(RuuDirectory.NotFound e){
+		}catch(SecurityException e){
+			return;
 		}
 
 		RuuDirectory parent = null;

@@ -47,6 +47,10 @@
 	<string name="empty_device_message">Music not found in this device</string>
 	<string name="empty_device_button">OK</string>
 	<string name="empty_list">No such music or directory</string>
+	<string name="permission_denied_title">Can\'t open music</string>
+	<string name="permission_denied_message">Please grant permission request</string>
+	<string name="permission_denied_close">CLOSE</string>
+	<string name="permission_denied_ok">OK</string>
 
 	<string name="preference_reset_button">RESET</string>
 

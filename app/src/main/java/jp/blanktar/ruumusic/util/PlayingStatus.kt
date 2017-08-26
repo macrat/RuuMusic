@@ -73,6 +73,8 @@ class PlayingStatus(@JvmField val playing: Boolean = false,
                 null
             } catch (e: NullPointerException) {
                 null
+            } catch (e: SecurityException) {
+                null
             },
             searchQuery = intent.getStringExtra("searchQuery"),
 
@@ -81,6 +83,8 @@ class PlayingStatus(@JvmField val playing: Boolean = false,
             } catch (e: RuuFileBase.NotFound) {
                 null
             } catch (e: NullPointerException) {
+                null
+            } catch (e: SecurityException) {
                 null
             })
 
