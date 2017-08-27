@@ -54,3 +54,8 @@ for ambient in "" "_ambient"; do
 done
 
 make_wear ic_upper_directory 20
+
+make_wear ic_play_for_notif 32
+make_wear ic_pause 32 ic_pause_for_notif
+make_wear ic_prev 32 ic_prev_for_notif
+make_wear ic_next 32 ic_next_for_notif
