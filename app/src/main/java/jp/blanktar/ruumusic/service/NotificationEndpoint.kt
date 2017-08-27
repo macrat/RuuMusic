@@ -1,5 +1,6 @@
 package jp.blanktar.ruumusic.service
 
+
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -8,7 +9,6 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import android.support.v4.app.NotificationCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v7.app.NotificationCompat.MediaStyle
 
@@ -117,7 +117,7 @@ class NotificationEndpoint(val service: Service, val mediaSession: MediaSessionC
             parentPath = ""
         }
 
-        return NotificationCompat.Builder(context, CHANNEL_ID)
+        return makeNotificationBuilder(context)
                 .setSmallIcon(R.drawable.ic_play_notification)
                 .setTicker(status.currentMusic?.name)
                 .setContentTitle(status.currentMusic?.name)

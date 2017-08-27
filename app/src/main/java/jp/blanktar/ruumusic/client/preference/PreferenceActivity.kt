@@ -4,6 +4,7 @@ package jp.blanktar.ruumusic.client.preference
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
+import android.os.Build
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.LayoutInflater
@@ -97,7 +98,11 @@ class PreferenceActivity : AppCompatActivity() {
         setContentView(R.layout.activity_preference)
 
         setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(!isInMultiWindowMode)
+        if (Build.VERSION.SDK_INT < 24) {
+            supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        } else {
+            supportActionBar?.setDisplayHomeAsUpEnabled(!isInMultiWindowMode)
+        }
 
         val preference = Preference(applicationContext)
 
