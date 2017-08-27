@@ -4,4 +4,7 @@
 	<string name="upper_dir">upper directory</string>
 
 	<string name="failed_send_message">Failed to connect</string>
+
+	<string name="notification_channel_playing_status_name">Playing status</string>
+	<string name="notification_channel_playing_status_description">Shows playing status and controls</string>
 </resources>

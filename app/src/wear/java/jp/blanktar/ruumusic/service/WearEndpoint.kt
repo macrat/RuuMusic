@@ -1,5 +1,7 @@
 package jp.blanktar.ruumusic.service
 
+import kotlin.concurrent.thread
+
 import android.content.Context
 import android.os.Bundle
 import com.google.android.gms.common.api.GoogleApiClient
@@ -38,19 +40,25 @@ class WearEndpoint(val context: Context, val controller: RuuService.Controller) 
     }
 
     private fun statusUpdate(status: PlayingStatus, errorMessage: String?) {
-        val dataMapRequest = PutDataMapRequest.create("/status")
-        val dataMap = dataMapRequest.getDataMap()
+        thread {
+            val dataMapRequest = PutDataMapRequest.create("/status")
+            val dataMap = dataMapRequest.getDataMap()
 
-        dataMap.putBoolean("playing", status.playing)
-        dataMap.putString("root_path", RuuDirectory.rootDirectory(context).fullPath)
-        dataMap.putString("music_path", status.currentMusic?.fullPath ?: "")
-        dataMap.putString("repeat_mode", status.repeatMode.name)
-        dataMap.putBoolean("shuffle_mode", status.shuffleMode)
-        dataMap.putString("error_message", errorMessage)
-        dataMap.putLong("error_time", if (errorMessage != null) System.currentTimeMillis() else 0)
+            dataMap.putBoolean("playing", status.playing)
+            dataMap.putString("root_path", RuuDirectory.rootDirectory(context).fullPath)
+            dataMap.putString("music_path", status.currentMusic?.fullPath ?: "")
+            dataMap.putString("repeat_mode", status.repeatMode.name)
+            dataMap.putBoolean("shuffle_mode", status.shuffleMode)
+            dataMap.putString("error_message", errorMessage)
+            dataMap.putLong("error_time", if (errorMessage != null) System.currentTimeMillis() else 0)
 
-        val request = dataMapRequest.asPutDataRequest()
-        Wearable.DataApi.putDataItem(client, request)
+            val request = dataMapRequest.asPutDataRequest()
+            Wearable.DataApi.putDataItem(client, request)
+
+            for (node in Wearable.NodeApi.getConnectedNodes(client).await().nodes) {
+                Wearable.MessageApi.sendMessage(client, node.id, "/status/updated", ByteArray(0))
+            }
+        }
     }
 
     override fun onStatusUpdated(status: PlayingStatus) {

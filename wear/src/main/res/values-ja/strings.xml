@@ -4,4 +4,7 @@
 	<string name="upper_dir">親ディレクトリ</string>
 
 	<string name="failed_send_message">接続に失敗しました</string>
+
+	<string name="notification_channel_playing_status_name">再生中の音楽</string>
+	<string name="notification_channel_playing_status_description">再生中の音楽を表示し、操作出来るようにします</string>
 </resources>

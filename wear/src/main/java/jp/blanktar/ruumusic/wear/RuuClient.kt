@@ -28,6 +28,8 @@ class RuuClient(ctx: Context) : GoogleApiClient.ConnectionCallbacks, DataApi.Dat
 
     var onFailedSendMessage: (() -> Unit)? = null
 
+    var onConnectedListener: (() -> Unit)? = null
+
     fun connect() {
         client.connect()
     }
@@ -48,6 +50,8 @@ class RuuClient(ctx: Context) : GoogleApiClient.ConnectionCallbacks, DataApi.Dat
             items.release()
         }
         Wearable.DataApi.addListener(client, this)
+
+        onConnectedListener?.invoke()
     }
 
     override fun onConnectionSuspended(cause: Int) {}

@@ -62,6 +62,14 @@ class MainActivity : WearableActivity() {
                 pager.currentItem = 1
             }
         }
+
+        onNewIntent(intent)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        if (intent.action == ACTION_OPEN_PLAYER) {
+            pager.currentItem = 0
+        }
     }
 
     override fun onResume() {
@@ -106,5 +114,10 @@ class MainActivity : WearableActivity() {
         override fun getCount() = 2
 
         override fun getPageTitle(position: Int) = listOf("Player", "Playlist")[position]
+    }
+
+
+    companion object {
+        const val ACTION_OPEN_PLAYER = "jp.blanktar.ruumusic.OPEN_PLAYER"
     }
 }

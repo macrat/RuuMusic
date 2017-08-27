@@ -101,14 +101,6 @@
 			</intent-filter>
         </service>
 
-		<service
-			android:name=".service.WearEndpoint$Listener">
-			<intent-filter>
-				<action android:name="com.google.android.gms.wearable.MESSAGE_RECEIVED" />
-				<data android:scheme="wear" android:host="*" android:pathPrefix="/control/" />
-			</intent-filter>
-		</service>
-
         <receiver android:name=".service.MediaSessionEndpoint$MediaButtonReceiver" >
             <intent-filter>
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
