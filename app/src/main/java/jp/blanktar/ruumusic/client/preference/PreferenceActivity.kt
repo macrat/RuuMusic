@@ -1,17 +1,20 @@
 package jp.blanktar.ruumusic.client.preference
 
 
-import android.support.v7.app.AppCompatActivity
-import android.os.Bundle
-import android.widget.ArrayAdapter
 import android.content.Context
-import android.view.View
-import android.view.LayoutInflater
-import android.widget.TextView
-import android.view.ViewGroup
 import android.content.Intent
+import android.content.res.Configuration
+import android.os.Bundle
+import android.support.v7.app.AppCompatActivity
+import android.view.LayoutInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
+import android.widget.ArrayAdapter
+import android.widget.TextView
 
 import jp.blanktar.ruumusic.R
+import jp.blanktar.ruumusic.client.main.MainActivity
 import jp.blanktar.ruumusic.util.Preference
 import kotlinx.android.synthetic.main.activity_preference.*
 
@@ -94,7 +97,7 @@ class PreferenceActivity : AppCompatActivity() {
         setContentView(R.layout.activity_preference)
 
         setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setDisplayHomeAsUpEnabled(!isInMultiWindowMode)
 
         val preference = Preference(applicationContext)
 
@@ -122,6 +125,19 @@ class PreferenceActivity : AppCompatActivity() {
             rootDirItem?.description = data.getStringExtra("directory")
             (list.adapter as Adapter).notifyDataSetChanged()
         }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == android.R.id.home) {
+            startActivity(Intent(applicationContext, MainActivity::class.java).setAction(Intent.ACTION_MAIN))
+            finish()
+            return true
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
+    override fun onMultiWindowModeChanged(isInMultiWindowMode: Boolean, newConfig: Configuration) {
+        supportActionBar?.setDisplayHomeAsUpEnabled(!isInMultiWindowMode)
     }
 
 

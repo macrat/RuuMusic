@@ -261,6 +261,7 @@ public class MainActivity extends PermissionManager.Activity {
 
 		player = (PlayerFragment)getSupportFragmentManager().getFragment(state, "player_fragment");
 		playlist = (PlaylistFragment)getSupportFragmentManager().getFragment(state, "playlist_fragment");
+		playlist.resumeDirectory();
 
 		updateTitleAndMenu();
 	}
@@ -322,7 +323,7 @@ public class MainActivity extends PermissionManager.Activity {
 		}
 
 		if(id == R.id.action_preference){
-			startActivity(new Intent(getApplicationContext(), PreferenceActivity.class));
+			startActivity(new Intent(getApplicationContext(), PreferenceActivity.class).addFlags(Intent.FLAG_ACTIVITY_LAUNCH_ADJACENT).addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT));
 
 			return true;
 		}

@@ -203,8 +203,8 @@ public class PlayerFragment extends Fragment{
 	}
 
 	@Override
-	public void onResume(){
-		super.onResume();
+	public void onStart(){
+		super.onStart();
 
 		Preference pref = new Preference(getContext());
 
@@ -242,8 +242,8 @@ public class PlayerFragment extends Fragment{
 	}
 
 	@Override
-	public void onPause(){
-		super.onPause();
+	public void onStop(){
+		super.onStop();
 
 		if(updateProgressTimer != null){
 			updateProgressTimer.cancel();

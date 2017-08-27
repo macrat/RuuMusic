@@ -193,7 +193,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 		}
 	}
 
-	private void resumeDirectory() {
+	public void resumeDirectory() {
 		String currentPath = preference.CurrentViewPath.get();
 		try{
 			if(currentPath != null){
