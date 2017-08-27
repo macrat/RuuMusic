@@ -141,7 +141,7 @@ class PreferenceActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
-    override fun onMultiWindowModeChanged(isInMultiWindowMode: Boolean, newConfig: Configuration) {
+    override fun onMultiWindowModeChanged(isInMultiWindowMode: Boolean) {
         supportActionBar?.setDisplayHomeAsUpEnabled(!isInMultiWindowMode)
     }
 
