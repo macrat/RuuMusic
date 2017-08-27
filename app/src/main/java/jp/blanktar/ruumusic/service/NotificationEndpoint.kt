@@ -21,8 +21,6 @@ import jp.blanktar.ruumusic.util.RuuFileBase
 
 
 class NotificationEndpoint(val service: Service, val mediaSession: MediaSessionCompat) : Endpoint {
-    val CHANNEL_ID = "playing_status"
-
     override val supported = true
 
     val context = service.applicationContext!!
@@ -135,5 +133,9 @@ class NotificationEndpoint(val service: Service, val mediaSession: MediaSessionC
                         .setMediaSession(mediaSession.sessionToken)
                         .setShowActionsInCompactView(1, 2, 3))
                 .build()
+    }
+
+    companion object {
+        const val CHANNEL_ID = "playing_status"
     }
 }
