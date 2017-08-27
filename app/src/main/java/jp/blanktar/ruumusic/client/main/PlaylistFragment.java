@@ -323,6 +323,15 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			return;
 		}
 
+		if(searchQuery != null){
+			SearchView search = ((MainActivity)getActivity()).searchView;
+			if(search != null && !search.isIconified()){
+				searchQuery = null;
+				search.setQuery("", false);
+				search.setIconified(true);
+			}
+		}
+
 		while(!directoryCache.empty() && !directoryCache.peek().path.contains(dir)){
 			directoryCache.pop();
 		}
@@ -467,7 +476,9 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 
 	@Override
 	public boolean onClose(){
-		changeDir(current.path);
+		if(searchQuery != null){
+			changeDir(current.path);
+		}
 
 		searchQuery = null;
 		preference.LastSearchQuery.remove();
