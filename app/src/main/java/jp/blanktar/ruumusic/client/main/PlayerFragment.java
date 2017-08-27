@@ -35,6 +35,7 @@ import jp.blanktar.ruumusic.view.ShrinkTextView;
 @UiThread
 public class PlayerFragment extends Fragment{
 	private RuuClient client;
+	private Preference preference;
 
 	private boolean seeking = false;
 
@@ -47,6 +48,7 @@ public class PlayerFragment extends Fragment{
 		View view = inflater.inflate(R.layout.fragment_player, container, false);
 
 		client = new RuuClient(getContext());
+		preference = new Preference(getContext());
 
 		view.findViewById(R.id.playButton).setOnClickListener(new View.OnClickListener(){
 			@Override
@@ -193,12 +195,23 @@ public class PlayerFragment extends Fragment{
 			}
 		});
 
+		Preference.OnChangeListener fontSizeChangeListener = new Preference.OnChangeListener(){
+			@Override
+			public void onChange(){
+				updateFontSize();
+			}
+		};
+		preference.PlayerAutoShrinkEnabled.setOnChangeListener(fontSizeChangeListener);
+		preference.PlayerMusicPathSize.setOnChangeListener(fontSizeChangeListener);
+		preference.PlayerMusicNameSize.setOnChangeListener(fontSizeChangeListener);
+
 		return view;
 	}
 
 	@Override
 	public void onDestroy(){
 		client.release();
+		preference.unsetAllListeners();
 		super.onDestroy();
 	}
 
@@ -206,21 +219,7 @@ public class PlayerFragment extends Fragment{
 	public void onStart(){
 		super.onStart();
 
-		Preference pref = new Preference(getContext());
-
-		ShrinkTextView musicPath = getView().findViewById(R.id.musicPath);
-		float pathSize = pref.PlayerMusicPathSize.get().floatValue();
-
-		musicPath.setMaxTextSize(pathSize);
-		musicPath.setMinTextSize(pathSize / 2);
-		musicPath.setResizingEnabled(pref.PlayerAutoShrinkEnabled.get());
-
-		ShrinkTextView musicName = getView().findViewById(R.id.musicName);
-		float nameSize = pref.PlayerMusicNameSize.get().floatValue();
-
-		musicName.setMaxTextSize(nameSize);
-		musicName.setMinTextSize(nameSize / 2);
-		musicName.setResizingEnabled(pref.PlayerAutoShrinkEnabled.get());
+		updateFontSize();
 
 		client.ping();
 
@@ -239,6 +238,26 @@ public class PlayerFragment extends Fragment{
 				});
 			}
 		}, 0, 300);
+	}
+
+	private void updateFontSize(){
+		if(getView() == null){
+			return;
+		}
+
+		ShrinkTextView musicPath = getView().findViewById(R.id.musicPath);
+		float pathSize = preference.PlayerMusicPathSize.get().floatValue();
+
+		musicPath.setMaxTextSize(pathSize);
+		musicPath.setMinTextSize(pathSize / 2);
+		musicPath.setResizingEnabled(preference.PlayerAutoShrinkEnabled.get());
+
+		ShrinkTextView musicName = getView().findViewById(R.id.musicName);
+		float nameSize = preference.PlayerMusicNameSize.get().floatValue();
+
+		musicName.setMaxTextSize(nameSize);
+		musicName.setMinTextSize(nameSize / 2);
+		musicName.setResizingEnabled(preference.PlayerAutoShrinkEnabled.get());
 	}
 
 	@Override
