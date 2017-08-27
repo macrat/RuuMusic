@@ -88,9 +88,7 @@ class PlayingStatus(@JvmField val playing: Boolean = false,
                 null
             })
 
-    fun toIntent(): Intent {
-        val intent = Intent()
-
+    fun toIntent(intent: Intent = Intent()): Intent {
         intent.action = RuuService.ACTION_STATUS
 
         intent.putExtra("repeat", repeatMode.name)

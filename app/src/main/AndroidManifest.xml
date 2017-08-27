@@ -97,6 +97,9 @@
             android:name=".service.RuuService"
             android:enabled="true"
             android:exported="true" >
+
+			<uses-permission android:name="android.permission.BIND_REMOTEVIEWS" />
+
 			<intent-filter>
 				<action android:name="android.media.browse.MediaBrowserService" />
 			</intent-filter>

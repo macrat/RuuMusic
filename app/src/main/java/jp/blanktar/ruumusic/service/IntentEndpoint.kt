@@ -2,10 +2,16 @@ package jp.blanktar.ruumusic.service
 
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 
 import jp.blanktar.ruumusic.util.EqualizerInfo
 import jp.blanktar.ruumusic.util.PlayingStatus
 import jp.blanktar.ruumusic.util.RepeatModeType
+import jp.blanktar.ruumusic.widget.MusicNameWidget
+import jp.blanktar.ruumusic.widget.PlayPauseWidget
+import jp.blanktar.ruumusic.widget.SkipNextWidget
+import jp.blanktar.ruumusic.widget.SkipPrevWidget
+import jp.blanktar.ruumusic.widget.UnifiedWidget
 
 
 class IntentEndpoint(val context: Context, val controller: RuuService.Controller) : Endpoint {
@@ -15,6 +21,14 @@ class IntentEndpoint(val context: Context, val controller: RuuService.Controller
 
     override fun onStatusUpdated(status: PlayingStatus) {
         context.sendBroadcast(status.toIntent())
+
+        if (Build.VERSION.SDK_INT >= 26) {
+            context.sendBroadcast(status.toIntent(Intent(context, MusicNameWidget::class.java)))
+            context.sendBroadcast(status.toIntent(Intent(context, PlayPauseWidget::class.java)))
+            context.sendBroadcast(status.toIntent(Intent(context, SkipNextWidget::class.java)))
+            context.sendBroadcast(status.toIntent(Intent(context, SkipPrevWidget::class.java)))
+            context.sendBroadcast(status.toIntent(Intent(context, UnifiedWidget::class.java)))
+        }
     }
 
     override fun onEqualizerInfo(info: EqualizerInfo) {

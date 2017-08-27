@@ -1,26 +1,22 @@
 package jp.blanktar.ruumusic.widget;
 
-import java.io.File;
-
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
-import android.appwidget.AppWidgetProvider;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.widget.RemoteViews;
 
 import jp.blanktar.ruumusic.R;
 import jp.blanktar.ruumusic.client.main.MainActivity;
-import jp.blanktar.ruumusic.service.RuuService;
+import jp.blanktar.ruumusic.util.PlayingStatus;
 import jp.blanktar.ruumusic.util.Preference;
 
 
 @UiThread
-public class MusicNameWidget extends AppWidgetProvider{
+public class MusicNameWidget extends RuuWidgetProvider{
 	@Nullable private String musicName = null;
 
 	@Nullable private Preference preference = null;
@@ -54,24 +50,18 @@ public class MusicNameWidget extends AppWidgetProvider{
 	}
 
 	@Override
-	public void onReceive(@NonNull Context context, @NonNull Intent intent){
-		super.onReceive(context, intent);
+	public void onAppWidgetUpdate(@NonNull Context context){
+		requestStatusUpdate(context);
+	}
 
-		switch(intent.getAction()){
-			case AppWidgetManager.ACTION_APPWIDGET_UPDATE:
-				context.startService((new Intent(context, RuuService.class)).setAction(RuuService.ACTION_PING));
-				break;
-			case RuuService.ACTION_STATUS:
-				String path = intent.getStringExtra("path");
-				if(path == null){
-					musicName = null;
-				}else{
-					musicName = (new File(path)).getName();
-				}
-
-				AppWidgetManager awm = AppWidgetManager.getInstance(context);
-				onUpdate(context, awm, awm.getAppWidgetIds(new ComponentName(context, MusicNameWidget.class)));
-				break;
+	@Override
+	public void onPlayingStatus(@NonNull Context context, @NonNull PlayingStatus status){
+		if(status.currentMusic == null){
+			musicName = null;
+		}else{
+			musicName = status.currentMusic.getName();
 		}
+
+		requestWidgetUpdate(context);
 	}
 }

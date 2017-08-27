@@ -5,22 +5,20 @@ import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
-import android.appwidget.AppWidgetProvider;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.widget.RemoteViews;
 
 import jp.blanktar.ruumusic.R;
-import jp.blanktar.ruumusic.service.RuuService;
-import jp.blanktar.ruumusic.util.Preference;
-import jp.blanktar.ruumusic.util.RuuFile;
-import jp.blanktar.ruumusic.util.RuuFileBase;
 import jp.blanktar.ruumusic.client.main.MainActivity;
+import jp.blanktar.ruumusic.service.RuuService;
+import jp.blanktar.ruumusic.util.PlayingStatus;
+import jp.blanktar.ruumusic.util.Preference;
+import jp.blanktar.ruumusic.util.RuuFileBase;
 
 
 @UiThread
-public class UnifiedWidget extends AppWidgetProvider{
+public class UnifiedWidget extends RuuWidgetProvider{
 	private boolean playing = false;
 	@Nullable private String musicName = null;
 	@Nullable private String musicPath = null;
@@ -29,7 +27,7 @@ public class UnifiedWidget extends AppWidgetProvider{
 
 
 	@Override
-	public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds){
+	public void onUpdate(@NonNull Context context, @NonNull AppWidgetManager appWidgetManager, int[] appWidgetIds){
 		RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.unified_widget);
 
 		views.setOnClickPendingIntent(R.id.widget_unified, PendingIntent.getActivity(
@@ -39,26 +37,9 @@ public class UnifiedWidget extends AppWidgetProvider{
 				0
 		));
 
-		views.setOnClickPendingIntent(R.id.play_button, PendingIntent.getService(
-				context,
-				0,
-				(new Intent(context, RuuService.class)).setAction(RuuService.ACTION_PLAY_PAUSE),
-				0
-		));
-
-		views.setOnClickPendingIntent(R.id.prev_button, PendingIntent.getService(
-				context,
-				0,
-				(new Intent(context, RuuService.class)).setAction(RuuService.ACTION_PREV),
-				0
-		));
-
-		views.setOnClickPendingIntent(R.id.next_button, PendingIntent.getService(
-				context,
-				0,
-				(new Intent(context, RuuService.class)).setAction(RuuService.ACTION_NEXT),
-				0
-		));
+		views.setOnClickPendingIntent(R.id.play_button, makeRuuServicePendingIntent(context, RuuService.ACTION_PLAY_PAUSE));
+		views.setOnClickPendingIntent(R.id.prev_button, makeRuuServicePendingIntent(context, RuuService.ACTION_PREV));
+		views.setOnClickPendingIntent(R.id.next_button, makeRuuServicePendingIntent(context, RuuService.ACTION_NEXT));
 
 		views.setImageViewResource(R.id.play_button, playing ? R.drawable.ic_pause : R.drawable.ic_play);
 
@@ -77,29 +58,27 @@ public class UnifiedWidget extends AppWidgetProvider{
 	}
 
 	@Override
-	public void onReceive(@NonNull Context context, @NonNull Intent intent){
-		super.onReceive(context, intent);
+	public void onAppWidgetUpdate(@NonNull Context context){
+		requestStatusUpdate(context);
+	}
 
-		switch(intent.getAction()){
-			case AppWidgetManager.ACTION_APPWIDGET_UPDATE:
-				context.startService((new Intent(context, RuuService.class)).setAction(RuuService.ACTION_PING));
-				break;
-			case RuuService.ACTION_STATUS:
-				playing = intent.getBooleanExtra("playing", false);
-
-				try{
-					RuuFile file = RuuFile.getInstance(context, intent.getStringExtra("path"));
-					musicName = file.getName();
-					musicPath = file.getParent().getRuuPath();
-				}catch(RuuFileBase.NotFound | RuuFileBase.OutOfRootDirectory | NullPointerException e){
-					musicName = null;
-					musicPath = null;
-				}
-
-				AppWidgetManager awm = AppWidgetManager.getInstance(context);
-				onUpdate(context, awm, awm.getAppWidgetIds(new ComponentName(context, UnifiedWidget.class)));
-				break;
+	@Override
+	public void onPlayingStatus(@NonNull Context context, @NonNull PlayingStatus status){
+		playing = status.playing;
+		
+		if(status.currentMusic == null){
+			musicName = null;
+			musicPath = null;
+		}else{
+			try{
+				musicName = status.currentMusic.getName();
+				musicPath = status.currentMusic.getParent().getRuuPath();
+			}catch(RuuFileBase.OutOfRootDirectory | NullPointerException e){
+				musicName = null;
+				musicPath = null;
+			}
 		}
+
+		requestWidgetUpdate(context);
 	}
 }
-
