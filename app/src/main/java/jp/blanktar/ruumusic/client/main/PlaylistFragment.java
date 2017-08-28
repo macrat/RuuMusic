@@ -241,7 +241,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 		RuuDirectory parent = null;
 		try{
 			parent = current.path.getParent();
-		}catch(RuuDirectory.OutOfRootDirectory e){
+		}catch(RuuDirectory.OutOfRootDirectory | NullPointerException e){
 		}
 
 		if(current == null){

@@ -8,7 +8,7 @@ import android.content.Context
 class Preference(val context: Context) {
     @JvmField val AudioPrefix = "audio_"
 
-    @JvmField val RootDirectory = RuuDirectoryPreferenceHandler("root_directory", default = RuuDirectory.getInstance(context, "/"))
+    @JvmField val RootDirectory = RuuDirectoryPreferenceHandler("root_directory", defaultPath = "/")
     @JvmField val MediaStoreVersion = StringPreferenceHandler("media_store_version")
 
     @JvmField val BassBoostEnabled = BooleanPreferenceHandler(AudioPrefix + "bassboost_enabled")
@@ -199,10 +199,10 @@ class Preference(val context: Context) {
         }
     }
 
-    inner class RuuFilePreferenceHandler(key: String, default: RuuFile? = null) : PreferenceHandler<RuuFile?>(key, default) {
+    inner class RuuFilePreferenceHandler(key: String) : PreferenceHandler<RuuFile?>(key, null) {
         override fun get(): RuuFile? {
             try {
-                return RuuFile.getInstance(context, sharedPreferences.getString(key, null) ?: return default)
+                return RuuFile.getInstance(context, sharedPreferences.getString(key, null) ?: return null)
             } catch (e: RuuFileBase.NotFound) {
                 return default
             }
@@ -212,15 +212,19 @@ class Preference(val context: Context) {
             if (value == null) {
                 remove()
             } else {
-                sharedPreferences.edit().putString(key, value!!.fullPath).apply()
+                sharedPreferences.edit().putString(key, value.fullPath).apply()
             }
         }
     }
 
-    inner class RuuDirectoryPreferenceHandler(key: String, default: RuuDirectory? = null) : PreferenceHandler<RuuDirectory?>(key, default) {
+    inner class RuuDirectoryPreferenceHandler(key: String, val defaultPath: String? = null) : PreferenceHandler<RuuDirectory?>(key, null) {
         override fun get(): RuuDirectory? {
             try {
-                return RuuDirectory.getInstance(context, sharedPreferences.getString(key, null) ?: return default)
+                val path = sharedPreferences.getString(key, null)
+                            ?: return if (defaultPath == null) null else RuuDirectory.getInstance(context, defaultPath)
+
+                return RuuDirectory.getInstance(context, path)
+                       ?: if (defaultPath == null) null else RuuDirectory.getInstance(context, defaultPath)
             } catch (e: RuuFileBase.NotFound) {
                 return null
             }
@@ -230,7 +234,7 @@ class Preference(val context: Context) {
             if (value == null) {
                 remove()
             } else {
-                sharedPreferences.edit().putString(key, value!!.fullPath).apply()
+                sharedPreferences.edit().putString(key, value.fullPath).apply()
             }
         }
     }
