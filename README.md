@@ -22,15 +22,15 @@ You can install stable version from [google play](https://play.google.com/store/
 * Play recursive under one directory.
 * If there is multiple extension music files, RuuMusic will use most better one.
 	User not have to care extension.
-* Supported global search. (before Android 4.4)
 * Control by bluetooth receiver.
 * Control by Notification area. (Android 4.1+)
 * Control by lock screen. (Android 4.0+)
-* Control by Android Wear.
-* Control by Android Auto.
+* Control by Android Wear. (Android 4.4+)
+* Supported Android Auto. (Android 5.0+)
 * Have some type widgets that include small widgets like play/pause or skip button.
 	You can use in combination.
+* Supported pinning shortcuts for music or directory. (Android 8.0+. some functions can use 7.1+)
 * Search musics/directories.
 	Can playing search results as playlist.
 * Supported audio preference.
-	Supported bass boost, reverb, equalizer, and loudness enhancer(Android 4.4+).
+	Supported bass boost, reverb, virtualizer, equalizer, and loudness enhancer(Android 4.4+).
