@@ -52,18 +52,13 @@ public class RuuDirectory extends RuuFileBase{
 		return root.findDir(path);
 	}
 
-	public static RuuDirectory getInstanceFromFullPath(@NonNull Context context, @NonNull String path) throws RuuFileBase.NotFound, RuuFileBase.OutOfRootDirectory{
-		String root = rootDirectory(context).getFullPath();
-		if(!path.startsWith(root)){
-			throw new RuuFileBase.OutOfRootDirectory();
-		}
-		return getInstance(context, root);
-	}
-
 	@NonNull
 	public static RuuDirectory rootDirectory(@NonNull Context context) throws RuuFileBase.NotFound{
-		String root = new Preference(context).RootDirectory.get();
-		return RuuDirectory.getInstance(context, root == null ? "/" : root);
+		RuuDirectory root = new Preference(context).RootDirectory.get();
+		if(root == null){
+			throw new RuuFileBase.NotFound(null);
+		}
+		return root;
 	}
 
 	@NonNull

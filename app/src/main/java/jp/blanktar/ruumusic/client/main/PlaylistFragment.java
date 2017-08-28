@@ -194,10 +194,10 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 	}
 
 	public void resumeDirectory() {
-		String currentPath = preference.CurrentViewPath.get();
+		RuuDirectory currentPath = preference.CurrentViewPath.get();
 		try{
 			if(currentPath != null){
-				changeDir(RuuDirectory.getInstance(getContext(), currentPath));
+				changeDir(currentPath);
 
 				searchQuery = preference.LastSearchQuery.get();
 				if(searchQuery != null){
@@ -347,7 +347,7 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			current = new DirectoryInfo(dir);
 		}
 
-		preference.CurrentViewPath.set(current.path.getFullPath());
+		preference.CurrentViewPath.set(current.path);
 
 		if(((MainActivity)getActivity()).getCurrentPage() == MainActivity.Page.PLAYLIST){
 			updateTitle();

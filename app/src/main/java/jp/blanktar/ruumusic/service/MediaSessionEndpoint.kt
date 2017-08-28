@@ -67,7 +67,7 @@ class MediaSessionEndpoint(val context: Context, controller: RuuService.Controll
             }
 
             override fun onPlayFromSearch(query: String?, extras: Bundle?) {
-                controller.playSearch(extras!!.getCharSequence("path", preference.RootDirectory.get()).toString(), query)
+                controller.playSearch(extras!!.getCharSequence("path", preference.RootDirectory.get()?.fullPath).toString(), query)
             }
 
             override fun onSkipToQueueItem(id: Long) {

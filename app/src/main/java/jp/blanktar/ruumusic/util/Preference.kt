@@ -8,7 +8,7 @@ import android.content.Context
 class Preference(val context: Context) {
     @JvmField val AudioPrefix = "audio_"
 
-    @JvmField val RootDirectory = StringPreferenceHandler("root_directory")
+    @JvmField val RootDirectory = RuuDirectoryPreferenceHandler("root_directory", default = RuuDirectory.getInstance(context, "/"))
     @JvmField val MediaStoreVersion = StringPreferenceHandler("media_store_version")
 
     @JvmField val BassBoostEnabled = BooleanPreferenceHandler(AudioPrefix + "bassboost_enabled")
@@ -44,14 +44,14 @@ class Preference(val context: Context) {
     // player state
     @JvmField val RepeatMode = EnumPreferenceHandler("repeat_mode", RepeatModeType.OFF, { x -> RepeatModeType.valueOf(x)})
     @JvmField val ShuffleMode = BooleanPreferenceHandler("shuffle_mode")
-    @JvmField val RecursivePath = StringPreferenceHandler("recursive_path")
+    @JvmField val RecursivePath = RuuDirectoryPreferenceHandler("recursive_path")
     @JvmField val SearchQuery = StringPreferenceHandler("search_query")
-    @JvmField val SearchPath = StringPreferenceHandler("search_path")
-    @JvmField val LastPlayMusic = StringPreferenceHandler("last_play_music")
+    @JvmField val SearchPath = RuuDirectoryPreferenceHandler("search_path")
+    @JvmField val LastPlayMusic = RuuFilePreferenceHandler("last_play_music")
     @JvmField val LastPlayPosition = IntPreferenceHandler("last_play_position")
 
     // playlist state
-    @JvmField val CurrentViewPath = StringPreferenceHandler("current_view_path")
+    @JvmField val CurrentViewPath = RuuDirectoryPreferenceHandler("current_view_path")
     @JvmField val LastSearchQuery = StringPreferenceHandler("last_search_query")
 
     // shortcuts
@@ -196,6 +196,42 @@ class Preference(val context: Context) {
 
         override fun set(value: String?) {
             sharedPreferences.edit().putString(key, value).apply()
+        }
+    }
+
+    inner class RuuFilePreferenceHandler(key: String, default: RuuFile? = null) : PreferenceHandler<RuuFile?>(key, default) {
+        override fun get(): RuuFile? {
+            try {
+                return RuuFile.getInstance(context, sharedPreferences.getString(key, null) ?: return default)
+            } catch (e: RuuFileBase.NotFound) {
+                return default
+            }
+        }
+
+        override fun set(value: RuuFile?) {
+            if (value == null) {
+                remove()
+            } else {
+                sharedPreferences.edit().putString(key, value!!.fullPath).apply()
+            }
+        }
+    }
+
+    inner class RuuDirectoryPreferenceHandler(key: String, default: RuuDirectory? = null) : PreferenceHandler<RuuDirectory?>(key, default) {
+        override fun get(): RuuDirectory? {
+            try {
+                return RuuDirectory.getInstance(context, sharedPreferences.getString(key, null) ?: return default)
+            } catch (e: RuuFileBase.NotFound) {
+                return null
+            }
+        }
+
+        override fun set(value: RuuDirectory?) {
+            if (value == null) {
+                remove()
+            } else {
+                sharedPreferences.edit().putString(key, value!!.fullPath).apply()
+            }
         }
     }
 

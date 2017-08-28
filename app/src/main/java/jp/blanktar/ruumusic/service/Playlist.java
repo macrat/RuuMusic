@@ -68,20 +68,18 @@ public class Playlist{
 	}
 
 	@NonNull
-	public static Playlist getByMusicPath(@NonNull Context context, @NonNull String path) throws RuuFileBase.NotFound, EmptyDirectory{
-		RuuFile music = RuuFile.getInstance(context, path);
+	public static Playlist getByMusic(@NonNull Context context, @NonNull RuuFile music) throws RuuFileBase.NotFound, EmptyDirectory{
 		List<RuuFile> list = music.getParent().getMusics();
 		RuuFile[] playlist = list.toArray(new RuuFile[list.size()]);
 		int index = Arrays.binarySearch(playlist, music);
 		if(index < 0 || playlist.length <= index){
-			throw new RuuFileBase.NotFound(path);
+			throw new RuuFileBase.NotFound(music.getFullPath());
 		}
 		return new Playlist(context, music.getParent(), playlist, index, Type.SIMPLE, null);
 	}
 
 	@NonNull
-	public static Playlist getRecursive(@NonNull Context context, @NonNull String path) throws RuuFileBase.NotFound, EmptyDirectory{
-		RuuDirectory dir = RuuDirectory.getInstance(context, path);
+	public static Playlist getRecursive(@NonNull Context context, @NonNull RuuDirectory dir) throws RuuFileBase.NotFound, EmptyDirectory{
 		List<RuuFile> list = dir.getMusicsRecursive();
 		return new Playlist(context, dir, list.toArray(new RuuFile[list.size()]), 0, Type.RECURSIVE, null);
 	}

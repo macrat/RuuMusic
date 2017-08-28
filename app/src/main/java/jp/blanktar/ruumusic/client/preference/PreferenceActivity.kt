@@ -17,6 +17,7 @@ import android.widget.TextView
 import jp.blanktar.ruumusic.R
 import jp.blanktar.ruumusic.client.main.MainActivity
 import jp.blanktar.ruumusic.util.Preference
+import jp.blanktar.ruumusic.util.RuuDirectory
 import kotlinx.android.synthetic.main.activity_preference.*
 
 
@@ -110,7 +111,7 @@ class PreferenceActivity : AppCompatActivity() {
         adapter.add(Item(getString(R.string.preference_list_sound_name), null))
         adapter.add(Item(getString(R.string.preference_list_player_name), getString(R.string.preference_list_player_description)))
         adapter.add(Item(getString(R.string.preference_list_widget_name), getString(R.string.preference_list_widget_description)))
-        rootDirItem = Item(getString(R.string.preference_list_rootdir_name), preference.RootDirectory.get())
+        rootDirItem = Item(getString(R.string.preference_list_rootdir_name), preference.RootDirectory.get()?.fullPath)
         adapter.add(rootDirItem!!)
         list.adapter = adapter
 
@@ -126,7 +127,7 @@ class PreferenceActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
         if (resultCode == RESULT_OK) {
-            Preference(applicationContext).RootDirectory.set(data.getStringExtra("directory"))
+            Preference(applicationContext).RootDirectory.set(RuuDirectory.getInstance(applicationContext, data.getStringExtra("directory")))
             rootDirItem?.description = data.getStringExtra("directory")
             (list.adapter as Adapter).notifyDataSetChanged()
         }

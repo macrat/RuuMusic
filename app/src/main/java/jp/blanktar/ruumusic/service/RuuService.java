@@ -91,7 +91,7 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 		repeatMode = preference.RepeatMode.get();
 		shuffleMode = preference.ShuffleMode.get();
 
-		String recursive = preference.RecursivePath.get();
+		 RuuDirectory recursive = preference.RecursivePath.get();
 		if(recursive != null){
 			try{
 				playlist = Playlist.getRecursive(getApplicationContext(), recursive);
@@ -100,29 +100,29 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 			}
 		}else{
 			String searchQuery = preference.SearchQuery.get();
-			String searchPath = preference.SearchPath.get();
+			RuuDirectory searchPath = preference.SearchPath.get();
 			if(searchQuery != null && searchPath != null){
 				try{
-					playlist = Playlist.getSearchResults(getApplicationContext(), RuuDirectory.getInstanceFromFullPath(getApplicationContext(), searchPath), searchQuery);
-				}catch(RuuFileBase.NotFound | RuuFileBase.OutOfRootDirectory | Playlist.EmptyDirectory e){
+					playlist = Playlist.getSearchResults(getApplicationContext(), searchPath, searchQuery);
+				}catch(RuuFileBase.NotFound | Playlist.EmptyDirectory e){
 					playlist = null;
 				}
 			}
 		}
 
-		String last_play = preference.LastPlayMusic.get();
-		if(last_play != null && !last_play.equals("")){
+		RuuFile last_play = preference.LastPlayMusic.get();
+		if(last_play != null){
 			try{
 				if(playlist != null){
-					playlist.goMusic(RuuFile.getInstance(getApplicationContext(), last_play));
+					playlist.goMusic(last_play);
 				}else{
-					playlist = Playlist.getByMusicPath(getApplicationContext(), last_play);
+					playlist = Playlist.getByMusic(getApplicationContext(), last_play);
 				}
 				if(shuffleMode){
 					playlist.shuffle(true);
 				}
 				load(true);
-			}catch(RuuFileBase.NotFound | Playlist.NotFound | Playlist.EmptyDirectory | SecurityException e){
+			}catch(RuuFileBase.NotFound | Playlist.NotFound | Playlist.EmptyDirectory e){
 				playlist = null;
 			}
 		}else if(playlist != null && shuffleMode){
@@ -280,17 +280,17 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 
 	private void saveStatus(){
 		if(playlist != null){
-			preference.LastPlayMusic.set(playlist.getCurrent().getFullPath());
+			preference.LastPlayMusic.set(playlist.getCurrent());
 			preference.LastPlayPosition.set(player.getCurrentPosition());
 
 			if(playlist.type == Playlist.Type.RECURSIVE){
-				preference.RecursivePath.set(playlist.path.getFullPath());
+				preference.RecursivePath.set(playlist.path);
 			}else{
 				preference.RecursivePath.remove();
 			}
 
 			if(playlist.type == Playlist.Type.SEARCH){
-				preference.SearchPath.set(playlist.path.getFullPath());
+				preference.SearchPath.set(playlist.path);
 				preference.SearchQuery.set(playlist.query);
 			}else{
 				preference.SearchPath.remove();
@@ -351,7 +351,7 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 			RuuFile file = RuuFile.getInstance(getApplicationContext(), path);
 
 			if(playlist == null || playlist.type != Playlist.Type.SIMPLE || !playlist.path.equals(file.getParent())){
-				playlist = Playlist.getByMusicPath(getApplicationContext(), path);
+				playlist = Playlist.getByMusic(getApplicationContext(), file);
 				if(shuffleMode){
 					playlist.shuffle(true);
 				}
@@ -383,7 +383,7 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 
 	private void playRecursive(String path){
 		try{
-			playlist = Playlist.getRecursive(getApplicationContext(), path);
+			playlist = Playlist.getRecursive(getApplicationContext(), RuuDirectory.getInstance(getApplicationContext(), path));
 		}catch(RuuFileBase.NotFound e){
 			notifyError(getString(R.string.cant_open_dir, path));
 			return;
@@ -399,9 +399,7 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 	
 	private void playBySearch(String path, String query){
 		try{
-			playlist = Playlist.getSearchResults(getApplicationContext(), RuuDirectory.getInstanceFromFullPath(getApplicationContext(), path), query);
-		}catch(RuuFileBase.OutOfRootDirectory e){
-			notifyError(getString(R.string.out_of_root, path));
+			playlist = Playlist.getSearchResults(getApplicationContext(), RuuDirectory.getInstance(getApplicationContext(), path), query);
 		}catch(RuuFileBase.NotFound e){
 			notifyError(getString(R.string.cant_open_dir, path));
 			return;

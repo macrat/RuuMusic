@@ -189,7 +189,7 @@ public class MainActivity extends PermissionManager.Activity {
 						if(playlist != null){
 							moveToPlaylist(dir);
 						}else{
-							preference.CurrentViewPath.set(dir.getFullPath());
+							preference.CurrentViewPath.set(dir);
 							moveToPlaylist();
 						}
 						return;
@@ -235,13 +235,9 @@ public class MainActivity extends PermissionManager.Activity {
 			case MediaStore.INTENT_ACTION_MEDIA_PLAY_FROM_SEARCH:
 				moveToPlayer();
 				try{
-					client.playSearch(RuuDirectory.getInstance(getApplicationContext(), preference.RootDirectory.get()), intent.getStringExtra(SearchManager.QUERY));
-				}catch(RuuFileBase.NotFound err){
-					try{
-						client.playSearch(RuuDirectory.rootDirectory(getApplicationContext()), intent.getStringExtra(SearchManager.QUERY));
-					}catch(RuuFileBase.NotFound e){
-						Toast.makeText(getApplicationContext(), getString(R.string.cant_open_dir, "/"), Toast.LENGTH_LONG).show();
-					}
+					client.playSearch(RuuDirectory.rootDirectory(getApplicationContext()), intent.getStringExtra(SearchManager.QUERY));
+				}catch(RuuFileBase.NotFound e){
+					Toast.makeText(getApplicationContext(), getString(R.string.cant_open_dir, "/"), Toast.LENGTH_LONG).show();
 				}
 				break;
 			default:
