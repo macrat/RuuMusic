@@ -11,7 +11,6 @@ import android.content.Intent;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.provider.SearchRecentSuggestions;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.MenuItemCompat;
@@ -25,7 +24,6 @@ import android.widget.Toast;
 
 import jp.blanktar.ruumusic.R;
 import jp.blanktar.ruumusic.client.preference.PreferenceActivity;
-import jp.blanktar.ruumusic.service.RecentSearchSuggestionProvider;
 import jp.blanktar.ruumusic.util.DynamicShortcuts;
 import jp.blanktar.ruumusic.util.PermissionManager;
 import jp.blanktar.ruumusic.util.Preference;
@@ -204,15 +202,9 @@ public class MainActivity extends PermissionManager.Activity {
 				moveToPlaylist();
 				break;
 			case Intent.ACTION_SEARCH:
-				String query = intent.getStringExtra(SearchManager.QUERY);
-				if(playlist == null){
-					preference.CurrentViewPath.set(preference.RootDirectory.get());
-					preference.LastSearchQuery.set(query);
-				}else if(!query.equals(playlist.searchQuery)){
-					playlist.startSearch(query);
-				}
 				moveToPlaylist();
-				new SearchRecentSuggestions(this, RecentSearchSuggestionProvider.AUTHORITY, RecentSearchSuggestionProvider.MODE).saveRecentQuery(query, null);
+				preference.CurrentViewPath.set(preference.RootDirectory.get());
+				preference.LastSearchQuery.set(intent.getStringExtra(SearchManager.QUERY));
 				break;
 			case ACTION_START_PLAY:
 			case Intent.ACTION_VIEW:
@@ -295,9 +287,6 @@ public class MainActivity extends PermissionManager.Activity {
 		assert searchView != null;
 		searchView.setOnQueryTextListener(playlist);
 		searchView.setOnCloseListener(playlist);
-
-		SearchManager searchManager = (SearchManager)getSystemService(SEARCH_SERVICE);
-		searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
 
 		String query = preference.LastSearchQuery.get();
 		if(query != null){
