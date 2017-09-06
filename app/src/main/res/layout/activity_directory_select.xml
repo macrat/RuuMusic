@@ -15,7 +15,8 @@
 		android:layout_height="wrap_content"
 		android:background="?attr/colorPrimary"
 		android:minHeight="?attr/actionBarSize"
-		android:theme="?attr/actionBarTheme" />
+		android:theme="?attr/actionBarTheme"
+		android:elevation="@dimen/elevation_toolbar" />
 
 	<jp.blanktar.ruumusic.view.FilerView
 		android:id="@+id/filer"
@@ -28,10 +29,12 @@
 		android:layout_height="wrap_content"
 		android:background="@color/primary_material_dark"
 		android:orientation="horizontal"
-		android:gravity="end">
+		android:gravity="end"
+		android:elevation="@dimen/elevation_bottombar">
 
 		<Button
 			android:id="@+id/select"
+			style="@style/Widget.AppCompat.Button.Borderless.Colored"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_marginTop="@dimen/preference_list_padding"
