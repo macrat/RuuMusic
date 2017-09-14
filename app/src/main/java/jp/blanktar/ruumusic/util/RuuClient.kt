@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.os.Build
 
 import jp.blanktar.ruumusic.service.RuuService
 
@@ -28,7 +29,7 @@ class RuuClient(val context: Context) {
 
     private fun intent(action: String) = Intent(context, RuuService::class.java).setAction(action)
     
-    private fun send(i: Intent) = context.startService(i)
+    private fun send(i: Intent) = if (Build.VERSION.SDK_INT >= 26) context.startForegroundService(i) else context.startService(i)
 
     var eventListener: RuuClient.EventListener? = null
         set(listener) {
