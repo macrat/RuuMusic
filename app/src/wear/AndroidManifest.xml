@@ -3,7 +3,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 		  package="jp.blanktar.ruumusic" >
 
-	<uses-feature android:name="android.hardware.type.watch" android:required="false" />
+	<uses-feature android:name="android.hardware.type.watch" />
 
 	<meta-data
 		android:name="com.google.android.gms.version"
