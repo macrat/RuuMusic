@@ -241,31 +241,40 @@ public class RuuDirectory extends RuuFileBase{
 	public List<RuuFileBase> getChildren(){
 		ArrayList<RuuFileBase> children = new ArrayList<>();
 
-		children.addAll(getDirectories());
-		children.addAll(getMusics());
+		for(RuuDirectory x: getDirectories()){
+			children.add(x);
+		}
+
+		for(RuuFile x: getMusics()){
+			children.add(x);
+		}
 
 		return children;
 	}
 
 	@NonNull
 	public List<RuuFile> getMusicsRecursive(){
-		ArrayList<RuuFile> list = new ArrayList<>(getMusics());
+		ArrayList<RuuFile> list = new ArrayList<>();
 
 		for(RuuDirectory dir: getDirectories()){
 			list.addAll(dir.getMusicsRecursive());
 		}
+
+		list.addAll(getMusics());
 
 		return list;
 	}
 
 	@NonNull
 	public List<RuuDirectory> getDirectoriesRecursive(){
-		List<RuuDirectory> dirs = getDirectories();
-		ArrayList<RuuDirectory> list = new ArrayList<>(dirs);
+		ArrayList<RuuDirectory> list = new ArrayList<>();
 
-		for(int i=0; i<dirs.size(); i++){
-			list.addAll(dirs.get(i).getDirectoriesRecursive());
+		List<RuuDirectory> dirs = getDirectories();
+		for(RuuDirectory dir: dirs){
+			list.addAll(dir.getDirectoriesRecursive());
 		}
+
+		list.addAll(dirs);
 
 		return list;
 	}

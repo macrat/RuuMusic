@@ -12,6 +12,9 @@
 	<string name="skipprev_widget_name">RuuMusic | 前の曲へ</string>
 	<string name="musicname_widget_name">RuuMusic | 曲名</string>
 
+	<string name="search_hint">音楽を検索</string>
+	<string name="search_description">音楽を検索</string>
+
 	<string name="action_recursive_play">このディレクトリ以下を再生</string>
 	<string name="menu_search">音楽を検索</string>
 	<string name="menu_search_play">検索結果を全て再生</string>

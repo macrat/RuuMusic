@@ -414,12 +414,6 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 		}
 	}
 
-	public void startSearch(@NonNull String query){
-		((MainActivity)getActivity()).searchView.setIconified(false);
-		((MainActivity)getActivity()).searchView.setQuery(query, true);
-		onQueryTextSubmit(query);
-	}
-
 	public void setSearchQuery(@NonNull RuuDirectory path, @NonNull String query){
 		changeDir(path);
 		((MainActivity)getActivity()).searchView.setIconified(false);
