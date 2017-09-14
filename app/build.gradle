@@ -5,7 +5,7 @@ apply plugin: 'kotlin-android-extensions'
 
 android {
 	compileSdkVersion 26
-	buildToolsVersion '26.0.0'
+	buildToolsVersion '26.0.1'
 
 	defaultConfig {
 		applicationId "jp.blanktar.ruumusic"
@@ -38,10 +38,10 @@ dependencies {
 	compile 'com.android.support:support-annotations:25.3.1'
 	compile 'com.android.support:support-v4:25.3.1'
 
-	wearCompile 'com.android.support:appcompat-v7:26.0.0'
-	wearCompile 'com.android.support:design:26.0.0'
-	wearCompile 'com.android.support:support-annotations:26.0.0'
-	wearCompile 'com.android.support:support-v4:26.0.0'
+	wearCompile 'com.android.support:appcompat-v7:26.0.1'
+	wearCompile 'com.android.support:design:26.0.1'
+	wearCompile 'com.android.support:support-annotations:26.0.1'
+	wearCompile 'com.android.support:support-v4:26.0.1'
 	wearCompile 'com.google.android.gms:play-services-wearable:11.0.1'
 	wearWearApp project(':wear')
 }
