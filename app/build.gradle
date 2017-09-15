@@ -11,8 +11,8 @@ android {
 		applicationId "jp.blanktar.ruumusic"
 		minSdkVersion 10
 		targetSdkVersion 26
-		versionCode 28
-		versionName '1.0 beta'
+		versionCode 29
+		versionName '1.0 beta2'
 	}
 	buildTypes {
 		release {
