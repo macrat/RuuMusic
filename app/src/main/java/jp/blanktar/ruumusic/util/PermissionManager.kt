@@ -32,10 +32,12 @@ class PermissionManager(val activity: Activity) {
         val permissionManager = PermissionManager(this)
 
         override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                permissionManager.onGrantedListener()
-            } else {
-                permissionManager.onDeniedListener()
+            if (requestCode == 0) {
+                if (grantResults.size == 0 || grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    permissionManager.onGrantedListener()
+                } else {
+                    permissionManager.onDeniedListener()
+                }
             }
         }
     }
