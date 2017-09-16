@@ -77,10 +77,15 @@ public class MainActivity extends PermissionManager.Activity {
 			@NonNull
 			public Fragment getItem(@IntRange(from=0, to=1) int position){
 				if(position == 0){
-					return (player = new PlayerFragment());
+					if(player == null){
+						player = new PlayerFragment();
+					}
+					return player;
 				}else{
-					playlist = new PlaylistFragment();
-					playlist.permissionManager = getPermissionManager();
+					if(playlist == null){
+						playlist = new PlaylistFragment();
+						playlist.permissionManager = getPermissionManager();
+					}
 					return playlist;
 				}
 			}
@@ -247,8 +252,12 @@ public class MainActivity extends PermissionManager.Activity {
 	public void onSaveInstanceState(@NonNull Bundle state){
 		super.onSaveInstanceState(state);
 
-		getSupportFragmentManager().putFragment(state, "player_fragment", player);
-		getSupportFragmentManager().putFragment(state, "playlist_fragment", playlist);
+		if(player != null){
+			getSupportFragmentManager().putFragment(state, "player_fragment", player);
+		}
+		if(playlist != null){
+			getSupportFragmentManager().putFragment(state, "playlist_fragment", playlist);
+		}
 	}
 
 	@Override
@@ -257,7 +266,10 @@ public class MainActivity extends PermissionManager.Activity {
 
 		player = (PlayerFragment)getSupportFragmentManager().getFragment(state, "player_fragment");
 		playlist = (PlaylistFragment)getSupportFragmentManager().getFragment(state, "playlist_fragment");
-		playlist.resumeDirectory();
+		if(playlist != null){
+			playlist.permissionManager = getPermissionManager();
+			playlist.resumeDirectory();
+		}
 
 		updateTitleAndMenu();
 	}
