@@ -159,14 +159,13 @@ public class RuuDirectory extends RuuFileBase{
 		return file.getFullPath().startsWith(getFullPath());
 	}
 
-	private void processChildren(){
-		assert childrenTemp != null;
-		assert musics.isEmpty() && directories.isEmpty();
-
+	private synchronized void processChildren(){
 		if(childrenProceed){
 			return;
 		}
-		childrenProceed = true;
+
+		assert childrenTemp != null;
+		assert musics.isEmpty() && directories.isEmpty();
 
 		int pathlength = getFullPath().length();
 		String target = null;
@@ -214,9 +213,10 @@ public class RuuDirectory extends RuuFileBase{
 			}
 		}
 
-		childrenTemp = null;
-
 		Collections.sort(musics);
+
+		childrenTemp = null;
+		childrenProceed = true;
 	}
 
 	@NonNull
