@@ -3,9 +3,13 @@ package jp.blanktar.ruumusic.util;
 import java.io.File;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
+import android.provider.MediaStore;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.webkit.MimeTypeMap;
@@ -64,6 +68,16 @@ public class RuuFile extends RuuFileBase{
 		return (new Uri.Builder()).scheme("file").path(getRealPath()).build();
 	}
 
+	@Nullable
+	public Uri toContentUri(){
+		Cursor cursor = context.getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, new String[]{MediaStore.Audio.Media._ID}, MediaStore.Audio.Media.DATA + "=?", new String[]{getRealPath()}, "lower(_data)");
+		if(cursor.moveToNext()){
+			return ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media._ID)));
+		}else{
+			return null;
+		}
+	}
+
 	@Override
 	@NonNull
 	public Intent toIntent(){
@@ -71,6 +85,19 @@ public class RuuFile extends RuuFileBase{
 			toUri(),
 			MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension.substring(1))
 		).putExtra(Intent.EXTRA_STREAM, toUri());
+	}
+
+	@Nullable
+	public Intent toContentIntent(){
+		Uri uri = toContentUri();
+		if(uri != null){
+			return (new Intent(Intent.ACTION_VIEW)).setDataAndType(
+				uri,
+				MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension.substring(1))
+			);
+		}else{
+			return null;
+		}
 	}
 
 	@Override

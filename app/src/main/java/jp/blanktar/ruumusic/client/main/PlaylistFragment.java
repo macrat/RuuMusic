@@ -107,19 +107,15 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 
 				item = menu.findItem(R.id.action_open_music_with_other_app);
 				if(item != null){
-					if(Build.VERSION.SDK_INT >= 24){
-						item.setVisible(false);
-					}else{
-						item.setVisible(true);
-						item.setEnabled(getActivity().getPackageManager().queryIntentActivities(file.toIntent(), 0).size() > 0);
-						item.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-							@Override
-							public boolean onMenuItemClick(MenuItem item) {
-								startActivity(file.toIntent());
-								return true;
-							}
-						});
-					}
+					final Intent intent = Build.VERSION.SDK_INT >= 24 ? ((RuuFile)file).toContentIntent() : file.toIntent();
+					item.setEnabled(getActivity().getPackageManager().queryIntentActivities(intent, 0).size() > 0);
+					item.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+						@Override
+						public boolean onMenuItemClick(MenuItem item) {
+							startActivity(intent);
+							return true;
+						}
+					});
 				}
 
 				item = menu.findItem(R.id.action_open_dir_with_other_app);

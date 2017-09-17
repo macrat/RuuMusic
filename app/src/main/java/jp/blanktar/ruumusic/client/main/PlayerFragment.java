@@ -293,11 +293,8 @@ public class PlayerFragment extends Fragment{
 				menu.setHeaderTitle(client.status.currentMusic.getName());
 				getActivity().getMenuInflater().inflate(R.menu.music_context_menu, menu);
 				menu.findItem(R.id.action_open_music).setVisible(false);
-				if(Build.VERSION.SDK_INT >= 24){
-					menu.findItem(R.id.action_open_music_with_other_app).setVisible(false);
-				}else{
-					menu.findItem(R.id.action_open_music_with_other_app).setEnabled(getActivity().getPackageManager().queryIntentActivities(client.status.currentMusic.toIntent(), 0).size() > 0);
-				}
+				final Intent intent = Build.VERSION.SDK_INT >= 24 ? client.status.currentMusic.toContentIntent() : client.status.currentMusic.toIntent();
+				menu.findItem(R.id.action_open_music_with_other_app).setEnabled(getActivity().getPackageManager().queryIntentActivities(intent, 0).size() > 0);
 				menu.findItem(R.id.action_pin_shortcut_music).setVisible(new DynamicShortcuts(getContext()).isRequestPinSupported());
 				break;
 			case R.id.status_indicator:
@@ -336,7 +333,8 @@ public class PlayerFragment extends Fragment{
 				return true;
 			case R.id.action_open_music_with_other_app:
 				assert client.status.currentMusic != null;
-				startActivity(client.status.currentMusic.toIntent());
+				final Intent intent = Build.VERSION.SDK_INT >= 24 ? client.status.currentMusic.toContentIntent() : client.status.currentMusic.toIntent();
+				startActivity(intent);
 				return true;
 			case R.id.action_open_recursive_with_other_app:
 				assert client.status.recursivePath != null;
