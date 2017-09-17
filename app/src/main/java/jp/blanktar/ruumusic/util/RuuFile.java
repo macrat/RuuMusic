@@ -38,6 +38,27 @@ public class RuuFile extends RuuFileBase{
 		return RuuDirectory.getInstance(context, path.substring(0, slashpos + 1)).findMusic(path.substring(slashpos + 1));
 	}
 
+	@NonNull
+	public static RuuFile getInstance(@NonNull Context context, @NonNull Uri uri) throws RuuFileBase.NotFound{
+		String path;
+
+		if(uri.getScheme().equals("file")){
+			path = uri.getPath();
+		}else{
+			long id = ContentUris.parseId(uri);
+			if(id == -1){
+				throw new RuuFileBase.NotFound(null);
+			}
+			Cursor cursor = context.getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, new String[]{MediaStore.Audio.Media.DATA}, MediaStore.Audio.Media._ID + "=?", new String[]{String.valueOf(id)}, "lower(_data)");
+			if(!cursor.moveToNext()){
+				throw new RuuFileBase.NotFound("[content id: " + id + "]");
+			}
+			path = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA));
+		}
+
+		return RuuFile.getInstance(context, path.substring(0, path.lastIndexOf(".")));
+	}
+
 	@Override
 	public boolean isDirectory(){
 		return false;

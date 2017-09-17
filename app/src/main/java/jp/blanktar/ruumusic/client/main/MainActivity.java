@@ -214,17 +214,19 @@ public class MainActivity extends PermissionManager.Activity {
 			case ACTION_START_PLAY:
 			case Intent.ACTION_VIEW:
 				if(intent.getData() != null){
-					String path = intent.getData().getPath();
 					try{
-						RuuFile file = RuuFile.getInstance(getApplicationContext(), path.substring(0, path.lastIndexOf(".")));
-						file.getRuuPath();
+						RuuFile file = RuuFile.getInstance(getApplicationContext(), intent.getData());
+						try{
+							file.getRuuPath();
+						}catch(RuuFileBase.OutOfRootDirectory e){
+							Toast.makeText(getApplicationContext(), getString(R.string.out_of_root, file.getRealPath()), Toast.LENGTH_LONG).show();
+							viewPager.setCurrentItem(preference.LastViewPage.get());
+							return;
+						}
 						client.play(file);
 						moveToPlayer();
 					}catch(RuuFileBase.NotFound e){
 						Toast.makeText(getApplicationContext(), getString(R.string.music_not_found), Toast.LENGTH_LONG).show();
-						viewPager.setCurrentItem(preference.LastViewPage.get());
-					}catch(RuuFileBase.OutOfRootDirectory e){
-						Toast.makeText(getApplicationContext(), getString(R.string.out_of_root, path), Toast.LENGTH_LONG).show();
 						viewPager.setCurrentItem(preference.LastViewPage.get());
 					}
 					break;
