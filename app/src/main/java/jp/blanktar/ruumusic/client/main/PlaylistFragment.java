@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 import android.app.SearchManager;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
@@ -106,24 +107,36 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 
 				item = menu.findItem(R.id.action_open_music_with_other_app);
 				if(item != null){
-					item.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-						@Override
-						public boolean onMenuItemClick(MenuItem item) {
-							startActivity(file.toIntent());
-							return true;
-						}
-					});
+					if(Build.VERSION.SDK_INT >= 24){
+						item.setVisible(false);
+					}else{
+						item.setVisible(true);
+						item.setEnabled(getActivity().getPackageManager().queryIntentActivities(file.toIntent(), 0).size() > 0);
+						item.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+							@Override
+							public boolean onMenuItemClick(MenuItem item) {
+								startActivity(file.toIntent());
+								return true;
+							}
+						});
+					}
 				}
 
 				item = menu.findItem(R.id.action_open_dir_with_other_app);
 				if(item != null){
-					item.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-						@Override
-						public boolean onMenuItemClick(MenuItem item) {
-							startActivity(file.toIntent());
-							return true;
-						}
-					});
+					if(Build.VERSION.SDK_INT >= 24){
+						item.setVisible(false);
+					}else{
+						item.setVisible(true);
+						item.setEnabled(getActivity().getPackageManager().queryIntentActivities(file.toIntent(), 0).size() > 0);
+						item.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+							@Override
+							public boolean onMenuItemClick(MenuItem item) {
+								startActivity(file.toIntent());
+								return true;
+							}
+						});
+					}
 				}
 
 				item = menu.findItem(R.id.action_web_search_music);

@@ -11,6 +11,7 @@ import android.app.AlertDialog;
 import android.app.SearchManager;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -281,18 +282,22 @@ public class PlayerFragment extends Fragment{
 			case R.id.musicPath:
 				menu.setHeaderTitle(client.status.currentMusic.getParent().getName() + "/");
 				getActivity().getMenuInflater().inflate(R.menu.directory_context_menu, menu);
-				menu.findItem(R.id.action_open_dir_with_other_app).setVisible(
-					getActivity().getPackageManager().queryIntentActivities(client.status.currentMusic.getParent().toIntent(), 0).size() > 0
-				);
+				if(Build.VERSION.SDK_INT >= 24){
+					menu.findItem(R.id.action_open_dir_with_other_app).setVisible(false);
+				}else{
+					menu.findItem(R.id.action_open_dir_with_other_app).setEnabled(getActivity().getPackageManager().queryIntentActivities(client.status.currentMusic.getParent().toIntent(), 0).size() > 0);
+				}
 				menu.findItem(R.id.action_pin_shortcut_directory).setVisible(new DynamicShortcuts(getContext()).isRequestPinSupported());
 				break;
 			case R.id.musicName:
 				menu.setHeaderTitle(client.status.currentMusic.getName());
 				getActivity().getMenuInflater().inflate(R.menu.music_context_menu, menu);
 				menu.findItem(R.id.action_open_music).setVisible(false);
-				menu.findItem(R.id.action_open_music_with_other_app).setVisible(
-					getActivity().getPackageManager().queryIntentActivities(client.status.currentMusic.toIntent(), 0).size() > 0
-				);
+				if(Build.VERSION.SDK_INT >= 24){
+					menu.findItem(R.id.action_open_music_with_other_app).setVisible(false);
+				}else{
+					menu.findItem(R.id.action_open_music_with_other_app).setEnabled(getActivity().getPackageManager().queryIntentActivities(client.status.currentMusic.toIntent(), 0).size() > 0);
+				}
 				menu.findItem(R.id.action_pin_shortcut_music).setVisible(new DynamicShortcuts(getContext()).isRequestPinSupported());
 				break;
 			case R.id.status_indicator:
