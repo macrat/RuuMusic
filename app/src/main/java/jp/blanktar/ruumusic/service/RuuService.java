@@ -1,5 +1,6 @@
 package jp.blanktar.ruumusic.service;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -417,11 +418,13 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 		assert playlist != null;
 
 		status = fromLastest ? Status.LOADING_FROM_LASTEST : Status.LOADING;
-		player.reset();
 
 		String realName = playlist.getCurrent().getRealPath();
 		try{
-			player.setDataSource(realName);
+			FileInputStream input = new FileInputStream(realName);
+
+			player.reset();
+			player.setDataSource(input.getFD());
 			player.prepareAsync();
 		}catch(IOException e){
 			notifyError(getString(R.string.failed_open_music, realName));
