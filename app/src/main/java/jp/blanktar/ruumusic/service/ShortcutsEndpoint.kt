@@ -48,12 +48,6 @@ class ShortcutsEndpoint(val context: Context) : Endpoint {
 
     override fun onEqualizerInfo(info: EqualizerInfo) {}
 
-    override fun onMediaStoreUpdated() {
-        thread {
-            manager!!.managePinnedShortcuts()
-        }
-    }
-
     override fun onFailedPlay(status: PlayingStatus) {}
     override fun onError(message: String, status: PlayingStatus) {}
     override fun onEndOfList(isFirst: Boolean, status: PlayingStatus) {}

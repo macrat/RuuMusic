@@ -40,15 +40,6 @@ class EndpointManager : Endpoint {
         }
     }
 
-    override fun onMediaStoreUpdated() {
-        for (e in endpoints) {
-            try {
-                e.onMediaStoreUpdated()
-            } catch (err: SecurityException) {
-            }
-        }
-    }
-
     override fun onFailedPlay(status: PlayingStatus) {
         for (e in endpoints) {
             try {

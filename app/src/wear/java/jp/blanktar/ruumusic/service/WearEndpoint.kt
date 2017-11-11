@@ -1,5 +1,7 @@
 package jp.blanktar.ruumusic.service
 
+import kotlin.concurrent.thread
+
 import android.content.Context
 import android.os.Bundle
 import com.google.android.gms.common.api.GoogleApiClient
@@ -26,8 +28,6 @@ class WearEndpoint(val context: Context, val controller: RuuService.Controller) 
                                 .addApi(Wearable.API)
                                 .addConnectionCallbacks(this)
                                 .build()
-
-    var musicsUpdated = false
 
     init {
         client.connect()
@@ -58,14 +58,6 @@ class WearEndpoint(val context: Context, val controller: RuuService.Controller) 
 
     override fun onStatusUpdated(status: PlayingStatus) {
         statusUpdate(status, null)
-    }
-
-    override fun onMediaStoreUpdated() {
-        if (client.isConnected()) {
-            updateDirectory()
-        } else {
-            musicsUpdated = true
-        }
     }
 
     override fun onEqualizerInfo(info: EqualizerInfo) {}
@@ -102,9 +94,8 @@ class WearEndpoint(val context: Context, val controller: RuuService.Controller) 
     }
 
     override fun onConnected(bundle: Bundle?) {
-        if (musicsUpdated) {
+        thread {
             updateDirectory()
-            musicsUpdated = false
         }
     }
 

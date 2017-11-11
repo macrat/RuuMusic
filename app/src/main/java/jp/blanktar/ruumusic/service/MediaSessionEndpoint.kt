@@ -118,8 +118,6 @@ class MediaSessionEndpoint(val context: Context, controller: RuuService.Controll
         updatePlaybackState(status)
     }
 
-    override fun onMediaStoreUpdated() {}
-
     override fun onEqualizerInfo(info: EqualizerInfo) {}
 
     override fun onFailedPlay(status: PlayingStatus) {

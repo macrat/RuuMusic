@@ -58,8 +58,6 @@ class NotificationEndpoint(val service: Service, val mediaSession: MediaSessionC
         }
     }
 
-    override fun onMediaStoreUpdated() {}
-
     override fun onEqualizerInfo(info: EqualizerInfo) {}
 
     override fun onFailedPlay(status: PlayingStatus) {
