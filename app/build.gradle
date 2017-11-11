@@ -5,7 +5,8 @@ apply plugin: 'kotlin-android-extensions'
 
 android {
 	compileSdkVersion 26
-	buildToolsVersion '26.0.1'
+	buildToolsVersion '26.0.3'
+	flavorDimensions "wear"
 
 	defaultConfig {
 		applicationId "jp.blanktar.ruumusic"
@@ -33,10 +34,11 @@ android {
 dependencies {
 	compile fileTree(include: ['*.jar'], dir: 'libs')
 	compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
-	compile 'com.android.support:appcompat-v7:25.3.1'
-	compile 'com.android.support:design:25.3.1'
-	compile 'com.android.support:support-annotations:25.3.1'
-	compile 'com.android.support:support-v4:25.3.1'
+
+	singleCompile 'com.android.support:appcompat-v7:25.3.1'
+	singleCompile 'com.android.support:design:25.3.1'
+	singleCompile 'com.android.support:support-annotations:25.3.1'
+	singleCompile 'com.android.support:support-v4:25.3.1'
 
 	wearCompile 'com.android.support:appcompat-v7:26.0.1'
 	wearCompile 'com.android.support:design:26.0.1'
