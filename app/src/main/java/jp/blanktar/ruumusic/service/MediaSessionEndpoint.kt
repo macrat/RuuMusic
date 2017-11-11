@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
@@ -216,7 +217,11 @@ class MediaSessionEndpoint(val context: Context, controller: RuuService.Controll
         }
 
         private fun sendIntent(context: Context, event: String) {
-            context.startService(Intent(context, RuuService::class.java).setAction(event))
+            if (Build.VERSION.SDK_INT >= 26) {
+                context.startForegroundService(Intent(context, RuuService::class.java).setAction(event))
+            } else {
+                context.startService(Intent(context, RuuService::class.java).setAction(event))
+            }
         }
     }
 }
