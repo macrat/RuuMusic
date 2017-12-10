@@ -84,12 +84,15 @@ class WearEndpoint(val context: Context, val controller: RuuService.Controller) 
     }
 
     fun updateDirectory() {
-        val root = RuuDirectory.rootDirectory(context)
+        try {
+            val root = RuuDirectory.rootDirectory(context)
 
-        Wearable.DataApi.putDataItem(client, makeDataMapFromDirectory(root))
+            Wearable.DataApi.putDataItem(client, makeDataMapFromDirectory(root))
 
-        for (dir in root.directoriesRecursive) {
-            Wearable.DataApi.putDataItem(client, makeDataMapFromDirectory(dir))
+            for (dir in root.directoriesRecursive) {
+                Wearable.DataApi.putDataItem(client, makeDataMapFromDirectory(dir))
+            }
+        } catch (e: RuuFileBase.NotFound) {
         }
     }
 

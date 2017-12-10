@@ -102,7 +102,7 @@ class RuuClient(val context: Context) {
     }
 
     fun ping() {
-        send(intent(RuuService.ACTION_PING))
+        context.startService(intent(RuuService.ACTION_PING))
     }
 
     fun requestEqualizerInfo() {

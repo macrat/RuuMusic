@@ -204,6 +204,8 @@ class Preference(val context: Context) {
                 return RuuFile.getInstance(context, sharedPreferences.getString(key, null) ?: return null)
             } catch (e: RuuFileBase.NotFound) {
                 return default
+            } catch (e: SecurityException) {
+                return null
             }
         }
 
@@ -226,6 +228,8 @@ class Preference(val context: Context) {
                        ?: if (defaultPath == null) null else RuuDirectory.getInstance(context, defaultPath)
             } catch (e: RuuFileBase.NotFound) {
                 return null
+            } catch (e: SecurityException) {
+                return null
             }
         }
 
@@ -246,6 +250,8 @@ class Preference(val context: Context) {
             try {
                 return RuuDirectory.getInstance(context, it)
             } catch (e: RuuFileBase.NotFound) {
+                return null
+            } catch (e: SecurityException) {
                 return null
             }
         })
