@@ -237,10 +237,15 @@ public class MainActivity extends PermissionManager.Activity {
 				}
 			case MediaStore.INTENT_ACTION_MEDIA_PLAY_FROM_SEARCH:
 				moveToPlayer();
-				try{
-					client.playSearch(RuuDirectory.rootDirectory(getApplicationContext()), intent.getStringExtra(SearchManager.QUERY));
-				}catch(RuuFileBase.NotFound e){
-					Toast.makeText(getApplicationContext(), getString(R.string.cant_open_dir, "/"), Toast.LENGTH_LONG).show();
+				String query = intent.getStringExtra(SearchManager.QUERY);
+				if(query == null || "".equals(query)){
+					client.play();
+				}else{
+					try{
+						client.playSearch(RuuDirectory.rootDirectory(getApplicationContext()), query);
+					}catch(RuuFileBase.NotFound e){
+						Toast.makeText(getApplicationContext(), getString(R.string.cant_open_dir, "/"), Toast.LENGTH_LONG).show();
+					}
 				}
 				break;
 			default:

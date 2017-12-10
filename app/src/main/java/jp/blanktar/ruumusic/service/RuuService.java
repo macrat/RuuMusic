@@ -695,7 +695,11 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 		}
 
 		public void playSearch(String dir, String query){
-			RuuService.this.playBySearch(dir, query);
+			if(query == null || "".equals(query)){
+				play();
+			}else{
+				RuuService.this.playBySearch(dir, query);
+			}
 		}
 
 		public void pause(){
