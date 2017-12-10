@@ -63,8 +63,12 @@ public class MainActivity extends PermissionManager.Activity {
 		preference.RootDirectory.setOnChangeListener(new Preference.OnChangeListener(){
 			@Override
 			public void onChange(){
-				player.updateRoot();
-				playlist.updateRoot();
+				if(player != null){
+					player.updateRoot();
+				}
+				if(playlist != null){
+					playlist.updateRoot();
+				}
 			}
 		});
 
