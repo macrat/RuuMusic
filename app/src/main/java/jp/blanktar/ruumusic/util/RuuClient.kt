@@ -17,7 +17,10 @@ class RuuClient(val context: Context) {
             when (intent.action) {
                 RuuService.ACTION_STATUS -> onReceiveStatus(intent)
                 RuuService.ACTION_EQUALIZER_INFO -> eventListener?.onEqualizerInfo(EqualizerInfo(intent))
-                RuuService.ACTION_FAILED_PLAY -> eventListener?.onFailedPlay(intent.getStringExtra("path"))
+                RuuService.ACTION_FAILED_PLAY -> {
+                    onReceiveStatus(intent)
+                    eventListener?.onFailedPlay(intent.getStringExtra("path"))
+                }
                 RuuService.ACTION_NOT_FOUND -> eventListener?.onMusicNotFound(intent.getStringExtra("path"))
             }
         }

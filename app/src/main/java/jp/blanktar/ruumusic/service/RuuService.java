@@ -162,17 +162,7 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 		player.setOnErrorListener(new MediaPlayer.OnErrorListener(){
 			@Override
 			public boolean onError(@Nullable MediaPlayer mp, int what, int extra){
-				player.reset();
-
-				if(status != Status.ERRORED && playlist != null){
-					endpoints.onFailedPlay(getPlayingStatus());
-
-					if(!errorSE.isPlaying()){
-						errorSE.start();
-					}
-				}
-
-				status = Status.ERRORED;
+				onFailedPlay();
 
 				return true;
 			}
@@ -420,7 +410,7 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 			player.setDataSource(input.getFD());
 			player.prepareAsync();
 		}catch(IOException e){
-			notifyError(getString(R.string.failed_open_music, realName));
+			onFailedPlay();
 		}
 	}
 
@@ -520,6 +510,22 @@ public class RuuService extends MediaBrowserServiceCompat implements SharedPrefe
 				}
 			}
 		}
+	}
+
+	private void onFailedPlay(){
+		player.reset();
+
+		if(status != Status.ERRORED && playlist != null){
+			PlayingStatus status = getPlayingStatus();
+
+			endpoints.onFailedPlay(status);
+
+			if(!errorSE.isPlaying()){
+				errorSE.start();
+			}
+		}
+
+		status = Status.ERRORED;
 	}
 
 	private void notifyError(@NonNull final String message){
