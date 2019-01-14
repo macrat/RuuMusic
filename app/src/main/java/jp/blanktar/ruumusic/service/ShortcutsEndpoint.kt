@@ -36,7 +36,7 @@ class ShortcutsEndpoint(val context: Context) : Endpoint {
             return
         }
 
-        val shortcuts = preference!!.ListedDynamicShortcuts.get().filter { it != status.currentMusic.parent }.toMutableList()
+        val shortcuts = preference!!.ListedDynamicShortcuts.get().filter { it != status.currentMusic.parent }.takeLast(manager!!.maxShortcuts - 1).toMutableList()
         shortcuts.add(status.currentMusic.parent)
 
         manager!!.shortcuts = shortcuts.mapNotNull {

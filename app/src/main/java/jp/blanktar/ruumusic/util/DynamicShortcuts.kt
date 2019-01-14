@@ -44,8 +44,11 @@ class DynamicShortcuts(val context: Context) {
     var shortcuts: List<ShortcutInfo>?
         get() = manager?.dynamicShortcuts
         set(xs) {
-            manager?.dynamicShortcuts = xs
+            manager?.dynamicShortcuts = xs?.takeLast(maxShortcuts)
         }
+
+    val maxShortcuts
+        get() = (manager?.maxShortcutCountPerActivity ?: 0) - (manager?.manifestShortcuts?.count() ?: 0)
 
     val isRequestPinSupported
         get() = manager?.isRequestPinShortcutSupported ?: false
