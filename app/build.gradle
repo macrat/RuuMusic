@@ -4,14 +4,14 @@ apply plugin: 'kotlin-android-extensions'
 
 
 android {
-	compileSdkVersion 26
-	buildToolsVersion '26.0.2'
+	compileSdkVersion 28
+	buildToolsVersion '28.0.3'
 	flavorDimensions "wear"
 
 	defaultConfig {
 		applicationId "jp.blanktar.ruumusic"
 		minSdkVersion 10
-		targetSdkVersion 26
+		targetSdkVersion 28
 		versionCode 30
 		versionName '1.0 beta3'
 	}
@@ -33,18 +33,18 @@ android {
 
 dependencies {
 	compile fileTree(include: ['*.jar'], dir: 'libs')
-	compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+	compile "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
-	singleCompile 'com.android.support:appcompat-v7:25.3.1'
-	singleCompile 'com.android.support:design:25.3.1'
-	singleCompile 'com.android.support:support-annotations:25.3.1'
-	singleCompile 'com.android.support:support-v4:25.3.1'
+	singleCompile 'com.android.support:appcompat-v7:28.0.0'
+	singleCompile 'com.android.support:design:28.0.0'
+	singleCompile 'com.android.support:support-annotations:28.0.0'
+	singleCompile 'com.android.support:support-v4:28.0.0'
 
-	wearCompile 'com.android.support:appcompat-v7:26.0.2'
-	wearCompile 'com.android.support:design:26.0.2'
-	wearCompile 'com.android.support:support-annotations:26.0.2'
-	wearCompile 'com.android.support:support-v4:26.0.2'
-	wearCompile 'com.google.android.gms:play-services-wearable:11.0.1'
+	wearCompile 'com.android.support:appcompat-v7:28.0.0'
+	wearCompile 'com.android.support:design:28.0.0'
+	wearCompile 'com.android.support:support-annotations:28.0.0'
+	wearCompile 'com.android.support:support-v4:28.0.0'
+	wearCompile 'com.google.android.gms:play-services-wearable:16.0.1'
 	wearWearApp project(':wear')
 }
 repositories {

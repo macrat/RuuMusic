@@ -106,7 +106,7 @@ class FilerView(context: Context, attrs: AttributeSet) : FrameLayout(context, at
         changeFiles(dir.children, if (RuuDirectory.rootDirectory(context) != dir) dir.parent else null)
     }
 
-    var layoutState: Parcelable
+    var layoutState: Parcelable?
         get() = layout.onSaveInstanceState()
         set(state) = layout.onRestoreInstanceState(state)
 

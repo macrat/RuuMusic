@@ -10,7 +10,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.support.v4.media.session.MediaSessionCompat
-import android.support.v7.app.NotificationCompat.MediaStyle
+import android.support.v4.media.app.NotificationCompat.MediaStyle
 
 import jp.blanktar.ruumusic.R
 import jp.blanktar.ruumusic.client.main.MainActivity

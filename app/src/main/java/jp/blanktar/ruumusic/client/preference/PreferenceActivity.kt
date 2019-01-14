@@ -125,10 +125,10 @@ class PreferenceActivity : AppCompatActivity() {
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (resultCode == RESULT_OK) {
-            Preference(applicationContext).RootDirectory.set(RuuDirectory.getInstance(applicationContext, data.getStringExtra("directory")))
-            rootDirItem?.description = data.getStringExtra("directory")
+            Preference(applicationContext).RootDirectory.set(RuuDirectory.getInstance(applicationContext, data?.getStringExtra("directory") ?: ""))
+            rootDirItem?.description = data?.getStringExtra("directory")
             (list.adapter as Adapter).notifyDataSetChanged()
         }
     }
@@ -143,6 +143,7 @@ class PreferenceActivity : AppCompatActivity() {
     }
 
     override fun onMultiWindowModeChanged(isInMultiWindowMode: Boolean) {
+        super.onMultiWindowModeChanged(isInMultiWindowMode)
         supportActionBar?.setDisplayHomeAsUpEnabled(!isInMultiWindowMode)
     }
 

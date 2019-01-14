@@ -6,6 +6,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
+import android.media.session.PlaybackState
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -103,8 +104,8 @@ class MediaSessionEndpoint(val context: Context, controller: RuuService.Controll
                 })
             }
 
-            override fun onSetShuffleModeEnabled(shuffleMode: Boolean) {
-                controller.setShuffleMode(shuffleMode)
+            override fun onSetShuffleMode(shuffleMode: Int) {
+                controller.setShuffleMode(shuffleMode != PlaybackStateCompat.SHUFFLE_MODE_NONE)
             }
         })
     }
@@ -180,7 +181,7 @@ class MediaSessionEndpoint(val context: Context, controller: RuuService.Controll
 
         mediaSession.setPlaybackState(state.build())
 
-        mediaSession.setShuffleModeEnabled(status.shuffleMode)
+        mediaSession.setShuffleMode(if (status.shuffleMode) { PlaybackStateCompat.SHUFFLE_MODE_ALL } else { PlaybackStateCompat.SHUFFLE_MODE_NONE })
 
         mediaSession.setRepeatMode(when (status.repeatMode) {
             RepeatModeType.OFF -> PlaybackStateCompat.REPEAT_MODE_NONE
