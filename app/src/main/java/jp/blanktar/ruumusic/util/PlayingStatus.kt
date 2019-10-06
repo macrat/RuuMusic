@@ -53,7 +53,7 @@ class PlayingStatus(@JvmField val playing: Boolean = false,
     constructor(context: Context, intent: Intent)
             : this(playing = intent.getBooleanExtra("playing", false),
             currentMusic = try {
-                RuuFile.getInstance(context, intent.getStringExtra("path"))
+                RuuFile.getInstance(context, intent.getStringExtra("path")!!)
             } catch (e: RuuFileBase.NotFound) {
                 null
             } catch (e: NullPointerException) {
@@ -64,11 +64,11 @@ class PlayingStatus(@JvmField val playing: Boolean = false,
             baseTime = intent.getLongExtra("basetime", -1),
             receivedCurrentTime = intent.getLongExtra("current", -1),
 
-            repeatMode = RepeatModeType.valueOf(intent.getStringExtra("repeat")),
+            repeatMode = RepeatModeType.valueOf(intent.getStringExtra("repeat") ?: "OFF"),
             shuffleMode = intent.getBooleanExtra("shuffle", false),
 
             searchPath = try {
-                RuuDirectory.getInstance(context, intent.getStringExtra("searchPath"))
+                RuuDirectory.getInstance(context, intent.getStringExtra("searchPath")!!)
             } catch (e: RuuFileBase.NotFound) {
                 null
             } catch (e: NullPointerException) {
@@ -79,7 +79,7 @@ class PlayingStatus(@JvmField val playing: Boolean = false,
             searchQuery = intent.getStringExtra("searchQuery"),
 
             recursivePath = try {
-                RuuDirectory.getInstance(context, intent.getStringExtra("recursivePath"))
+                RuuDirectory.getInstance(context, intent.getStringExtra("recursivePath")!!)
             } catch (e: RuuFileBase.NotFound) {
                 null
             } catch (e: NullPointerException) {

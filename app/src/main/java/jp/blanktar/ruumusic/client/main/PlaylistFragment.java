@@ -444,9 +444,11 @@ public class PlaylistFragment extends Fragment implements SearchView.OnQueryText
 			return false;
 		}
 
-		SearchView sv = ((MainActivity)getActivity()).searchView;
-		if(sv != null){
-			sv.clearFocus();
+		if (getActivity() != null) {
+			SearchView sv = ((MainActivity) getActivity()).searchView;
+			if (sv != null) {
+				sv.clearFocus();
+			}
 		}
 
 		updateStatus(ListStatus.LOADING);

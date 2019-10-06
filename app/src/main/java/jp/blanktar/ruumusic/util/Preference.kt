@@ -225,7 +225,6 @@ class Preference(val context: Context) {
                             ?: return if (defaultPath == null) null else RuuDirectory.getInstance(context, defaultPath)
 
                 return RuuDirectory.getInstance(context, path)
-                       ?: if (defaultPath == null) null else RuuDirectory.getInstance(context, defaultPath)
             } catch (e: RuuFileBase.NotFound) {
                 return null
             } catch (e: SecurityException) {

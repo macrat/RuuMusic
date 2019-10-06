@@ -31,6 +31,7 @@ public class RuuDirectory extends RuuFileBase{
 		this.childrenTemp = children;
 	}
 
+	@NonNull
 	public static RuuDirectory getInstance(@NonNull Context context, @NonNull String path) throws RuuFileBase.NotFound{
 		assert path.startsWith("/") && path.endsWith("/");
 
