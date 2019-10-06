@@ -57,10 +57,14 @@
         <activity
             android:name=".client.preference.PreferenceActivity"
             android:label="@string/title_activity_preference"
+            android:exported="true"
             android:parentActivityName=".client.main.MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".client.main.MainActivity" />
+			<intent-filter>
+				<action android:name="android.intent.action.APPLICATION_PREFERENCES"/>
+			</intent-filter>
         </activity>
 		<activity
 			android:name=".client.preference.PlayerPreferenceActivity"
