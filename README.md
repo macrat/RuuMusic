@@ -26,7 +26,6 @@ You can install stable version from [google play](https://play.google.com/store/
 * Control by Notification area. (Android 4.1+)
 * Control by lock screen. (Android 4.0+)
 * Control by Android Wear. (Android 4.4+)
-* Supported Android Auto. (Android 5.0+)
 * Have some type widgets that include small widgets like play/pause or skip button.
 	You can use in combination.
 * Supported pinning shortcuts for music or directory. (Android 8.0+. some functions can use 7.1+)
