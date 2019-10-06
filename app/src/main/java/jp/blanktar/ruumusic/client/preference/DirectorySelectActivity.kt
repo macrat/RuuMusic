@@ -2,7 +2,7 @@ package jp.blanktar.ruumusic.client.preference
 
 import android.content.Intent
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
 
 import jp.blanktar.ruumusic.R
 import jp.blanktar.ruumusic.util.Preference

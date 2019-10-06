@@ -4,8 +4,8 @@ apply plugin: 'kotlin-android-extensions'
 
 
 android {
-	compileSdkVersion 26
-	buildToolsVersion '26.0.2'
+	compileSdkVersion 29
+	buildToolsVersion '28.0.3'
 
 	defaultConfig {
 		applicationId "jp.blanktar.ruumusic"
@@ -23,13 +23,13 @@ android {
 }
 
 dependencies {
-	compile fileTree(include: ['*.jar'], dir: 'libs')
-	compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
-	compile 'com.android.support:appcompat-v7:26.0.2'
-	compile 'com.android.support:support-v13:26.0.2'
-	compile 'com.android.support:support-v4:26.0.2'
-	compile 'com.google.android.gms:play-services-wearable:11.0.1'
-	compile 'com.google.android.support:wearable:+'
+	implementation fileTree(include: ['*.jar'], dir: 'libs')
+	implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+	implementation 'androidx.appcompat:appcompat:1.1.0'
+	implementation 'androidx.legacy:legacy-support-v13:1.0.0'
+	implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+	implementation 'com.google.android.gms:play-services-wearable:17.0.0'
+	implementation 'com.google.android.support:wearable:+'
 }
 repositories {
 	mavenCentral()

@@ -4,7 +4,7 @@ apply plugin: 'kotlin-android-extensions'
 
 
 android {
-	compileSdkVersion 28
+	compileSdkVersion 29
 	buildToolsVersion '28.0.3'
 	flavorDimensions "wear"
 
@@ -32,19 +32,19 @@ android {
 }
 
 dependencies {
-	compile fileTree(include: ['*.jar'], dir: 'libs')
-	compile "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+	implementation fileTree(include: ['*.jar'], dir: 'libs')
+	implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
-	singleCompile 'com.android.support:appcompat-v7:28.0.0'
-	singleCompile 'com.android.support:design:28.0.0'
-	singleCompile 'com.android.support:support-annotations:28.0.0'
-	singleCompile 'com.android.support:support-v4:28.0.0'
+	singleImplementation 'androidx.appcompat:appcompat:1.1.0'
+	singleImplementation 'com.google.android.material:material:1.0.0'
+	singleImplementation 'androidx.annotation:annotation:1.1.0'
+	singleImplementation 'androidx.legacy:legacy-support-v4:1.0.0'
 
-	wearCompile 'com.android.support:appcompat-v7:28.0.0'
-	wearCompile 'com.android.support:design:28.0.0'
-	wearCompile 'com.android.support:support-annotations:28.0.0'
-	wearCompile 'com.android.support:support-v4:28.0.0'
-	wearCompile 'com.google.android.gms:play-services-wearable:16.0.1'
+	wearImplementation 'androidx.appcompat:appcompat:1.1.0'
+	wearImplementation 'com.google.android.material:material:1.0.0'
+	wearImplementation 'androidx.annotation:annotation:1.1.0'
+	wearImplementation 'androidx.legacy:legacy-support-v4:1.0.0'
+	wearImplementation 'com.google.android.gms:play-services-wearable:17.0.0'
 	wearWearApp project(':wear')
 }
 repositories {

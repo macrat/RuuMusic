@@ -7,7 +7,7 @@ import android.app.Fragment
 import android.graphics.Point
 import android.os.Bundle
 import android.os.Handler
-import android.support.v7.widget.LinearSnapHelper
+import androidx.recyclerview.widget.LinearSnapHelper
 import android.support.wearable.view.CurvedChildLayoutManager
 import android.view.LayoutInflater
 import android.view.View
@@ -26,7 +26,7 @@ class PlaylistFragment(val client: RuuClient) : Fragment() {
 
     val handler = Handler()
 
-    val snapHelper = LinearSnapHelper()
+    val snapHelper = androidx.recyclerview.widget.LinearSnapHelper()
 
     val directoryStack = Stack<DirectoryLog>()
 
@@ -136,7 +136,7 @@ class PlaylistFragment(val client: RuuClient) : Fragment() {
         handler.post {
             val view = list.findViewHolderForAdapterPosition(position)?.itemView
             if (view != null) {
-                val pos = snapHelper.calculateDistanceToFinalSnap(list.layoutManager, view)!!
+                val pos = snapHelper.calculateDistanceToFinalSnap(list.layoutManager!!, view)!!
                 list.scrollBy(pos[0], pos[1])
             } else {
                 list.scrollToPosition(position)

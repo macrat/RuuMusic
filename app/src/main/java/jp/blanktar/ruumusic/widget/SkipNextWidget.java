@@ -1,7 +1,7 @@
 package jp.blanktar.ruumusic.widget;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.UiThread;
+import androidx.annotation.NonNull;
+import androidx.annotation.UiThread;
 import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.widget.RemoteViews;

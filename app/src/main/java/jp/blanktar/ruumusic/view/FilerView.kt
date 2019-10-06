@@ -5,9 +5,9 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Rect
 import android.os.Parcelable
-import android.support.v4.view.ViewCompat
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
+import androidx.core.view.ViewCompat
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import android.util.AttributeSet
 import android.view.ContextMenu
 import android.view.LayoutInflater
@@ -25,7 +25,7 @@ class FilerView(context: Context, attrs: AttributeSet) : FrameLayout(context, at
     val namespace = "http://ruumusic.blanktar.jp/view"
 
     private val frame = LayoutInflater.from(context).inflate(R.layout.view_filer, this)
-    private val list = frame.findViewById<RecyclerView>(R.id.list)!!
+    private val list = frame.findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.list)!!
     private val adapter = Adapter()
     private val layout = LinearLayoutManager(context)
 
@@ -108,10 +108,10 @@ class FilerView(context: Context, attrs: AttributeSet) : FrameLayout(context, at
 
     var layoutState: Parcelable?
         get() = layout.onSaveInstanceState()
-        set(state) = layout.onRestoreInstanceState(state)
+        set(state) = layout.onRestoreInstanceState(state!!)
 
 
-    inner class Adapter : RecyclerView.Adapter<Adapter.ViewHolder>() {
+    inner class Adapter : androidx.recyclerview.widget.RecyclerView.Adapter<Adapter.ViewHolder>() {
         val VIEWTYPE_NORMAL = 0
         val VIEWTYPE_UPPER_DIR = 1
         val VIEWTYPE_WITH_PATH = 2
@@ -181,7 +181,7 @@ class FilerView(context: Context, attrs: AttributeSet) : FrameLayout(context, at
         override fun getItemCount() = (files?.size ?: 0) + if (hasParent) 1 else 0
 
 
-        inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        inner class ViewHolder(view: View) : androidx.recyclerview.widget.RecyclerView.ViewHolder(view) {
             val name = view.findViewById<TextView?>(R.id.name)
             val path = view.findViewById<TextView?>(R.id.path)
             val text = view.findViewById<TextView?>(R.id.text)
@@ -189,16 +189,16 @@ class FilerView(context: Context, attrs: AttributeSet) : FrameLayout(context, at
     }
 
 
-    class DividerDecoration(context: Context) : RecyclerView.ItemDecoration() {
+    class DividerDecoration(context: Context) : androidx.recyclerview.widget.RecyclerView.ItemDecoration() {
         val divider = context.resources.getDrawable(R.drawable.view_filer_divider)!!
 
-        override fun onDraw(canvas: Canvas, parent: RecyclerView, state: RecyclerView.State) {
+        override fun onDraw(canvas: Canvas, parent: androidx.recyclerview.widget.RecyclerView, state: androidx.recyclerview.widget.RecyclerView.State) {
             val left = parent.paddingLeft
             val right = parent.width - parent.paddingRight
 
             for (i in 0 until parent.childCount) {
                 val child = parent.getChildAt(i)
-                val params = child.layoutParams as RecyclerView.LayoutParams
+                val params = child.layoutParams as androidx.recyclerview.widget.RecyclerView.LayoutParams
                 val top = child.bottom + params.bottomMargin
                 val bottom = top + divider.intrinsicHeight
                 divider.setBounds(left + ViewCompat.getTranslationX(child).toInt(),
@@ -210,7 +210,7 @@ class FilerView(context: Context, attrs: AttributeSet) : FrameLayout(context, at
             }
         }
         
-        override fun getItemOffsets(rect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
+        override fun getItemOffsets(rect: Rect, view: View, parent: androidx.recyclerview.widget.RecyclerView, state: androidx.recyclerview.widget.RecyclerView.State) {
             rect.set(0, 0, 0, divider.intrinsicHeight)
         }
     }

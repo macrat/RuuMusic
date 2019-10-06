@@ -9,7 +9,7 @@
 	android:orientation="vertical"
 	tools:context=".client.preference.SoundPreferenceActivity">
 
-	<android.support.v7.widget.Toolbar
+	<androidx.appcompat.widget.Toolbar
 		android:id="@+id/toolbar"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
@@ -41,7 +41,7 @@
 				android:orientation="vertical"
 				android:paddingBottom="@dimen/preference_margin">
 
-				<android.support.v7.widget.SwitchCompat
+				<androidx.appcompat.widget.SwitchCompat
 					android:id="@+id/bass_boost_switch"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
@@ -64,7 +64,7 @@
 				android:paddingBottom="@dimen/preference_margin"
 				android:paddingTop="@dimen/preference_margin">
 
-				<android.support.v7.widget.SwitchCompat
+				<androidx.appcompat.widget.SwitchCompat
 					android:id="@+id/reverb_switch"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
@@ -87,7 +87,7 @@
 				android:paddingBottom="@dimen/preference_margin"
 				android:paddingTop="@dimen/preference_margin">
 
-				<android.support.v7.widget.SwitchCompat
+				<androidx.appcompat.widget.SwitchCompat
 					android:id="@+id/loudness_switch"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
@@ -110,7 +110,7 @@
 				android:paddingBottom="@dimen/preference_margin"
 				android:paddingTop="@dimen/preference_margin">
 
-				<android.support.v7.widget.SwitchCompat
+				<androidx.appcompat.widget.SwitchCompat
 					android:id="@+id/virtualizer_switch"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
@@ -139,7 +139,7 @@
 				android:orientation="vertical"
 				android:paddingTop="@dimen/preference_margin">
 
-				<android.support.v7.widget.SwitchCompat
+				<androidx.appcompat.widget.SwitchCompat
 					android:id="@+id/equalizer_switch"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"

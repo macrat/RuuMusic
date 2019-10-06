@@ -243,7 +243,7 @@ class Preference(val context: Context) {
     }
 
     inner class DirectoriesPreferenceHandler(key: String) : PreferenceHandler<List<RuuDirectory>>(key, listOf()) {
-        override fun get() = sharedPreferences.getString(key, "").lines().mapNotNull(fun (it): RuuDirectory? {
+        override fun get() = sharedPreferences.getString(key, "")!!.lines().mapNotNull(fun (it): RuuDirectory? {
             if (it == "") {
                 return null
             }
@@ -265,7 +265,7 @@ class Preference(val context: Context) {
     inner class EnumPreferenceHandler<T: Enum<T>>(key: String, default: T, val asEnum: (String) -> T) : PreferenceHandler<T>(key, default) {
         override fun get(): T {
             try {
-                return asEnum(sharedPreferences.getString(key, ""))
+                return asEnum(sharedPreferences.getString(key, "")!!)
             } catch(e: IllegalArgumentException) {
                 return default
             }
