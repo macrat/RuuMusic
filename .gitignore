@@ -2,11 +2,13 @@
 .DS_Store
 .gradle
 .idea/caches/
+.idea/caches/
 .idea/libraries/
 .idea/tasks.xml
 .idea/workspace.xml
-.idea/caches/
 Thumbs.db
+app/release/
+app/wear/
 build
 captures
 dictionary/
