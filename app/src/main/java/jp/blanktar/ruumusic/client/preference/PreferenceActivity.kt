@@ -6,7 +6,7 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -21,7 +21,7 @@ import jp.blanktar.ruumusic.util.RuuDirectory
 import kotlinx.android.synthetic.main.activity_preference.*
 
 
-fun bindPreferenceOnOff(switch: android.support.v7.widget.SwitchCompat, pref: Preference.BooleanPreferenceHandler, receiver: (Boolean) -> Unit) {
+fun bindPreferenceOnOff(switch: androidx.appcompat.widget.SwitchCompat, pref: Preference.BooleanPreferenceHandler, receiver: (Boolean) -> Unit) {
     receiver(pref.get())
     switch.isChecked = pref.get()
 
@@ -125,10 +125,10 @@ class PreferenceActivity : AppCompatActivity() {
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (resultCode == RESULT_OK) {
-            Preference(applicationContext).RootDirectory.set(RuuDirectory.getInstance(applicationContext, data.getStringExtra("directory")))
-            rootDirItem?.description = data.getStringExtra("directory")
+            Preference(applicationContext).RootDirectory.set(RuuDirectory.getInstance(applicationContext, data?.getStringExtra("directory") ?: ""))
+            rootDirItem?.description = data?.getStringExtra("directory")
             (list.adapter as Adapter).notifyDataSetChanged()
         }
     }
@@ -155,8 +155,8 @@ class PreferenceActivity : AppCompatActivity() {
 
             val item = getItem(position)
 
-            view.findViewById<TextView>(R.id.name)?.text = item.name
-            if (item.description == null) {
+            view.findViewById<TextView>(R.id.name)?.text = item?.name
+            if (item?.description == null) {
                 view.findViewById<TextView>(R.id.description)?.visibility = View.GONE
             } else {
                 view.findViewById<TextView>(R.id.description)?.text = item.description

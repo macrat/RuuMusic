@@ -103,8 +103,8 @@ class MediaSessionEndpoint(val context: Context, controller: RuuService.Controll
                 })
             }
 
-            override fun onSetShuffleModeEnabled(shuffleMode: Boolean) {
-                controller.setShuffleMode(shuffleMode)
+            override fun onSetShuffleMode(shuffleMode: Int) {
+                controller.setShuffleMode(shuffleMode != PlaybackStateCompat.SHUFFLE_MODE_NONE)
             }
         })
     }
@@ -180,7 +180,7 @@ class MediaSessionEndpoint(val context: Context, controller: RuuService.Controll
 
         mediaSession.setPlaybackState(state.build())
 
-        mediaSession.setShuffleModeEnabled(status.shuffleMode)
+        mediaSession.setShuffleMode(if (status.shuffleMode) PlaybackStateCompat.SHUFFLE_MODE_ALL else PlaybackStateCompat.SHUFFLE_MODE_NONE)
 
         mediaSession.setRepeatMode(when (status.repeatMode) {
             RepeatModeType.OFF -> PlaybackStateCompat.REPEAT_MODE_NONE

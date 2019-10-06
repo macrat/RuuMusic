@@ -4,6 +4,7 @@
 .idea/libraries/
 .idea/tasks.xml
 .idea/workspace.xml
+.idea/caches/
 Thumbs.db
 build
 captures

@@ -9,7 +9,7 @@
 	android:orientation="vertical"
 	tools:context=".client.preference.PlayerPreferenceActivity">
 
-	<android.support.v7.widget.Toolbar
+	<androidx.appcompat.widget.Toolbar
 		android:id="@+id/toolbar"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
@@ -35,7 +35,7 @@
 			android:divider="@drawable/preference_divider"
 			android:showDividers="middle">
 
-			<android.support.v7.widget.SwitchCompat
+			<androidx.appcompat.widget.SwitchCompat
 				android:id="@+id/player_auto_shrink_switch"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"

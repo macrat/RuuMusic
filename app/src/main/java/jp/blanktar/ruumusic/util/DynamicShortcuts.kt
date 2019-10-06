@@ -44,7 +44,7 @@ class DynamicShortcuts(val context: Context) {
     var shortcuts: List<ShortcutInfo>?
         get() = manager?.dynamicShortcuts
         set(xs) {
-            manager?.dynamicShortcuts = xs?.takeLast(maxShortcuts)
+            manager?.dynamicShortcuts = xs?.takeLast(maxShortcuts) ?: listOf<ShortcutInfo>()
         }
 
     val maxShortcuts
