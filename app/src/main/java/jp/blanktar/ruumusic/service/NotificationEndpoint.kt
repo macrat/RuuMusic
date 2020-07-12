@@ -61,6 +61,17 @@ class NotificationEndpoint(val service: Service, val mediaSession: MediaSessionC
     override fun onEqualizerInfo(info: EqualizerInfo) {}
 
     override fun onFailedPlay(status: PlayingStatus) {
+        service.startForeground(
+            1,
+            makeNotificationBuilder(context)
+                    .setSmallIcon(R.drawable.ic_play_notification)
+                    .setContentTitle(status.currentMusic?.name)
+                    .setContentText(status.currentMusic?.parent?.ruuPath)
+                    .setPriority(Notification.PRIORITY_LOW)
+                    .setVisibility(Notification.VISIBILITY_PUBLIC)
+                    .setCategory(Notification.CATEGORY_TRANSPORT)
+                    .build()
+        )
         removeNotification()
     }
 
