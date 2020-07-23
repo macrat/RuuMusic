@@ -50,10 +50,10 @@ class NotificationEndpoint(val service: Service, private val mediaSession: Media
     }
 
     override fun onStatusUpdated(status: PlayingStatus) {
-        if (status.playing) {
-            service.startForeground(1, makeNotification(status))
-            firstCall = false
-        } else {
+        service.startForeground(1, makeNotification(status))
+        firstCall = false
+
+        if (!status.playing) {
             service.stopForeground(status.currentMusic != null && !firstCall)
         }
     }
