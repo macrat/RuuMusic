@@ -6,13 +6,12 @@ apply plugin: 'kotlin-android-extensions'
 android {
 	compileSdkVersion 30
 	buildToolsVersion '30.0.1'
-	flavorDimensions "wear"
 
 	defaultConfig {
 		applicationId "jp.blanktar.ruumusic"
-		minSdkVersion 10
+		minSdkVersion 14
 		targetSdkVersion 30
-		versionCode 31
+		versionCode 1031
 		versionName '1.0 beta4'
 	}
 	buildTypes {
@@ -21,31 +20,18 @@ android {
 			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
 		}
 	}
-	productFlavors {
-		single {
-		}
-		wear {
-			minSdkVersion 14
-			versionCode 1000 + android.defaultConfig.versionCode
-		}
-	}
 }
 
 dependencies {
 	implementation fileTree(include: ['*.jar'], dir: 'libs')
 	implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 
-	singleImplementation 'androidx.appcompat:appcompat:1.1.0'
-	singleImplementation 'com.google.android.material:material:1.1.0'
-	singleImplementation 'androidx.annotation:annotation:1.1.0'
-	singleImplementation 'androidx.legacy:legacy-support-v4:1.0.0'
-
-	wearImplementation 'androidx.appcompat:appcompat:1.1.0'
-	wearImplementation 'com.google.android.material:material:1.1.0'
-	wearImplementation 'androidx.annotation:annotation:1.1.0'
-	wearImplementation 'androidx.legacy:legacy-support-v4:1.0.0'
-	wearImplementation 'com.google.android.gms:play-services-wearable:17.0.0'
-	wearWearApp project(':wear')
+	implementation 'androidx.appcompat:appcompat:1.1.0'
+	implementation 'com.google.android.material:material:1.1.0'
+	implementation 'androidx.annotation:annotation:1.1.0'
+	implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+	implementation 'com.google.android.gms:play-services-wearable:17.0.0'
+	wearApp project(':wear')
 }
 repositories {
 	mavenCentral()
