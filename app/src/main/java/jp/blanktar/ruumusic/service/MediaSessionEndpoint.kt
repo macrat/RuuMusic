@@ -32,8 +32,8 @@ class MediaSessionEndpoint(val context: Context, controller: RuuService.Controll
     val mediaSession: MediaSessionCompat
     val sessionToken: MediaSessionCompat.Token
         get() = mediaSession.sessionToken
-    
-    var queueIndex: Long = 0
+
+    private var queueIndex: Long = 0
 
     init {
         val componentName = ComponentName(context.packageName, MediaButtonReceiver::class.java.name)
@@ -44,75 +44,20 @@ class MediaSessionEndpoint(val context: Context, controller: RuuService.Controll
         val openPlayerIntent = Intent(context, MainActivity::class.java)
         openPlayerIntent.action = MainActivity.ACTION_OPEN_PLAYER
 
-        mediaSession = MediaSessionCompat(context, "RuuMusicService", componentName, PendingIntent.getBroadcast(context, 0, mediaButtonIntent, 0))
-        mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS or MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS)
-        mediaSession.setSessionActivity(PendingIntent.getActivity(context, 0, openPlayerIntent, 0))
-
         onStatusUpdated(initialStatus)
         if (initialPlaylist != null) {
             updateQueue(initialPlaylist)
         }
 
-        mediaSession.isActive = true
-
-        mediaSession.setCallback(object : MediaSessionCompat.Callback() {
-            override fun onPlay() {
-                controller.play()
-            }
-
-            override fun onPlayFromMediaId(mediaId: String?, extras: Bundle?) {
-                controller.play(mediaId!!)
-            }
-
-            override fun onPlayFromUri(uri: Uri, extras: Bundle) {
-                controller.play(uri.path)
-            }
-
-            override fun onPlayFromSearch(query: String?, extras: Bundle?) {
-                controller.playSearch(extras!!.getCharSequence("path", preference.RootDirectory.get()?.fullPath).toString(), query)
-            }
-
-            override fun onSkipToQueueItem(id: Long) {
-                controller.play(id)
-            }
-
-            override fun onPause() {
-                controller.pause()
-            }
-
-            override fun onStop() {
-                controller.pause()
-            }
-
-            override fun onSkipToNext() {
-                controller.next()
-            }
-
-            override fun onSkipToPrevious() {
-                controller.prev()
-            }
-
-            override fun onSeekTo(pos: Long) {
-                controller.seek(pos)
-            }
-
-            override fun onSetRepeatMode(repeatMode: Int) {
-                controller.setRepeatMode(when (repeatMode) {
-                    PlaybackStateCompat.REPEAT_MODE_ONE -> RepeatModeType.SINGLE
-                    PlaybackStateCompat.REPEAT_MODE_ALL -> RepeatModeType.LOOP
-                    else -> RepeatModeType.OFF
-                })
-            }
-
-            override fun onSetShuffleMode(shuffleMode: Int) {
-                controller.setShuffleMode(shuffleMode != PlaybackStateCompat.SHUFFLE_MODE_NONE)
-            }
-        })
+        mediaSession = MediaSessionCompat(context, "RuuMusicService", componentName, PendingIntent.getBroadcast(context, 0, mediaButtonIntent, 0)).apply {
+            setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS or MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS)
+            setSessionActivity(PendingIntent.getActivity(context, 0, openPlayerIntent, 0))
+            isActive = true
+            setCallback(callbacks)
+        }
     }
 
-    override fun close() {
-        mediaSession.release()
-    }
+    override fun close() = mediaSession.release()
 
     override fun onStatusUpdated(status: PlayingStatus) {
         updateMetadata(status)
@@ -136,52 +81,55 @@ class MediaSessionEndpoint(val context: Context, controller: RuuService.Controll
 
     private val displayIcon = BitmapFactory.decodeResource(context.resources, R.drawable.display_icon)
 
-    fun updateMetadata(status: PlayingStatus) {
-        var parentPath: String
-        try {
-            parentPath = status.currentMusic?.parent?.ruuPath ?: ""
+    private fun updateMetadata(status: PlayingStatus) {
+        val parentPath = try {
+            status.currentMusic?.parent?.ruuPath ?: ""
         } catch (e: RuuFileBase.OutOfRootDirectory) {
-            parentPath = ""
+            ""
         }
 
-        mediaSession.setMetadata(
-            MediaMetadataCompat.Builder()
-                .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, parentPath)
-                .putString(MediaMetadataCompat.METADATA_KEY_TITLE, status.currentMusic?.name)
-                .putBitmap(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON, displayIcon)
-                .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, status.duration)
-                .build())
+        val metadata = MediaMetadataCompat.Builder().apply {
+            putString(MediaMetadataCompat.METADATA_KEY_ALBUM, parentPath)
+            putString(MediaMetadataCompat.METADATA_KEY_TITLE, status.currentMusic?.name)
+            putBitmap(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON, displayIcon)
+            putLong(MediaMetadataCompat.METADATA_KEY_DURATION, status.duration)
+        }.build()
+        mediaSession.setMetadata(metadata)
     }
 
-    fun updatePlaybackState(status: PlayingStatus, error: String? = null) {
-        val state = PlaybackStateCompat.Builder()
-                .setState(if (status.playing) PlaybackStateCompat.STATE_PLAYING else PlaybackStateCompat.STATE_PAUSED,
-                        if (status.currentMusic != null) status.receivedCurrentTime else PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN,
-                        1.0f)
-                .setActiveQueueItemId(queueIndex)
-                .setActions(PlaybackStateCompat.ACTION_PLAY
-                            or PlaybackStateCompat.ACTION_PAUSE
-                            or PlaybackStateCompat.ACTION_PLAY_PAUSE
-                            or PlaybackStateCompat.ACTION_STOP
-                            or PlaybackStateCompat.ACTION_SKIP_TO_NEXT
-                            or PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
-                            or PlaybackStateCompat.ACTION_SET_REPEAT_MODE
-                            or PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE
-                            or PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID
-                            or PlaybackStateCompat.ACTION_PLAY_FROM_URI
-                            or PlaybackStateCompat.ACTION_PLAY_FROM_SEARCH
-                )
-
-        if (error != null && error != "") {
-            state.setErrorMessage(PlaybackStateCompat.ERROR_CODE_UNKNOWN_ERROR, error)
-            state.setState(
-                PlaybackStateCompat.STATE_ERROR,
+    private fun updatePlaybackState(status: PlayingStatus, error: String? = null) {
+        val state = PlaybackStateCompat.Builder().apply {
+            setState(
+                if (status.playing) PlaybackStateCompat.STATE_PLAYING else PlaybackStateCompat.STATE_PAUSED,
                 if (status.currentMusic != null) status.receivedCurrentTime else PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN,
                 1.0f
             )
-        }
+            setActiveQueueItemId(queueIndex)
+            setActions(
+                PlaybackStateCompat.ACTION_PLAY
+                or PlaybackStateCompat.ACTION_PAUSE
+                or PlaybackStateCompat.ACTION_PLAY_PAUSE
+                or PlaybackStateCompat.ACTION_STOP
+                or PlaybackStateCompat.ACTION_SKIP_TO_NEXT
+                or PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
+                or PlaybackStateCompat.ACTION_SET_REPEAT_MODE
+                or PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE
+                or PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID
+                or PlaybackStateCompat.ACTION_PLAY_FROM_URI
+                or PlaybackStateCompat.ACTION_PLAY_FROM_SEARCH
+            )
 
-        mediaSession.setPlaybackState(state.build())
+            if (error != null && error != "") {
+                setErrorMessage(PlaybackStateCompat.ERROR_CODE_UNKNOWN_ERROR, error)
+                setState(
+                        PlaybackStateCompat.STATE_ERROR,
+                        if (status.currentMusic != null) status.receivedCurrentTime else PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN,
+                        1.0f
+                )
+            }
+        }.build()
+
+        mediaSession.setPlaybackState(state)
 
         mediaSession.setShuffleMode(if (status.shuffleMode) PlaybackStateCompat.SHUFFLE_MODE_ALL else PlaybackStateCompat.SHUFFLE_MODE_NONE)
 
@@ -197,6 +145,45 @@ class MediaSessionEndpoint(val context: Context, controller: RuuService.Controll
 
         mediaSession.setQueue(playlist.mediaSessionQueue)
         mediaSession.setQueueTitle(playlist.title)
+    }
+
+    private val callbacks = object : MediaSessionCompat.Callback() {
+        override fun onPlay() = controller.play()
+
+        override fun onPlayFromMediaId(mediaId: String?, extras: Bundle?) {
+            mediaId?.let { controller.play(it) }
+        }
+
+        override fun onPlayFromUri(uri: Uri, extras: Bundle) = controller.play(uri.path)
+
+        override fun onPlayFromSearch(query: String?, extras: Bundle?) {
+            val defaultPath = preference.RootDirectory.get()?.fullPath
+
+            extras?.getCharSequence("path", defaultPath)?.toString()?.let {
+                controller.playSearch(it, query)
+            }
+        }
+
+        override fun onSkipToQueueItem(id: Long) = controller.play(id)
+
+        override fun onPause() = controller.pause()
+        override fun onStop() = controller.pause()
+
+        override fun onSkipToNext() = controller.next()
+        override fun onSkipToPrevious() = controller.prev()
+        override fun onSeekTo(pos: Long) = controller.seek(pos)
+
+        override fun onSetRepeatMode(repeatMode: Int) {
+            controller.setRepeatMode(when (repeatMode) {
+                PlaybackStateCompat.REPEAT_MODE_ONE -> RepeatModeType.SINGLE
+                PlaybackStateCompat.REPEAT_MODE_ALL -> RepeatModeType.LOOP
+                else -> RepeatModeType.OFF
+            })
+        }
+
+        override fun onSetShuffleMode(shuffleMode: Int) {
+            controller.setShuffleMode(shuffleMode != PlaybackStateCompat.SHUFFLE_MODE_NONE)
+        }
     }
 
 
@@ -218,7 +205,7 @@ class MediaSessionEndpoint(val context: Context, controller: RuuService.Controll
         }
 
         private fun sendIntent(context: Context, event: String) {
-            if (Build.VERSION.SDK_INT >= 26) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 context.startForegroundService(Intent(context, RuuService::class.java).setAction(event))
             } else {
                 context.startService(Intent(context, RuuService::class.java).setAction(event))

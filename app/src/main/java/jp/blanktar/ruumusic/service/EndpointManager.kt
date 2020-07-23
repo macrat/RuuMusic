@@ -8,7 +8,7 @@ import jp.blanktar.ruumusic.util.PlayingStatus
 class EndpointManager : Endpoint {
     override val supported = true
 
-    val endpoints = mutableListOf<Endpoint>()
+    private val endpoints = mutableListOf<Endpoint>()
 
     fun add(e: Endpoint) {
         if (e.supported) {

@@ -14,7 +14,7 @@ import jp.blanktar.ruumusic.widget.SkipPrevWidget
 import jp.blanktar.ruumusic.widget.UnifiedWidget
 
 
-class IntentEndpoint(val context: Context, val controller: RuuService.Controller) : Endpoint {
+class IntentEndpoint(val context: Context, private val controller: RuuService.Controller) : Endpoint {
     override val supported = true
 
     override fun close() {}
@@ -22,7 +22,7 @@ class IntentEndpoint(val context: Context, val controller: RuuService.Controller
     override fun onStatusUpdated(status: PlayingStatus) {
         context.sendBroadcast(status.toIntent())
 
-        if (Build.VERSION.SDK_INT >= 26) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             context.sendBroadcast(status.toIntent(Intent(context, MusicNameWidget::class.java)))
             context.sendBroadcast(status.toIntent(Intent(context, PlayPauseWidget::class.java)))
             context.sendBroadcast(status.toIntent(Intent(context, SkipNextWidget::class.java)))
@@ -46,9 +46,9 @@ class IntentEndpoint(val context: Context, val controller: RuuService.Controller
         when (intent.action) {
             RuuService.ACTION_PLAY -> {
                 val path = intent.getStringExtra("path")
-                if(path == null){
+                if (path == null) {
                     controller.play()
-                }else{
+                } else {
                     controller.play(path)
                 }
             }
@@ -71,7 +71,9 @@ class IntentEndpoint(val context: Context, val controller: RuuService.Controller
                 controller.seek(intent.getIntExtra("newtime", -1).toLong())
             }
             RuuService.ACTION_REPEAT -> {
-                controller.setRepeatMode(RepeatModeType.valueOf(intent.getStringExtra("mode")!!))
+                intent.getStringExtra("mode")?.let {
+                    controller.setRepeatMode(RepeatModeType.valueOf(it))
+                }
             }
             RuuService.ACTION_SHUFFLE -> {
                 controller.setShuffleMode(intent.getBooleanExtra("mode", false))

@@ -138,7 +138,8 @@ class NotificationEndpoint(val service: Service, private val mediaSession: Media
             addAction(R.drawable.ic_next_for_notif, "next", nextPI)
             addAction(repeatIcon, "repeat", repeatPI)
 
-            setStyle(MediaStyle()
+            setStyle(
+                MediaStyle()
                     .setMediaSession(mediaSession.sessionToken)
                     .setShowActionsInCompactView(1, 2, 3)
             )

@@ -14,32 +14,32 @@ import jp.blanktar.ruumusic.util.createDynamicShortcutInfo
 
 
 class ShortcutsEndpoint(val context: Context) : Endpoint {
-    override val supported = Build.VERSION.SDK_INT >= 25
+    override val supported = Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1
 
-    val manager = if (supported) DynamicShortcuts(context) else null
-    val preference = if (supported) Preference(context) else null
+    private val manager = if (supported) DynamicShortcuts(context) else null
+    private val preference = Preference(context)
 
     init {
-        preference?.RootDirectory?.setOnChangeListener {
+        preference.RootDirectory.setOnChangeListener {
             thread {
-                manager!!.managePinnedShortcuts()
+                manager?.managePinnedShortcuts()
             }
         }
     }
 
     override fun close() {
-        preference?.unsetAllListeners()
+        preference.unsetAllListeners()
     }
 
     override fun onStatusUpdated(status: PlayingStatus) {
-        if (status.currentMusic == null) {
+        if (manager == null || status.currentMusic == null) {
             return
         }
 
-        val shortcuts = preference!!.ListedDynamicShortcuts.get().filter { it != status.currentMusic.parent }.takeLast(manager!!.maxShortcuts - 1).toMutableList()
+        val shortcuts = preference.ListedDynamicShortcuts.get().filter { it != status.currentMusic.parent }.takeLast(manager.maxShortcuts - 1).toMutableList()
         shortcuts.add(status.currentMusic.parent)
 
-        manager!!.shortcuts = shortcuts.mapNotNull {
+        manager.shortcuts = shortcuts.mapNotNull {
             createDynamicShortcutInfo(context, it)
         }
 

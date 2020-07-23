@@ -24,10 +24,10 @@ import jp.blanktar.ruumusic.util.RuuFileBase
 class WearEndpoint(val context: Context, val controller: RuuService.Controller) : Endpoint, GoogleApiClient.ConnectionCallbacks {
     override val supported = true
 
-    val client = GoogleApiClient.Builder(context)
+    private val client = GoogleApiClient.Builder(context)
                                 .addApi(Wearable.API)
                                 .addConnectionCallbacks(this)
-                                .build()
+                                .build()!!
 
     init {
         client.connect()
@@ -40,7 +40,7 @@ class WearEndpoint(val context: Context, val controller: RuuService.Controller) 
     private fun statusUpdate(status: PlayingStatus, errorMessage: String?) {
         try {
             val dataMapRequest = PutDataMapRequest.create("/status")
-            val dataMap = dataMapRequest.getDataMap()
+            val dataMap = dataMapRequest.dataMap
 
             dataMap.putBoolean("playing", status.playing)
             dataMap.putString("root_path", RuuDirectory.rootDirectory(context).fullPath)
@@ -83,7 +83,7 @@ class WearEndpoint(val context: Context, val controller: RuuService.Controller) 
         return request.asPutDataRequest()
     }
 
-    fun updateDirectory() {
+    private fun updateDirectory() {
         try {
             val root = RuuDirectory.rootDirectory(context)
 
@@ -106,12 +106,12 @@ class WearEndpoint(val context: Context, val controller: RuuService.Controller) 
 
 
     class Listener : WearableListenerService() {
-        var client: RuuClient? = null
+        private var client: RuuClient? = null
 
         override fun onCreate() {
             super.onCreate()
 
-            client = RuuClient(getApplicationContext())
+            client = RuuClient(applicationContext)
         }
 
         override fun onMessageReceived(ev: MessageEvent) {
@@ -120,7 +120,7 @@ class WearEndpoint(val context: Context, val controller: RuuService.Controller) 
                     if (String(ev.data) == "") {
                         client?.play()
                     } else {
-                        client?.play(RuuFile.getInstance(getApplicationContext(), String(ev.data)))
+                        client?.play(RuuFile.getInstance(applicationContext, String(ev.data)))
                     }
                 }
                 "/control/pause" -> client?.pause()
