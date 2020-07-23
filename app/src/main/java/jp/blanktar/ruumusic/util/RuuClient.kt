@@ -19,9 +19,9 @@ class RuuClient(val context: Context) {
                 RuuService.ACTION_EQUALIZER_INFO -> eventListener?.onEqualizerInfo(EqualizerInfo(intent))
                 RuuService.ACTION_FAILED_PLAY -> {
                     onReceiveStatus(intent)
-                    eventListener?.onFailedPlay(intent.getStringExtra("path"))
+                    eventListener?.onFailedPlay(intent.getStringExtra("path")!!)
                 }
-                RuuService.ACTION_NOT_FOUND -> eventListener?.onMusicNotFound(intent.getStringExtra("path"))
+                RuuService.ACTION_NOT_FOUND -> eventListener?.onMusicNotFound(intent.getStringExtra("path")!!)
             }
         }
     }
@@ -34,7 +34,7 @@ class RuuClient(val context: Context) {
     
     private fun send(i: Intent) = if (Build.VERSION.SDK_INT >= 26) context.startForegroundService(i) else context.startService(i)
 
-    var eventListener: RuuClient.EventListener? = null
+    var eventListener: EventListener? = null
         set(listener) {
             if (listener != null && field == null) {
                 val intentFilter = IntentFilter()

@@ -27,7 +27,7 @@ class EqualizerInfo() {
     constructor(intent: Intent) : this() {
         min = intent.getShortExtra("equalizer_min", 0)
         max = intent.getShortExtra("equalizer_max", 0)
-        freqs = intent.getIntArrayExtra("equalizer_freqs")
-        presets = intent.getStringArrayExtra("equalizer_presets")
+        freqs = intent.getIntArrayExtra("equalizer_freqs")!!
+        presets = intent.getStringArrayExtra("equalizer_presets")!!
     }
 }

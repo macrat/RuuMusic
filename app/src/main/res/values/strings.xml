@@ -34,7 +34,7 @@
 	<string name="out_of_root">`%1$s` is out of root directory</string>
 	<string name="cant_open_dir">Can\'t open directory `%1$s`</string>
 	<string name="failed_open_music">Failed loading music</string>
-	<string name="failed_play">Failed playing music</string>
+	<string name="failed_play">Failed playing music `%1$s`</string>
 	<string name="music_not_found">Music file not found</string>
 	<string name="on_error_next_music">Play next</string>
 	<string name="on_error_cancel">Cancel</string>

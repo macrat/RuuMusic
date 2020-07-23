@@ -71,7 +71,7 @@ class IntentEndpoint(val context: Context, val controller: RuuService.Controller
                 controller.seek(intent.getIntExtra("newtime", -1).toLong())
             }
             RuuService.ACTION_REPEAT -> {
-                controller.setRepeatMode(RepeatModeType.valueOf(intent.getStringExtra("mode")))
+                controller.setRepeatMode(RepeatModeType.valueOf(intent.getStringExtra("mode")!!))
             }
             RuuService.ACTION_SHUFFLE -> {
                 controller.setShuffleMode(intent.getBooleanExtra("mode", false))

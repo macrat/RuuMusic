@@ -166,17 +166,19 @@ class MediaSessionEndpoint(val context: Context, controller: RuuService.Controll
                             or PlaybackStateCompat.ACTION_SKIP_TO_NEXT
                             or PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
                             or PlaybackStateCompat.ACTION_SET_REPEAT_MODE
-                            or PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE_ENABLED
+                            or PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE
                             or PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID
                             or PlaybackStateCompat.ACTION_PLAY_FROM_URI
                             or PlaybackStateCompat.ACTION_PLAY_FROM_SEARCH
                 )
 
         if (error != null && error != "") {
-            state.setErrorMessage(0, error)
-            state.setState(PlaybackStateCompat.STATE_ERROR,
-                    if (status.currentMusic != null) status.receivedCurrentTime else PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN,
-                    1.0f)
+            state.setErrorMessage(PlaybackStateCompat.ERROR_CODE_UNKNOWN_ERROR, error)
+            state.setState(
+                PlaybackStateCompat.STATE_ERROR,
+                if (status.currentMusic != null) status.receivedCurrentTime else PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN,
+                1.0f
+            )
         }
 
         mediaSession.setPlaybackState(state.build())
@@ -202,7 +204,7 @@ class MediaSessionEndpoint(val context: Context, controller: RuuService.Controll
         override fun onReceive(context: Context, intent: Intent) {
             if (intent.action == Intent.ACTION_MEDIA_BUTTON) {
                 val keyEvent = intent.getParcelableExtra<KeyEvent>(Intent.EXTRA_KEY_EVENT)
-                if (keyEvent.action != KeyEvent.ACTION_UP) {
+                if (keyEvent?.action != KeyEvent.ACTION_UP) {
                     return
                 }
                 when (keyEvent.keyCode) {
